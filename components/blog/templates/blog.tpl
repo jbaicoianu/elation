@@ -2,6 +2,7 @@
  <h2>{$blog->title}</h2>
  <h3>{$blog->subtitle}</h3>
 
+<p>This blog has some extra shit which is in the test git branch</p>
  <div class="blog_posts">
   {component name="blog.posts" blog=$blog}
  </div>

@@ -1,0 +1,21 @@
+==== Release 0.5 ====
+- Fixed a bug with Outlet->delete (another one)
+
+==== Release 0.4 ====
+- Fixed a bug with one-to-many relationships
+
+==== Release 0.3 ====
+- Fixed a bug with Outlet->delete
+
+==== Release 0.2 ====
+- Better error handling 
+- More config options: plural names, default values, default expressions, etc
+- Refactored the config system
+- Fixed a few bugs
+
+==== Release 0.1 ====
+- Support for SQLite and MySQL
+- One-to-many and Many-to-one relationships
+- Single-field primary keys
+
+Enjoy!

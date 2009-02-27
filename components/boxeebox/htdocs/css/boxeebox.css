@@ -1,0 +1,229 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: sans-serif;
+  background: #8DC04A;
+}
+.sc_utils_png {
+  behavior: url(pngfix.htc)
+}
+h1 {
+  text-transform: uppercase;
+  font-weight: normal;
+  font-size: 2.0em;
+}
+h1 strong {
+  font-weight: bold;
+}
+h1 em {
+  font-size: 1em;
+  color: #8dc04a;
+  font-style: normal;
+}
+h2 {
+  text-transform: uppercase;
+  font-size: 1.2em;
+  border-bottom: 1px solid #8dc04a;
+  padding-bottom: .4em;
+  margin-bottom: .6em;
+}
+
+.sc_utils_clear_after {
+  height: 1%;
+}
+.sc_utils_clear_after:after {
+  height: 0;
+  visibility: hidden;
+  display: block;
+  content: '.';
+  clear: both;
+}
+
+#sc_container {
+  background: white;
+}
+.sc_container_inner {
+  max-width: 80em;
+  margin: 0 auto;
+  padding: 0 2em;
+}
+.sc_container_inner .sc_container_inner {
+  padding: 0;
+}
+
+#sc_header {
+  background: url(/images/components/boxeebox/boxeebox-header-background.png) repeat-x;
+  z-index: 5;
+  position: relative;
+}
+#sc_header .sc_container_inner {
+  background: url(/images/components/boxeebox/flame-quant.png) no-repeat 100% 20%;
+  padding: 3em 2em 2em 2em;
+}
+#sc_header a:active {
+  outline: 0;
+}
+#sc_header .sc_logo_header {
+  border: 0;
+  display: block;
+}
+#sc_header .sc_logo_header a {
+  background: url(/images/components/boxeebox/boxeebox-logo2.png) no-repeat;
+  width: 360px;
+  height: 0;
+  padding-top: 67px;
+  display: block;
+  overflow: hidden;
+}
+#sc_header_nav {
+  background: #8dc04a;
+  border-top: 1px solid #8fa96a;
+  z-index: 5;
+  position: relative;
+}
+#sc_header_nav ul.sc_menu_nav {
+  margin-left: -1em;
+}
+#sc_header_nav ul.sc_menu_nav li {
+  display: block;
+  font-size: 0.9em;
+  float: left;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+#sc_header_nav ul.sc_menu_nav li a {
+  color: white;
+  display: block;
+  padding: .6em 1em;
+  text-decoration: none;
+}
+#sc_header_nav ul.sc_menu_nav li a:hover {
+  background: #999;
+}
+#sc_content {
+  position: relative;
+  xpadding-right: 350px;
+  padding-top: 1px;
+  z-index: 5;
+  overflow: visible;
+}
+#sc_content .sc_container_inner {
+}
+#sc_content .sc_content_productinfo .sc_container_inner {
+  background: url(/images/components/boxeebox/boxeebox-content-background.png);
+  xmax-width: none;
+}
+#sc_content {
+  z-index: 9;
+}
+#sc_content .sc_content_main {
+  border-top: 1px solid #c7dea8;
+  border-bottom: 1px solid #b5b5b5;
+  background: url(/images/components/boxeebox/boxeebox-content-background.png);
+}
+#sc_content .sc_content_main .sc_container_inner {
+  position: relative;
+  padding: 2em;
+}
+#sc_content .sc_container_inner {
+  xpadding: 2em;
+}
+#sc_content .sc_content_main_productinfo {
+  z-index: 15;
+  position: relative;
+}
+#sc_content .sc_content_main_productinfo_frontpage {
+  padding-right: 330px;
+}
+#sc_content .sc_content_productinfo h1 {
+  z-index: 20;
+}
+#sc_content .sc_content_featurelist {
+  padding-left: 1em;
+  margin-top: 1em;
+}
+#sc_content .sc_content_featurelist li {
+  padding: .4em 0;
+  color: #555;
+  font-size: 1.1em;
+}
+#sc_content .sc_content_productimage {
+  float: right;
+  margin-top: -380px;
+  margin-right: 120px;
+  z-index: 10;
+  position: relative;
+}
+#sc_content_main_special_flame {
+  max-height: 620px;
+  width: 637px;
+  position: absolute;
+  right: 0px;
+  bottom: -160px;
+  top: -1px;
+  background: url(/images/components/boxeebox/flame-quant.png) no-repeat 100% 100%;
+  z-index: 1;
+}
+#sc_content_main_special_cover {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  position: absolute;
+  background: url(/images/components/boxeebox/boxeebox-content-background.png);
+  z-index: 2;
+}
+
+#sc_content .sc_content_bottom {
+  border-top: 2px solid black;
+  border-bottom: 1px solid #4e6b29;
+  background: url(/images/components/boxeebox/boxeebox-footer-background.png) repeat-x;
+  color: white;
+  padding: 2em 0;
+  z-index: 10;
+  position: relative;
+}
+#sc_content .sc_content_bottom .sc_container_inner {
+  padding: 0 1em;
+}
+#sc_content .sc_content_bottom ul.sc_content_columns {
+  list-style: none;
+}
+#sc_content .sc_content_bottom .sc_content_column {
+  width: 33%;
+  float: left;
+}
+#sc_content .sc_content_bottom .sc_content_column .sc_container_inner {
+  padding: 0 1em;
+}
+#sc_content .sc_content_column ul {
+  padding-left: 1em;
+}
+#sc_content .sc_content_column ul li {
+  margin: .2em 0;
+}
+
+#sc_footer {
+  border-top: 2px solid black;
+  background: #8dc04a;
+  color: #555;
+  padding: 2em 0;
+}
+#sc_footer .sc_footer_questions {
+  float: left;
+  font-size: 0.95em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+#sc_footer .sc_footer_questions a {
+  color: #555;
+  text-decoration: none;
+}
+#sc_footer .sc_footer_copyright {
+  float: right;
+  font-size: 0.95em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}

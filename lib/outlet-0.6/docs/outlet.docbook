@@ -1,0 +1,536 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+  "/usr/share/sgml/docbook/xml-dtd-4.4-1.0-30.1/docbookx.dtd">
+ 
+<book>
+ 
+<bookinfo>
+	<title>Outlet Manual</title>
+</bookinfo>
+ 
+<chapter>
+	<title>Introduction to Outlet</title>
+	 
+	<para>
+		Outlet is an open source object-to-relational mapping tool for PHP.
+	</para>
+
+	<para>
+		It differs from other orm solutions for php in that it attempts to provide transparent, unobtrusive persistence. It does not require your entity objects to implement any interfaces or extend some sort of base class. It is also very lightweight, only a handful of classes and tools.
+	</para>
+
+	<para>
+		It uses an approach similar to hibernate in java, using proxy objects that save the data behind the scenes. 
+	</para> 
+</chapter>
+
+<chapter>
+	<title>Getting Started</title>
+	<para>
+
+	</para>
+
+	<section>
+		<title>Requirements</title>
+			<itemizedlist>
+				<listitem>
+					<para>PHP 5.2 or higher.</para>
+				</listitem>
+				<listitem>
+					<para>PDO extension with a suitable driver (only tested with MySQL ans SQLite).</para>
+				</listitem>
+			</itemizedlist>	
+	</section>
+
+	<section>
+		<title>Installation</title>
+		<section>
+			<title>From Package</title>
+			<orderedlist>
+				<listitem>
+					<para>Download a package from <ulink url="http://outlet.knowledgehead.com/wiki/index.php/Main_Page#Downloads">here</ulink>.</para>
+				</listitem>
+				<listitem>
+					<para>Unzip the package.</para>
+				</listitem>
+				<listitem>
+					<para>Place the OUTLET/classes/outlet folder somewhere in the include_path of your script.</para>
+				</listitem>
+			</orderedlist>
+		</section>
+
+		<section>
+			<title>From Subversion Repo</title>
+			<orderedlist>
+				<listitem>
+					<para>Checkout a copy from svn://knowledgehead.com/outlet/trunk</para>
+				</listitem>
+				<listitem>
+					<para>Place the OUTLET/classes/outlet folder somewhere in the include_path of your script.</para>
+				</listitem>
+			</orderedlist>
+		</section>
+	</section>
+</chapter>
+
+<chapter>
+	<title>Overview</title>
+	<para>
+Outlet provides database persistence for PHP objects in a transparent, unobtrusive way. It let's you define and instantiate entity classes that are completely independent of the code that saves them to the database. The data is persisted through the use of proxies. Whenever you 'save' an object, Outlet decorates the object with a sub-class that performs the database operations behind the scenes.
+	</para>
+
+	<para>
+Let's say we start out with an entity object such as:
+	</para>
+
+	<informalexample>
+		<programlisting language="php">
+class Bug {
+    public $Title;
+    public $ProjectID;
+ 
+    private $project;
+
+    function getProject () {
+        return $this->project;
+    }
+
+    function setProject (Project $p) {
+        echo "TEST";
+        blah('testing');
+        $this->project = $p;
+    }
+}</programlisting>
+	</informalexample>
+
+
+	<para>Whenever you instantiate, populate, and save it to the database with code like: </para>
+
+	<informalexample>
+		<programlisting language="php">
+$con = Outlet::getInstance();
+ 
+$bug = new Bug;
+$bug->Title = "error on page";
+$bug->ProjectID = 1;
+ 
+$con->save( $bug ); //performs an insert</programlisting>
+	</informalexample>
+
+	<para>Outlet is replacing your $bug variable of type Bug with a proxy called Bug_OutletProxy:</para>
+
+	<informalexample>
+		<programlisting language="php">
+print_r($bug); // after it's been saved</programlisting>
+	</informalexample>
+
+	<para>outputs:</para>
+
+	<informalexample>
+		<programlisting><![CDATA[
+Bug_OutletProxy Object
+(
+    [Title] => error on page
+    [ProjectID] => 1
+    [project:private] =>
+)]]></programlisting>
+	</informalexample>
+
+	<para>
+		Since the proxy is a subclass of the entity (Bug_OutletProxy extends Bug), you can use the proxy wherever you would have used the original entity. Even the following code evaluates to true:
+	</para>
+
+	<informalexample>
+		<programlisting language="php">
+// since the bug has been saved it is now an instance of Bug_OutletProxy
+if ($bug instanceof Bug) echo "It seems to be a Bug too";</programlisting>
+	</informalexample>
+
+	<para>Now here's where the magic happens, when you call a method such a $bug->getProject(), the proxy automatically populates the $project property with data from the database behind the scenes: </para>
+
+	<informalexample>
+		<programlisting language="php">
+// the proxy makes a SELECT query to retrieve the project from the database
+$project = $bug->getProject();
+ 
+print_r($bug);
+		</programlisting>
+	</informalexample>
+
+	<para>You can see that the $bug->project property now contains an instance of Project: </para>
+
+	<informalexample>
+		<programlisting>
+Bug_OutletProxy Object
+(
+    [Title] => error on page
+    [ProjectID] => 1
+    [project:private] => Project_OutletProxy Object
+        (
+            [ID] => 1
+            [Name] => My Project
+        )
+
+)</programlisting>
+	</informalexample>
+
+</chapter>
+
+<chapter>
+	<title>Configuration</title>
+	<para>
+The configuration consists of an associative array with the elements:
+	</para>
+
+	<variablelist>
+		<varlistentry>
+			<term>connection</term>
+    		<listitem><para>Database connection settings</para></listitem>
+		</varlistentry>
+		<varlistentry>
+			<term>classes</term>
+    		<listitem><para>Mapping configuration for each of the entity classes</para></listitem>
+		</varlistentry>
+	</variablelist>
+
+	<para>
+		This array is generally defined in a php script such as outlet-config.php. 
+		Outlet is then initialized with configuration array as the parameter:
+	</para>
+
+	<informalexample>
+		<programlisting language="php">
+Outlet::init(include APPROOT.'/outlet-config.php');</programlisting>
+	</informalexample>
+
+	<para>Here is a complete configuration: </para>
+
+	<example>
+		<title>Sample configuration: outlet-config.php</title>
+		<programlisting language="php"><![CDATA[
+return array(
+  'connection' => array(
+    'dsn'      => 'mysql:host=myserver.com;dbname=mydb',
+    'username' => 'user',
+    'password' => 'pass'
+  ),
+  'classes' => array(
+    'Project' => array(
+      'table' => 'projects',
+      'props' => array(
+        'ID'        => array('id', 'int', array('pk'=>true, 'autoIncrement'=>true)),
+        'Name'      => array('name', 'varchar')
+      ),
+      'associations' => array(
+        array('one-to-many', 'Bug', array('key'=>'ProjectID'))
+      )
+    ),
+    'Bug' => array(
+      'table' => 'bugs',
+      'props' => array(
+        'ID'        => array('id', 'int', array('pk'=>true, 'autoIncrement'=>true)),
+        'Title'     => array('title', 'varchar'),
+        'ProjectID' => array('project_id', 'int'),
+        'Description' => array('description', 'varchar')
+      ),
+      'associations' => array(
+        array('many-to-one', 'Project', array('key'=>'ProjectID'))
+      )
+    )
+  )
+);]]></programlisting>
+	</example>
+
+
+	<section>
+		<title>Database Connection</title>	
+
+		<informalexample>
+			<programlisting language="php"><![CDATA[
+array(
+  'dsn' => 'mysql:hostname=myhost.com;dbname=testdb',
+  'username' => 'testdbuser',
+  'password' => 'testdbpass'
+)]]></programlisting>
+		</informalexample>
+
+		<variablelist>
+			<varlistentry>
+				<term>dsn</term>
+				<listitem><para>A PDO connection string </para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>username</term>
+				<listitem><para>A username if the database driver requires it </para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>password</term>
+				<listitem><para>A password if the database driver requires it </para></listitem>
+			</varlistentry>
+		</variablelist>
+
+	</section>
+
+	<section>
+		<title>Entity Mappings</title>
+		<informalexample>
+			<programlisting language="php">
+array(
+  'User' => array(
+    'table' => 'users',           // name of the database table
+    'props' => array(...),        // properties mappings
+    'associations' => array(...)  // relationships mappings
+  ),
+  'Project' =>
+  ...
+)</programlisting>
+		</informalexample>
+
+		<para>
+			An array of class mappings indexed by the name of the entity class. Each class mapping is an associative array with the elements:
+		</para>
+
+		<variablelist>
+			<varlistentry>
+				<term>table</term>
+				<listitem><para>Name of the database table or view that this entity maps to</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>props</term>
+    			<listitem><para>An array of property mappings </para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>associations</term>
+    			<listitem><para><emphasis>Optional.</emphasis> An array of association mappings </para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>plural</term>
+				<listitem><para><emphasis>Optional.</emphasis> The noun to use when referring to more than one. This is the name used by default
+					on association methods if there's no 'plural' setting set on the association itself.
+					Defaults to the entity name plus an 's'.</para></listitem>
+			</varlistentry>
+		</variablelist>
+	
+	</section>
+
+	<section>
+		<title>Property Mappings</title>
+
+		<informalexample>
+			<programlisting language="php">array(
+  'ID'        => array('user_id', 'int', array('pk'=>true, 'autoIncrement'=>true)),
+  'FirstName' => array('first_name', 'varchar'),
+  ...
+)</programlisting>
+		</informalexample>
+
+		
+		<itemizedlist>
+			<listitem><para>The indexes are the properties of the class being mapped.</para></listitem>
+    		<listitem><para>The first element of each mapping is the name of the column.</para></listitem>
+    		<listitem><para>The second is the column type, which can be either int or varchar.</para></listitem>
+			<listitem>
+				<para>
+					The third element is an array of optional settings:
+				</para>
+				
+				<variablelist>
+      				<varlistentry>
+						<term>pk</term>
+          				<listitem><para>Whether this field is (part of) the primary key. Defaults to false. </para></listitem>
+					</varlistentry>
+      				<varlistentry>
+						<term>autoIncrement</term>
+          				<listitem><para>Whether this field is automatically incremented by the database. Defaults to false. </para></listitem>
+					</varlistentry>
+					<varlistentry>
+						<term>default</term>
+						<listitem><para>A default value. It can be an integer or a string.</para></listitem>
+					</varlistentry>
+					<varlistentry>
+						<term>defaultExpr</term>
+						<listitem><para>A default sql expression or function, such as NOW().</para></listitem>
+					</varlistentry>
+				</variablelist>
+			</listitem>
+		</itemizedlist>
+
+	</section>	
+
+	<section>
+		<title>Relationship Mappings</title>	
+
+		<informalexample>
+			<programlisting language="php">
+array(
+  array('one-to-many', 'Bug', array('key'=>'BugID')),
+  array('many-to-one', 'Project', array('key'=>'ProjectID')),
+  ...
+)</programlisting>
+		</informalexample>
+
+		<itemizedlist>
+			<listitem><para>The first element of an association mapping is the type, it can be either one-to-many or many-to-one.</para></listitem>
+    		<listitem><para>The second element is the entity class that this relation refers to (related entity).</para></listitem>
+			<listitem>
+				<para>The third element is a set of options which differ depending on the type of association.</para>
+	
+				<variablelist>
+					<varlistentry>
+						<term>one-to-many</term>
+						<listitem>
+							<variablelist>
+								<varlistentry>
+          							<term>key</term>
+              						<listitem><para>The name of the property on the related entity that contains the primary key of this entity. </para></listitem>
+								</varlistentry>
+          						<varlistentry>
+									<term>name</term>
+              						<listitem>
+										<para><emphasis>Optional.</emphasis> Defaults to the name of the related entity. </para>
+              							<para>
+											The name to give the relationship. If this association defines the relationship between 
+											a bug and the people who are assigned to it (one-to-many from Bug to User), and you set 
+											the name to 'Assignee', the method names on the bug object will be 'getAssignees', 'setAssignees', and 'addAssignee'. 
+										</para>
+									</listitem>
+								</varlistentry>
+								<varlistentry>
+									<term>plural</term>
+									<listitem>
+										<para><emphasis>Optional.</emphasis> The noun to use when creating methods that return more than one entity.
+											Only necessary for associations that use something other than the entity name (such as 'Sender' or 'Creator' for a
+											an association with a 'User').
+											Defaults to the association name plus an 's'.</para>
+									</listitem>
+								</varlistentry>
+							</variablelist>
+						</listitem>
+					</varlistentry>
+
+					<varlistentry>
+						<term>many-to-one</term>
+						<listitem>
+							<variablelist>
+								<varlistentry>
+									<term>key</term>
+              						<listitem><para>The name of the property on this entity that contains the primary key of the related entity. </para></listitem>
+								</varlistentry>
+								<varlistentry>
+									<term>name</term>
+              						<listitem>
+										<para><emphasis>Optional.</emphasis> Defaults to the name of the related entity. </para>
+              							<para>
+											The name to give the relationship. If this association defines the relationship between 
+											a bug and the user who reported it (many-to-one from Bug to User), and you set the name 
+											to 'Reporter', the method names on the bug object will be 'getReporter' and 'setReporter'. 
+										</para>
+									</listitem>
+								</varlistentry>
+								<varlistentry>
+          							<term>optional</term>
+              						<listitem>
+										<para><emphasis>Optional.</emphasis> Defaults to false. </para>
+              							<para>Whether to allow this relationship to be optional (allow null). </para>
+									</listitem>
+								</varlistentry>
+							</variablelist>
+						</listitem>
+					</varlistentry>
+
+				</variablelist>
+			</listitem>
+		</itemizedlist>
+	
+	</section>
+
+</chapter>
+
+<chapter>
+	<title>Usage</title>
+
+
+  	<section>
+		<title>Selecting</title>
+
+		<para>A query with outlet is just a regular SQL statement except for the ability to refer to columns by their class member names. Simply wrap the identifier in curly braces and outlet will automatically replace it with the corresponding table or column name. You can even add aliases:</para>
+
+		<informalexample>
+			<programlisting language="php">
+$bugs = $outlet->select("Bug", "INNER JOIN {Project p} ON {Bug.ProjectID} = {p.ProjectID}");
+// this code will be transformed to
+// SELECT bugs.* 
+// FROM bugs
+// INNER JOIN projects p
+//   ON bugs.project_id = p.project_id</programlisting>
+		</informalexample>
+
+		<para>
+			Although referring to the columns by their class member name is recommended, you're always free to simple use straight sql.
+		</para>
+
+		<section>
+			<title>select</title>
+
+			<informalexample>
+				<programlisting language="php"><![CDATA[
+<?php
+$outlet = Outlet::getInstance();
+// retrieve an array of Bug objects by using a prepared statement
+$bugs = $outlet->select("Bug", "WHERE {Bug.StatusID} = ?", array(1));]]></programlisting>
+			</informalexample>
+		</section>
+
+		<section>
+			<title>load</title>
+
+			<informalexample>
+				<programlisting language="php"><![CDATA[
+<?php
+$outlet = Outlet::getInstance();
+// retrieve a Bug by primary key
+$bug = $outlet->load("Bug", 1);]]></programlisting>
+			</informalexample>
+		</section>
+	</section>
+
+	<section>
+		<title>Inserting and Updating</title>
+
+		<informalexample>
+			<programlisting language="php"><![CDATA[
+<?php
+$outlet = Outlet::getInstance();
+// insert a bug
+$bug = new Bug;
+$bug->Title = 'This is a test bug';
+$bug->ProjectID = 1;
+ 
+$outlet->save( $bug ); // executes an insert statement
+ 
+// now that the bug is saved and we're dealing with a proxy,
+// any subsequent calls to $outlet->save() will execute an update statement
+$bug->Title = 'New Title';
+ 
+$outlet->save( $bug ); // executes an update statement]]></programlisting>
+		</informalexample>
+	</section>
+
+	<section>
+		<title>Relationships</title>
+
+		<para>You can also use the query syntax to filter what's returned through a relationship method:</para>
+
+		<informalexample>
+			<programlisting language="php"><![CDATA[
+<?php
+$outlet = Outlet::getInstance();
+$project = $outlet->load('Project', 1);
+ 
+$bugs = $project->getBugs('WHERE {Bug.StatusID} = 1');]]></programlisting>
+		</informalexample>
+	</section>
+
+</chapter>
+
+</book>

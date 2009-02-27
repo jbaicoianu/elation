@@ -1,0 +1,71 @@
+#!/bin/sh
+
+ACTION=$1
+SUBACTION=$2
+RETVAL=
+
+framework_do() {
+  CMD=$*
+  echo " * $CMD"
+  $CMD
+}
+
+component_get_dir() {
+  COMPONENTNAME=$1
+  echo components/$COMPONENTNAME |sed 's/\./\/components\//g'
+}
+component_get_classname() {
+  COMPONENTNAME=$1
+  echo $COMPONENTNAME |tr '.' '_'
+}
+component_exists() {
+  COMPONENTNAME=$1
+
+  if [ -d $(component_get_dir $COMPONENTNAME)/$(component_get_classname $COMPONENTNAME).php ]; then 
+    RET=0
+  else 
+    RET=1
+  fi
+
+  return $RET
+}
+component_create() {
+  export COMPONENTNAME=$1
+  export COMPONENTDIR=$(component_get_dir $COMPONENTNAME)
+  export COMPONENTCLASSNAME=$(echo $COMPONENTNAME |tr '.' '_')
+  export COMPONENTPARTS=(${COMPONENTNAME//./ })
+  export SUBCOMPONENTNAME=$(echo ${COMPONENTPARTS[${#COMPONENTPARTS[*]}-1]})
+
+  if component_exists $COMPONENTNAME; then
+    echo "Module '$COMPONENTNAME' already exists"
+  else
+    echo "Create $COMPONENTNAME"
+    framework_do mkdir -p $COMPONENTDIR
+    framework_do mkdir $COMPONENTDIR/htdocs
+    framework_do mkdir $COMPONENTDIR/htdocs/css
+    framework_do mkdir $COMPONENTDIR/htdocs/scripts
+    framework_do mkdir $COMPONENTDIR/htdocs/images
+    framework_do mkdir $COMPONENTDIR/templates
+    #cat config/component_skeleton.php |sed "s/%COMPONENTCLASSNAME%/$COMPONENTCLASSNAME/g" >$COMPONENTDIR/$COMPONENTCLASSNAME.php
+    cat config/component_skeleton.php |perl -ne 's/%(.*?)%/$ENV{$1}/g; print' >$COMPONENTDIR/$COMPONENTCLASSNAME.php
+    echo $COMPONENTCLASSNAME > $COMPONENTDIR/templates/$SUBCOMPONENTNAME.tpl
+  fi
+}
+
+case "$ACTION" in
+  component)
+    MODNAME=$3
+    case "$SUBACTION" in
+      create)
+        component_create $3
+        ;;
+      enable)
+        echo "Enable it"
+        ;;
+      disable)
+        echo "Enable it"
+        ;;
+    esac
+    ;;
+esac
+

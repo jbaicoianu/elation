@@ -33,7 +33,7 @@ component_create() {
   export COMPONENTNAME=$1
   export COMPONENTDIR=$(component_get_dir $COMPONENTNAME)
   export COMPONENTCLASSNAME=$(echo $COMPONENTNAME |tr '.' '_')
-  export COMPONENTPARTS=(${COMPONENTNAME//./ })
+  export COMPONENTPARTS=$(echo ${COMPONENTNAME//./ })
   export SUBCOMPONENTNAME=$(echo ${COMPONENTPARTS[${#COMPONENTPARTS[*]}-1]})
 
   if component_exists $COMPONENTNAME; then

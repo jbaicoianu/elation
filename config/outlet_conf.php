@@ -3,9 +3,9 @@ require_once("outlet/Outlet.php");
 
 Outlet::init(array(
   'connection' => array(
-    'dsn' => 'mysql:host=localhost;dbname=supercritical',
-    'username' => 'supercritical',
-    'password' => 'aCp_n9ll',
+    'dsn' => 'mysql:host=localhost;dbname=boxeebox',
+    'username' => 'boxeebox',
+    'password' => 'b0x33b0x',
     'dialect' => 'mysql'
   ),
   'classes' => array(

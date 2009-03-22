@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 ACTION=$1
 SUBACTION=$2
@@ -10,6 +10,9 @@ framework_do() {
   $CMD
 }
 
+error() {
+  echo -e '\033[1m\033[31mERROR\033[0m:' $*
+}
 component_get_dir() {
   COMPONENTNAME=$1
   echo components/$COMPONENTNAME |sed 's/\./\/components\//g'
@@ -21,7 +24,7 @@ component_get_classname() {
 component_exists() {
   COMPONENTNAME=$1
 
-  if [ -d $(component_get_dir $COMPONENTNAME)/$(component_get_classname $COMPONENTNAME).php ]; then 
+  if [ -e $(component_get_dir $COMPONENTNAME)/$(component_get_classname $COMPONENTNAME).php ]; then 
     RET=0
   else 
     RET=1
@@ -33,11 +36,11 @@ component_create() {
   export COMPONENTNAME=$1
   export COMPONENTDIR=$(component_get_dir $COMPONENTNAME)
   export COMPONENTCLASSNAME=$(echo $COMPONENTNAME |tr '.' '_')
-  export COMPONENTPARTS=$(echo ${COMPONENTNAME//./ })
+  export COMPONENTPARTS=($(echo ${COMPONENTNAME//./ }))
   export SUBCOMPONENTNAME=$(echo ${COMPONENTPARTS[${#COMPONENTPARTS[*]}-1]})
 
   if component_exists $COMPONENTNAME; then
-    echo "Module '$COMPONENTNAME' already exists"
+    error "Module '$COMPONENTNAME' already exists"
   else
     echo "Create $COMPONENTNAME"
     framework_do mkdir -p $COMPONENTDIR
@@ -51,6 +54,28 @@ component_create() {
     echo $COMPONENTCLASSNAME > $COMPONENTDIR/templates/$SUBCOMPONENTNAME.tpl
   fi
 }
+component_enable() {
+  COMPONENTNAME=$1
+  if component_exists $COMPONENTNAME; then
+    echo -n "Enable '${COMPONENTNAME}': "
+    for TYPE in css scripts images; do
+      echo -n "$TYPE "
+      cd htdocs/$TYPE/components && ln -s ../../../components/$COMPONENTNAME/htdocs/$TYPE $COMPONENTNAME && cd ../../..
+    done
+    echo "DONE"
+  else
+    error "Unknown component '${COMPONENTNAME}'"
+  fi
+}
+
+component_disable() {
+  COMPONENTNAME=$1
+  [ -L htdocs/css/components/$COMPONENTNAME ] && rm htdocs/css/components/$COMPONENTNAME
+  [ -L htdocs/images/components/$COMPONENTNAME ] && rm htdocs/images/components/$COMPONENTNAME
+  [ -L htdocs/scripts/components/$COMPONENTNAME ] && rm htdocs/scripts/components/$COMPONENTNAME
+
+  echo "Disabled ${COMPONENTNAME}"
+}
 
 case "$ACTION" in
   component)
@@ -60,10 +85,10 @@ case "$ACTION" in
         component_create $3
         ;;
       enable)
-        echo "Enable it"
+        component_enable $3
         ;;
       disable)
-        echo "Enable it"
+        component_disable $3
         ;;
     esac
     ;;

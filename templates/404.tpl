@@ -1,1 +1,1 @@
-The component you requested could not be found
+[Could not find component: {$fullname}]

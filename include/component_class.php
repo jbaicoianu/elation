@@ -19,6 +19,7 @@
 
 class Component extends Base {
   var $name;
+  var $fullname;
   var $type;
   var $components;
   var $payload;
@@ -26,6 +27,7 @@ class Component extends Base {
   function Component($name, &$parent) {
     $this->Base($parent);
     $this->name = $name;
+    $this->fullname = $this->GetFullName();
 
     $this->smarty = SuperSmarty::singleton();
   }
@@ -209,7 +211,7 @@ class ComponentMissing extends Component {
   }
   
   function HandlePayload(&$args, $output="text") {
-    return $this->GetTemplate("404.tpl", $this->payload);
+    return $this->GetTemplate("404.tpl", $this);
   }
 }
 

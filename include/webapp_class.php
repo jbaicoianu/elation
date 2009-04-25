@@ -27,7 +27,8 @@ class WebApp {
     //$this->cfg = new ConfigManager($rootdir);
     //$this->data = new DataManager($this->cfg);
     $this->outlet = Outlet::getInstance();
-    $this->outlet->createProxies(); // TODO - needs per-component proxy initialization support added to Outlet
+    $this->outlet->createClasses();
+    $this->outlet->createProxies();
 
     $this->smarty = SuperSmarty::singleton($this->rootdir);
     $this->smarty->assign_by_ref("webapp", $this);
@@ -37,6 +38,12 @@ class WebApp {
 
   function Display() {
     $output = $this->components->Dispatch();
-    print $output;
+    
+    if ($output["type"] == "ajax") {
+      header('Content-type: application/xml');
+      print $this->smarty->GenerateXML($output["content"]);
+    } else {
+      print $output["content"];
+    }
   }
 }

@@ -111,6 +111,13 @@ class Outlet {
 		$c = $gen->generate();
 		eval($c);
 	}
+	public function createClasses () {
+		require_once 'OutletClassGenerator.php';
+		$gen = new OutletClassGenerator($this->config);
+		$c = $gen->generate();
+		eval($c);
+	}
+
 
 
 	public function load ($clazz, $pk) {

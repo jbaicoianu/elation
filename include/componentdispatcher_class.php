@@ -37,16 +37,22 @@ class ComponentDispatcher extends Component {
 
     $alternateret = $this->HandleDispatchArgs($args);
 
+    $ret["page"] = $page;
+
     if ($page == "/") {
+      $ret["component"] = "index";
       if ($component = $this->Get("index"))
-        $ret = $component->HandlePayload($_REQUEST, $outputtype);
+        $ret["content"] = $component->HandlePayload($_REQUEST, $outputtype);
     } else if (preg_match("|^/((?:[^./]+/?)*)(?:\.(.*))?$|", $page, $m)) {
       $componentname = str_replace("/", ".", $m[1]);
       $outputtype = any($m[2], "html");
-      //print_pre("componentname: $componentname");
+
+      $ret["component"] = $componentname;
+      $ret["type"] = $outputtype;
+
       if ($component = $this->Get($componentname)) {
         $componentargs = (!empty($this->dispatchargs[$componentname]) ? array_merge_recursive($args, $this->dispatchargs[$componentname]) : $args);
-        $ret = $component->HandlePayload($componentargs, $outputtype);
+        $ret["content"] = $component->HandlePayload($componentargs, $outputtype);
       }
       
     }

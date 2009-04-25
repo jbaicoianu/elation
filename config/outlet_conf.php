@@ -3,9 +3,9 @@ require_once("outlet/Outlet.php");
 
 Outlet::init(array(
   'connection' => array(
-    'dsn' => 'mysql:host=localhost;dbname=boxeebox',
-    'username' => 'boxeebox',
-    'password' => 'b0x33b0x',
+    'dsn' => 'mysql:host=localhost;dbname=supercritical',
+    'username' => 'supercritical',
+    'password' => 'h4xm3',
     'dialect' => 'mysql'
   ),
   'classes' => array(
@@ -37,7 +37,18 @@ Outlet::init(array(
       'associations' => array(
         array('many-to-one', 'Blog', array('key' => 'blogname'))
       )
-    )
+    ),
+    "AudioPlaylist" => array(
+      'table' => 'audio_playlist',
+      'props' => array(
+        'name' => array('name', 'varchar', array('pk' => true)),
+        'title' => array('title', 'varchar'),
+        'logourl' => array('logourl', 'varchar'),
+        'streamurl' => array('streamurl', 'varchar'),
+        'last_listened' => array('last_listened', 'datetime'),
+      ),
+      'associations' => array()
+    ),
 
   )
 ));

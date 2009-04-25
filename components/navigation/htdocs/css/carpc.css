@@ -1,0 +1,179 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: sans-serif;
+  background: #555;
+  color: white;
+}
+#status {
+  font-size: 1em;
+  background: #aaf;
+  color: black;
+  border-top: 1px solid black;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  padding: .2em 1em 0 1em; 
+}
+#map {
+  width: 100%;
+  height: 100%;
+  color: black;
+}
+#map .trafficiw .header {
+  color: black;
+}
+#status #followstatus {
+  float: right;
+  margin-right: 2em;
+  display: none;
+}
+#status #followstatus #follow {
+  color: green;
+}
+#status #dist {
+   font-weight: bold;
+   float: left;
+}
+#audio_controls {
+  xposition: absolute;
+  xmargin-left: 30%;
+  display: inline-block;
+vertical-align: middle;
+  white-space: nowrap;
+}
+#songtitle {
+  xposition: absolute;
+  xtop: 0;
+  xleft: 85px;
+  display: inline-block;
+  white-space: nowrap;
+  font-weight: bold;
+  font-size: 1.2em;
+  vertical-align: middle;
+  margin: 0 .5em;
+}
+
+.markerinfo {
+  font-family: Arial, sans-serif;
+  font-size: 80%;
+  overflow: auto;
+  height: 8em;
+  max-width: 35em;
+  margin: -.5em;
+}
+
+.markerinfo h1 {
+  font-size: 1.5em;
+  white-space: nowrap;
+}
+.markerinfo h2 {
+  font-size: 1em;
+}
+.markerinfo .thumbnail {
+  float: right;
+  margin: 0 0 .5em .5em;
+}
+.markerinfo address {
+  font-size: 0.85em;
+}
+.markerinfo .info {
+  float: right;
+  margin: 0 .5em;
+}
+.markerinfo .info h2 {
+  font-size: .85em;
+  font-weight: bold;
+}
+
+
+#debug {
+  display: none;
+  z-index: 15;
+  width: 40em;
+  height: 10em;
+  overflow: auto;
+  position: fixed;
+  top: 0;
+  right: 0;
+  background: #ddf;
+  white-space: nowrap;
+  font-size: .8em;
+}
+
+a.media_action_previous_button {
+  display: inline-block;
+  height: 36px;
+  width: 36px;
+  background: url(/images/components/navigation/av/av_rewind.png);
+vertical-align: middle;
+opacity: .5;
+}
+a.media_action_pauseplay_button {
+  display: inline-block;
+  height: 40px;
+  width: 40px;
+  background: url(/images/components/navigation/av/av_pause.png);
+vertical-align: middle;
+}
+a.media_action_next_button {
+  display: inline-block;
+  height: 36px;
+  width: 36px;
+  background: url(/images/components/navigation/av/av_fast_forward.png);
+vertical-align: middle;
+}
+
+#navigation_map_zoom {
+}
+#navigation_map_maptype .ui_panel_item_button {
+  width: 5em;
+}
+.navigation_map_gps_status {
+  width: 30px;
+  height: 30px;
+  display: inline-block;
+  background: url(/images/components/navigation/gps-blue-small.png);
+}
+.navigation_map_gps_status.status_ok {
+  background: url(/images/components/navigation/gps-green-small.png);
+}
+.navigation_map_gps_status.status_warning {
+  background: url(/images/components/navigation/gps-yellow-small.png);
+}
+.navigation_map_gps_status.status_error {
+  background: url(/images/components/navigation/gps-red-small.png);
+}
+
+#navigation_directions_results {
+  min-height: 3em;
+}
+#navigation_directions_summary {
+  font-size: 1.2em;
+  text-align: right;
+  padding: .3em .5em;
+}
+#navigation_directions_steps {
+  max-height: 15em;
+  overflow-y: auto;
+  max-width: 35em;
+  border-top: 1px solid white;
+}
+#navigation_directions_steps li {
+  font-weight: normal;
+  font-size: 1em;
+  padding: .4em 4.8em .4em .5em;
+  position: relative;
+  border-bottom: 1px solid white;
+}
+#navigation_directions_steps span.navigation_directions_steps_distance {
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding: 0 .2em;
+  width: 4em;
+}

@@ -1,0 +1,165 @@
+body {
+  margin: 0;
+  padding: 0;
+  height: 420px;
+}
+#icanvas {
+  margin: 0;
+  background: white;
+  position: relative;
+  overflow: hidden;
+  -webkit-user-select: none;
+}
+.iPolygon {
+  background: lightblue;
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  color: black;
+  -webkit-backface-visibility: hidden;
+}
+.iObject {
+  width: 100px;
+  height: 100px;
+}
+.iObject:active .iPolygon,
+.iObject:hover .iPolygon {
+  border: 0;
+  outline: none;
+  xopacity: 0.6;
+}
+#icanvas #idebug {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: pink;
+  color: black;
+  z-index: 5000;
+}
+#icanvas #idebug input {
+  width: 3em;
+}
+
+.iObject.quakecube .iPolygon {
+  background: url(/images/components/iphone/2butnn.jpg);
+  width: 256px;
+  height: 256px;
+  border: 0;
+}
+.iObject.quakecube .iPolygon.p_front {
+  background: url(/images/components/iphone/1butn.jpg);
+}
+.iObject.quakecube .iPolygon.p_top {
+  background: url(/images/components/iphone/rune2_4.jpg);
+}
+.iObject.brickcube .iPolygon {
+  background: url(/images/components/iphone/city3_4.jpg);
+  border: 0;
+}
+
+.iObject.game_level .iPolygon.p_wall {
+  background: url(/images/components/iphone/city2_2.jpg);
+}
+
+.icontroller {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  z-index: 5000000;
+  width: 100%;
+  height: 4em;
+  font-size: 1.5em;
+}
+.orientation_landscape .icontroller {
+  font-size: 1em;
+}
+.icontroller .icontroller_button {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  background: #ccf;
+  border: 2px solid black;
+  -webkit-border-radius: 10px;
+  padding: .2em;
+  text-align: center;
+  text-decoration: none;
+  opacity: .8;
+  color: black;
+  -webkit-user-select: none;
+}
+.icontroller .icontroller_button.button_up {
+  position: absolute;
+  left: 1.6em;
+  top: 0;
+}
+.icontroller .icontroller_button.button_down {
+  position: absolute;
+  left: 1.6em;
+  top: 1.6em;
+}
+.icontroller .icontroller_button.button_left {
+  position: absolute;
+  left: 0;
+  top: 1.6em;
+}
+.icontroller .icontroller_button.button_right {
+  position: absolute;
+  left: 3.2em;
+  top: 1.6em;
+}
+
+#coverflow {
+  width: 30em;
+  height: 30em;
+  background: pink;
+}
+#coverflow.orientation_horizontal {
+  white-space: nowrap;
+}
+#coverflow.orientation_horizontal li {
+  display: inline-block;
+  margin: 4em .5em;
+}
+#coverflow.orientation_vertical li {
+  margin: .5em auto;
+  text-align: center;
+}
+.ui_controller_stick {
+  width: 80px;
+  height: 80px;
+  background: #ccc;
+  opacity: .7;
+  position: absolute;
+  -webkit-border-radius: 40px;
+  -moz-border-radius: 40px;
+}
+.ui_controller_stick .ui_controller_stick_handle {
+  width: 50px;
+  height: 50px;
+  background: #333;
+  position: absolute;
+  -webkit-border-radius: 25px;
+  -moz-border-radius: 25px;
+}
+.orientation_landscape .ui_controller_stick {
+  width: 60px;
+  height: 60px;
+  -webkit-border-radius: 30px;
+  -moz-border-radius: 30px;
+}
+.orientation_landscape .ui_controller_stick .ui_controller_stick_handle {
+  width: 40px;
+  height: 40px;
+  -webkit-border-radius: 20px;
+  -moz-border-radius: 20px;
+}
+
+.ui_controller_stick.control_stick_strafemove {
+  bottom: 20px;
+  left: 10px;
+}
+.ui_controller_stick.control_stick_look {
+  bottom: 20px;
+  right: 10px;
+  background: pink;
+}

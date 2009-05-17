@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<outlet-config>
+	<connection>
+		<dsn>sqlite:test.sq3</dsn>
+	</connection>
+	<classes>
+		<class name='User' table='users'>
+			<prop name='ID' column='id' type='int' pk='true' autoIncrement='true'/>
+			<prop name='Username' column='username' type='varchar'/>
+		</class>
+	</classes>
+</outlet-config>
+

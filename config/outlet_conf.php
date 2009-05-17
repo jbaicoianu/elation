@@ -43,9 +43,42 @@ Outlet::init(array(
       'props' => array(
         'name' => array('name', 'varchar', array('pk' => true)),
         'title' => array('title', 'varchar'),
+        'description' => array('description', 'varchar'),
         'logourl' => array('logourl', 'varchar'),
         'streamurl' => array('streamurl', 'varchar'),
         'last_listened' => array('last_listened', 'datetime'),
+      ),
+      'associations' => array()
+    ),
+    "NavigationLocation" => array(
+      'table' => 'navigation_location',
+      'props' => array(
+        'locationid' => array('locationid', 'int', array('pk' => true)),
+        'name' => array('name', 'varchar'),
+        'address' => array('address', 'text'),
+        'lat' => array('lat', 'double'),
+        'lon' => array('lon', 'double'),
+        'type' => array('type', 'varchar'),
+        'zoom_min' => array('zoom_min', 'int'),
+        'zoom_max' => array('zoom_max', 'int'),
+      ),
+      'associations' => array()
+    ),
+    "NavigationLocationCategory" => array(
+      'table' => 'navigation_location_category',
+      'props' => array(
+        'categoryid' => array('categoryid', 'varchar', array('pk' => true)),
+        'name' => array('name', 'varchar'),
+        'parent' => array('parent', 'varchar'),
+      ),
+      'associations' => array()
+    ),
+    "TwitterFollow" => array(
+      'table' => 'twitter_follow',
+      'props' => array(
+        'twitterid' => array('twitterid', 'varchar', array('pk' => true)),
+        'updated' => array('updated', 'datetime'),
+        'lastid' => array('lastid', 'int'),
       ),
       'associations' => array()
     ),

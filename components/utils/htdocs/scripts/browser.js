@@ -37,3 +37,12 @@ var browser = new function() {
     else this.OS = "unknown";
   }
 }
+
+// Fake console.log to prevent scripts from erroring out in browsers without firebug
+if (typeof window.console == 'undefined') {
+  console = new function() {
+    this.log = function(str) {
+        //alert(str);
+    }
+  }
+}

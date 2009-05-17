@@ -98,7 +98,7 @@ Config = {
         'gutter': '3',
         'label': '||',
         'collapsed': true,
-        'autocollapse': false,
+        'autocollapse': true,
       },
       'items': {
         'map': {
@@ -110,17 +110,15 @@ Config = {
             ev.preventDefault();
           }
         },
-/*
         'locations': {
           'type': 'button',
-          'label': 'Directions',
-          'href': '/navigation/directions.ajax',
+          'label': 'Locations',
+          'href': '/navigation/location_categories.ajax',
           'click': function(ev) { 
             ajaxlib.Get(this.href);
             ev.preventDefault();
           }
         },
-*/
         'audio': {
           'type': 'button',
           'label': 'Audio',
@@ -150,6 +148,7 @@ Config = {
         },
       }
     },
+    /*
     'directions': {
       'id': 'navigation_directions',
       'anchor': 'top_right',
@@ -160,7 +159,7 @@ Config = {
       'orientation': 'vertical',
       'handle': {
         'label': '||',
-        'collapsed': false,
+        'collapsed': true,
         'autocollapse': false,
       },
       'items': {
@@ -170,5 +169,6 @@ Config = {
         }
       }
     },
+    */
   }
 }

@@ -1,6 +1,9 @@
-function CarPC(mapdiv) {
+function CarPC() {
 
-  this.init = function(mapdiv) {
+  this.init = function() {
+  }
+
+  this.initMap = function(mapdiv) {
     this.mapdiv = mapdiv;
     this.map = new GMap(document.getElementById(mapdiv));
     //this.map.addControl(new GOverviewMapControl(new GSize(200,200)));
@@ -36,7 +39,7 @@ this.gpsurl = null;
     this.loadIcons();
     this.markerpool = new MarkerPool(this.map);
 
-    this.waypoints_enabled = false;
+    this.waypoints_enabled = true;
     this.waypoints = new Object();
 
     // FIXME - should auto-zoom to last-known gps position
@@ -56,6 +59,7 @@ this.gpsurl = null;
     GEvent.addListener(this.map, 'zoom', function() {
         carpc.getWaypoints(carpc.map.getBoundsLatLng(), carpc.map.getZoom());
     });
+    setTimeout(function() { carpc.getWaypoints(carpc.map.getBoundsLatLng(), carpc.map.getZoom()) }, 0);
 
     if (this.mode == "playback") {
       document.getElementById("controls").innerHTML = '<a href="#" onclick="carpc.playback.step = -1; return false;">&lt;</a> <a href="#" onclick="carpc.playback.step = 0; return false;">||</a> <a href="#" onclick="carpc.playback.step = 1; return false;">&gt;</a> | <a href="#" onclick="carpc.playback.steptime = 2000; return false;">slow</a> <a href="#" onclick="carpc.playback.steptime = 1000; return false;">normal</a> <a href="#" onclick="carpc.playback.steptime = 250; carpc.playback.step *= 2; return false;">fast</a>';
@@ -190,9 +194,9 @@ this.gpsurl = null;
   this.getWaypoints = function(bounds, zoom) {
     if (carpc.waypoints_enabled) {
       // First, let's remove any markers that aren't supposed to be shown at this zoom level, and aren't within our field of view
+      var mapbounds = carpc.map.getBounds();
       for (var key in carpc.waypoints) {
-        if (carpc.waypoints[key].visible && (carpc.waypoints[key].zoom > zoom || !carpc.map.getBounds().contains(carpc.waypoints[key].pos))) {
-          //carpc.map.removeOverlay(carpc.waypoints[key].marker);
+        if (carpc.waypoints[key].visible && (carpc.waypoints[key].zoom_min > zoom || !mapbounds.contains(carpc.waypoints[key].pos))) {
           carpc.markerpool.releaseMarker(carpc.waypoints[key].marker.poolid);
           carpc.waypoints[key].visible = false;
         }
@@ -203,31 +207,28 @@ this.gpsurl = null;
       // FIXME - should pre-load slightly over the edges of the map
       // document.getElementById("controls").innerHTML = "(" + bounds.maxY + "," + bounds.maxX + ") (" + bounds.minY + "," + bounds.minX + ")";
 
-      xmlhttp.open("GET", "/waypoints.fcgi?action=list&tr=" + bounds.maxY + "," + bounds.maxX + "&bl=" + bounds.minY + "," + bounds.minX + "&zoom=" + zoom, true);
+      xmlhttp.open("GET", "/navigation/waypoints?tr=" + bounds.maxY + "," + bounds.maxX + "&bl=" + bounds.minY + "," + bounds.minX + "&zoom=" + zoom, true);
       xmlhttp.send(null);
     
       xmlhttp.onreadystatechange = function() { 
         if (xmlhttp.readyState == 4 && xmlhttp.responseText) {
-          var waypoints = xmlhttp.responseText.split("\n");
-          for (var i = 0; i < waypoints.length; i++) {
-            if (waypoints[i]) {
-              var tmp = waypoints[i].split("|");
-              var num = tmp[0];
-              if (!carpc.waypoints[num]) {
-                var pos = tmp[2].split(",");
-                carpc.waypoints[num] = new Object();
-                carpc.waypoints[num].num = num;
-                carpc.waypoints[num].type = tmp[1];
-                carpc.waypoints[num].pos = new GLatLng(pos[0], pos[1]);
-                carpc.waypoints[num].name = tmp[3];
-                carpc.waypoints[num].address = tmp[4];
-                carpc.waypoints[num].zoom = tmp[5];
-                carpc.waypoints[num].visible = true;
-  
-                carpc.waypoints[num].marker = carpc.markerpool.getMarker(num);
-              } else if (!carpc.waypoints[num].visible) {
-                carpc.waypoints[num].marker = carpc.markerpool.getMarker(num);
-                carpc.waypoints[num].visible = true;
+          var waypoints;
+          if (typeof JSON != 'undefined')
+            waypoints = JSON.parse(xmlhttp.responseText);
+          else
+            waypoints = eval(xmlhttp.responseText);
+          //console.log(waypoints);
+          if (waypoints) {
+            for (var i = 0; i < waypoints.length; i++) {
+              var locid = waypoints[i].locationid;
+              if (!carpc.waypoints[locid]) {
+                carpc.waypoints[locid] = waypoints[i];
+                carpc.waypoints[locid].pos = new GLatLng(carpc.waypoints[locid].lat, carpc.waypoints[locid].lon);
+                carpc.waypoints[locid].visible = true;
+                carpc.waypoints[locid].marker = carpc.markerpool.getMarker(locid);
+              } else if (!carpc.waypoints[locid].visible) {
+                carpc.waypoints[locid].marker = carpc.markerpool.getMarker(locid);
+                carpc.waypoints[locid].visible = true;
               }
             }
           }
@@ -240,7 +241,7 @@ this.gpsurl = null;
     // Make this call synchronously to avoid getting data out of sequence
     var xmlhttp = GXmlHttp.create();
 
-    xmlhttp.open("GET", "/waypoints.fcgi?action=info&wid=" + wpid, false);
+    xmlhttp.open("GET", "/navigation/location?id=" + wpid, false);
     xmlhttp.send(null);
     return xmlhttp.responseText;
   }
@@ -334,13 +335,14 @@ dirlist.scrollTop = 0;
   }
 
   // Initialize CarPC class
-  this.init(mapdiv);
+  this.init();
 }
 
 function MarkerPool(map) {
   this.init = function(map) {
     this.map = map;
     this.pool = new Array();
+    this.layoutgrid = {};
     this.allocatechunk = 5;
     this.loadIcons();
   }
@@ -348,29 +350,29 @@ function MarkerPool(map) {
   this.loadIcons = function() {
     this.markertypes = new Array("default", "poi", "friend", "restaurant", "bar", "parking", "gas");
 
-    this.icons = new Array();
+    this.icons = {};
     for (var i = 0; i < this.markertypes.length; i++) {
       this.icons[i] = new Image();
-      this.icons[i].src = "/markers/" + this.markertypes[i] + "-small.png";
+      this.icons[i].src = "/images/components/navigation/markers/" + this.markertypes[i] + "-small.png";
     }
 
     // And one final blank icon for "disabled" markers
-    this.icons[9999] = new Image();
-    this.icons[9999].src = "/markers/none.png";
+    this.icons['custom'] = new Image();
+    this.icons['custom'].src = "/images/components/navigation/markers/none.png";
 
     this.baseicon = new GIcon();
     this.baseicon.image = this.icons[0].src;
-    this.baseicon.iconSize = new GSize(20, 20);
+    this.baseicon.iconSize = new GSize(1, 1);
     this.baseicon.shadowSize = new GSize(0, 0);
-    this.baseicon.iconAnchor = new GPoint(10, 10);
-    this.baseicon.infoWindowAnchor = new GPoint(10, 10);
-
+    this.baseicon.iconAnchor = new GPoint(0, 0);
+    this.baseicon.infoWindowAnchor = new GPoint(0, 0);
   }
 
   this.allocateMarkers = function(num) {
     for (var i = 0; i < num; i++) {
       var poolid = this.pool.length;
-      this.pool[poolid] = new GMarker(new GLatLng(0, 0), this.baseicon);
+      //this.pool[poolid] = new GMarker(new GLatLng(0, 0), this.baseicon);
+      this.pool[poolid] = new LabeledMarker(new GLatLng(0, 0), {labelText: 'thing', icon: this.baseicon, labelClass: 'navigation_map_icon_label'});
       this.pool[poolid].poolid = poolid;
       this.pool[poolid].used = false;
       this.map.addOverlay(this.pool[poolid]);
@@ -401,6 +403,7 @@ function MarkerPool(map) {
   }
 
   this.changeMarker = function(marker, waypointid) {
+      /*
 if (!marker.images) {
 document.getElementById("controls").innerHTML += ".";
 return false;
@@ -408,12 +411,17 @@ return false;
     if (marker.images[0] != this.icons[carpc.waypoints[waypointid].type]) {
       marker.images[0].src = this.icons[carpc.waypoints[waypointid].type].src;
     }
-    marker.point = carpc.waypoints[waypointid].pos;
+      */
+    var offset = this.getBestMarkerPlacement(carpc.waypoints[waypointid]);
+    marker.setLatLng(carpc.waypoints[waypointid].pos);
+    marker.setType(carpc.waypoints[waypointid].type);
+    marker.setLabel(carpc.waypoints[waypointid].name);
+    marker.setLabelOrientation_(offset);
     marker.redraw(true);
 
     GEvent.addListener(marker, "click", function() {
       var info = carpc.getWaypointInfo(waypointid);
-      marker.openInfoWindowHtml('<div class="markerinfo">' + info + '</div>');
+      marker.openInfoWindow('<div style="width: 20em; height: 10em;">' + info + '</div>');
     });
 
     return marker;
@@ -424,10 +432,44 @@ return false;
     this.pool[poolid].point = new GLatLng(0, 0);
     this.pool[poolid].redraw(true);
     this.pool[poolid].used = false;
-    this.pool[poolid].images[0].src = this.icons[9999].src;
+    //this.pool[poolid].images[0].src = this.icons[9999].src;
     GEvent.clearInstanceListeners(this.pool[poolid]);
   }
+  this.getBestMarkerPlacement = function(marker) {
+    var gridx = Math.abs(Math.round(marker.pos.x * 1000));
+    var gridy = Math.abs(Math.round(marker.pos.y * 1000));
 
+    for (var i = -1; i < 2; i++) {
+      if (typeof this.layoutgrid[gridy + i] == 'undefined') {
+        this.layoutgrid[gridy + i] = {};
+      }
+    }
+    var ret;
+    var markerlength = 10;
+    if (typeof this.layoutgrid[gridy-1][gridx+1] == 'undefined') { 
+      ret = "bottomright";
+      for (var i = 1; i <= markerlength; i++)
+        this.layoutgrid[gridy-1][gridx+i] = 1;
+    } else if (typeof this.layoutgrid[gridy+1][gridx-1] == 'undefined') {
+      ret = "topleft";
+      for (var i = 1; i <= markerlength; i++)
+        this.layoutgrid[gridy+1][gridx-i] = 1;
+    } else if (typeof this.layoutgrid[gridy+1][gridx+1] == 'undefined') { 
+      ret = "topright";
+      for (var i = 1; i <= markerlength; i++)
+        this.layoutgrid[gridy+1][gridx+i] = 1;
+    } else if (typeof this.layoutgrid[gridy-1][gridx-1] == 'undefined') { 
+      ret = "bottomleft";
+      this.layoutgrid[gridy-1][gridx-1] = 1;
+      for (var i = 1; i <= markerlength; i++)
+        this.layoutgrid[gridy-1][gridx-i] = 1;
+    } else {
+      ret = "who knows";
+    }
+    //console.log(this.layoutgrid);
+    //return ret;
+    return "center";
+  }
   this.init(map);
 }
 
@@ -472,7 +514,7 @@ function chooseDirectionArrow(heading) {
 function createMarker(type, point, html) {
   var marker = new GMarker(point, carpc.markericons[type]);
   GEvent.addListener(marker, "click", function() {
-    marker.openInfoWindowHtml('<div class="markerinfo">' + html.replace(/\\n/g, "<br />") + '</div>');
+          marker.openInfoWindowHtml('<div class="markerinfo">' + html.replace(/\\n/g, "<br />") + '</div>');
   });
   return marker;
 }

@@ -53,7 +53,11 @@ function nicetime($date)
   $lengths         = array("60","60","24","7","4.35","12","10");
    
   $now             = time();
-  $unix_date         = strtotime($date);
+  if ($date instanceOf DateTime) {
+    $unix_date = $date->format("U");
+  } else {
+    $unix_date         = strtotime($date);
+  }
    
   // check validity of date
   if(empty($unix_date)) {   

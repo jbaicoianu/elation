@@ -7,6 +7,10 @@
     </li>
   {/foreach}
   </ul>
+  <script type="text/javascript">
+  var scrollaudio = new UIScrollable(carpc, {ldelim}'element': document.getElementById('audio_playlist_list'){rdelim});
+  </script>
+{/if}
   <form action="/audio/playlist/addstream" method="POST" onsubmit="return ajaxForm(ajaxlib, this)">
     <h2>Add Stream</h2>
     <label for="audio_playlist_addstream_name">Name</label>
@@ -18,7 +22,3 @@
     <input type="submit" value="Add Stream" />
   </form>
 
-<script type="text/javascript">
-var scrollaudio = new UIScrollable(carpc, {ldelim}'element': document.getElementById('audio_playlist_list'){rdelim});
-</script>
-{/if}

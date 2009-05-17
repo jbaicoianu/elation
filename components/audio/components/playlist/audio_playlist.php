@@ -29,7 +29,7 @@ class Component_audio_playlist extends Component {
         //print "loaded!";
         $this->parent->getMPDPlayback()->play();
         $playlistobj = $this->getPlaylistObject($args["name"]);
-        $playlistobj->last_listened = date("Y-m-d H:i:s", time());
+        $playlistobj->last_listened = new DateTime();
         $this->root->outlet->Save($playlistobj);
       }
     }

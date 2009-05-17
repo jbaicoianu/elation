@@ -1,1 +1,0 @@
-../lib/supersmarty.php

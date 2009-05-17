@@ -1,0 +1,11 @@
+
+To test, run the test.php script by executing the following:
+
+php PATH/TO/OUTLET/unit-tests/test.php
+
+This will test the code using SQLite. If you need to use another database you'll
+need to specify it on url:
+
+php PATH/TO/OUTLET/unit-tests/test.php?driver={driver_name}
+
+

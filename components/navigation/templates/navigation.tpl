@@ -1,5 +1,5 @@
-  <div id="map"></div>
+<script src="/scripts/components/navigation/labeledmarker.js"></script>
+  <div id="navigation_map">eee</div>
   <script type="text/javascript">
-   var carpc = new CarPC("map");
+    carpc.initMap("navigation_map");
   </script>
-

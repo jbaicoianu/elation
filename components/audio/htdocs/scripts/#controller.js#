@@ -1,9 +1,0 @@
-function AudioController(parent, args, extras) {
-  this.parent = parent;
-  this.args = args || {};
-
-  this.initialize = function(parent, args) {
-  }
-  this.pauseplay = function() {
-  }
-}

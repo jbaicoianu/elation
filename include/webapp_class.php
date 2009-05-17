@@ -34,6 +34,9 @@ class WebApp {
     $this->smarty->assign_by_ref("webapp", $this);
     $this->components = new ComponentDispatcher($this);
     //$this->smarty->SetComponents($this->components);
+
+    session_set_cookie_params(30*60*60*24);
+    session_start();
   }
 
   function Display() {

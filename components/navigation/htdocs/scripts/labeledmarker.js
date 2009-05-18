@@ -303,7 +303,6 @@ LabeledMarker.prototype.setLabel = function(label) {
 };
 
 LabeledMarker.prototype.setType = function(type) {
-  console.log('set label to ' + type);
   this.labelType_ = type;
   this.refreshDivClassname_();
 }
@@ -311,6 +310,5 @@ LabeledMarker.prototype.refreshDivClassname_ = function() {
   var divclassname = this.labelClass_;
   if (typeof this.labelType_ != 'undefined') 
     divclassname += " " + this.labelClass_ + "_type_" + this.labelType_;
-
   this.div_.className = divclassname;
 }

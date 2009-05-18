@@ -193,6 +193,9 @@ vertical-align: middle;
   white-space: nowrap;
   opacity: 0.8;
 }
+#navigation_map .navigation_map_icon_label_type_hidden {
+  display: none;
+}
 #navigation_map .navigation_map_icon_label_type_interest {
   background: #afa;
 }

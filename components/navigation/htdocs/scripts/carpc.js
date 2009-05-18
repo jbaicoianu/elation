@@ -3,7 +3,7 @@ function CarPC() {
   this.init = function() {
   }
 
-  this.initMap = function(mapdiv) {
+  this.initMap = function(mapdiv, mapcenter) {
     this.mapdiv = mapdiv;
     this.map = new GMap(document.getElementById(mapdiv));
     //this.map.addControl(new GOverviewMapControl(new GSize(200,200)));
@@ -33,7 +33,7 @@ function CarPC() {
     } else {
       this.gpsurl = "/_gps.fcgi";
     }
-this.gpsurl = null;
+    this.gpsurl = null;
 
     this.loadArrows();
     this.loadIcons();
@@ -42,8 +42,12 @@ this.gpsurl = null;
     this.waypoints_enabled = true;
     this.waypoints = new Object();
 
-    // FIXME - should auto-zoom to last-known gps position
-    this.map.centerAndZoom(new GPoint(-121.993653, 37.350945), 3);
+    if (mapcenter && mapcenter.lat && mapcenter.lon) {
+      console.log(mapcenter.lon, mapcenter.lat, mapcenter.zoom_min);
+      this.map.setCenter(new GLatLng(mapcenter.lat, mapcenter.lon), mapcenter.zoom_min);
+    } else {
+      this.map.centerAndZoom(new GPoint(-121.993653, 37.350945), 3);
+    }
 
     this.xmlhttp = GXmlHttp.create();
 
@@ -196,6 +200,7 @@ this.gpsurl = null;
       // First, let's remove any markers that aren't supposed to be shown at this zoom level, and aren't within our field of view
       var mapbounds = carpc.map.getBounds();
       for (var key in carpc.waypoints) {
+        //console.log('check zoom - ' + carpc.waypoints[key].zoom_min + ' > ' + zoom + ' ? ' + (carpc.waypoints[key].zoom_min > zoom));
         if (carpc.waypoints[key].visible && (carpc.waypoints[key].zoom_min > zoom || !mapbounds.contains(carpc.waypoints[key].pos))) {
           carpc.markerpool.releaseMarker(carpc.waypoints[key].marker.poolid);
           carpc.waypoints[key].visible = false;

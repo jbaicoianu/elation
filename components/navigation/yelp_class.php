@@ -42,7 +42,7 @@ class Yelp {
         $obj["lat"] = $v->latitude;
         $obj["lon"] = $v->longitude;
         $obj["type"] = "yelp";
-        $obj["zoom_min"] = 0;
+        $obj["zoom_min"] = -5;
         $obj["zoom_max"] = 24;
         $ret[] = $obj;
       }

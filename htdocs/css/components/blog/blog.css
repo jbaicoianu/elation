@@ -1,0 +1,30 @@
+.blog_posts {
+  width: 70%;
+  float: left;
+}
+.blog_posts ul.blog_posts_list {
+  list-style: none;
+  padding: 0 2em 0 0
+}
+.blog_posts ul.blog_posts_list li {
+  margin: 1em 0;
+}
+.blog_posts ul.blog_posts_list li h4 {
+  border-bottom: 1px solid #bcb;
+  padding: .2em;
+}
+
+.blog_posts_create {
+  width: 30%;
+  float: left;
+}
+.html_form ul.html_form_elements {
+  list-style: none;
+}
+.html_form ul.html_form_elements input[type="text"] {
+  width: 100%;
+}
+.html_form ul.html_form_elements textarea {
+  width: 100%;
+  height: 5em;
+}

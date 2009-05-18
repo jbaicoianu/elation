@@ -53,7 +53,7 @@ Outlet::init(array(
     "NavigationLocation" => array(
       'table' => 'navigation_location',
       'props' => array(
-        'locationid' => array('locationid', 'int', array('pk' => true)),
+        'locationid' => array('locationid', 'varchar', array('pk' => true)),
         'name' => array('name', 'varchar'),
         'address' => array('address', 'text'),
         'lat' => array('lat', 'double'),

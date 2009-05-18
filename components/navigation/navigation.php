@@ -9,6 +9,8 @@ class Component_navigation extends Component {
 
   function controller_navigation($args, $output="inline") {
     $vars["args"] = $args;
+    $vars["mapcenter"] = $this->conn->load("NavigationLocation", "mapcenter");
+
     if ($output == "ajax")
       $ret["index_content"] = $this->GetTemplate("./navigation.tpl", $vars);
     else
@@ -30,6 +32,7 @@ class Component_navigation extends Component {
     $location["bl"] = explode(",", $args["bl"]);
     $location["tl"] = array($location["tr"][0], $location["bl"][1]);
     $location["br"] = array($location["bl"][0], $location["tr"][1]);
+    $location["center"] = array(($location["bl"][0] + (($location["tr"][0] - $location["bl"][0]) / 2)), ($location["bl"][1] + (($location["tr"][1] - $location["bl"][1]) / 2)));
     $zoom = any($args["zoom"], 1);
 
     $yelp = new Yelp();
@@ -37,6 +40,20 @@ class Component_navigation extends Component {
     $wherestr = "WHERE {NavigationLocation.lat} <= " . mysql_escape_string($location["tr"][0]) . " AND {NavigationLocation.lat} >= " . mysql_escape_string($location["bl"][0]);
     $wherestr .= " AND {NavigationLocation.lon} <= " . mysql_escape_string($location["tr"][1]) . " AND {NavigationLocation.lon} >= " . mysql_escape_string($location["bl"][1]);
     $wherestr .= " AND {NavigationLocation.zoom_min} <= " . mysql_escape_string($zoom) . " AND {NavigationLocation.zoom_max} >= " . mysql_escape_string($zoom);
+    $wherestr .= " AND {NavigationLocation.name} != 'mapcenter'";
+
+    $locations_center = $this->conn->load("NavigationLocation", "mapcenter");
+    if (empty($locations_center)) {
+      $locations_center = new NavigationLocation();
+      $locations_center->locationid = "mapcenter";
+      $locations_center->name = "mapcenter";
+      $locations_center->type = "hidden";
+    }
+    $locations_center->lat = $location["center"][0];
+    $locations_center->lon = $location["center"][1];
+    $locations_center->zoom_min = $zoom;
+    $locations_center->zoom_max = $zoom;
+    $this->conn->save($locations_center);
 
     $locations_db = $this->conn->select("NavigationLocation", $wherestr);
     $locations_yelp = $yelp->getReviews($location);
@@ -47,8 +64,6 @@ class Component_navigation extends Component {
       $locations = any($locations_db, $locations_yelp);
 
     $ret = json_encode($locations);
-    
-    //$ret = json_encode($locations);
     return $ret;
   }
   function controller_location($args, $output="inline") {

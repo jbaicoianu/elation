@@ -191,7 +191,12 @@ ajaxlib = new function () {
               var scripts = element.getElementsByTagName("SCRIPT");
               if (scripts.length > 0) {
                 for (var j = 0; j < scripts.length; j++) {
-                  if (typeof scripts[j].text == 'string') {
+                  if (typeof scripts[j].src == 'string') {
+                      var blah = document.createElement("SCRIPT");
+                      blah.src = scripts[j].src;
+                      element.removeChild(scripts[j]);
+                      document.getElementsByTagName("HEAD")[0].appendChild(blah);
+                  } else if (typeof scripts[j].text == 'string') {
                     var text = scripts[j].text;
                     //batch.callback(text);
                     inlinescripts.push(text);

@@ -19,6 +19,5 @@
   <link rel="stylesheet" type="text/css" href="/dynatree/skin/ui.dynatree.css" />
   <meta name="viewport" content="initial-scale = 1.0, user-scalable = no" />
 
-  <script type="text/javascript" src="http://james.dev.thefind.com/scripts/main?utils=init+jquery+initjquery"></script>
  </head>
  <body>

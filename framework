@@ -78,17 +78,32 @@ component_disable() {
 }
 
 db_init() {
-    cat <<EOF |mysql
+  echo -n Initializing db...
+  cat <<EOF |mysql
 create database supercritical;
 grant all privileges on supercritical.* to supercritical@'%' identified by 'h4xm3';
 EOF
+  echo done
+}
 
+web_init() {
+  echo -n Initializing web...
+  [ ! -d tmp ] && mkdir tmp
+  [ ! -d tmp/compiled ] && mkdir -m 1777 tmp/compiled
+  echo done
 }
 case "$ACTION" in
   db)
     case "$SUBACTION" in
       init)
         db_init
+        ;;
+    esac
+    ;;
+  web)
+    case "$SUBACTION" in
+      init)
+        web_init
         ;;
     esac
     ;;

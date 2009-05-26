@@ -77,7 +77,21 @@ component_disable() {
   echo "Disabled ${COMPONENTNAME}"
 }
 
+db_init() {
+    cat <<EOF |mysql
+create database supercritical;
+grant all privileges on supercritical.* to supercritical@'%' identified by 'h4xm3';
+EOF
+
+}
 case "$ACTION" in
+  db)
+    case "$SUBACTION" in
+      init)
+        db_init
+        ;;
+    esac
+    ;;
   component)
     MODNAME=$3
     case "$SUBACTION" in

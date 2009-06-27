@@ -1,9 +1,14 @@
 function AudioController(parent, args, extras) {
   this.parent = parent;
   this.args = args || {};
+  this.checktimer = null;
+  this.checktime = 10000;
 
   this.initialize = function(parent, args) {
       this.audio = document.createElement("AUDIO");
+      this.updatestatus();
+      this.checktimer = setInterval(this.updatestatus, this.checktime);
+
       if (this.audio && this.audio.play) {
           this.audio.src = "http://www.supercriticalindustries.com:8000/stream";
           this.audio.play();
@@ -53,6 +58,10 @@ function AudioController(parent, args, extras) {
               self.retrytimeout = setTimeout(function() { self.retrytimeout = false; self.retry(); }, rtime);
           })(this);
       }
+  }
+  this.updatestatus = function() {
+     if (ajaxlib) 
+       ajaxlib.Get('/audio/playback.ajax');
   }
 
   this.handleEvent = function(ev) {

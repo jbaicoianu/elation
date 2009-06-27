@@ -11,8 +11,6 @@
    </div>
 
   <script type="text/javascript">
-   setInterval("if (ajaxlib) ajaxlib.Get('/audio/playback.ajax');", 4000);
-
 {literal}
 /*
    var player = document.getElementById('media_player');

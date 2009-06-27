@@ -191,7 +191,8 @@ ajaxlib = new function () {
               var scripts = element.getElementsByTagName("SCRIPT");
               if (scripts.length > 0) {
                 for (var j = 0; j < scripts.length; j++) {
-                  if (typeof scripts[j].src == 'string') {
+                  if (typeof scripts[j].src == 'string' && scripts[j].src.length > 0) {
+                      console.log(scripts[j]);
                       var blah = document.createElement("SCRIPT");
                       blah.src = scripts[j].src;
                       element.removeChild(scripts[j]);
@@ -268,6 +269,7 @@ ajaxlib = new function () {
     }
 		
     if (inlinescripts.length > 0) {
+        inlinescripts.push("console.log('done');");
       for (var i = 0; i < inlinescripts.length; i++) {
 				if (!inlinescripts[i] || typeof inlinescripts[i] == 'undefined') 
 					continue;

@@ -1,0 +1,20 @@
+#instructions {
+  margin: 2em auto;
+  text-align: center;
+}
+#imagescale_frame {
+  display: block;
+  width: 600px;
+  height: 401px;
+  margin: 2em auto;
+  border: 2px solid black;
+  overflow: hidden;
+  position: relative;
+  cursor:-moz-grab;
+}
+.state_dragging {
+  cursor:-moz-grabbing !important;
+}
+#imagescale_frame img {
+  position: absolute;
+}

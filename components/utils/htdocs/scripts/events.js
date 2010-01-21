@@ -2,7 +2,7 @@
 function addEvent( obj, type, fn ) {
   if (obj) {
     if (obj.addEventListener) {
-      if (type == 'mousewheel'/* && browserCheck.type != 'safari'*/) type = 'DOMMouseScroll';
+      if (type == 'mousewheel' && browser.type != 'safari') type = 'DOMMouseScroll';
       if (typeof fn == "object" && fn.handleEvent) {
         obj[type+fn] = function(e) { fn.handleEvent(e); }
         obj.addEventListener( type, obj[type+fn], false );

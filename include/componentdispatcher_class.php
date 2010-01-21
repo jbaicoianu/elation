@@ -29,11 +29,12 @@ class ComponentDispatcher extends Component {
     self::$instance =& $this;
   }
 
-  function Dispatch($page=NULL) {
+  function Dispatch($page=NULL, $pageargs=NULL) {
     if ($page === NULL)
       $page = $_SERVER["SCRIPT_URL"];
-
-    $args = $this->ParseRequest($page, $_REQUEST);
+    if ($pageargs === NULL)
+      $pageargs = &$_REQUEST;
+    $args = $this->ParseRequest($page, $pageargs);
 
     $alternateret = $this->HandleDispatchArgs($args);
 

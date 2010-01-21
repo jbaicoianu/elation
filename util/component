@@ -1,0 +1,18 @@
+#!/usr/bin/php
+<?
+
+$root = getcwd();
+ini_set("include_path", ".:$root/include:/usr/share/php");
+include_once("include/app_class.php");
+
+if (count($argv) > 2) {
+  $script = array_shift($argv);
+  $component = array_shift($argv);
+  $componentargs = array();
+  foreach ($argv as $arg) {
+    list($k, $v) = explode("=", $arg, 2);
+    $componentargs[$k] = $v;
+  }
+  $app = new App($root, $componentargs);
+  $app->display($component, $componentargs);
+}

@@ -322,7 +322,7 @@ dirlist.appendChild(dirli);
          'US': 'U S',
          '(\\d)0(\\d)': '$1 oh $2',
          '(\\d)(\\d\\d)': '$1 $2',
-         'onto': 'on to',
+         'onto': 'on to'
         }
         for (var k in r) {
           var re = new RegExp("\\b"+k+"\\b", "g");
@@ -528,26 +528,28 @@ function GMapPanelControl(parent, args) {
   this.parent = parent;
   this.args = args;
 }
-GMapPanelControl.prototype = new GControl();
-GMapPanelControl.prototype.initialize = function(map) {
-  this.panel = new UIPanel(this, this.args.panel, {'map':map});
+if (typeof GControl != 'undefined') {
+  GMapPanelControl.prototype = new GControl();
+  GMapPanelControl.prototype.initialize = function(map) {
+    this.panel = new UIPanel(this, this.args.panel, {'map':map});
 
-  if (this.panel.parentid) {
-    var el = document.getElementById(this.panel.parentid);
-// FIXME - OH NO, DUP PANELS!!!
-    if (el) el.appendChild(this.panel.container);
-  } else {
-    map.getContainer().appendChild(this.panel.container);
+    if (this.panel.parentid) {
+      var el = document.getElementById(this.panel.parentid);
+      // FIXME - OH NO, DUP PANELS!!!
+      if (el) el.appendChild(this.panel.container);
+    } else {
+      map.getContainer().appendChild(this.panel.container);
+    }
+    return this.panel.container;
   }
-  return this.panel.container;
-}
 
-GMapPanelControl.prototype.getDefaultPosition = function() {
-  var anchors = {'top_left': G_ANCHOR_TOP_LEFT,
-                 'top_right': G_ANCHOR_TOP_RIGHT,
-                 'bottom_left': G_ANCHOR_BOTTOM_LEFT,
-                 'bottom_right': G_ANCHOR_BOTTOM_RIGHT,
-                };
-
-  return new GControlPosition(anchors[this.panel.anchor], new GSize(this.panel.offset[0], this.panel.offset[1]));
+  GMapPanelControl.prototype.getDefaultPosition = function() {
+    var anchors = {'top_left': G_ANCHOR_TOP_LEFT,
+                   'top_right': G_ANCHOR_TOP_RIGHT,
+                   'bottom_left': G_ANCHOR_BOTTOM_LEFT,
+                   'bottom_right': G_ANCHOR_BOTTOM_RIGHT
+                  };
+ 
+    return new GControlPosition(anchors[this.panel.anchor], new GSize(this.panel.offset[0], this.panel.offset[1]));
+  }
 }

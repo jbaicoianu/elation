@@ -44,7 +44,7 @@ Config = {
           'class': 'navigation_map_maptype_button_satellite',
           'label': 'satellite',
           'click': function(ev) { ev.data.parent.extras.map.setMapType(G_HYBRID_MAP); ev.data.setStatus('active'); ev.data.parent.items.streetmap.setStatus('default');}
-        },
+        }
 /*
         'terrain': {
           'type': 'button', 
@@ -98,7 +98,7 @@ Config = {
         'gutter': '3',
         'label': '||',
         'collapsed': true,
-        'autocollapse': true,
+        'autocollapse': true
       },
       'items': {
         'map': {
@@ -145,9 +145,9 @@ Config = {
             ajaxlib.Get(this.href);
             ev.preventDefault();
           }
-        },
+        }
       }
-    },
+    }
     /*
     'directions': {
       'id': 'navigation_directions',

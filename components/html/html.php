@@ -44,11 +44,11 @@ class Component_html extends Component {
         'tilesize' => 256,
         'overlap' => 1
       ),
-      "homemade" => array(
-        'size' => array(2048, 1536),
-        'url' => '/images/components/deepzoom/hlegius_files/{level}/{column}_{row}.jpg',
-        'tilesize' => 254,
-        'overlap' => 1
+      "google" => array(
+        'size' => array(67108864, 67108864),
+        'url' => 'http://mt0.google.com/vt/lyrs=m@116&hl=en&x={column}&y={row}&z={level}&s=Gal',
+        'tilesize' => 256,
+        'overlap' => 0
       ),
     );
 

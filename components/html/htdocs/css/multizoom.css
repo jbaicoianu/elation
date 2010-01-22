@@ -1,0 +1,36 @@
+#multizoom {
+  display: block;
+  width: 40em;
+  height: 30em;
+  margin: 2em auto;
+/*
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+*/
+  max-width: 100%;
+  max-height: 100%;
+  xmargin: 2em auto;
+  border: 2px solid black;
+  overflow: hidden;
+  cursor:-moz-grab;
+  -webkit-user-select: none;
+  position: relative;
+}
+.multizoom_tilelayer {
+  xborder: 1px solid blue;
+  position: absolute;
+  top: 0;
+  left: 0;
+  -webkit-user-select: none;
+}
+.multizoom_tile {
+  display: block;
+  position: absolute;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  -webkit-user-select: none;
+}

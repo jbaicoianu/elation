@@ -8,6 +8,7 @@ function ImageScale(container, options) {
   
   this.init = function() {
     addEvent(this.container, 'mousedown', this); 
+    addEvent(this.container, 'dragstart', this); 
     addEvent(this.container, 'touchstart', this); 
     addEvent(this.container, 'mousewheel', this); 
     addEvent(window, 'resize', this); 
@@ -16,6 +17,7 @@ function ImageScale(container, options) {
     this.zoomable = this.options['zoomable'] || container.getElementsByTagName('IMG')[0];
     this.zoomable.style.MozTransformOrigin = '0 0';
     this.zoomable.style.WebkitTransformOrigin = '0 0';
+    this.zoomable.style.position = 'absolute';
     this.initImage();
     this.updateImage();
     if (this.zoomable.tagName == "IMG") {
@@ -62,21 +64,27 @@ function ImageScale(container, options) {
   }
   this.handleEvent = function(ev) {
     //console.log(ev);
+    //var foo = document.body;
+    var foo = window;
     switch(ev.type) {
       case 'touchstart':
       case 'mousedown':
         //console.log(ev.type);
-        addEvent(window, 'mousemove', this);
-        addEvent(window, 'mouseup', this);
-        addEvent(window, 'mouseleave', this);
-        addEvent(window, 'touchmove', this);
-        addEvent(window, 'touchend', this);
+        addEvent(foo, 'mousemove', this);
+        addEvent(foo, 'mouseup', this);
+        addEvent(foo, 'mouseleave', this);
+        addEvent(foo, 'touchmove', this);
+        addEvent(foo, 'touchend', this);
         if (ev.touches) {
           this.lastpos = [ev.touches[0].clientX, ev.touches[0].clientY];
         } else {
           this.lastpos = [ev.clientX, ev.clientY];
         }
         $(this.container).addClass("state_dragging");
+        ev.preventDefault();
+        //ev.stopPropagation();
+        break;
+      case 'dragstart':
         ev.preventDefault();
         break;
       case 'mousemove':
@@ -90,17 +98,17 @@ function ImageScale(container, options) {
       case 'mouseup':
       case 'mouseout':
       case 'mouseleave':
-          removeEvent(window, 'mousemove', this);
-          removeEvent(window, 'mouseup', this);
-          removeEvent(window, 'mouseleave', this);
-          removeEvent(window, 'touchmove', this);
-          removeEvent(window, 'touchend', this);
+          removeEvent(foo, 'mousemove', this);
+          removeEvent(foo, 'mouseup', this);
+          removeEvent(foo, 'mouseleave', this);
+          removeEvent(foo, 'touchmove', this);
+          removeEvent(foo, 'touchend', this);
           $(this.container).removeClass("state_dragging");
         return false;
         break;
       case 'mousewheel':
       case 'DOMMouseScroll':
-        var zoom =  (typeof ev.wheelDeltaY != 'undefined' ? ev.wheelDeltaY / 750 : ev.detail / -30);
+        var zoom =  (typeof ev.wheelDelta != 'undefined' ? ev.wheelDelta / 750 : ev.detail / -30);
         this.zoomBy(zoom);
         ev.preventDefault();
         break;
@@ -116,11 +124,9 @@ function ImageScale(container, options) {
     if (this.options.minscale) {
       this.minscale = this.options.minscale;
     } else {
-      if (this.dimensions[1] > this.dimensions[0]) {
-        this.minscale = this.viewportsize[0] / this.dimensions[0];
-      } else {
-        this.minscale = this.viewportsize[1] / this.dimensions[1];
-      }
+      var minscalex = this.viewportsize[0] / this.dimensions[0];
+      var minscaley = this.viewportsize[1] / this.dimensions[1];
+      this.minscale = Math.min(minscalex, minscaley);
     }
   }
   this.handleMousemove = function(ev) {
@@ -189,10 +195,12 @@ function ImageScale(container, options) {
   this.updateImage = function() {
     this.zoomable.style.MozTransform = 'translate(' + this.pos[0] + 'px, ' + this.pos[1] + 'px) scale(' + this.scale + ')';
     this.zoomable.style.WebkitTransform = 'translate(' + this.pos[0] + 'px, ' + this.pos[1] + 'px) scale(' + this.scale + ')';
+    //this.zoomable.style.WebkitTransform = 'scale(' + this.scale + ')';
+    //this.zoomable.style.zoom = (this.scale) + "%";
     //this.zoomable.style.width = (this.dimensions[0] * this.scale) + "px";
     //this.zoomable.style.height = (this.dimensions[1] * this.scale) + "px";
-    //this.zoomable.style.left = this.pos[0] + 'px';
-    //this.zoomable.style.top = this.pos[1] + 'px';
+    //this.zoomable.style.left = (this.pos[0]) + 'px';
+    //this.zoomable.style.top = (this.pos[1]) + 'px';
   }
 
   this.init();

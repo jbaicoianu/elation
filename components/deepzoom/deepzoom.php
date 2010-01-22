@@ -2,22 +2,23 @@
 require 'Oz/Deepzoom/ImageCreator.php';
 
 class Component_deepzoom extends Component {
+  public $imagedir = "./tmp/deepzoom";
+
   function init() {
   }
 
   function controller_deepzoom($args, $output="inline") {
     $vars["args"] = $args;
     if (!empty($args["img"])) {
-      $dir = "./tmp/deepzoom";
       $vars["imgname"] = $args["img"];
-      $vars["xmlpath"] = $dir . "/" . $vars["imgname"] . ".xml";
+      $vars["xmlpath"] = $this->imagedir . "/" . $vars["imgname"] . ".xml";
       if (!empty($args["url"])) {
         $pinfo = pathinfo($args["url"]);
         $vars["fileext"] = $pinfo["extension"];
         $vars["filename"] = $vars["imgname"] . "." . $vars["fileext"];
-        $vars["filepath"] = $dir . "/originals/" . $vars["filename"];
+        $vars["filepath"] = $this->imagedir . "/originals/" . $vars["filename"];
         if (!file_exists($vars["filepath"])) {
-          $contents = file_get_contents($args["image"]);
+          $contents = file_get_contents($args["url"]);
           if (!empty($contents)) {
             file_put_contents($vars["filepath"], $contents);
           }
@@ -25,8 +26,8 @@ class Component_deepzoom extends Component {
 
         
         if (!file_exists($vars["xmlpath"])) {
-          $converter = new Oz_Deepzoom_ImageCreator(256, 1, $vars["fileext"]);
-          $converter->create( realpath($vars["filepath"]), $dir . '/' . $vars["imgname"] . '.xml');
+          $converter = new Oz_Deepzoom_ImageCreator(256, 1, any($args["outputext"], $vars["fileext"]));
+          $converter->create( realpath($vars["filepath"]), $this->imagedir . '/' . $vars["imgname"] . '.xml', true);
         }
       }
       if (file_exists($vars["xmlpath"])) {
@@ -43,5 +44,29 @@ class Component_deepzoom extends Component {
     }
 
     return $this->GetTemplate("./deepzoom.tpl", $vars);
+  }
+  function controller_imagelist($args, $output="inline") {
+    $vars["images"] = array();
+    if ($dh = opendir($this->imagedir)) {
+      while ($file = readdir($dh)) {
+        if (preg_match("/^(.*)\.xml$/", $file, $m)) {
+          $vars["images"][] = $m[1];
+        }
+      }
+    }
+    sort($vars["images"]);
+    return $this->GetTemplate("./imagelist.tpl", $vars);
+  }
+  function controller_zoomtest($args, $output="inline") {
+    return $this->GetTemplate("./zoomtest.tpl", $vars);
+  }
+  function controller_stitch() {
+    $basefile = "./htdocs/world.topo.bathy.200401.3x21600x21600";
+    $combined = "./htdocs/big.png";
+    $tilesize = array(21600, 21600);
+    $finalimg = ImageCreateTrueColor($tilesize[0] * 2, $tilesize[1] * 1);
+    
+    $tiles["A1"] = ImageCreateFromPng($basefile.".A1.png");
+
   }
 }  

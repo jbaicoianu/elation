@@ -137,7 +137,8 @@ class Thumbnail {
             elseif(stristr(strtolower($this->fileName),'.png')) $this->format = 'PNG';
             //unknown file format
             else {
-                $this->errmsg = '' . $this->fileName;
+              $pinfo = pathinfo($this->fileName);
+                $this->errmsg = 'Unknown file format: ' . $pinfo["extension"];
                 $this->error = true;
             }
         }

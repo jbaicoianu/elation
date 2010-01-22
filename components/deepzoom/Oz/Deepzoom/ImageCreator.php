@@ -132,11 +132,12 @@ class Oz_Deepzoom_ImageCreator {
 	 * @param string $source
 	 * @param string $destination
 	 */
-	public function  create($source,$destination) {
-print "Loading image...";
+	public function  create($source,$destination,$debug=false) {
+        if ($debug) print "Loading image...";
         $this->_image = new Thumbnail($source);
-print "done\n";
+        if ($debug) print "done\n";
         list($width, $height) = $this->_image->size();
+
         $this->_descriptor = new Oz_Deepzoom_Descriptor($width,$height,$this->_tileSize,$this->_tileOverlap,$this->_tileFormat);	
         $aImage = pathinfo($destination); 
         /**
@@ -145,15 +146,14 @@ print "done\n";
         $imageName = $aImage['filename'];
         $dirName = $aImage['dirname'];
         $imageFile = $this->_ensure($dirName.DIRECTORY_SEPARATOR.$imageName.'_files');
-        foreach (range(9,$this->_descriptor->numLevels() - 1) as $level) {
-		print "Creating level $level: ";
+        foreach (range(6,$this->_descriptor->numLevels() - 1) as $level) {
+          if ($debug) print "Creating level $level: ";
         	$levelDir = $this->_ensure($imageFile.DIRECTORY_SEPARATOR.$level);
         	$levelImage = $this->getImage($level);
         	$tiles = $this->tiles($level);
         	$format = $this->_descriptor->tileFormat;
         	foreach ($tiles as $_tile) {
-		print ".";
-		flush();
+                if ($debug) { print "."; flush(); }
                 list($column, $row) = $_tile;
                 list($x,$y,$x2,$y2) = $this->_descriptor->getTileBounds($level,$column,$row);
                 $cropLevelImage = clone $levelImage;
@@ -163,7 +163,7 @@ print "done\n";
                 $cropLevelImage->save($tilePath);
                 unset($cropLevelImage);
         	}
-print " done\n";
+          if ($debug) print " done\n";
         	unset($levelImage);
         }
         $this->_descriptor->save($destination);

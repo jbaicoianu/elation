@@ -495,7 +495,7 @@ iframe = new Object();
 
   // AJAX object initialization
   this.getHTTPObject(); 
-  if (browser.type == "msie") {
+  if (elation.browser.type == "msie") {
     this.getIFRAMEObject("hiddeniframe");
   }
 

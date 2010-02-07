@@ -1,6 +1,6 @@
 /* Browser detection script - modified from http://www.quirksmode.org/js/detect.html */
 
-var browser = new function() {
+elation.extend("browser", new function() {
   this.checkIt = function (string) {
     this.place = detect.indexOf(string) + 1;
     this.tmpstring = string;
@@ -36,7 +36,7 @@ var browser = new function() {
     else if (this.checkIt('win')) this.OS = "windows"
     else this.OS = "unknown";
   }
-}
+});
 
 // Fake console.log to prevent scripts from erroring out in browsers without firebug
 if (typeof window.console == 'undefined') {

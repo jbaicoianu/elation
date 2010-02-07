@@ -158,32 +158,8 @@ class SuperSmarty extends Smarty {
         }
         
         $pos = array_search("[[dependencies]]", $search);
-        $depmgr = DependencyManager::singleton();
-        $dependencies = $depmgr->GetDependencies();
-        
-        if (!empty($dependencies) && $pos !== false) {
-          $dependencystr = "";
-          
-          if (!empty($dependencies["all"])) {
-          foreach ($dependencies["all"] as $dep)
-            $dependencystr .= $dep->Display($webapp->locations);
-          }
-          if (!empty($dependencies["ie6"])) {
-            $dependencystr .= "<!--[if IE 6]>";
-            foreach ($dependencies["ie6"] as $dep)
-              $dependencystr .= $dep->Display($webapp->locations);
-            $dependencystr .= "<![endif]-->";
-          }
-          if (!empty($dependencies["ie7"])) {
-            $dependencystr .= "<!--[if IE 7]>";
-            foreach ($dependencies["ie7"] as $dep)
-              $dependencystr .= $dep->Display($webapp->locations);
-            $dependencystr .= "<![endif]-->";
-          }
-          
-          if (!empty($dependencystr))
-            $replace[$pos] = $dependencystr;
-        }
+        $replace[$pos] = DependencyManager::display();
+
         $pos = array_search("[[debug]]", $search);
         if ($pos !== false) {
           // if there are errors, check for access and force debug

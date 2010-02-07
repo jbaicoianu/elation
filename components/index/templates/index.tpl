@@ -1,5 +1,12 @@
 {component name="html.header"}
-  <script type="text/javascript">var carpc = new CarPC();</script>
+
+{dependency type="javascript" url="http://maps.google.com/maps?file=api&v=2&key=ABQIAAAAFXsdbqGFn4dgHhuKmhzLXRSbAmZjuZtdxuWBH-Uk_GrhiuOKERTNUoNYSNxCRRxo3ZVLY7HRLySR6A"}
+{dependency type="javascript" url="/scripts/components/navigation/config.js"}
+{dependency type="javascript" url="/scripts/components/navigation/carpc.js"}
+{dependency type="css" url="/css/components/navigation/carpc.css"}
+{dependency type="css" url="/css/components/audio/audio.css"}
+
+  <script type="text/javascript">carpc = new CarPC();</script>
 
   <div id="container">
     {* component name="utils.navigation" *}

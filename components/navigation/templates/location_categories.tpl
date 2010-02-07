@@ -17,7 +17,7 @@
 
 <script type="text/javascript">
 {literal}
- var scrollcategories = new UIScrollable(carpc, { 'element': document.getElementById('navigation_location_categories') });
+ var scrollcategories = new elation.ui.scrollable(carpc, { 'element': document.getElementById('navigation_location_categories') });
  var setSelectedCategories = function(dtnode) {
    var s = dtnode.tree.getSelectedNodes(true);
    var catstring = "";

@@ -15,14 +15,14 @@ function AudioController(parent, args, extras) {
           this.retrytime = 2000;
           this.lastrestart = new Date();
 
-          addEvent(this.audio, "error", this);
-          addEvent(this.audio, "abort", this);
-          addEvent(this.audio, "empty", this);
-          addEvent(this.audio, "emptied", this);
-          addEvent(this.audio, "dataunavailable", this);
-          addEvent(this.audio, "error", this);
-          addEvent(this.audio, "ended", this);
-          addEvent(this.audio, "waiting", this);
+          elation.events.add(this.audio, "error", this);
+          elation.events.add(this.audio, "abort", this);
+          elation.events.add(this.audio, "empty", this);
+          elation.events.add(this.audio, "emptied", this);
+          elation.events.add(this.audio, "dataunavailable", this);
+          elation.events.add(this.audio, "error", this);
+          elation.events.add(this.audio, "ended", this);
+          elation.events.add(this.audio, "waiting", this);
       } else {
           console.log("<audio> tag is not supported in your browser");
       }
@@ -31,7 +31,7 @@ function AudioController(parent, args, extras) {
           this.controls = document.getElementById(args.controls);
           var links = this.controls.getElementsByTagName("A");
           for (var i = 0; i < links.length; i++) {
-              addEvent(links[i], "click", this);
+              elation.events.add(links[i], "click", this);
           }
       }
   }

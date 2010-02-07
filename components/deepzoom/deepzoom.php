@@ -9,8 +9,9 @@ class Component_deepzoom extends Component {
 
   function controller_deepzoom($args, $output="inline") {
     $vars["args"] = $args;
-    if (!empty($args["img"])) {
-      $vars["imgname"] = $args["img"];
+    $vars["imgname"] = any($args["img"], "webtrendsmap");
+    $vars["defaultlevel"] = any($args["defaultlevel"], 0);
+    if (!empty($vars["imgname"])) {
       $vars["xmlpath"] = $this->imagedir . "/" . $vars["imgname"] . ".xml";
       if (!empty($args["url"])) {
         $pinfo = pathinfo($args["url"]);
@@ -18,10 +19,13 @@ class Component_deepzoom extends Component {
         $vars["filename"] = $vars["imgname"] . "." . $vars["fileext"];
         $vars["filepath"] = $this->imagedir . "/originals/" . $vars["filename"];
         if (!file_exists($vars["filepath"])) {
+          print "Downloading file...";
+          flush();
           $contents = file_get_contents($args["url"]);
           if (!empty($contents)) {
             file_put_contents($vars["filepath"], $contents);
           }
+          print "done.\n";
         }
 
         
@@ -37,7 +41,7 @@ class Component_deepzoom extends Component {
           $vars["imgdata"] = array("size" => array((int)$img->Size["Width"], (int)$img->Size["Height"]),
                                    "tilesize" => (int)$img["TileSize"],
                                    "overlap" => (int)$img["Overlap"],
-                                   "url" => "/images/components/deepzoom/" . $vars["imgname"] . "_files/{level}/{column}_{row}." . $vars["fileext"]
+                                   "url" => (!empty($img["Url"]) ? (string)$img["Url"] : "http://{random}.tiles.supcrit.net/images/components/deepzoom/" . $vars["imgname"] . "_files/{level}/{column}_{row}." . $vars["fileext"]),
                                    );
         }
       }
@@ -68,5 +72,8 @@ class Component_deepzoom extends Component {
     
     $tiles["A1"] = ImageCreateFromPng($basefile.".A1.png");
 
+  }
+  function controller_article() {
+    return $this->GetTemplate("./article.tpl", $vars);
   }
 }  

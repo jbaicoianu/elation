@@ -20,18 +20,6 @@ class Component_html extends Component {
         'tilesize' => 256,
         'overlap' => 1
       ),
-      "webtrends" => array(
-        'size' => array(6740, 4768),
-        'url' => '/images/components/html/multizoom/webtrendsmap/{level}/{column}_{row}.png',
-        'tilesize' => 256,
-        'overlap' => 1
-      ),
-      "flickr" => array(
-        'size' => array(3456, 2304),
-        'url' => 'http://gasi.ch/examples/2009/04/08/inline-multiscale-image-replacement/flickr/flickr/image_files/{level}/{column}_{row}.jpg',
-        'tilesize' => 256,
-        'overlap' => 1
-      ),
       "openstreetmap" => array(
         'size' => array(67108864, 67108864),
         'url' => 'http://tile.openstreetmap.org/{level}/{column}/{row}.png',
@@ -55,5 +43,16 @@ class Component_html extends Component {
     $vars["imgname"] = any($args["img"], "webtrends");
     $vars["img"] = any($args["imgdata"], $vars["imgs"][$vars["imgname"]]);
     return $this->GetTemplate("./multizoom.tpl", $vars);
+  }
+
+  function component_dragdropimage($args) {
+    
+    return $this->GetTemplate("./dragdropimage.tpl", $vars);
+  }
+  function component_palmpre($args) {
+    return $this->GetTemplate("./palmpre.tpl", $vars);
+  }
+  function component_airhockey($args) {
+    return $this->GetTemplate("./airhockey.tpl", $vars);
   }
 }  

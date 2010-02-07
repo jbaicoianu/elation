@@ -336,7 +336,7 @@ dirlist.appendChild(dirli);
 panel.appendChild(distancediv);
 panel.appendChild(dirlist);
 dirlist.scrollTop = 0;
-    var blah = new UIScrollable(this, {element: dirlist});
+    var blah = new elation.ui.scrollable(this, {element: dirlist});
   }
 
   // Initialize CarPC class
@@ -531,7 +531,7 @@ function GMapPanelControl(parent, args) {
 if (typeof GControl != 'undefined') {
   GMapPanelControl.prototype = new GControl();
   GMapPanelControl.prototype.initialize = function(map) {
-    this.panel = new UIPanel(this, this.args.panel, {'map':map});
+    this.panel = new elation.ui.panel(this, this.args.panel, {'map':map});
 
     if (this.panel.parentid) {
       var el = document.getElementById(this.panel.parentid);

@@ -1,36 +1,69 @@
 #multizoom {
   display: block;
-  width: 40em;
-  height: 30em;
-  margin: 2em auto;
-/*
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-*/
-  max-width: 100%;
-  max-height: 100%;
-  xmargin: 2em auto;
+
   border: 2px solid black;
   overflow: hidden;
   cursor:-moz-grab;
   -webkit-user-select: none;
-  position: relative;
+  position: absolute;
+  /* IE7 needs a fixed height - should we set it in JS?
+  */
+  top: 0em;
+  bottom: 0em;
+  left: 0em;
+  right: 0em;
+
+  max-width: 100%;
+  min-height: 414px;
 }
 .multizoom_tilelayer {
-  xborder: 1px solid blue;
   position: absolute;
   top: 0;
   left: 0;
   -webkit-user-select: none;
 }
+.multizoom_row {
+  white-space: nowrap;
+  width: 100%;
+  clear: left;
+}
 .multizoom_tile {
-  display: block;
-  position: absolute;
+  display: inline-block;
+  float: left;
+  position: relative;
   border: 0;
   padding: 0;
   margin: 0;
   -webkit-user-select: none;
 }
+.multizoom_tile img {
+  -webkit-user-select: none;
+}
+
+.multizoom_controls {
+  float: left;
+  position: fixed;
+  background: white;
+  border: 2px solid black;
+  padding: .5em;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  opacity: .75;
+  z-index: 5000;
+  
+}
+#multizoom_controls_zoom {
+  right: 1em;
+  bottom: 1em;
+  padding: .1em;
+}
+#multizoom_controls_zoom button {
+  display: block;
+  float: left;
+  font-size: 1.4em;
+  padding: 0;
+  margin: 0;
+  width: 2em;
+}
+
+

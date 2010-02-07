@@ -22,7 +22,7 @@ class Logger {
   static protected $msgs = array();
   static protected $log_files = array();
   static protected $log_emails = array();
-  static protected $enabled = true;
+  static public $enabled = true;
 
   const NEWLINE = "\r\n";
   

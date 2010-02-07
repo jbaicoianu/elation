@@ -1,4 +1,4 @@
-function UIPanel(parent, args, extras) {
+elation.extend("ui.panel", function(parent, args, extras) {
   this.parent = parent;
   this.args = args;
   this.extras = extras;
@@ -29,12 +29,12 @@ function UIPanel(parent, args, extras) {
       }
 
       if (this.collapsible) {
-        this.handle = new UIPanelHandle(this, args.handle);
+        this.handle = new elation.ui.panel.handle(this, args.handle);
       }
 
       if (args.items) {
         for (var k in args.items) {
-          this.items[k] = new UIPanelItem(this, args.items[k], {name: k});
+          this.items[k] = new elation.ui.panel.item(this, args.items[k], {name: k});
         };
       }
     }
@@ -58,8 +58,8 @@ function UIPanel(parent, args, extras) {
   }
 
   this.initialize(parent, args);
-}
-function UIPanelHandle(parent, args, extras) {
+});
+elation.extend("ui.panel.handle", function (parent, args, extras) {
   this.parent = parent;
   this.args = args || {};
   this.extras = extras;
@@ -143,12 +143,12 @@ function UIPanelHandle(parent, args, extras) {
       css[orient.margin] = '-' + (size - this.gutter) + 'px';
 //css.width = 0;
       if (instant) {
-        if (browser.type == "iphone" || browser.type == "android")
+        if (elation.browser.type == "iphone" || elation.browser.type == "android")
           element.style.webkitTransform = "translateX(" + css[orient.margin] + ")";
         else 
           panelelement.css(css);
       } else {
-        if (browser.type == "iphone" || browser.type == "android") {
+        if (elation.browser.type == "iphone" || elation.browser.type == "android") {
           element.style.webkitTransition = "-webkit-transform " + this.collapsetime + "ms ease";
           element.style.webkitTransform = "translateX(" + css[orient.margin] + ")";
         } else {
@@ -172,12 +172,12 @@ function UIPanelHandle(parent, args, extras) {
       css[orient.margin] = 0;
 
       if (instant) {
-        if (browser.type == "iphone" || browser.type == "android")
+        if (elation.browser.type == "iphone" || elation.browser.type == "android")
           element.style.webkitTransform = "translateX(0)";
         else
           panelelement.css(css);
       } else {
-        if (browser.type == "iphone" || browser.type == "android") {
+        if (elation.browser.type == "iphone" || elation.browser.type == "android") {
           element.style.webkitTransition = "-webkit-transform " + this.collapsetime + "ms ease";
           element.style.webkitTransform = "translateX(0)";
         } else {
@@ -188,9 +188,9 @@ function UIPanelHandle(parent, args, extras) {
     }
   }
   this.initialize(parent, args);
-}
+});
 
-function UIPanelItem(parent, args, extras) {
+elation.extend("ui.panel.item", function(parent, args, extras) {
   this.parent = parent;
   this.args = args;
   this.extras = extras;
@@ -249,8 +249,8 @@ function UIPanelItem(parent, args, extras) {
     }
   }
   this.initialize(parent, args);
-}
-function SlideoutPanel(parentdiv, args) {
+});
+elation.extend("ui.panel.slideout", function(parentdiv, args) {
   var template = '<div class="ui_panel_slideout"><div class="ui_panel_slideout_handle"></div><div class="ui_panel_slideout_content"></div></div>';
 
   this.init = function (parentdiv, args) {
@@ -264,9 +264,9 @@ function SlideoutPanel(parentdiv, args) {
   }
 
   this.init(parentdiv, args);
-}
+});
 
-function UIScrollable(parent, args) {
+elation.extend("ui.scrollable", function(parent, args) {
   this.parent = parent;
   this.args = args;
   this.timeinfo = {buckets: [], counter: 0, num: 20};;
@@ -278,8 +278,8 @@ function UIScrollable(parent, args) {
     this.element.scrollTop = 0;
     this.element.scrollLeft = 0;
 
-    addEvent(this.element, 'mousedown', this);
-    addEvent(this.element, 'touchstart', this);
+    elation.events.add(this.element, 'mousedown', this);
+    elation.events.add(this.element, 'touchstart', this);
   }
 
   this.handleEvent = function(ev) {
@@ -304,11 +304,11 @@ function UIScrollable(parent, args) {
   }
 
   this.handleMouseDown = function(ev) {
-    addEvent(window, "mousemove", this);
-    addEvent(window, "mouseleave", this);
-    addEvent(window, "mouseup", this);
-    addEvent(window, "touchmove", this);
-    addEvent(window, "touchend", this);
+    elation.events.add(window, "mousemove", this);
+    elation.events.add(window, "mouseleave", this);
+    elation.events.add(window, "mouseup", this);
+    elation.events.add(window, "touchmove", this);
+    elation.events.add(window, "touchend", this);
 
     var xy = this.getEventXY(ev);
     this.startx = xy[0];
@@ -333,16 +333,16 @@ function UIScrollable(parent, args) {
 
     if (!this.cancelclick) {
       this.cancelclick = true;
-      addEvent(this.element, 'click', this);
+      elation.events.add(this.element, 'click', this);
     }
     ev.preventDefault();
   }
   this.handleMouseUp = function(ev) {
-    removeEvent(window, 'touchmove', this);
-    removeEvent(window, 'touchend', this);
-    removeEvent(window, 'mousemove', this);
-    removeEvent(window, 'mouseup', this);
-    removeEvent(window, 'mouseleave', this);
+    elation.events.remove(window, 'touchmove', this);
+    elation.events.remove(window, 'touchend', this);
+    elation.events.remove(window, 'mousemove', this);
+    elation.events.remove(window, 'mouseup', this);
+    elation.events.remove(window, 'mouseleave', this);
     //console.log("TOTAL: " + (this.startmove - ev.pageY));
 
     var flick = this.getFlickSpeed();
@@ -424,4 +424,5 @@ function UIScrollable(parent, args) {
   }
 
   this.initialize(parent, args);
-}
+});
+

@@ -18,6 +18,7 @@
 */
 
 include_once("autoload.php");
+include_once("lib/logger.php");
 include_once("common_funcs.php");
 include_once("config/outlet_conf.php");
 
@@ -46,7 +47,7 @@ class WebApp {
       header('Content-type: application/xml');
       print $this->smarty->GenerateXML($output["content"]);
     } else {
-      print $output["content"];
+      print $this->smarty->PostProcess($output["content"]);
     }
   }
 }

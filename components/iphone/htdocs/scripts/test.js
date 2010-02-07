@@ -22,7 +22,7 @@ function iCanvas(divid, debug) {
     }
 
     // iphone scroll hack
-    addEvent(window, "load", function() { setTimeout(function() { window.scrollTo(0,1); }, 100);});
+    elation.events.add(window, "load", function() { setTimeout(function() { window.scrollTo(0,1); }, 100);});
 
     this.dynamics = new iObjectDynamics(this, { mass: 2, friction: 20 });
 
@@ -408,10 +408,10 @@ function iControllerStick(parent, cfg) {
     this.element.appendChild(this.stickelement);
     this.parent.element.appendChild(this.element);
 
-    addEvent(this.element, "mousedown", this);
-    addEvent(this.element, "touchstart", this);
-    //addEvent(this.element, "touchstart", this);
-    //addEvent(this.element, "mousedown", this);
+    elation.events.add(this.element, "mousedown", this);
+    elation.events.add(this.element, "touchstart", this);
+    //elation.events.add(this.element, "touchstart", this);
+    //elation.events.add(this.element, "mousedown", this);
 
     (function(self) {
       setTimeout(function() { self.center(); }, 0);
@@ -437,10 +437,10 @@ function iControllerStick(parent, cfg) {
       this.starty = this.lasty = ev.clientY;
     }
     if (this.parent.getActiveSticks().length == 0) {
-      addEvent(window, "touchmove", this);
-      addEvent(window, "mousemove", this);
-      addEvent(window, "mouseup", this);
-      addEvent(window, "touchend", this);
+      elation.events.add(window, "touchmove", this);
+      elation.events.add(window, "mousemove", this);
+      elation.events.add(window, "mouseup", this);
+      elation.events.add(window, "touchend", this);
     }
     this.active = true;
     ev.preventDefault();
@@ -531,10 +531,10 @@ function iControllerStick(parent, cfg) {
 
     if (this.active) {
       if (reset) {
-        removeEvent(window, "touchmove", this);
-        removeEvent(window, "mousemove", this);
-        removeEvent(window, "mouseup", this);
-        removeEvent(window, "touchend", this);
+        elation.events.remove(window, "touchmove", this);
+        elation.events.remove(window, "mousemove", this);
+        elation.events.remove(window, "mouseup", this);
+        elation.events.remove(window, "touchend", this);
       }
       this.active = false;
     }
@@ -575,7 +575,7 @@ function iControllerButton(parent, cfg) {
         var keys = k.split(/,/);
         for (var i = 0; i < keys.length; i++) {
           this.events[keys[i]] = cfg.events[k];
-          addEvent(this.element, keys[i], this);
+          elation.events.add(this.element, keys[i], this);
         }
       }
     }

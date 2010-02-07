@@ -7,9 +7,6 @@
 </div>
 
 <script type="text/javascript">
-options = {jsonencode var=$img};
-options.singlelevel = true;
-options.defaultlevel = 10;
-var frame = document.getElementById('multizoom');
-var multi = new MultiZoom(frame, options);
+//var multi = new MultiZoom('multizoom', {jsonencode var=$img});
+elation.zoom.replace("multizoom", {jsonencode var=$img});
 </script>

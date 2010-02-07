@@ -8,7 +8,7 @@
   {/foreach}
   </ul>
   <script type="text/javascript">
-  var scrollaudio = new UIScrollable(carpc, {ldelim}'element': document.getElementById('audio_playlist_list'){rdelim});
+  var scrollaudio = new elation.ui.scrollable(carpc, {ldelim}'element': document.getElementById('audio_playlist_list'){rdelim});
   </script>
 {/if}
   <form action="/audio/playlist/addstream" method="POST" onsubmit="return ajaxForm(ajaxlib, this)">

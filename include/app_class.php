@@ -18,6 +18,7 @@
 */
 
 include_once("autoload.php");
+include_once("lib/logger.php");
 include_once("common_funcs.php");
 include_once("config/outlet_conf.php");
 
@@ -41,7 +42,6 @@ class App {
 
   function Display($page=NULL, $pageargs=NULL) {
     $output = $this->components->Dispatch($page, $pageargs);
-    print_pre($output);
     
     if ($output["type"] == "ajax") {
       header('Content-type: application/xml');

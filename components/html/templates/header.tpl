@@ -7,9 +7,8 @@
 {dependency type="javascript" url="/scripts/components/utils/elation.js"}
 {dependency type="javascript" url="/scripts/components/utils/browser.js"}
 {dependency type="javascript" url="/scripts/components/utils/ajaxlib.js"}
-{dependency type="javascript" url="/scripts/components/utils/ui.js"}
-{dependency type="javascript" url="/scripts/components/utils/button.js"}
 {dependency type="javascript" url="/scripts/components/utils/events.js"}
+{dependency type="javascript" url="/scripts/components/utils/ui.js"}
 {dependency type="css" url="/css/components/utils/ui.css"}
 {dependency type="css" url="/css/components/navigation/carpc.css"}
 

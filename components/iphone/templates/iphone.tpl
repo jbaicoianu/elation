@@ -1,7 +1,8 @@
 {component name="html.header"}
-<script type="text/javascript" src="/scripts/components/iphone/sylvester.src.js"></script>
-<script type="text/javascript" src="/scripts/components/iphone/test.js"></script>
-<link rel="stylesheet" href="/css/components/iphone/iphone.css" />
+{dependency type="javascript" url="/scripts/components/utils/sylvester.src.js"}
+{dependency type="javascript" url="/scripts/components/utils/dynamics.js"}
+{dependency type="javascript" url="/scripts/components/iphone/test.js"}
+{dependency type="css" url="/css/components/iphone/iphone.css"}
 
 <div id="icanvas">
 </div>
@@ -41,6 +42,9 @@ var objects = {
     'origin': [100,100,-400],
     'rotate': [45,-45,0],
     'classname': 'brickcube',
+    'dynamics': {
+      'angularvelocity': [10, 10, 0]
+    },
     'polygons': [
       [[0, 0, 50], [0, 0, 0], [100,100], '<img src="http://www.thefind.com/images/logos/thefind_small.png" />'], // front
       [[0, 0, -50], [0, 180, 0], [100,100]],  // back

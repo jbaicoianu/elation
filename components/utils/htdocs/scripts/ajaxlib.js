@@ -50,7 +50,8 @@
   XMLHttpRequest objects for parallelized data retrieval
 */
 
-ajaxlib = new function () {
+console.log('FFFFFF');
+elation.extend("ajax", new function () {
 	this.Queue = function (obj) {
     if (obj.constructor.toString().indexOf("Array") != -1) {
       for (var i = 0; i < obj.length; i++) {
@@ -280,7 +281,7 @@ ajaxlib = new function () {
 		
     // If caller passed in a callback, execute it
     if (obj && obj.callback) {
-      ajaxlib.executeCallback(obj.callback, data);
+      elation.ajax.executeCallback(obj.callback, data);
     }
   }
 	
@@ -321,15 +322,15 @@ ajaxlib = new function () {
             processResponse(dom, docroot, obj);
           } else if (xmlhttp.responseText) {
             if (obj.callback) {
-              ajaxlib.executeCallback(obj.callback, xmlhttp.responseText);
+              elation.ajax.executeCallback(obj.callback, xmlhttp.responseText);
             }
           }
         } else {
           if (obj.failurecallback) {
-            ajaxlib.executeCallback(obj.failurecallback);
+            elation.ajax.executeCallback(obj.failurecallback);
           }
         }
-        setTimeout('ajaxlib.Go()', 0);
+        setTimeout('elation.ajax.Go()', 0);
       }
     }
 
@@ -350,7 +351,7 @@ ajaxlib = new function () {
       }
     } catch (e) {
       if (obj.failurecallback) {
-        ajaxlib.executeCallback(obj.failurecallback, e);
+        elation.ajax.executeCallback(obj.failurecallback, e);
       }
       return false;
     }
@@ -503,46 +504,26 @@ iframe = new Object();
   this.urlqueue = new Array();
   this.docroot = document;
 
-}
+  this.link = function(link, history) {
+    this.Get(link, history);
+    return false;
+  }
+  this.form = function(form, history) {
+    this.Post(form, history);
+    return false;
+  }
 
-// AJAX child for use within an IFRAME 
-function ajaxChild(url) {
-  var qstr = url.substr(url.indexOf("?")+1, (url.indexOf("#") - url.indexOf("?") - 1));
-  var file = url.substr(url.indexOf("#")+1);
+  // AJAX child for use within an IFRAME 
+  this.child = function(url) {
+    var qstr = url.substr(url.indexOf("?")+1, (url.indexOf("#") - url.indexOf("?") - 1));
+    var file = url.substr(url.indexOf("#")+1);
 
-  if (file.length > 0 && qstr.length > 0) {
-    if (parent.ajaxlib) { // Workaround for when iframe finishes loading before parent does
-      parent.ajaxlib.Get(file + "?" + qstr);
-    } else {
-      setTimeout('parent.ajaxlib.Get("' + file + '?' + qstr + '")', 100);
+    if (file.length > 0 && qstr.length > 0) {
+      if (parent.elation.ajax) { // Workaround for when iframe finishes loading before parent does
+        parent.elation.ajax.Get(file + "?" + qstr);
+      } else {
+        setTimeout('parent.elation.ajax.Get("' + file + '?' + qstr + '")', 100);
+      }
     }
   }
-}
-
-// Convenience functions to use within webpages
-
-function ajaxInit(actual) {
-  return;
-  ajaxlib = false;
-  // Self-referencing function - just call this function any time in the head, and we'll take care of calling it correctly when the page is fully loaded
-  if (actual) {
-    ajaxlib = new AjaxLib();
-    //window.setInterval("ajaxlib.checkHistory()", 250);
-  } else {
-    if (window.addEventListener)
-      window.addEventListener("load", ajaxInit, false);
-    else if (window.attachEvent)
-      window.attachEvent("onload", ajaxInit);
-    else
-      setTimeout("ajaxInit(true)", 100);
-  }
-}
-function ajaxLink(ajaxlib, link, history) {
-  ajaxlib.Get(link, history);
-  return false;
-}
-
-function ajaxForm(ajaxlib, form, history) {
-  ajaxlib.Post(form, history);
-  return false;
-}
+});

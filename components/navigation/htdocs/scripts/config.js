@@ -106,7 +106,7 @@ Config = {
           'label': 'Map',
           'href': '/navigation.ajax',
           'click': function(ev) { 
-            ajaxlib.Get(this.href);
+            elation.ajax.Get(this.href);
             ev.preventDefault();
           }
         },
@@ -115,7 +115,7 @@ Config = {
           'label': 'Locations',
           'href': '/navigation/location_categories.ajax',
           'click': function(ev) { 
-            ajaxlib.Get(this.href);
+            elation.ajax.Get(this.href);
             ev.preventDefault();
           }
         },
@@ -124,7 +124,7 @@ Config = {
           'label': 'Audio',
           'href': '/audio.ajax',
           'click': function(ev) { 
-            ajaxlib.Get(this.href);
+            elation.ajax.Get(this.href);
             ev.preventDefault();
           }
         },
@@ -133,7 +133,8 @@ Config = {
           'label': 'Performance',
           'href': '/performance.ajax',
           'click': function(ev) { 
-            ajaxlib.Get(this.href);
+              console.log(elation);
+            elation.ajax.Get(this.href);
             ev.preventDefault();
           }
         },
@@ -142,7 +143,7 @@ Config = {
           'label': 'Maintenance',
           'href': '/maintenance.ajax',
           'click': function(ev) { 
-            ajaxlib.Get(this.href);
+            elation.ajax.Get(this.href);
             ev.preventDefault();
           }
         }

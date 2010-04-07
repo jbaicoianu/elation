@@ -37,6 +37,7 @@ class ComponentDispatcher extends Component {
     $args = $this->ParseRequest($page, $pageargs);
 
     $alternateret = $this->HandleDispatchArgs($args);
+    $outputtype = "html";
 
     $ret["page"] = $page;
 
@@ -58,6 +59,11 @@ class ComponentDispatcher extends Component {
       
     }
 
+    if ($ret['content'] instanceOf ComponentResponse) {
+      $output = $ret['content']->getOutput($outputtype);
+      $this->root->response["type"] = $output[0];
+      $ret['content'] = $output[1];
+    }
     // TODO - handle redirects and postprocessing for different output types here
     return $ret;
   }
@@ -78,8 +84,8 @@ class ComponentDispatcher extends Component {
       else {
         $ret = array_merge_recursive($args, $this->dispatchargs[$name]);
 
-    print_pre("DISPATCH:");
-    print_pre($ret);
+        //print_pre("DISPATCH:");
+        //print_pre($ret);
       }
     return $ret;
   }
@@ -105,3 +111,48 @@ class ComponentDispatcher extends Component {
   }
 }
 
+class ComponentResponse implements ArrayAccess {
+  public $data = array();
+  private $template;
+  
+  function __construct($template=NULL) {
+    $this->template = $template;
+  }
+  
+  function offsetExists($name) {
+    return isset($this->data[$name]);
+  }
+  function offsetGet($name) {
+    return $this->data[$name];
+  }
+  function offsetSet($name, $value) {
+    $this->data[$name] = $value;
+  }
+  function offsetUnset($name) {
+    unset($this->data[$name]);
+  }
+
+  function getOutput($type) {
+    $ret = array("text/html", NULL);;
+    $smarty = SuperSmarty::singleton();
+    switch($type) {
+    case 'ajax':
+      $ret = array("text/xml", $smarty->GenerateXML($this->data));
+      break;
+    case 'json':
+      $ret = array("application/javascript", $smarty->GenerateJavascript($ret));
+    case 'js':
+      $ret = array("application/javascript", json_encode($this) . "\n");
+      break;
+    case 'txt':
+      $ret = array("text/plain", $smarty->GenerateHTML($smarty->GetTemplate($this->template, NULL, $this->data)));
+      break;
+    case 'xml':
+      $ret = array("application/xml", object_to_xml($this, "response"));
+      break;
+    default:
+      $ret = array("text/html", $smarty->GenerateHTML($smarty->GetTemplate($this->template, NULL, $this->data)));
+    }
+    return $ret;
+  }
+}

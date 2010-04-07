@@ -45,14 +45,14 @@ class Component_html extends Component {
     return $this->GetTemplate("./multizoom.tpl", $vars);
   }
 
-  function component_dragdropimage($args) {
-    
+  function controller_dragdropimage($args) {
     return $this->GetTemplate("./dragdropimage.tpl", $vars);
   }
-  function component_palmpre($args) {
+  function controller_palmpre($args) {
     return $this->GetTemplate("./palmpre.tpl", $vars);
   }
-  function component_airhockey($args) {
-    return $this->GetTemplate("./airhockey.tpl", $vars);
+  function controller_airhockey($args) {
+    header("Location: /games/airhockey");
+    return "";
   }
 }  

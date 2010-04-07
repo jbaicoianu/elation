@@ -36,7 +36,7 @@ function ImageScale(container, options) {
     this.zoomable.style.position = 'absolute';
 
     this.viewportsize = [this.container.offsetWidth, this.container.offsetHeight];
-    this.viewportoffset = elation.utils.findpos(this.container);
+    this.viewportoffset = elation.html.position(this.container);
     console.log("viewport info: ", this.viewportsize, this.viewportoffset);
 
     this.initImage();
@@ -199,7 +199,7 @@ function ImageScale(container, options) {
         break;
       case 'resize':
         this.viewportsize = [this.container.offsetWidth, this.container.offsetHeight];
-        this.viewportoffset = elation.utils.findpos(this.container);
+        this.viewportoffset = elation.html.position(this.container);
         this.calculateMinScale();
         break;
       case 'keydown':

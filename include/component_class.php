@@ -161,14 +161,7 @@ class Component extends Base {
     }
 
     // Let's be smart about templates specified as "./blah.tpl"
-    if ($name[0] == "." && $name[1] == "/") {
-      $dir = $this->GetComponentDirectory();
-      // dir should start with './' - prepend a . to go one level up
-      $templatename = "." . $dir . "/templates/" . substr($name, 2);
-
-      $ret = $this->smarty->GetTemplate($templatename, $this, $args);
-    } else
-      $ret = $this->smarty->GetTemplate($name, $this, $args);
+    $ret = $this->smarty->GetTemplate($this->ExpandTemplatePath($name), $this, $args);
 
     // Always restore safe default
     $this->smarty->left_delimiter = '{';
@@ -177,6 +170,17 @@ class Component extends Base {
     //Profiler::StopTimer("Component::GetTemplate($name)");
     return $ret;
   }
+
+  function ExpandTemplatePath($name) {
+    $ret = $name;
+    if ($name[0] == "." && $name[1] == "/") {
+      $dir = $this->GetComponentDirectory();
+      // dir should start with './' - prepend a . to go one level up
+      $ret = "." . $dir . "/templates/" . substr($name, 2);
+    }
+    return $ret;
+  }
+
   function HasTemplate($name) {
     if (substr($name, 0, 2) == "./") {
       $dir = $this->GetComponentDirectory();

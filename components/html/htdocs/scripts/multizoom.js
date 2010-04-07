@@ -95,8 +95,8 @@ elation.extend("zoom", {
         this.controls['zoom'].style.bottom = '5px';
         this.controls['zoom'].style.right = '5px';
   
-        this.buttons['zoom_out'] = new elation.utils.button({label: '&#8211;', title: 'Zoom Out', events: { click: this, touchstart: this, mousedown: this }}, this.controls['zoom']);
-        this.buttons['zoom_in'] = new elation.utils.button({label: '+', title: 'Zoom In', events: { click: this, touchstart: this, mousedown: this }}, this.controls['zoom']);
+        this.buttons['zoom_out'] = new elation.ui.button({label: '&#8211;', title: 'Zoom Out', events: { click: this, touchstart: this, mousedown: this }}, this.controls['zoom']);
+        this.buttons['zoom_in'] = new elation.ui.button({label: '+', title: 'Zoom In', events: { click: this, touchstart: this, mousedown: this }}, this.controls['zoom']);
   
         // FIXME - ugly.
         this.container.appendChild(this.controls['zoom']);

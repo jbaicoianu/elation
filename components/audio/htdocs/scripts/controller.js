@@ -36,14 +36,14 @@ function AudioController(parent, args, extras) {
       }
   }
   this.pause = function() {
-      ajaxlib.Get('/audio/playback/pause');
+      elation.ajax.Get('/audio/playback/pause');
   }
   this.next = function() {
-      ajaxlib.Get('/audio/playback/next');
+      elation.ajax.Get('/audio/playback/next');
       this.retry(true);
   }
   this.previous = function() {
-      ajaxlib.Get('/audio/playback/previous');
+      elation.ajax.Get('/audio/playback/previous');
       this.retry(true);
   }
   this.retry = function(force) {
@@ -60,8 +60,8 @@ function AudioController(parent, args, extras) {
       }
   }
   this.updatestatus = function() {
-     if (ajaxlib) 
-       ajaxlib.Get('/audio/playback.ajax');
+     if (elation.ajax) 
+       elation.ajax.Get('/audio/playback.ajax');
   }
 
   this.handleEvent = function(ev) {

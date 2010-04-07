@@ -1,4 +1,4 @@
-elation.extend('utils.button', function(args, container) {
+elation.extend('ui.button', function(args, container) {
     this.init = function(args, container) {
         this.tag = args.tag || "BUTTON";
         this.classname = args.classname || "";
@@ -16,7 +16,7 @@ elation.extend('utils.button', function(args, container) {
         this.element.innerHTML = this.label;
         var classname = '';
         if (this.draggable) {
-            classname = 'tf_utils_button_draggable';
+            classname = 'elation_ui_button_draggable';
             this.element.draggable = true;
         }
         classname += this.classname;

@@ -77,7 +77,10 @@ elation.extend('onloads',new function() {
 });
 elation.onloads.init();
 
-elation.extend("utils.findpos", function(obj) {
+elation.extend("html.size", function(obj) {
+  return [obj.offsetWidth, obj.offsetHeight];
+});
+elation.extend("html.position", function(obj) {
   var curleft = curtop = 0;
   if (obj.offsetParent) {
     curleft = obj.offsetLeft;
@@ -88,4 +91,19 @@ elation.extend("utils.findpos", function(obj) {
     }
   }
   return [curleft,curtop];
+});
+elation.extend("html.hasclass", function(element, className) {
+  var re = new RegExp("(^| )" + className + "( |$)", "g");
+  return element.className.match(re);
+});
+elation.extend("html.addclass", function(element, className) {
+  if (!elation.html.hasclass(element, className)) {
+    element.className += " " + className;
+  }
+});
+elation.extend("html.removeclass", function(element, className) {
+  var re = new RegExp("(^| )" + className + "( |$)", "g");
+  if (element.className.match(re)) {
+    element.className = element.className.replace(re, " ");
+  }
 });

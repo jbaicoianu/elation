@@ -116,6 +116,9 @@ class SuperSmarty extends Smarty {
     return $return;
   }
 
+  function GenerateHTML($responses) {
+    return $this->PostProcess($responses);
+  }
   function GenerateXML($responses) {
     global $webapp;
 

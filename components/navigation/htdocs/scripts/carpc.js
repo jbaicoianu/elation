@@ -329,7 +329,7 @@ dirlist.appendChild(dirli);
           dir = dir.replace(re, r[k]);
         }
         //console.log('Step ' + j + ': ' + dir);
-        ajaxlib.Get('/audio/festival?say=' + encodeURIComponent(dir));
+        elation.ajax.Get('/audio/festival?say=' + encodeURIComponent(dir));
       }
     }
 

@@ -24,7 +24,7 @@
    for (var i = 0; i < s.length; i++) {
      catstring += (catstring != "" ? " " : "") + s[i].data.key;
    }
-   ajaxlib.Get("/navigation/location_categories?showcategory=" + encodeURIComponent(catstring));
+   elation.ajax.Get("/navigation/location_categories?showcategory=" + encodeURIComponent(catstring));
  }
  $("#navigation_location_categories").dynatree({checkbox: true, 
                                                 persist: true,

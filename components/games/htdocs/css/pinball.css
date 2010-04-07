@@ -1,0 +1,103 @@
+.airhockey_table * {
+  -webkit-user-select: none;
+}
+.airhockey_table {
+  -webkit-transform-origin: 0 0;
+  width: 314px;
+  height: 456px;
+  margin: 0 auto;
+  border: 2px solid black;
+  background: white;
+  -moz-border-radius: 50px;
+  -webkit-border-radius: 50px;
+  position: relative;
+  -moz-box-shadow: 0px 0px 8px 4px #333;
+  -webkit-box-shadow: 0px 0px 8px 4px #333;
+}
+.airhockey_table .airhockey_table_top {
+  height: 50%;
+  width: 100%;
+  border-bottom: 1px dashed red;
+  position: relative;
+}
+.airhockey_table .airhockey_table_goal {
+  width: 40%;
+  height: 5px;
+  position: absolute;
+  left: 30%;
+  z-index: 15;
+  background: black;
+}
+.airhockey_table .airhockey_table_bottom {
+  height: 50%;
+  width: 100%;
+  border-top: 1px dashed red;
+  position: relative;
+}
+.airhockey_table .airhockey_table_top .airhockey_table_goal {
+  top: -2px;
+}
+.airhockey_table .airhockey_table_bottom .airhockey_table_goal {
+  bottom: 0;
+}
+.airhockey_table .airhockey_table_neutral {
+  position: absolute;
+  height: 33%;
+  width: 100%;
+  top: 33%;
+  border-top: 2px solid blue;
+  border-bottom: 2px solid blue;
+}
+.airhockey_table .airhockey_table_center {
+  border: 2px solid red;
+  width: 96px;
+  height: 96px;
+  -webkit-border-radius: 50px;
+  -moz-border-radius: 50px;
+  position: absolute;
+  margin-top: -50px;
+  margin-left: -50px;
+  top: 50%;
+  left: 50%;
+  background: white;
+  z-index: 10;
+}
+.airhockey_paddle {
+  width: 50px;
+  height: 50px;
+  border: 4px solid blue;
+  -moz-border-radius: 29px;
+  -webkit-border-radius: 29px;
+  position: absolute;
+  background: #66f;
+  z-index: 100;
+  -moz-box-shadow: 0px 0px 4px 2px #333;
+  -webkit-box-shadow: 0px 0px 4px 2px #333;
+  margin-top: -29px;
+  margin-left: -29px;
+}
+.airhockey_paddle .airhockey_paddle_stick {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  width: 16px;
+  height: 16px;
+  background: blue;
+  -moz-border-radius: 8px;
+  -webkit-border-radius: 8px;
+  -moz-box-shadow: 2px 2px 8px 2px #333;
+  -webkit-box-shadow: 2px 2px 8px 2px #333;
+}
+.airhockey_puck {
+  position: absolute;
+  background-image: url('ball.png');
+  width: 24px;
+  height: 24px;
+  -moz-border-radius: 12px;
+  -webkit-border-radius: 12px;
+  margin-left: -12px;
+  margin-top: -12px;
+  top: 0;
+  left: 0;
+  z-index: 99;
+}

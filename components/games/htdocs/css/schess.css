@@ -1,0 +1,24 @@
+#container * {
+  -webkit-user-select: none;
+}
+
+.game_board {
+  margin: 2em auto;
+  background: #ccc;
+  border: 2px solid black;
+  font-size: 16px;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+}
+
+.game_board .game_boardslot {
+  border: 1px solid black;
+  background: white;
+  padding: 0;
+  border-spacing: 0;
+  width: 35px;
+  height: 35px;
+  line-height: 1em;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+}

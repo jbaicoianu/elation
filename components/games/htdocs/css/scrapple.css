@@ -1,0 +1,87 @@
+#container * {
+  -webkit-user-select: none;
+}
+.scrapple_board * {
+}
+.scrapple_board {
+  margin: 2em auto;
+  background: #ccc;
+  border: 2px solid black;
+  font-size: 16px;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+}
+.scrapple_board.scrapple_board_main {
+  width: 500px;
+  height: 500px;
+}
+.scrapple_board.scrapple_board_tileholder {
+  padding: .2em;
+  margin: 0 0 0 -8em;
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+}
+.scrapple_board .scrapple_tileslot {
+  border: 1px solid black;
+  background: white;
+  padding: 0;
+  border-spacing: 0;
+  width: 2em;
+  height: 2em;
+  line-height: 1em;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+}
+.scrapple_board .scrapple_tileslot.scrapple_tileslot_droppable {
+  background: pink !important;
+}
+.scrapple_board .scrapple_tileslot_start {
+  background: purple;
+}
+.scrapple_board .scrapple_tileslot_doubleletter {
+  background: blue;
+}
+.scrapple_board .scrapple_tileslot_tripleletter {
+  background: green;
+}
+.scrapple_board .scrapple_tileslot_doubleword {
+  background: red;
+}
+.scrapple_board .scrapple_tileslot_tripleword {
+  background: peachpuff;
+}
+.scrapple_tileholder {
+}
+.scrapple_tileslot .scrapple_tile {
+  margin: -1px;
+}
+.scrapple_tile {
+  border: 1px solid black;
+  -moz-border-radius: 6px;
+  -webkit-border-radius: 6px;
+  background: orange;
+  color: black;
+  line-height: 1em;
+  display: block;
+  width: 2em;
+  height: 2em;
+  position: relative;
+  cursor: -moz-grab;
+  opacity: .8;
+}
+.scrapple_tile strong {
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  text-align: center;
+  margin-top: -.5em;
+  line-height: 1em;
+  font-size: 1.3em;
+}
+.scrapple_tile sub {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  font-size: .7em;
+}

@@ -23,6 +23,12 @@ class Component_games extends Component {
     }
     return $response;
   }
+
+  function controller_arkanoid($args, $output="inline") {
+    $response = $this->GetComponentResponse("./arkanoid.tpl");
+    $response["args"] = $args;
+    return $response;
+  }
 }  
 
 class UrbanDictionary {

@@ -95,5 +95,97 @@ elation.extend("games.common", {
       tile.setSlot(this);
     }
     this.init();
+  },
+  paddle: function(container, options) {
+    this.container = container;
+    this.options = options;
+    this.pos = [0, 0, 0];
+    this.vel = $V([0, 0, 0]);
+    this.elasticity = 1;
+    this.moves = [];
+    this.allowskipcollisions = true;
+
+    this.init = function() {
+      this.element = document.createElement("DIV");
+      this.element.className = this.options.className || "game_paddle";
+      this.element.innerHTML = this.options.content || "";
+      this.container.appendChild(this.element);
+      this.radius = this.element.offsetWidth / 2;
+      this.mass = 10;
+      this.moves = new elation.utils.ringbuffer();
+
+      this.position(this.options.pos || [0,0,0]);
+    }
+    this.position = function(pos) {
+      if (typeof pos != 'undefined') 
+        this.pos = pos;
+      if (this.pos[0] < this.options.restrict[0][0] + this.radius) this.pos[0] = this.options.restrict[0][0] + this.radius;
+      if (this.pos[0] > this.options.restrict[1][0] - this.radius) this.pos[0] = this.options.restrict[1][0] - this.radius;
+      if (this.pos[1] < this.options.restrict[0][1] + this.radius) this.pos[1] = this.options.restrict[0][1] + this.radius;
+      if (this.pos[1] > this.options.restrict[1][1] - this.radius) this.pos[1] = this.options.restrict[1][1] - this.radius;
+      this.element.style.left = 0;
+      this.element.style.top = 0;
+      this.element.style.WebkitTransform = 'translate3d(' + this.pos[0] + 'px, ' + this.pos[1] + 'px, ' + this.pos[2] + 'px)';
+      //this.element.style.WebkitTransform = 'translate(' + this.pos[0] + 'px, ' + this.pos[1] + 'px)';
+      this.element.style.MozTransform = 'translate(' + this.pos[0] + 'px, ' + this.pos[1] + 'px)';
+    }
+    this.updateVelocity = function(ev) {
+      this.moves.add([new Date(), ev.clientX, ev.clientY]);
+
+      var inorder = this.moves.unravel();
+      //console.log(inorder);
+      if (inorder.length > 2) {
+        //console.log([inorder[0][1] - inorder[1][1], inorder[0][2] - inorder[1][2], 0], inorder[0][0] - inorder[1][0]);
+        var t = (inorder[0][0] - inorder[1][0]) / 1000;
+        this.vel = [(inorder[0][1] - inorder[1][1]) / t, (inorder[0][2] - inorder[1][2]) / t, 0]
+      }
+    }
+    this.resetVelocity = function() {
+      this.moves.clear();
+      this.vel = [0, 0, 0];
+    }
+    this.handleEvent = function(ev) {
+      switch(ev.type) {
+      }
+    }
+    this.handleTouchStart = function(ev) {
+    }
+    this.handleTouchMove = function(ev) {
+    }
+    this.handleTouchEnd = function(ev) {
+    }
+    this.init();
+  }
+});
+
+elation.extend("utils.ringbuffer", function(args) {
+  this.elements = [];
+  this.pos = 0;
+  this.args = args || {};
+  this.num = this.args.num || 5;
+
+  this.add = function(el) {
+    this.elements[this.pos] = el;
+    if (++this.pos > this.num)
+      this.pos = 0;
+  }
+  this.unravel = function(num) {
+    if (typeof num == 'undefined')
+      num = this.num;
+
+    var ret = [];
+    var i = (this.pos == 0 ? this.num : this.pos - 1);
+    while (i != this.pos) {
+      if (typeof this.elements[i] == 'undefined')
+        break;
+      ret.push(this.elements[i]);
+      if (--i < 0) 
+        i = this.num;
+    }
+    return ret;
+  }
+  this.clear = function() {
+    this.elements = [];
+    this.pos = 0;
   }
 });

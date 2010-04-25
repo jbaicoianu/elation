@@ -44,41 +44,8 @@ Components are organized in the ./components directory, and can have any number 
                |- foo.tpl
                '- things.tpl
 
-./components/foo/foo.php would look like the following:
 
-    <?
-    class Component_foo extends Component {
-      function init() {
-        $this->outlet = Outlet::getInstance();
-      }
-
-      function controller_foo($args) {
-        $response = $this->GetComponentResponse("./foo.tpl");
-        $response["args"] = $args;
-        return $response;
-      }
-      function controller_bar($args) {
-        $response = $this->GetComponentResponse("./bar.tpl");
-        if (!empty($args["barid"])) {
-          $response["bar"] = $this->outlet->load("Bar", $args["barid"]);
-        } else {
-          $response["error"] = "Expected size parameter, got nothing";
-        }
-        return $response;
-      }
-      function controller_things($args) {
-        $response = $this->GetComponentResponse("./things.tpl");
-        if (!empty($args["size"])) {
-          $response["things"] = $this->outlet->select("Thing", "WHERE size > ?", array($args["size"]));
-        } else {
-          $response["error"] = "Expected size parameter, got nothing";
-        }
-        return $response;
-      }
-    }  
-    ?>
-
-In this example, the templates would be set up as follows:
+In this example, the templates and PHP would be set up as follows.  This setup allows access to the main foo page via http://domain/foo, which sets up a basic HTML page structure and then calls in the subcomponents foo.bar and foo.things with specific arguments to render them in the correct location on the page.
 
 ./components/foo/templates/foo.tpl:
 -----------------------------------
@@ -115,4 +82,40 @@ In this example, the templates would be set up as follows:
      {foreach from=$things item=thing}
       <li>{$thing->name}: ${$thing->price}</li>
      {/foreach}
-    </ul>
+   </ul>
+
+
+./components/foo/foo.php:
+-------------------------
+    <?
+    class Component_foo extends Component {
+      function init() {
+        $this->outlet = Outlet::getInstance();
+      }
+
+      function controller_foo($args) {
+        $response = $this->GetComponentResponse("./foo.tpl");
+        $response["args"] = $args;
+        return $response;
+      }
+      function controller_bar($args) {
+        $response = $this->GetComponentResponse("./bar.tpl");
+        if (!empty($args["barid"])) {
+          $response["bar"] = $this->outlet->load("Bar", $args["barid"]);
+        } else {
+          $response["error"] = "Expected size parameter, got nothing";
+        }
+        return $response;
+      }
+      function controller_things($args) {
+        $response = $this->GetComponentResponse("./things.tpl");
+        if (!empty($args["size"])) {
+          $response["things"] = $this->outlet->select("Thing", "WHERE size > ?", array($args["size"]));
+        } else {
+          $response["error"] = "Expected size parameter, got nothing";
+        }
+        return $response;
+      }
+    }  
+    ?>
+

@@ -1,0 +1,12 @@
+#arkanoid_game {
+  width: 40em;
+  height: 30em;  
+  background: white;
+  border: 1px solid black;
+  margin: 1em auto;
+}
+#arkanoid_game .game_paddle {
+  width: 200px;
+  height: 15px;
+  background: black;
+}

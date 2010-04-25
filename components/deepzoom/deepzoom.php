@@ -35,13 +35,15 @@ class Component_deepzoom extends Component {
         }
       }
       if (file_exists($vars["xmlpath"])) {
+        //$defaultdomain = "{random}.tiles.supcrit.net";
+        $defaultdomain = "localhost";
         $img = new SimpleXMLElement(file_get_contents($vars["xmlpath"]));
         if (!empty($img)) {
           $vars["fileext"] = (string)$img["Format"];
           $vars["imgdata"] = array("size" => array((int)$img->Size["Width"], (int)$img->Size["Height"]),
                                    "tilesize" => (int)$img["TileSize"],
                                    "overlap" => (int)$img["Overlap"],
-                                   "url" => (!empty($img["Url"]) ? (string)$img["Url"] : "http://{random}.tiles.supcrit.net/images/components/deepzoom/" . $vars["imgname"] . "_files/{level}/{column}_{row}." . $vars["fileext"]),
+                                   "url" => (!empty($img["Url"]) ? (string)$img["Url"] : sprintf("http://%s/images/components/deepzoom/%s_files/{level}/{column}_{row}.%s", $defaultdomain, $vars["imgname"], $vars["fileext"])),
                                    );
         }
       }

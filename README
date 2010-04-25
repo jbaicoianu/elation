@@ -1,0 +1,71 @@
+================================
+Elation PHP/JavaScript Framework
+================================
+
+This is the Elation PHP/JavaScript framework.  It's designed to be lightweight and easy to use, allowing the developer to build pages out of reusable components which can be called in from any template file with {component name="foo.bar"}
+
+
+Initializing Web Environment:
+-----------------------------
+    $ git clone git@github.com:jbaicoianu/elation.git
+    $ cd elation
+    $ ./elation web init
+    $ sudo cp config/apache-elation.conf /etc/apache2/sites-available/elation
+    $ sudo a2enmod rewrite
+    $ sudo a2ensite elation
+
+
+Creating a component:
+---------------------
+    $ ./elation component create <name>
+    $ ./elation component enable <name>
+
+
+Editing a component:
+--------------------
+Components are organized in the ./components directory, and can have any number of subcomponents.  Every component consists of a PHP file containing the component class, a templates directory, an htdocs directory which can contain any scripts, CSS, or images belonging to this component, and optionally a "components" directory of its own to contain any subcomponents.  For example:
+
+    - elation/
+      '- components/
+         |- foo/
+         |  |- foo.php
+         |  |- htdocs/
+         |  |  |- css/
+         |  |  |  |- bar.css
+         |  |  |  |- foo.css
+         |  |  |  '- things.css
+         |  |  |- scripts/
+         |  |  |  |- bar.js
+         |  |  |  '- things.js
+         |  |- templates/
+         |  |  |  |- bar.tpl
+         |  |  |  |- foo.tpl
+         |  |  |  '- things.tpl
+         |- html/
+         |  |- htdocs/
+         |  |  |- scripts/
+         |  |  '- css/
+         |  |     |- layout.css
+         |  |     '- style.css
+         |  |- html.php
+         |  '- templates/
+         |     |- header.tpl
+         |     '- footer.tpl
+         '- utils/
+            |- htdocs/
+            |  |- scripts/
+            |  |  |- ajaxlib.js
+            |  |  |- browser.js
+            |  |  |- button.js
+            |  |  |- dynamics.js
+            |  |  |- elation.js
+            |  |  |- events.js
+            |  |  '- ui.js
+            |  '- css/
+            |     '- ui.css
+            |- templates/
+            |  '- status.tpl
+            '- utils.php
+
+
+

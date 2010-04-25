@@ -191,6 +191,10 @@ class Component extends Base {
 
     return $this->smarty->template_exists($fname);
   }
+
+  function GetComponentResponse($template=NULL) {
+    return new ComponentResponse($this->ExpandTemplatePath($template));
+  }
 }
 
 class ComponentStatic extends Component {

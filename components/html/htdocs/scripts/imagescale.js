@@ -162,7 +162,7 @@ function ImageScale(container, options) {
           elation.events.remove(this.options.eventparent, 'mouseleave', this);
           elation.events.remove(this.options.eventparent, 'touchmove', this);
           elation.events.remove(this.options.eventparent, 'touchend', this);
-          $(this.container).removeClass("state_dragging");
+          //$(this.container).removeClass("state_dragging");
           this.dragging = false;
           if (this.options.onpanend)
             this.options.onpanend();

@@ -54,7 +54,7 @@ In this example, the templates and PHP would be set up as follows.  This setup a
     <div id="foo">
       <p>Blah blah blah</p>
       <div id="foo_bar">{component name="foo.bar" barid=$args.barid}</div>
-      <div id="foo_things">{component name="foo.things" size=7}</div>
+      <div id="foo_things">{component name="foo.things" color="blue"}</div>
     </div>
     {component name="html.footer"}
 
@@ -66,10 +66,7 @@ In this example, the templates and PHP would be set up as follows.  This setup a
     <div class="bar">
      <h2>{$bar->name|escape:html}</h2>
      <address>{$bar->address|escape:html}</address>
-     <ul>
-      {foreach from=$bar->cocktails item=cocktail}
-       <li>{$cocktail}</li>
-      {/foreach}
+     {component name="foo.things" things=$bar->cocktails}
      </ul> 
     </div>
 
@@ -103,16 +100,18 @@ In this example, the templates and PHP would be set up as follows.  This setup a
         if (!empty($args["barid"])) {
           $response["bar"] = $this->outlet->load("Bar", $args["barid"]);
         } else {
-          $response["error"] = "Expected size parameter, got nothing";
+          $response["error"] = "Expected id for bar object";
         }
         return $response;
       }
       function controller_things($args) {
         $response = $this->GetComponentResponse("./things.tpl");
-        if (!empty($args["size"])) {
-          $response["things"] = $this->outlet->select("Thing", "WHERE size > ?", array($args["size"]));
+        if (!empty($args["things"])) { // If things are passed in as an argument, use those
+          $response["things"] = $args["things"];
+        } else if (!empty($args["color"])) { // Otherwise, if we passed a color then get all matching objects from the DB
+          $response["things"] = $this->outlet->select("Thing", "WHERE color = ?", array($args["color"]));
         } else {
-          $response["error"] = "Expected size parameter, got nothing";
+          $response["error"] = "Expected color parameter, got nothing";
         }
         return $response;
       }

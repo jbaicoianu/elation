@@ -7,8 +7,8 @@ class Component_audio_playback extends Component {
   function controller_playback($args, $output="inline") {
     $vars["args"] = $args;
 
-    $playback = $this->parent->getMPDPlayback();
-    $vars["song"] = $playback->getCurrentSong();
+    if ($playback = $this->parent->getMPDPlayback()) 
+      $vars["song"] = $playback->getCurrentSong();
 
     if ($output == "ajax") {
       $ret["songtitle"] = $this->GetTemplate("./playback.tpl", $vars);

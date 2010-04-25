@@ -4,8 +4,6 @@ require_once("outlet/Outlet.php");
 Outlet::init(array(
   'connection' => array(
     'dsn' => 'sqlite:tmp/elation.sdb',
-    'username' => 'elation',
-    'password' => 'h4xm3',
     'dialect' => 'sqlite'
   ),
   'classes' => array(

@@ -23,49 +23,96 @@ Creating a component:
 
 Editing a component:
 --------------------
-Components are organized in the ./components directory, and can have any number of subcomponents.  Every component consists of a PHP file containing the component class, a templates directory, an htdocs directory which can contain any scripts, CSS, or images belonging to this component, and optionally a "components" directory of its own to contain any subcomponents.  For example:
+Components are organized in the ./components directory, and can have any number of subcomponents.  Every component consists of a PHP file containing the component class, a templates directory, an htdocs directory which can contain any scripts, CSS, or images belonging to this component, and optionally a "components" directory of its own to contain any subcomponents.  For example, the component "foo":
 
     - elation/
       '- components/
-         |- foo/
-         |  |- foo.php
-         |  |- htdocs/
-         |  |  |- css/
-         |  |  |  |- bar.css
-         |  |  |  |- foo.css
-         |  |  |  '- things.css
-         |  |  |- scripts/
-         |  |  |  |- bar.js
-         |  |  |  '- things.js
-         |  |- templates/
-         |  |  |  |- bar.tpl
-         |  |  |  |- foo.tpl
-         |  |  |  '- things.tpl
-         |- html/
-         |  |- htdocs/
-         |  |  |- scripts/
-         |  |  '- css/
-         |  |     |- layout.css
-         |  |     '- style.css
-         |  |- html.php
-         |  '- templates/
-         |     |- header.tpl
-         |     '- footer.tpl
-         '- utils/
+         '- foo/
+            |- foo.php
             |- htdocs/
-            |  |- scripts/
-            |  |  |- ajaxlib.js
-            |  |  |- browser.js
-            |  |  |- button.js
-            |  |  |- dynamics.js
-            |  |  |- elation.js
-            |  |  |- events.js
-            |  |  '- ui.js
-            |  '- css/
-            |     '- ui.css
-            |- templates/
-            |  '- status.tpl
-            '- utils.php
+            |  |- css/
+            |  |  |- bar.css
+            |  |  |- common.css
+            |  |  |- foo.css
+            |  |  '- things.css
+            |  '- scripts/
+            |     |- bar.js
+            |     |- common.js
+            |     '- things.js
+            '- templates/
+               |- bar.tpl
+               |- foo.tpl
+               '- things.tpl
+
+./components/foo/foo.php would look like the following:
+
+    <?
+    class Component_foo extends Component {
+      function init() {
+        $this->outlet = Outlet::getInstance();
+      }
+
+      function controller_foo($args) {
+        $response = $this->GetComponentResponse("./foo.tpl");
+        $response["args"] = $args;
+        return $response;
+      }
+      function controller_bar($args) {
+        $response = $this->GetComponentResponse("./bar.tpl");
+        if (!empty($args["barid"])) {
+          $response["bar"] = $this->outlet->load("Bar", $args["barid"]);
+        } else {
+          $response["error"] = "Expected size parameter, got nothing";
+        }
+        return $response;
+      }
+      function controller_things($args) {
+        $response = $this->GetComponentResponse("./things.tpl");
+        if (!empty($args["size"])) {
+          $response["things"] = $this->outlet->select("Thing", "WHERE size > ?", array($args["size"]));
+        } else {
+          $response["error"] = "Expected size parameter, got nothing";
+        }
+        return $response;
+      }
+    }  
+    ?>
+
+In this example, the templates would be set up as follows:
+
+./components/foo/templates/foo.tpl:
+-----------------------------------
+    {component name="html.header"}
+    {dependency type="component" name="foo"}
+    <div id="foo">
+      <p>Blah blah blah</p>
+      <div id="foo_bar">{component name="foo.bar" barid=$args.barid}</div>
+      <div id="foo_things">{component name="foo.things" size=7}</div>
+    </div>
+    {component name="html.footer"}
 
 
+./components/foo/templates/bar.tpl:
+-----------------------------------
+    {dependency type="component" name="foo.common"}
+    {dependency type="component" name="foo.bar"}
+    <div class="bar">
+     <h2>{$bar->name|escape:html}</h2>
+     <address>{$bar->address|escape:html}</address>
+     <ul>
+      {foreach from=$bar->cocktails item=cocktail}
+       <li>{$cocktail}</li>
+      {/foreach}
+     </ul> 
+    </div>
 
+./components/foo/templates/things.tpl:
+-----------------------------------
+    {dependency type="component" name="foo.common"}
+    {dependency type="component" name="foo.things"}
+
+    <ul class="things">
+     {foreach from=$things item=thing}
+      <li>{$thing->name}: ${$thing->price}</li>
+     {/foreach}
+    </ul>

@@ -5,7 +5,8 @@ class Component_%COMPONENTCLASSNAME% extends Component {
   }
 
   function controller_%SUBCOMPONENTNAME%($args, $output="inline") {
-    $vars["args"] = $args;
-    return $this->GetTemplate("./%SUBCOMPONENTNAME%.tpl", $vars);
+    $response = $this->GetComponentResponse("./%SUBCOMPONENTNAME%.tpl");
+    $response["args"] = $args;
+    return $response;
   }
 }  

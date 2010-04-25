@@ -3,10 +3,10 @@ require_once("outlet/Outlet.php");
 
 Outlet::init(array(
   'connection' => array(
-    'dsn' => 'mysql:host=localhost;dbname=supercritical',
-    'username' => 'supercritical',
+    'dsn' => 'sqlite:tmp/elation.sdb',
+    'username' => 'elation',
     'password' => 'h4xm3',
-    'dialect' => 'mysql'
+    'dialect' => 'sqlite'
   ),
   'classes' => array(
     "Blog" => array(

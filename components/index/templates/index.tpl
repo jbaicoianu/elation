@@ -12,7 +12,7 @@
     {* component name="utils.navigation" *}
     {component name="utils.status"}
     <div id="index_content">
-      {component name="navigation"}
+      {component name="deepzoom"}
     </div>
   </div>
 

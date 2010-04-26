@@ -8,48 +8,50 @@ class Component_deepzoom extends Component {
   }
 
   function controller_deepzoom($args, $output="inline") {
-    $vars["args"] = $args;
-    $vars["imgname"] = any($args["img"], "webtrendsmap");
-    $vars["defaultlevel"] = any($args["defaultlevel"], 0);
-    if (!empty($vars["imgname"])) {
-      $vars["xmlpath"] = $this->imagedir . "/" . $vars["imgname"] . ".xml";
+    $response = $this->GetComponentResponse("./deepzoom.tpl");
+    $response["args"] = $args;
+    $response["imgname"] = any($args["img"], "webtrendsmap");
+    $response["defaultlevel"] = any($args["defaultlevel"], 0);
+    if (!empty($response["imgname"])) {
+      $response["xmlpath"] = $this->imagedir . "/" . $response["imgname"] . ".xml";
       if (!empty($args["url"])) {
         $pinfo = pathinfo($args["url"]);
-        $vars["fileext"] = $pinfo["extension"];
-        $vars["filename"] = $vars["imgname"] . "." . $vars["fileext"];
-        $vars["filepath"] = $this->imagedir . "/originals/" . $vars["filename"];
-        if (!file_exists($vars["filepath"])) {
+        $response["fileext"] = $pinfo["extension"];
+        $response["filename"] = $response["imgname"] . "." . $response["fileext"];
+        $response["filepath"] = $this->imagedir . "/originals/" . $response["filename"];
+        if (!file_exists($response["filepath"])) {
           print "Downloading file...";
           flush();
           $contents = file_get_contents($args["url"]);
           if (!empty($contents)) {
-            file_put_contents($vars["filepath"], $contents);
+            file_put_contents($response["filepath"], $contents);
           }
           print "done.\n";
         }
 
         
-        if (!file_exists($vars["xmlpath"])) {
-          $converter = new Oz_Deepzoom_ImageCreator(256, 1, any($args["outputext"], $vars["fileext"]));
-          $converter->create( realpath($vars["filepath"]), $this->imagedir . '/' . $vars["imgname"] . '.xml', true);
+        if (!file_exists($response["xmlpath"])) {
+          $converter = new Oz_Deepzoom_ImageCreator(256, 1, any($args["outputext"], $response["fileext"]));
+          $converter->create( realpath($response["filepath"]), $this->imagedir . '/' . $response["imgname"] . '.xml', true);
         }
       }
-      if (file_exists($vars["xmlpath"])) {
+      if (file_exists($response["xmlpath"])) {
         //$defaultdomain = "{random}.tiles.supcrit.net";
         $defaultdomain = "localhost";
-        $img = new SimpleXMLElement(file_get_contents($vars["xmlpath"]));
+        $img = new SimpleXMLElement(file_get_contents($response["xmlpath"]));
         if (!empty($img)) {
-          $vars["fileext"] = (string)$img["Format"];
-          $vars["imgdata"] = array("size" => array((int)$img->Size["Width"], (int)$img->Size["Height"]),
+          $response["fileext"] = (string)$img["Format"];
+          $response["imgdata"] = array("size" => array((int)$img->Size["Width"], (int)$img->Size["Height"]),
                                    "tilesize" => (int)$img["TileSize"],
                                    "overlap" => (int)$img["Overlap"],
-                                   "url" => (!empty($img["Url"]) ? (string)$img["Url"] : sprintf("http://%s/images/components/deepzoom/%s_files/{level}/{column}_{row}.%s", $defaultdomain, $vars["imgname"], $vars["fileext"])),
+                                   "url" => (!empty($img["Url"]) ? (string)$img["Url"] : sprintf("http://%s/images/components/deepzoom/%s_files/{level}/{column}_{row}.%s", $defaultdomain, $response["imgname"], $response["fileext"])),
                                    );
         }
       }
     }
 
-    return $this->GetTemplate("./deepzoom.tpl", $vars);
+    //return $this->GetTemplate("./deepzoom.tpl", $vars);
+    return $response;
   }
   function controller_imagelist($args, $output="inline") {
     $vars["images"] = array();

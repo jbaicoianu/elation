@@ -50,7 +50,6 @@
   XMLHttpRequest objects for parallelized data retrieval
 */
 
-console.log('FFFFFF');
 elation.extend("ajax", new function () {
 	this.Queue = function (obj) {
     if (obj.constructor.toString().indexOf("Array") != -1) {

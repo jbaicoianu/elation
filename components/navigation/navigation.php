@@ -8,14 +8,11 @@ class Component_navigation extends Component {
   }
 
   function controller_navigation($args, $output="inline") {
-    $vars["args"] = $args;
-    $vars["mapcenter"] = $this->conn->load("NavigationLocation", "mapcenter");
+    $response = $this->GetComponentResponse("./navigation.tpl");
+    $response["args"] = $args;
+    $response["mapcenter"] = $this->conn->load("NavigationLocation", "mapcenter");
 
-    if ($output == "ajax")
-      $ret["index_content"] = $this->GetTemplate("./navigation.tpl", $vars);
-    else
-      $ret = $this->GetTemplate("./navigation.tpl", $vars);
-    return $ret;
+    return $response;
   }
   function controller_directions($args, $output="inline") {
     $vars["args"] = $args;

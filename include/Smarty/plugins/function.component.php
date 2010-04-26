@@ -35,12 +35,15 @@ function smarty_function_component($args, &$smarty) {
     $component = $componentmgr->Get($args["name"], $componentargs);
 
     if ($component !== NULL) {
-      $ret = $component->HandlePayload(&$componentargs, "text");
+      $ret = $component->HandlePayload(&$componentargs, "inline");
       if (is_array($ret)) {
         /*
         $webapp->response["type"] = "text/xml";
         $ret = $smarty->GenerateXML($ret);
         */
+      } else if ($ret instanceOf ComponentResponse) {
+        $response = $ret->getOutput("html");
+        $ret = $response[1];
       } else {
         $escapes = array();
         if(!empty($args["escape"]))

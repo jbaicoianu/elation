@@ -2,8 +2,18 @@
 Elation PHP/JavaScript Framework
 ================================
 
-This is the Elation PHP/JavaScript framework.  It's designed to be lightweight and easy to use, allowing the developer to build pages out of reusable components which can be called in from any template file with {component name="foo.bar"}
+This is the Elation PHP/JavaScript framework.  It's designed to be lightweight
+and easy to use, allowing the developer to build pages out of reusable
+components which can be called in from any template file with {component
+name="foo.bar"}
 
+
+Prerequisites:
+--------------
+    To run elation, you will need a webserver (Apache 2.x recommended, but Apache
+    1.3, Lighttpd, etc. should work as well).  You will also need PHP>=5.2, and by
+    default you will also need the php5-sqlite module (can optionally be replaced by
+    or used in conjunction with mysql, postgresql, etc)
 
 Initializing Web Environment:
 -----------------------------
@@ -23,7 +33,12 @@ Creating a component:
 
 Editing a component:
 --------------------
-Components are organized in the ./components directory, and can have any number of subcomponents.  Every component consists of a PHP file containing the component class, a templates directory, an htdocs directory which can contain any scripts, CSS, or images belonging to this component, and optionally a "components" directory of its own to contain any subcomponents.  For example, the component "foo":
+    Components are organized in the ./components directory, and can have any number
+    of subcomponents.  Every component consists of a PHP file containing the
+    component class, a templates directory, an htdocs directory which can contain
+    any scripts, CSS, or images belonging to this component, and optionally a
+    "components" directory of its own to contain any subcomponents.  For example,
+    the component "foo":
 
     - elation/
       '- components/
@@ -45,7 +60,10 @@ Components are organized in the ./components directory, and can have any number 
                '- things.tpl
 
 
-In this example, the templates and PHP would be set up as follows.  This setup allows access to the main foo page via http://domain/foo, which sets up a basic HTML page structure and then calls in the subcomponents foo.bar and foo.things with specific arguments to render them in the correct location on the page.
+    In this example, the templates and PHP would be set up as follows.  This setup
+    allows access to the main foo page via http://domain/foo, which sets up a basic
+    HTML page structure and then calls in the subcomponents foo.bar and foo.things
+    with specific arguments to render them in the correct location on the page.
 
 ./components/foo/templates/foo.tpl:
 -----------------------------------

@@ -95,11 +95,16 @@ class Component extends Base {
   }
   
   function HandlePayload(&$args, $output="blank") {
-    $ret = NULL;
-    //$controllerfuncname = "controller_" . $this->GetFullName("_");
-    $controllerfuncname = "controller_" . $this->name;
-    if (method_exists($this, $controllerfuncname)) {
-      $ret = call_user_func(array($this, $controllerfuncname), $args, $output);
+    try {
+      $ret = NULL;
+      //$controllerfuncname = "controller_" . $this->GetFullName("_");
+      $controllerfuncname = "controller_" . $this->name;
+      if (method_exists($this, $controllerfuncname)) {
+        $ret = call_user_func(array($this, $controllerfuncname), $args, $output);
+      }
+    } catch (Exception $e) {
+      global $webapp;
+      $ret = $webapp->DisplayException($e);
     }
     return $ret;
   }
@@ -245,7 +250,12 @@ class ComponentFunction extends Component {
   }
   
   function HandlePayload(&$args, $output="text") {
-    return call_user_func($this->payload, $args, $output);
+    try {
+      return call_user_func($this->payload, $args, $output);
+    } catch (Exception $e) {
+      global $webapp;
+      return $webapp->DisplayException($e);
+    }
   }
 }
 

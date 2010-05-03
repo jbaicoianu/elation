@@ -49,7 +49,8 @@ class WebApp {
     try {
       $output = $this->components->Dispatch();
     } catch (Exception $e) {
-      print_pre($e->getMessage());
+      //print_pre($e);
+      $this->DisplayException($e);
     }
     
     if ($output["type"] == "ajax") {
@@ -58,5 +59,12 @@ class WebApp {
     } else {
       print $this->smarty->PostProcess($output["content"]);
     }
+  }
+  function DisplayException($e) {
+    $vars["exception"] = array("message" => $e->getMessage(),
+                               "file" => $e->getFile(),
+                               "line" => $e->getLine(),
+                               "trace" => $e->getTrace());
+    print $this->smarty->GetTemplate("exception.tpl", $this, $vars);
   }
 }

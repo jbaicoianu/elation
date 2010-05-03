@@ -8,7 +8,10 @@ class Component_blog_posts extends Component {
     $vars["args"] = $args;
 
     $vars["blog"] = $args["blog"];
-    $vars["posts"] = $vars["blog"]->GetBlogposts("ORDER BY {BlogPost.timestamp} DESC");
+    if (!empty($vars["blog"])) {
+      $vars["posts"] = $vars["blog"]->GetBlogposts("ORDER BY {BlogPost.timestamp} DESC");
+      $vars["postcount"] = $vars["posts"]->count();
+    }
 
     return $this->GetTemplate("./posts.tpl", $vars);
   }
@@ -42,6 +45,7 @@ class Component_blog_posts extends Component {
       $vars["saved"] = false;
       $vars["valid"] = false;
       if (!empty($args["blogpost"])) {
+        $args["blogpost"]["timestamp"] = new DateTime();
         $blogpost = $vars[$formname] = new BlogPost($args["blogpost"]);
         $blogpost->SetBlog($vars["blog"]);
 

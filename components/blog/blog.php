@@ -1,5 +1,4 @@
 <?
-include("blog_model.php");
 
 class Component_blog extends Component {
   function init() {
@@ -14,6 +13,7 @@ class Component_blog extends Component {
     try {
       $vars["blog"] = $this->conn->load("Blog", $vars["blogname"]);
     } catch(Exception $e) {
+      print_pre($e->getMessage());
     }
 
     if (!empty($vars["blog"])) {

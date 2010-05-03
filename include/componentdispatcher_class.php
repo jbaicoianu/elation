@@ -47,7 +47,7 @@ class ComponentDispatcher extends Component {
         $ret["content"] = $component->HandlePayload($_REQUEST, $outputtype);
     } else if (preg_match("|^/((?:[^./]+/?)*)(?:\.(.*))?$|", $page, $m)) {
       $componentname = str_replace("/", ".", $m[1]);
-      $outputtype = any($m[2], "html");
+      $outputtype = (isset($m[2]) ? $m[2] : "html");
 
       $ret["component"] = $componentname;
       $ret["type"] = $outputtype;

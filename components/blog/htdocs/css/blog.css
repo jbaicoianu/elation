@@ -1,3 +1,12 @@
+.blog {
+  border: 1px solid black;
+  background: white;
+  color: black;
+  padding: 1em;
+  margin: 1em;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+}
 .blog_posts {
   width: 70%;
   float: left;
@@ -27,4 +36,57 @@
 .html_form ul.html_form_elements textarea {
   width: 100%;
   height: 5em;
+}
+.blog_create {
+  border: 1px solid black;
+  background: white;
+  color: black;
+  padding: .5em 1em 1em 1em;
+  max-width: 18em;
+  margin: 1em;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+}
+.blog_create h2 {
+  margin: 0 0 .5em 0;
+}
+.blog_create ul {
+  list-style: none;
+}
+.blog_create label {
+  display: inline-block;
+  width: 6em;
+  white-space: nowrap;
+}
+
+.blog_post {
+  border: 1px solid black;
+  background: white;
+  color: black;
+}
+.blog_backlink {
+  clear: left;
+  display: block;
+}
+.blog_list {
+  border: 1px solid black;
+  background: white;
+  color: black;
+  padding: 1em;
+  margin: 1em;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  list-style: none;
+}
+.blog_summary {
+  margin: .5em;
+  border-bottom: 1px solid #999;
+  padding-bottom: .5em;
+}
+.blog_summary h2 {
+  font-size: 1em;
+}
+.blog_summary h3 {
+  font-size: 1em;
+  font-weight: normal;
 }

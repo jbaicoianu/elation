@@ -1,4 +1,4 @@
-function CarPC() {
+elation.extend("navigation.carpc", new function() {
 
   this.init = function() {
   }
@@ -52,28 +52,28 @@ function CarPC() {
     this.xmlhttp = GXmlHttp.create();
 
     GEvent.addListener(this.map, 'dragstart', function() {
-      carpc.setFollow(false);
+      elation.navigation.carpc.setFollow(false);
     });
     GEvent.addListener(this.map, 'moveend', function() {
-      if (!carpc.lastwaypointupdate || carpc.lastwaypointupdate.distanceFrom(carpc.map.getCenter()) > Math.pow(35, 20 / carpc.map.getZoom())) {
-        carpc.getWaypoints(carpc.map.getBoundsLatLng(), carpc.map.getZoom());
-        carpc.lastwaypointupdate = carpc.map.getCenter();
+      if (!elation.navigation.carpc.lastwaypointupdate || elation.navigation.carpc.lastwaypointupdate.distanceFrom(elation.navigation.carpc.map.getCenter()) > Math.pow(35, 20 / elation.navigation.carpc.map.getZoom())) {
+        elation.navigation.carpc.getWaypoints(elation.navigation.carpc.map.getBoundsLatLng(), elation.navigation.carpc.map.getZoom());
+        elation.navigation.carpc.lastwaypointupdate = elation.navigation.carpc.map.getCenter();
       }
     });
     GEvent.addListener(this.map, 'zoom', function() {
-        carpc.getWaypoints(carpc.map.getBoundsLatLng(), carpc.map.getZoom());
+        elation.navigation.carpc.getWaypoints(elation.navigation.carpc.map.getBoundsLatLng(), elation.navigation.carpc.map.getZoom());
     });
-    setTimeout(function() { carpc.getWaypoints(carpc.map.getBoundsLatLng(), carpc.map.getZoom()) }, 0);
+    setTimeout(function() { elation.navigation.carpc.getWaypoints(elation.navigation.carpc.map.getBoundsLatLng(), elation.navigation.carpc.map.getZoom()) }, 0);
 
     if (this.mode == "playback") {
-      document.getElementById("controls").innerHTML = '<a href="#" onclick="carpc.playback.step = -1; return false;">&lt;</a> <a href="#" onclick="carpc.playback.step = 0; return false;">||</a> <a href="#" onclick="carpc.playback.step = 1; return false;">&gt;</a> | <a href="#" onclick="carpc.playback.steptime = 2000; return false;">slow</a> <a href="#" onclick="carpc.playback.steptime = 1000; return false;">normal</a> <a href="#" onclick="carpc.playback.steptime = 250; carpc.playback.step *= 2; return false;">fast</a>';
+      document.getElementById("controls").innerHTML = '<a href="#" onclick="elation.navigation.carpc.playback.step = -1; return false;">&lt;</a> <a href="#" onclick="elation.navigation.carpc.playback.step = 0; return false;">||</a> <a href="#" onclick="elation.navigation.carpc.playback.step = 1; return false;">&gt;</a> | <a href="#" onclick="elation.navigation.carpc.playback.steptime = 2000; return false;">slow</a> <a href="#" onclick="elation.navigation.carpc.playback.steptime = 1000; return false;">normal</a> <a href="#" onclick="elation.navigation.carpc.playback.steptime = 250; elation.navigation.carpc.playback.step *= 2; return false;">fast</a>';
     }
 
 //    this.getPosition();
     if (this.mode == "playback") {
-      setTimeout("carpc.playbackTrip(true);", 100);
+      setTimeout("elation.navigation.carpc.playbackTrip(true);", 100);
     } else if (this.mode == "live") {
-      setTimeout("carpc.getPosition();", 100);
+      setTimeout("elation.navigation.carpc.getPosition();", 100);
     }
 
     //this.initDirections();
@@ -144,7 +144,7 @@ function CarPC() {
       if (this.history[this.history.length - 1]) {
         this.updatePosition(this.history[this.history.length - 1]);
       }
-      setTimeout('carpc.getPosition()', 1000);
+      setTimeout('elation.navigation.carpc.getPosition()', 1000);
     }
   }
 
@@ -175,7 +175,7 @@ function CarPC() {
       this.updatePosition(this.history[this.playback.offset]);
       this.playback.offset += this.playback.step;
  
-      setTimeout('carpc.playbackTrip(false)', this.playback.steptime);
+      setTimeout('elation.navigation.carpc.playbackTrip(false)', this.playback.steptime);
     }
   }
 
@@ -196,14 +196,14 @@ function CarPC() {
   }
 
   this.getWaypoints = function(bounds, zoom) {
-    if (carpc.waypoints_enabled) {
+    if (elation.navigation.carpc.waypoints_enabled) {
       // First, let's remove any markers that aren't supposed to be shown at this zoom level, and aren't within our field of view
-      var mapbounds = carpc.map.getBounds();
-      for (var key in carpc.waypoints) {
-        //console.log('check zoom - ' + carpc.waypoints[key].zoom_min + ' > ' + zoom + ' ? ' + (carpc.waypoints[key].zoom_min > zoom));
-        if (carpc.waypoints[key].visible && (carpc.waypoints[key].zoom_min > zoom || !mapbounds.contains(carpc.waypoints[key].pos))) {
-          carpc.markerpool.releaseMarker(carpc.waypoints[key].marker.poolid);
-          carpc.waypoints[key].visible = false;
+      var mapbounds = elation.navigation.carpc.map.getBounds();
+      for (var key in elation.navigation.carpc.waypoints) {
+        //console.log('check zoom - ' + elation.navigation.carpc.waypoints[key].zoom_min + ' > ' + zoom + ' ? ' + (elation.navigation.carpc.waypoints[key].zoom_min > zoom));
+        if (elation.navigation.carpc.waypoints[key].visible && (elation.navigation.carpc.waypoints[key].zoom_min > zoom || !mapbounds.contains(elation.navigation.carpc.waypoints[key].pos))) {
+          elation.navigation.carpc.markerpool.releaseMarker(elation.navigation.carpc.waypoints[key].marker.poolid);
+          elation.navigation.carpc.waypoints[key].visible = false;
         }
       }
 
@@ -226,14 +226,14 @@ function CarPC() {
           if (waypoints) {
             for (var i = 0; i < waypoints.length; i++) {
               var locid = waypoints[i].locationid;
-              if (!carpc.waypoints[locid]) {
-                carpc.waypoints[locid] = waypoints[i];
-                carpc.waypoints[locid].pos = new GLatLng(carpc.waypoints[locid].lat, carpc.waypoints[locid].lon);
-                carpc.waypoints[locid].visible = true;
-                carpc.waypoints[locid].marker = carpc.markerpool.getMarker(locid);
-              } else if (!carpc.waypoints[locid].visible) {
-                carpc.waypoints[locid].marker = carpc.markerpool.getMarker(locid);
-                carpc.waypoints[locid].visible = true;
+              if (!elation.navigation.carpc.waypoints[locid]) {
+                elation.navigation.carpc.waypoints[locid] = waypoints[i];
+                elation.navigation.carpc.waypoints[locid].pos = new GLatLng(elation.navigation.carpc.waypoints[locid].lat, elation.navigation.carpc.waypoints[locid].lon);
+                elation.navigation.carpc.waypoints[locid].visible = true;
+                elation.navigation.carpc.waypoints[locid].marker = elation.navigation.carpc.markerpool.getMarker(locid);
+              } else if (!elation.navigation.carpc.waypoints[locid].visible) {
+                elation.navigation.carpc.waypoints[locid].marker = elation.navigation.carpc.markerpool.getMarker(locid);
+                elation.navigation.carpc.waypoints[locid].visible = true;
               }
             }
           }
@@ -341,7 +341,7 @@ dirlist.scrollTop = 0;
 
   // Initialize CarPC class
   this.init();
-}
+});
 
 function MarkerPool(map) {
   this.init = function(map) {
@@ -413,19 +413,19 @@ if (!marker.images) {
 document.getElementById("controls").innerHTML += ".";
 return false;
 }
-    if (marker.images[0] != this.icons[carpc.waypoints[waypointid].type]) {
-      marker.images[0].src = this.icons[carpc.waypoints[waypointid].type].src;
+    if (marker.images[0] != this.icons[elation.navigation.carpc.waypoints[waypointid].type]) {
+      marker.images[0].src = this.icons[elation.navigation.carpc.waypoints[waypointid].type].src;
     }
       */
-    var offset = this.getBestMarkerPlacement(carpc.waypoints[waypointid]);
-    marker.setLatLng(carpc.waypoints[waypointid].pos);
-    marker.setType(carpc.waypoints[waypointid].type);
-    marker.setLabel(carpc.waypoints[waypointid].name);
+    var offset = this.getBestMarkerPlacement(elation.navigation.carpc.waypoints[waypointid]);
+    marker.setLatLng(elation.navigation.carpc.waypoints[waypointid].pos);
+    marker.setType(elation.navigation.carpc.waypoints[waypointid].type);
+    marker.setLabel(elation.navigation.carpc.waypoints[waypointid].name);
     marker.setLabelOrientation_(offset);
     marker.redraw(true);
 
     GEvent.addListener(marker, "click", function() {
-      var info = carpc.getWaypointInfo(waypointid);
+      var info = elation.navigation.carpc.getWaypointInfo(waypointid);
       marker.openInfoWindow('<div style="width: 20em; height: 10em;">' + info + '</div>');
     });
 
@@ -504,7 +504,7 @@ function parseResponse(response, parent) {
   for (var i = 0; i < lines.length; i++) {
     if (lines[i].length > 0) {
       var pos = parsePosition(lines[i]);
-      parent.history[carpc.history.length] = pos;
+      parent.history[elation.navigation.carpc.history.length] = pos;
 //      document.getElementById("controls").innerHTML = "e[loc] = " + pos.error[0] + ", e[speed] = " + pos.error[1] + ", e[heading] = " + pos.error[2];
     }
   }
@@ -517,7 +517,7 @@ function chooseDirectionArrow(heading) {
 }
 
 function createMarker(type, point, html) {
-  var marker = new GMarker(point, carpc.markericons[type]);
+  var marker = new GMarker(point, elation.navigation.carpc.markericons[type]);
   GEvent.addListener(marker, "click", function() {
           marker.openInfoWindowHtml('<div class="markerinfo">' + html.replace(/\\n/g, "<br />") + '</div>');
   });

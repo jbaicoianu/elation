@@ -4,7 +4,8 @@ include_once("yelp_class.php");
 class Component_navigation extends Component {
   function init() {
     $this->conn = Outlet::getInstance();
-    $this->conn->createProxies();
+    $orm = OrmManager::singleton();
+    $orm->LoadModel("navigation");
   }
 
   function controller_navigation($args, $output="inline") {

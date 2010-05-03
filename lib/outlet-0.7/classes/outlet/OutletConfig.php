@@ -63,6 +63,15 @@ class OutletConfig {
 	function useGettersAndSetters () {
 		return isset($this->conf['useGettersAndSetters']) ? $this->conf['useGettersAndSetters'] : false;
 	}
+
+  function addEntities($entities) {
+    foreach ($entities as $key=>$cls) {
+      $this->conf['classes'][$key] = $cls;
+      $this->entities[$key] = new OutletEntityConfig($this, $key, $cls);
+    }
+    OutletMapper::$conf = &$this->conf['classes'];
+    return $this->entities;
+  }
 }
 
 class OutletEntityConfig {

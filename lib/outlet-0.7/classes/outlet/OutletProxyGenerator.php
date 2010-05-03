@@ -92,9 +92,9 @@ class OutletProxyGenerator {
 		//$c .= "    echo \$q; \n";
 		$c .= "    \$q = trim(\$q); \n";
 		$c .= "    if (stripos(\$q, 'where') !== false) { \n";
-		$c .= "      \$q = '{"."$foreign.$key} = '.\$this->$pk_prop.' and ' . substr(\$q, 5); \n";
+		$c .= "      \$q = '{"."$foreign.$key} = \''.\$this->$pk_prop.'\' and ' . substr(\$q, 5); \n";
 		$c .= "    } else { \n";
-		$c .= "      \$q = '{"."$foreign.$key} = '.\$this->$pk_prop. ' ' . \$q; \n";
+		$c .= "      \$q = '{"."$foreign.$key} = \''.\$this->$pk_prop. '\' ' . \$q; \n";
 		$c .= "    }\n";
 		//$c .= "    echo \"<h2>\$q</h2>\"; \n";
 		

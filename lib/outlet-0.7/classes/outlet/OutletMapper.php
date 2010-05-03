@@ -198,7 +198,7 @@ class OutletMapper {
 			
 			// if we don't have an OutletCollection yet
 			if (! $children instanceof OutletCollection) {
-				$arr = $children->getArrayCopy();
+				$arr = (is_array($children) ? $children : $children->getArrayCopy());
 				
 				/* @var $children OutletCollection */
 				$children = $obj->$getter();

@@ -24,24 +24,33 @@ include_once("config/outlet_conf.php");
 
 class WebApp {
   function WebApp($rootdir, $args) {
-    $this->rootdir = $rootdir;
-    //$this->cfg = new ConfigManager($rootdir);
-    //$this->data = new DataManager($this->cfg);
-    $this->outlet = Outlet::getInstance();
-    $this->outlet->createClasses();
-    $this->outlet->createProxies();
+    try {
+      $this->rootdir = $rootdir;
+      //$this->cfg = new ConfigManager($rootdir);
+      //$this->data = new DataManager($this->cfg);
+      $this->outlet = Outlet::getInstance();
+//print_pre(json_indent(json_encode($this->outlet->getConfig()), 6));
+      $this->outlet->createClasses();
+      $this->outlet->createProxies();
 
-    $this->smarty = SuperSmarty::singleton($this->rootdir);
-    $this->smarty->assign_by_ref("webapp", $this);
-    $this->components = new ComponentDispatcher($this);
-    //$this->smarty->SetComponents($this->components);
+      $this->smarty = SuperSmarty::singleton($this->rootdir);
+      $this->smarty->assign_by_ref("webapp", $this);
+      $this->components = new ComponentDispatcher($this);
+      //$this->smarty->SetComponents($this->components);
 
-    session_set_cookie_params(30*60*60*24);
-    session_start();
+      session_set_cookie_params(30*60*60*24);
+      session_start();
+    } catch(Exception $e) {
+      print_pre($e->getMessage());
+    }
   }
 
   function Display() {
-    $output = $this->components->Dispatch();
+    try {
+      $output = $this->components->Dispatch();
+    } catch (Exception $e) {
+      print_pre($e->getMessage());
+    }
     
     if ($output["type"] == "ajax") {
       header('Content-type: application/xml');

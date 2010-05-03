@@ -63,10 +63,12 @@ component_enable() {
       cd htdocs/$TYPE/components && ln -s ../../../components/$COMPONENTNAME/htdocs/$TYPE $COMPONENTNAME && cd ../../..
     done
     if [ -e components/$COMPONENTNAME/$COMPONENTNAME.model ]; then
+      [ ! -e config/model ] && mkdir config/model
       cd config/model && ln -sf ../../components/$COMPONENTNAME/$COMPONENTNAME.model . && cd ../..
       echo -n "model "
     fi
     if [ -e components/$COMPONENTNAME/model ]; then
+      [ ! -e include/model ] && mkdir include/model
       cd include/model && ln -sf ../../components/$COMPONENTNAME/model/*_class.php . && cd ../..
       echo -n "classes "
     fi

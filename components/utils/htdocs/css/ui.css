@@ -206,3 +206,9 @@
   overflow-y: auto;
   -moz-user-select: -moz-none;
 }
+.error {
+  color: #E00;
+}
+.success {
+  color: #0E0;
+}

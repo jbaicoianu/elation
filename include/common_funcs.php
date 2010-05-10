@@ -88,52 +88,52 @@ function nicetime($date)
 }
 
 function json_indent($json, $maxdepth=999) {
-  $result    = '';
-  $pos       = 0;
-  $strLen    = strlen($json);
-  $indentStr = '  ';
-  $newLine   = "\n";
-  $inquotes  = false;
+    $result    = '';
+    $pos       = 0;
+    $strLen    = strlen($json);
+    $indentStr = '  ';
+    $newLine   = "\n";
+    $inquotes  = false;
 
-  for($i = 0; $i <= $strLen; $i++) {
+    for($i = 0; $i <= $strLen; $i++) {
 
-    // Grab the next character in the string
-    $char = $json[$i]; //substr($json, $i, 1);
+      // Grab the next character in the string
+      $char = $json[$i]; //substr($json, $i, 1);
 
-    // If this character is the end of an element,
-    // output a new line and indent the next line
-    if(($char == '}' || $char == ']') && !$inquotes) {
-      if ($pos-- < $maxdepth) {
-        $result .= $newLine;
-        for ($j=0; $j<$pos; $j++) {
-          $result .= $indentStr;
+      // If this character is the end of an element,
+      // output a new line and indent the next line
+      if(($char == '}' || $char == ']') && !$inquotes) {
+        if ($pos-- < $maxdepth) {
+          $result .= $newLine;
+          for ($j=0; $j<$pos; $j++) {
+            $result .= $indentStr;
+          }
+        }
+      }
+
+      // Add the character to the result string
+      $result .= $char;
+
+      // We don't want to mess with formatting if we're inside a string
+      if ($char == '"' && $json[$i-1] != '\\')
+        $inquotes = !$inquotes;
+
+      // If the last character was the beginning of an element,
+      // output a new line and indent the next line
+      if (($char == ',' || $char == '{' || $char == '[') && !$inquotes) {
+        if ($char == '{' || $char == '[') {
+          $pos ++;
+        }
+        if ($pos < $maxdepth) {
+          $result .= $newLine;
+          for ($j = 0; $j < $pos; $j++) {
+            $result .= $indentStr;
+          }
         }
       }
     }
 
-    // Add the character to the result string
-    $result .= $char;
-
-    // We don't want to mess with formatting if we're inside a string
-    if ($char == '"' && $json[$i-1] != '\\')
-      $inquotes = !$inquotes;
-
-    // If the last character was the beginning of an element,
-    // output a new line and indent the next line
-    if (($char == ',' || $char == '{' || $char == '[') && !$inquotes) {
-      if ($char == '{' || $char == '[') {
-        $pos ++;
-      }
-      if ($pos < $maxdepth) {
-        $result .= $newLine;
-        for ($j = 0; $j < $pos; $j++) {
-          $result .= $indentStr;
-        }
-      }
-    }
-  }
-
-  return $result;
+    return $result;
 }
 function object_to_array($obj, $keymap=NULL) {
   $arr = array();

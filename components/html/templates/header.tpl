@@ -19,7 +19,7 @@
   {dependency type="javascript" url="/dynatree/jquery.dynatree.js"}
   {dependency type="css" url="/dynatree/skin/ui.dynatree.css"}
 *}
-  <meta name="viewport" content="initial-scale = 1.0, user-scalable = no" />
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no, maximum-scale=1.0" />
 
  </head>
  <body>

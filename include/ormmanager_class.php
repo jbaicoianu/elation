@@ -11,6 +11,14 @@ class OrmManager {
   public $outlet;
 
   function __construct() {
+    Outlet::init(array(
+      'connection' => array(
+        'dsn' => 'sqlite:tmp/elation.sqlite',
+        'dialect' => 'sqlite'
+      ),
+      'classes' => array(
+      )
+    ));
     $this->outlet =& Outlet::getInstance();
   }
 
@@ -34,7 +42,6 @@ class OrmManager {
     foreach ($models as $model) {
       $ormmodel = new OrmModel($model);
       $ormmodel->LoadModel();
-
       if (!empty($ormmodel->classes)) {
         $foo = object_to_array($ormmodel->classes);
         try {
@@ -46,6 +53,15 @@ class OrmManager {
     }
     $this->outlet->createClasses();
     $this->outlet->createProxies();
+  }
+  function Select($type, $where=NULL) {
+    return $this->outlet->select($type, $where);
+  }
+  function Load($type, $id) {
+    return $this->outlet->load($type, $id);
+  }
+  function Save($obj) {
+    return $this->outlet->save($obj);
   }
 }
 /**

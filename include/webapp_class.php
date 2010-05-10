@@ -20,51 +20,82 @@
 include_once("autoload.php");
 include_once("lib/logger.php");
 include_once("common_funcs.php");
-include_once("config/outlet_conf.php");
+include_once("outlet/Outlet.php");
+//include_once("config/outlet_conf.php");
 
 class WebApp {
+  public $orm;
+  public $smarty;
+  public $components;
+
   function WebApp($rootdir, $args) {
-    try {
-      $this->rootdir = $rootdir;
-      //$this->cfg = new ConfigManager($rootdir);
-      //$this->data = new DataManager($this->cfg);
-      $this->outlet = Outlet::getInstance();
-//print_pre(json_indent(json_encode($this->outlet->getConfig()), 6));
-      $this->outlet->createClasses();
-      $this->outlet->createProxies();
+    $this->rootdir = $rootdir;
+    //$this->cfg = new ConfigManager($rootdir);
+    //$this->data = new DataManager($this->cfg);
 
-      $this->smarty = SuperSmarty::singleton($this->rootdir);
-      $this->smarty->assign_by_ref("webapp", $this);
-      $this->components = new ComponentDispatcher($this);
-      //$this->smarty->SetComponents($this->components);
+    set_error_handler(array($this, "HandleError"), E_WARNING | E_ERROR | E_PARSE);
 
-      session_set_cookie_params(30*60*60*24);
-      session_start();
-    } catch(Exception $e) {
-      print_pre($e->getMessage());
+    if ($this->initialized()) {
+      try {
+        $this->smarty = SuperSmarty::singleton($this->rootdir);
+        $this->smarty->assign_by_ref("webapp", $this);
+        $this->components = new ComponentDispatcher($this);
+        $this->orm = OrmManager::singleton();
+        //$this->smarty->SetComponents($this->components);
+
+        session_set_cookie_params(30*60*60*24);
+        session_start();
+      } catch (Exception $e) {
+        $this->HandleException($e);
+      }
+    } else {
+      print file_get_contents("./templates/uninitialized.tpl");
     }
+  }
+  function initialized() {
+    return is_writable("./tmp");
   }
 
   function Display() {
-    try {
-      $output = $this->components->Dispatch();
-    } catch (Exception $e) {
-      //print_pre($e);
-      $this->DisplayException($e);
-    }
-    
-    if ($output["type"] == "ajax") {
-      header('Content-type: application/xml');
-      print $this->smarty->GenerateXML($output["content"]);
-    } else {
-      print $this->smarty->PostProcess($output["content"]);
+    if (!empty($this->components)) {
+      try {
+        $output = $this->components->Dispatch();
+      } catch (Exception $e) {
+        //print_pre($e);
+        $this->HandleException($e);
+      }
+      
+      if ($output["type"] == "ajax") {
+        header('Content-type: application/xml');
+        print $this->smarty->GenerateXML($output["content"]);
+      } else {
+        header('Content-type: ' . any($output["responsetype"], "text/html"));
+        print $this->smarty->PostProcess($output["content"]);
+      }
     }
   }
-  function DisplayException($e) {
-    $vars["exception"] = array("message" => $e->getMessage(),
+  function HandleException($e) {
+    $vars["exception"] = array("type" => "exception",
+                               "message" => $e->getMessage(),
                                "file" => $e->getFile(),
                                "line" => $e->getLine(),
                                "trace" => $e->getTrace());
+    print $this->smarty->GetTemplate("exception.tpl", $this, $vars);
+  }
+  function HandleError($errno, $errstr, $errfile, $errline, $errcontext) {
+    if ($errno & E_ERROR)
+      $type = "error";
+    else if ($errno & E_WARNING)
+      $type = "warning";
+    else if ($errno & E_NOTICE)
+      $type = "notice";
+    else if ($errno & E_PARSE)
+      $type = "parse error";
+
+    $vars["exception"] = array("type" => $type,
+                               "message" => $errstr,
+                               "file" => $errfile,
+                               "line" => $errline);
     print $this->smarty->GetTemplate("exception.tpl", $this, $vars);
   }
 }

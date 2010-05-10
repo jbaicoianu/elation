@@ -42,6 +42,7 @@ class ComponentDispatcher extends Component {
     $ret["page"] = $page;
 
     if ($page == "/") {
+      $ret["type"] = $outputtype;
       $ret["component"] = "index";
       if ($component = $this->Get("index"))
         $ret["content"] = $component->HandlePayload($_REQUEST, $outputtype);
@@ -61,7 +62,7 @@ class ComponentDispatcher extends Component {
 
     if ($ret['content'] instanceOf ComponentResponse) {
       $output = $ret['content']->getOutput($outputtype);
-      $this->root->response["type"] = $output[0];
+      $ret['responsetype'] = $output[0];
       $ret['content'] = $output[1];
     }
     // TODO - handle redirects and postprocessing for different output types here
@@ -115,8 +116,9 @@ class ComponentResponse implements ArrayAccess {
   public $data = array();
   private $template;
   
-  function __construct($template=NULL) {
+  function __construct($template=NULL, $data=NULL) {
     $this->template = $template;
+    $this->data = $data;
   }
   
   function offsetExists($name) {
@@ -142,7 +144,7 @@ class ComponentResponse implements ArrayAccess {
     case 'json':
       $ret = array("application/javascript", $smarty->GenerateJavascript($ret));
     case 'js':
-      $ret = array("application/javascript", json_encode($this) . "\n");
+      $ret = array("application/javascript", json_indent(json_encode($this)) . "\n");
       break;
     case 'txt':
       $ret = array("text/plain", $smarty->GenerateHTML($smarty->GetTemplate($this->template, NULL, $this->data)));

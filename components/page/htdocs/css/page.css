@@ -46,7 +46,7 @@ h2 {
   position: relative;
 }
 .sc_container_inner {
-  max-width: 80em;
+  max-width: 68em;
   margin: 0 auto;
   padding: 0 2em;
 }
@@ -60,7 +60,7 @@ h2 {
   position: relative;
 }
 #sc_header .sc_container_inner {
-  background: url(/images/components/supercritical/flame-quant.png) no-repeat 100% 20%;
+  background: url(/images/components/boxeebox/flame-quant.png) no-repeat 100% 20%;
   padding: 3em 2em 2em 2em;
 }
 #sc_header a:active {
@@ -83,19 +83,24 @@ h2 {
   border-top: 1px solid #8fa96a;
   z-index: 50;
   xposition: relative;
+  /*
 xposition: absolute;
+font-size: 1em;
 float: left;
 width: 12em;
 top: 0;
 bottom: 0;
 left: 0;
-border-right: 2px solid black;
+border-bottom: 2px solid black;
+*/
+  -webkit-box-shadow: 0px 5px 5px #000;
+  -moz-box-shadow: 0px 5px 5px #000;
 }
 #sc_navigation ul.sc_menu_nav {
   margin-left: -1em;
 }
 #sc_navigation ul.sc_menu_nav li {
-  display: block;
+  display: inline-block;
   font-size: 0.9em;
   xfloat: left;
   text-transform: uppercase;
@@ -111,6 +116,7 @@ border-right: 2px solid black;
   background: #999;
 }
 #sc_content {
+  color: black;
   position: relative;
   xpadding-right: 350px;
   padding-top: 1px;
@@ -128,10 +134,11 @@ xpadding-left: 12em;
   z-index: 9;
 }
 #sc_content .sc_content_main {
+  padding-top: 5px;
   border-top: 1px solid #c7dea8;
   border-bottom: 1px solid #b5b5b5;
   background: url(/images/components/page/content-background.png);
-padding-left: 12em;
+xpadding-left: 12em;
 }
 #sc_content .sc_content_main .sc_container_inner {
   position: relative;
@@ -165,6 +172,7 @@ padding-left: 12em;
   margin-right: 120px;
   z-index: 10;
   position: relative;
+  pointer-events: none;
 }
 #sc_content_main_special_flame {
   max-height: 620px;
@@ -173,7 +181,7 @@ padding-left: 12em;
   right: 0px;
   bottom: -160px;
   top: -1px;
-  background: url(/images/components/supercritical/flame-quant.png) no-repeat 100% 100%;
+  background: url(/images/components/boxeebox/flame-quant.png) no-repeat 100% 100%;
   z-index: 1;
 }
 #sc_content_main_special_cover {
@@ -197,7 +205,6 @@ padding-left: 12em;
 }
 #sc_content .sc_content_bottom .sc_container_inner {
   padding: 0 1em;
-padding-left: 12em;
 }
 #sc_content .sc_content_bottom ul.sc_content_columns {
   list-style: none;

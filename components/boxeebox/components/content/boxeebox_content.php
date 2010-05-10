@@ -1,5 +1,5 @@
 <?
-class Component_supercritical_content extends Component {
+class Component_boxeebox_content extends Component {
   function init() {
   }
 

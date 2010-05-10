@@ -7,4 +7,4 @@
         <li>Access the web and read your email from your TV</li>
        </ul>
       </div>
-      <img src="/images/components/supercritical/boxeebox-upright-fs8.png" class="sc_content_productimage sc_utils_png" width="205" height="407" />
+      <img src="/images/components/boxeebox/boxeebox-upright-fs8.png" class="sc_content_productimage sc_utils_png" width="205" height="407" />

@@ -43,7 +43,7 @@
   color: black;
   padding: .5em 1em 1em 1em;
   max-width: 18em;
-  margin: 1em;
+  margin: 1em auto;
   -webkit-border-radius: 10px;
   -moz-border-radius: 10px;
 }

@@ -1,4 +1,7 @@
 * { margin: 0; padding: 0; }
+html {
+  -webkit-text-size-adjust:none;
+}
 #container {
   overflow: hidden;
 }

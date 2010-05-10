@@ -8,6 +8,7 @@ class Component_html_form extends Component {
     $vars["obj"] = $args["obj"];
     $vars["elements"] = $args["elements"];
     $vars["formname"] = any($args["formname"], "htmlform");
+    $vars["formhandler"] = $args["formhandler"];
     $vars["dispatchname"] = any($args["dispatchname"], $vars["formname"]);
 
 

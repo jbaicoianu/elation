@@ -4,5 +4,5 @@
    <li>{component name="html.form.element" element=$element formname=$formname}</li>
   {/foreach}
  </ul>
- <input type="hidden" name="_predispatch[{$dispatchname}]" value="blog.posts.create" />
+ <input type="hidden" name="_predispatch[{$dispatchname}]" value="{$formhandler}" />
 </form>

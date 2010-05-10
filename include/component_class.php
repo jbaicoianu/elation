@@ -104,7 +104,7 @@ class Component extends Base {
       }
     } catch (Exception $e) {
       global $webapp;
-      $ret = $webapp->DisplayException($e);
+      $ret = $webapp->HandleException($e);
     }
     return $ret;
   }
@@ -197,8 +197,8 @@ class Component extends Base {
     return $this->smarty->template_exists($fname);
   }
 
-  function GetComponentResponse($template=NULL) {
-    return new ComponentResponse($this->ExpandTemplatePath($template));
+  function GetComponentResponse($template=NULL, $data=NULL) {
+    return new ComponentResponse($this->ExpandTemplatePath($template), $data);
   }
 }
 
@@ -254,7 +254,7 @@ class ComponentFunction extends Component {
       return call_user_func($this->payload, $args, $output);
     } catch (Exception $e) {
       global $webapp;
-      return $webapp->DisplayException($e);
+      return $webapp->HandleException($e);
     }
   }
 }

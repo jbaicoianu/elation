@@ -1,5 +1,5 @@
 <?
-include_once("include/components_class.php");
+include_once("include/component_class.php");
 include_once("include/ormmanager_class.php");
 
 class Component_ORM extends Component {

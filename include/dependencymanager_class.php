@@ -77,6 +77,7 @@ class DependencyCSS extends Dependency {
 
   function Display($locations, $extras=NULL) {
     $url = "";
+    if (empty($this->media)) $this->media = "all";
     if (!empty($this->file)) {
       $fname = $this->GetFilename($locations["css"], $this->file);
       if (!empty($fname))
@@ -85,7 +86,7 @@ class DependencyCSS extends Dependency {
       $url = $this->url;
     }
     if (!empty($url))
-      $ret = sprintf($this->format."\n", htmlspecialchars($url), any($this->media,"all"));
+      $ret = sprintf($this->format."\n", htmlspecialchars($url), $this->media);
     if ($extras !== NULL)
       $ret .= sprintf($this->extraformat, json_encode($extras));
     return $ret;
@@ -100,6 +101,7 @@ class DependencyJavascript extends Dependency {
   private $extraformat = '<script type="text/javascript">elation.dependencies.register("javascript", %s)</script>';
 
   function Display($locations, $extras=NULL) {
+    if (empty($this->media)) $this->media = "all";
     if (!empty($this->file)) {
       $fname = $this->GetFilename($locations["scripts"], $this->file);
       if (!empty($fname))
@@ -109,7 +111,7 @@ class DependencyJavascript extends Dependency {
       $url = $this->url;
     }
     if (!empty($url))
-      $ret = sprintf($this->format."\n", htmlspecialchars($url), any($this->media,"all"));
+      $ret = sprintf($this->format."\n", htmlspecialchars($url), $this->media);
     if ($extras !== NULL)
       $ret .= sprintf($this->extraformat, json_encode($extras));
     return $ret;

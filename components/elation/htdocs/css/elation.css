@@ -60,7 +60,8 @@ body {
 }
 #elation_demo_apps li.elation_demo_app {
   display: inline-block;
-  width: 20em;
+  width: 20%;
+  min-width: 5em;
   border: 1px solid black;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;

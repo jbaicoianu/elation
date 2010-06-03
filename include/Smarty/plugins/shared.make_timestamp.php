@@ -21,7 +21,7 @@ function smarty_make_timestamp($string)
         $time = time();
 
     } else if ($string instanceOf DateTime) {
-        $time = $string->getTimestamp();
+        $time = $string->format("U");
 
     } elseif (preg_match('/^\d{14}$/', $string)) {
         // it is mysql timestamp format of YYYYMMDDHHMMSS?            

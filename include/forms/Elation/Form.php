@@ -1,16 +1,35 @@
 <?php
+/**
+ * Provides a class that extends Zend_Form and builds the basic form from a
+ * JSON .model file. All Zend_Form options are available. Configuration through
+ * the .model file is limited to element options, validators, and filters
+ * 
+ * @category    Elation
+ * @package     Elation_Zend_Ext
+ * @subpackage  Elation_Form
+ * @author      Lucian Hontau
+ */
 class Elation_Form extends Zend_Form 
 { 
   public function __construct($options = null, $zendOptions = true) 
   { 
-    //read .model JSON file and processing it into a zend_config object before continuing
+    //read .model JSON file if $zendOptions == false and build form from JSON
 	  if(!$zendOptions) {
-	  	$options = $this->processJSONModel($options);
+	  	$this->processJSONModel($options);
+			parent::__construct();
 	  }
-		
-    parent::__construct($options);
+		else {
+		  parent::__construct($options);
+		}
   }
 	
+	/**
+	 * Reads a "class" from a JSON model and populates the form with 
+	 * the elements specified therein 
+	 * 
+	 * @param object $options
+	 * @return bool success
+	 */
 	public function processJSONModel($options)
 	{
 		$modelFile = $options['file'];
@@ -18,17 +37,13 @@ class Elation_Form extends Zend_Form
 		
 		$jsonFile = file_get_contents($modelFile);
 		
-		//print_pre($jsonFile); die;
-		
 		if($jsonFile !== false) {
 			$jsonData = json_decode($jsonFile, true);
-			//var_dump($jsonData);
+
 			if($jsonData != NULL) {
-				//print_pre($jsonData); die;
-				//print_pre($jsonData['classes'][$objectClass]['form']); die;
 				try {
 					foreach($jsonData['classes'][$objectClass]['form']  as $key => $val) {
-						$this->addElement($this->createElementFromConfig($val));
+						$this->addElement($this->createElementFromConfig($val, $key));
 					}		
 				}
 				catch (Exception $e) {}
@@ -37,13 +52,20 @@ class Elation_Form extends Zend_Form
 		else {
 			return false;
 		}
+		
+		return true;
 	}
 	
-	protected function createElementFromConfig($values)
+	/**
+	 * Creates an element with validators and filters from an array of values previously
+	 * read from the JSON model file
+	 * 
+	 * @param object $values
+	 * @return Zend_Form_Element || array on failure (for graceful failure when use
+	 *   with Zend_Form::addElement()
+	 */
+	protected function createElementFromConfig($values, $elementName = NULL)
 	{
-		
-		//var_dump($values); die;
-		
 		$formElement = array();
 		$validators = $filters = NULL;
 		
@@ -57,10 +79,12 @@ class Elation_Form extends Zend_Form
 			unset($values['filters']); 
     }
     
-		//print_pre($values);
-		($values['type'] == 'input') ? $values['type'] = 'text' : 0;
+		//Do some sanity checks
+		($values['type'] == 'input') ? $type = $values['type'] = 'text' : $type = $values['type'];
+		($elementName == NULL) ? $elementName = $values['name'] : 0;
+		
 		try {
-		  $formElement = $this->createElement($values['type'], $values['name'], $values);
+		  $formElement = $this->createElement($type, $elementName, $values);
 		}
 		catch (Exception $e) {
 			return array();
@@ -90,6 +114,14 @@ class Elation_Form extends Zend_Form
 		return $formElement;
 	}
 	
+	/**
+	 * Adds a validator to a form element based on an array of options previously
+	 * read from the JSON model. Modifies $formElement in place
+	 * 
+	 * @param object $formElement
+	 * @param object $validator
+	 * @return bool success
+	 */
 	protected function addValidatorFromConfig($formElement, $validator)
 	{
 		$breakChain = false;
@@ -103,9 +135,24 @@ class Elation_Form extends Zend_Form
       $options = $validator['options'];
     }
 		
-		$formElement->addValidator($validator['type'], $breakChain, $options);
+		try {
+		  $formElement->addValidator($validator['type'], $breakChain, $options);
+		}
+		catch (Exception $e) {
+			return false;
+		}
+		
+		return true;
 	}
 	
+	/**
+   * Adds a filter to a form element based on an array of options previously
+   * read from the JSON model. Modifies $formElement in place
+   * 
+	 * @param object $formElement
+	 * @param object $filter
+	 * @return bool success 
+	 */
 	protected function addFilterFromConfig($formElement, $filter)
 	{
 	  $options = array();
@@ -113,6 +160,14 @@ class Elation_Form extends Zend_Form
     if(array_key_exists('options', $filter)) {
       $options = $filter['options'];
     }	
-		$formElement->addFilter($filter['type'], $options);
+		
+		try {
+		  $formElement->addFilter($filter['type'], $options);
+		}
+		catch (Exception $e) {
+			return false;
+		}
+		
+		return true;
 	}
 }

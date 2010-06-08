@@ -11,13 +11,20 @@
  */
 class Elation_Form extends Zend_Form 
 { 
-  public function __construct($options = null, $zendOptions = true) 
+  const REGULAR_OPTIONS = 1;
+	const ELATION_OPTIONS = 2;
+	const ELATION_ZEND_JSON_OPTIONS = 3;
+
+  public function __construct($options = null, $optionType = self::REGULAR_OPTIONS) 
   { 
-    //read .model JSON file if $zendOptions == false and build form from JSON
-	  if(!$zendOptions) {
+	  if($optionType == self::ELATION_OPTIONS) {
 	  	$this->processJSONModel($options);
 			parent::__construct();
 	  }
+		else if($optionType == self::ELATION_ZEND_JSON_OPTIONS) {
+			$formOptions = $this->processZendJSONModel($options);
+			parent::__construct($formOptions);
+		}
 		else {
 		  parent::__construct($options);
 		}
@@ -41,6 +48,7 @@ class Elation_Form extends Zend_Form
 			$jsonData = json_decode($jsonFile, true);
 
 			if($jsonData != NULL) {
+				//print_pre($jsonData); die;
 				try {
 					foreach($jsonData['classes'][$objectClass]['form']  as $key => $val) {
 						$this->addElement($this->createElementFromConfig($val, $key));
@@ -57,7 +65,7 @@ class Elation_Form extends Zend_Form
 	}
 	
 	/**
-	 * Creates an element with validators and filters from an array of values previously
+	 * Creates an element with validators, filters, errors, etc. from an array of values previously
 	 * read from the JSON model file
 	 * 
 	 * @param object $values
@@ -67,7 +75,7 @@ class Elation_Form extends Zend_Form
 	protected function createElementFromConfig($values, $elementName = NULL)
 	{
 		$formElement = array();
-		$validators = $filters = NULL;
+		$validators = $filters = $errors = NULL;
 		
 		if(array_key_exists('validators', $values)) {
 			$validators = $values['validators'];
@@ -78,6 +86,11 @@ class Elation_Form extends Zend_Form
       $filters = $values['filters'];
 			unset($values['filters']); 
     }
+		
+	   if(array_key_exists('errors', $values)) {
+      $errors = $values['errors'];
+      unset($values['errors']); 
+    }	
     
 		//Do some sanity checks
 		($values['type'] == 'input') ? $type = $values['type'] = 'text' : $type = $values['type'];
@@ -110,6 +123,10 @@ class Elation_Form extends Zend_Form
 				$this->addFilterFromConfig($formElement, $filter);
       }
     }		
+		
+		if($errors) {
+			$this->addErrorMessages($errors);
+		}
 		
 		return $formElement;
 	}

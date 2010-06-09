@@ -1,41 +1,48 @@
 <?php
 /**
  * Provides a class that extends Zend_Form and builds the basic form from a
- * JSON .model file. All Zend_Form options are available. Configuration through
- * the .model file is limited to element options, validators, and filters
+ * JSON .model file. Configuration through the .model file is limited to 
+ * element options, validators, filters, and errors when using the ELATION_OPTIONS
+ * type.
  * 
  * @category    Elation
  * @package     Elation_Zend_Ext
  * @subpackage  Elation_Form
+ * @extends     Zend_Form
  * @author      Lucian Hontau
  */
 class Elation_Form extends Zend_Form 
 { 
-  const REGULAR_OPTIONS = 1;
-	const ELATION_OPTIONS = 2;
-	const ELATION_ZEND_JSON_OPTIONS = 3;
+  const REGULAR_OPTIONS      = 1;
+	const ELATION_OPTIONS      = 2;
+	const ELATION_OPTIONS_ZEND = 3;
 
   public function __construct($options = null, $optionType = self::REGULAR_OPTIONS) 
   { 
-	  if($optionType == self::ELATION_OPTIONS) {
-	  	$this->processJSONModel($options);
-			parent::__construct();
-	  }
-		else if($optionType == self::ELATION_ZEND_JSON_OPTIONS) {
-			$formOptions = $this->processZendJSONModel($options);
-			parent::__construct($formOptions);
-		}
-		else {
-		  parent::__construct($options);
-		}
+    $this->build($options, $optionType);
   }
+	
+	public function build($options = null, $optionType = self::REGULAR_OPTIONS) 
+	{
+    if($optionType == self::ELATION_OPTIONS) {
+      $this->processJSONModel($options);
+      parent::__construct();
+    }
+    else if($optionType == self::ELATION_ZEND_JSON_OPTIONS) {
+      $formOptions = $this->getZendJSONConfigFromModel($options);
+      parent::__construct($formOptions);
+    }
+    else {
+      parent::__construct($options);
+    }		
+	}
 	
 	/**
 	 * Reads a "class" from a JSON model and populates the form with 
 	 * the elements specified therein 
 	 * 
 	 * @param object $options
-	 * @return bool success
+	 * @return bool success status
 	 */
 	public function processJSONModel($options)
 	{
@@ -51,7 +58,10 @@ class Elation_Form extends Zend_Form
 				//print_pre($jsonData); die;
 				try {
 					foreach($jsonData['classes'][$objectClass]['form']  as $key => $val) {
-						$this->addElement($this->createElementFromConfig($val, $key));
+						$element = $this->createElementFromConfig($val, $key);
+						if($element) {
+						  $this->addElement($element);
+						}
 					}		
 				}
 				catch (Exception $e) {}
@@ -69,8 +79,7 @@ class Elation_Form extends Zend_Form
 	 * read from the JSON model file
 	 * 
 	 * @param object $values
-	 * @return Zend_Form_Element || array on failure (for graceful failure when use
-	 *   with Zend_Form::addElement()
+	 * @return Zend_Form_Element|bool element or success status
 	 */
 	protected function createElementFromConfig($values, $elementName = NULL)
 	{
@@ -100,7 +109,7 @@ class Elation_Form extends Zend_Form
 		  $formElement = $this->createElement($type, $elementName, $values);
 		}
 		catch (Exception $e) {
-			return array();
+			return false;
 		}
 		
     try {
@@ -137,7 +146,7 @@ class Elation_Form extends Zend_Form
 	 * 
 	 * @param object $formElement
 	 * @param object $validator
-	 * @return bool success
+	 * @return bool success status
 	 */
 	protected function addValidatorFromConfig($formElement, $validator)
 	{
@@ -168,7 +177,7 @@ class Elation_Form extends Zend_Form
    * 
 	 * @param object $formElement
 	 * @param object $filter
-	 * @return bool success 
+	 * @return bool success status
 	 */
 	protected function addFilterFromConfig($formElement, $filter)
 	{
@@ -186,5 +195,39 @@ class Elation_Form extends Zend_Form
 		}
 		
 		return true;
+	}
+	
+	/**
+	 * Reads data from a .model file / class. Expects the form element to follow Zend_Config
+	 * style options for initializing from the JSON. This allows all Zend_Form / Element /
+	 * Filter / Errors / Decorators etc. to be configured, but the format must follow a more 
+	 * rigid and different JSON structure. To see something similar in .ini (till I can put 
+	 * a JSON demo together) see: 
+	 * @param object $options
+	 * @return array|bool processed array of options or success status
+	 */
+	public function getZendJSONConfigFromModel($options)
+	{
+    $modelFile = $options['file'];
+    $objectClass = $options['class'];
+    
+    $jsonFile = file_get_contents($modelFile);
+    
+    if($jsonFile !== false) {
+      $jsonData = json_decode($jsonFile, true);
+
+      if($jsonData != NULL) {   	
+	      try {
+	       	$returnArray = $jsonData['classes'][$objectClass]['form'];
+          return $returnArray;
+        }
+        catch (Exception $e) {
+        	return false;
+        }
+			}
+		}
+		else {
+			return false;
+		}
 	}
 }

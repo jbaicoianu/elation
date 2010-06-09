@@ -3,7 +3,8 @@
  * Provides a class that extends Zend_Form and builds the basic form from a
  * JSON .model file. Configuration through the .model file is limited to 
  * element options, validators, filters, and errors when using the ELATION_OPTIONS
- * type.
+ * type but can accept a Zend_Config object or regular array using REGULAR_OPTIONS
+ * and full config options in JSON format from a .model file using ELATION_OPTIONS_ZEND
  * 
  * @category    Elation
  * @package     Elation_Zend_Ext
@@ -22,6 +23,14 @@ class Elation_Form extends Zend_Form
     $this->build($options, $optionType);
   }
 	
+	/**
+	 * Builds the actual form depending on the type of config and the options passed in.
+	 * Called without arguments it just builds an empty form
+	 * 
+	 * @param object $options [optional]
+	 * @param object $optionType [optional]
+	 * @return void
+	 */
 	public function build($options = null, $optionType = self::REGULAR_OPTIONS) 
 	{
     if($optionType == self::ELATION_OPTIONS) {

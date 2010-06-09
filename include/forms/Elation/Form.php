@@ -28,7 +28,7 @@ class Elation_Form extends Zend_Form
       $this->processJSONModel($options);
       parent::__construct();
     }
-    else if($optionType == self::ELATION_ZEND_JSON_OPTIONS) {
+    else if($optionType == self::ELATION_OPTIONS_ZEND) {
       $formOptions = $this->getZendJSONConfigFromModel($options);
       parent::__construct($formOptions);
     }
@@ -202,7 +202,7 @@ class Elation_Form extends Zend_Form
 	 * style options for initializing from the JSON. This allows all Zend_Form / Element /
 	 * Filter / Errors / Decorators etc. to be configured, but the format must follow a more 
 	 * rigid and different JSON structure. To see something similar in .ini (till I can put 
-	 * a JSON demo together) see: 
+	 * a JSON demo together) see: http://framework.zend.com/manual/en/zend.form.elements.html
 	 * @param object $options
 	 * @return array|bool processed array of options or success status
 	 */

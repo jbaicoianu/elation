@@ -55,7 +55,6 @@ class Elation_Form extends Zend_Form
 			$jsonData = json_decode($jsonFile, true);
 
 			if($jsonData != NULL) {
-				//print_pre($jsonData); die;
 				try {
 					foreach($jsonData['classes'][$objectClass]['form']  as $key => $val) {
 						$element = $this->createElementFromConfig($val, $key);
@@ -121,14 +120,12 @@ class Elation_Form extends Zend_Form
 		
 		if($validators) {
 			foreach($validators as $validator) {
-				//print_pre($validator);
 				$this->addValidatorFromConfig($formElement, $validator);
 			}
 		}
 		
     if($filters) {
       foreach($filters as $filter) {
-        //print_pre($filter);
 				$this->addFilterFromConfig($formElement, $filter);
       }
     }		
@@ -201,8 +198,9 @@ class Elation_Form extends Zend_Form
 	 * Reads data from a .model file / class. Expects the form element to follow Zend_Config
 	 * style options for initializing from the JSON. This allows all Zend_Form / Element /
 	 * Filter / Errors / Decorators etc. to be configured, but the format must follow a more 
-	 * rigid and different JSON structure. To see something similar in .ini (till I can put 
-	 * a JSON demo together) see: http://framework.zend.com/manual/en/zend.form.elements.html
+	 * rigid and different JSON structure. To see something similar in .ini see: 
+	 * http://framework.zend.com/manual/en/zend.form.elements.html
+	 * 
 	 * @param object $options
 	 * @return array|bool processed array of options or success status
 	 */

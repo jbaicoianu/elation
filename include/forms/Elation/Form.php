@@ -199,7 +199,7 @@ class Elation_Form extends Zend_Form
 	 * style options for initializing from the JSON. This allows all Zend_Form / Element /
 	 * Filter / Errors / Decorators etc. to be configured, but the format must follow a more 
 	 * rigid and different JSON structure. To see something similar in .ini see: 
-	 * http://framework.zend.com/manual/en/zend.form.elements.html
+	 * http://framework.zend.com/manual/en/zend.form.forms.html
 	 * 
 	 * @param object $options
 	 * @return array|bool processed array of options or success status
@@ -213,8 +213,8 @@ class Elation_Form extends Zend_Form
     
     if($jsonFile !== false) {
       $jsonData = json_decode($jsonFile, true);
-
-      if($jsonData != NULL) {   	
+			
+      if($jsonData != NULL) {
 	      try {
 	       	$returnArray = $jsonData['classes'][$objectClass]['form'];
           return $returnArray;

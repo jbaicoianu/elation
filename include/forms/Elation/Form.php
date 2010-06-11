@@ -237,4 +237,9 @@ class Elation_Form extends Zend_Form
 			return false;
 		}
 	}
+	
+//	public function filterName($value, $allowBrackets = false)
+//  {
+//  	parent::filterName($value, $allowBrackets);
+//  }
 }

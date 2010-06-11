@@ -10,8 +10,54 @@
         "owner":    ["owner", "varchar"]
       },
       "form":{
-        "subject": {"type":"input", "name":"subject", "label":"Subject", "value":"(no subject)"},
-        "content": {"type":"textarea", "name":"content", "label":"Content"}
+        "method": "get",
+				"class": "html_form",
+				"name": "create_post",
+				"id": "create_post",
+        "elements": {
+          "subject": {
+            "name": "subject",
+            "type": "text",
+            "options": {
+              "belongsTo": "blogpost",
+	            "value": "(No Subject)",
+              "label": "Subject",
+              "validators": {
+                "notempty": {
+                  "validator": "NotEmpty"
+                }             
+              },
+              "filters": {
+                "stringtrim": "StringTrim"
+              } 
+            }
+          },
+					"content": {
+            "type": "textarea",
+            "name": "content",
+            "options": {
+              "belongsTo": "blogpost",
+              "label": "Content",
+							"rows": "10",
+							"cols": 40,							
+              "validators": {
+                "notempty": {
+                  "validator": "NotEmpty"
+                }             
+              },
+              "filters": {
+                "stringtrim": "StringTrim"
+              } 
+            }
+          },
+					"add_post": {
+            "type": "submit",
+            "name": "add_post",
+            "options": {
+              "value": "Add Post"
+            }
+          }
+        }			
       },
       "associations":[
         ["one-to-many", "BlogPost", {"key":"blogname"}]

@@ -12,10 +12,17 @@ class Component_html_zendForm extends Component
 
 		$formGen = new $args['formClass'];
 		$form = $formGen->getForm($args);
-		
+
 		$vars['formHTML'] = $form->render();
 		
 		return $this->GetTemplate("./zendForm.tpl", $vars);
   }
+	
+	public function controller_zendForm_error($args, $output='inline')
+	{
+		//print_pre($args); die;
+		$vars['formHTML'] = $args['formHTML'];
+		return $this->GetTemplate("./zendForm.tpl", $vars);
+	}
 }  
 

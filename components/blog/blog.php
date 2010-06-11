@@ -151,33 +151,34 @@ class Component_blog extends Component {
       $ret = $this->GetComponentResponse("./select.tpl", $vars);
     } else {
       $vars["formname"] = $formname = "blogpost";
-      /*$vars["elements"] = array("_blogname" => array("type" => "hidden", "fullname" => "blogname", value => $vars["blogname"]),
-                                "subject" => array("type" => "input", "name" => "subject", "label" => "Subject:", "value" => "(no subject)"),
-                                "content" => array("type" => "textarea", "name" => "content", "label" => "Content:"),
-                                "_submit" => array("type" => "submit", "value" => "Add Post")
-                                );
-      */
+
       $this->addFormVarsToView($vars, array($vars["blogname"]));
 
       $vars["saved"] = false;
       $vars["valid"] = false;
 			
       if (!empty($args["blogpost"])) {
-        $args["blogpost"]["timestamp"] = new DateTime();
-        $blogpost = $vars[$formname] = new BlogPost($args["blogpost"]);
-        $blogpost->SetBlog($vars["blog"]);
-				
-				$zendFormComponent = new Blog_PostForm();
-				$form = $zendFormComponent->getForm(array_merge($vars, $args, array('formname' => "blogpost", 'formhandler' => "blog.create_postZend")));
-				
-        if ($blogpost->isValid() && $form->isValid($args)) {
-          $vars["valid"] = true;
-          if ($blogpost->Save()) {
-            // FIXME - make configurable
-            header("Location: ?blogname=" . urlencode($vars["blogname"]) . "#blog_posts_create_success:" . $blogpost->blogpostid);
-          }
-        }
+      	$zendFormComponent = new Blog_PostForm();
+        $form = $zendFormComponent->getForm(array_merge($vars, $args, array('formname' => "blogpost", 'formhandler' => "blog.create_postZend")));
+        if($form->isValid($args)) {
+	        $args["blogpost"]["timestamp"] = new DateTime();
+	        $blogpost = $vars[$formname] = new BlogPost($args["blogpost"]);
+	        $blogpost->SetBlog($vars["blog"]);
+					
+	        if ($blogpost->isValid()) {
+	          $vars["valid"] = true;
+	          if ($blogpost->Save()) {
+	            // FIXME - make configurable
+	            header("Location: ?blogname=" . urlencode($vars["blogname"]) . "#blog_posts_create_success:" . $blogpost->blogpostid);
+	          }
+	        }
+				}
+        else {
+					$vars['formError'] = true;
+					$vars['formHTML'] = $form->render();
+        }				
       }
+			
       $ret = $this->GetComponentResponse("./create_postZend.tpl", $vars);
     }
     return $ret;

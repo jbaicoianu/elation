@@ -3,8 +3,8 @@ class Blog_PostForm
 {
   public function getForm($args)
   {
-    $formName = any($args["formname"], "htmlform");
-    $dispatchName = any($args["dispatchname"], $formName);
+    $formName = @any($args["formname"], "htmlform");
+    $dispatchName = @any($args["dispatchname"], $formName);
 
     $form = new Elation_Form(array('file' => $args['modelFile'], 'class' => $args['modelClass']), $args['formConfigType']);
     

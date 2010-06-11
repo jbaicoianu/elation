@@ -23,8 +23,8 @@
 	            "value": "(No Subject)",
               "label": "Subject",
               "validators": {
-                "notempty": {
-                  "validator": "NotEmpty"
+                "alpha": {
+                  "validator": "Alpha"
                 }             
               },
               "filters": {
@@ -41,8 +41,8 @@
 							"rows": "10",
 							"cols": 40,							
               "validators": {
-                "notempty": {
-                  "validator": "NotEmpty"
+                "alpha": {
+                  "validator": "Alpha"
                 }             
               },
               "filters": {

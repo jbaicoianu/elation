@@ -1,0 +1,2 @@
+{if $saved}<h4 class="html_form_status_success">Post saved successfully</h4>{/if}
+{component name="html.zendForm" modelFile=$modelFile modelClass=$modelClass formConfigType=$formConfigType postCreateCallback=$postCreateCallback formClass=$formClass formname="blogpost" formhandler="blog.create_postZend"}

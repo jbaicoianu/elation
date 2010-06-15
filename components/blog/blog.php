@@ -22,7 +22,9 @@ class Component_blog extends Component {
     return $this->GetComponentResponse("./summary.tpl", $vars);
   }
 
-  function controller_view($args) {
+  function controller_view($args, $output = 'inline') {
+  	$vars['args'] = $args;
+		
     if (!empty($args["blogname"])) {
       $vars["blogname"] = $args["blogname"];
 
@@ -32,9 +34,7 @@ class Component_blog extends Component {
         print_pre($e->getMessage());
       }
     }
-		
-    $this->addFormVarsToView($vars, array($vars["blogname"]));
-
+    //print_pre($args); die;
     return $this->GetComponentResponse("./view.tpl", $vars);
   }
 	
@@ -157,15 +157,20 @@ class Component_blog extends Component {
       $vars["saved"] = false;
       $vars["valid"] = false;
 			
+			//print_pre($args); 
       if (!empty($args["blogpost"])) {
+      	//print 'blogpost'; die;
       	$zendFormComponent = new Blog_PostForm();
         $form = $zendFormComponent->getForm(array_merge($vars, $args, array('formname' => "blogpost", 'formhandler' => "blog.create_postZend")));
+				
         if($form->isValid($args)) {
+        	//print 'formok'; die;
 	        $args["blogpost"]["timestamp"] = new DateTime();
 	        $blogpost = $vars[$formname] = new BlogPost($args["blogpost"]);
 	        $blogpost->SetBlog($vars["blog"]);
 					
 	        if ($blogpost->isValid()) {
+	        	//print 'valid'; die;
 	          $vars["valid"] = true;
 	          if ($blogpost->Save()) {
 	            // FIXME - make configurable

@@ -18,9 +18,9 @@ class Component_html_zendForm extends Component
 		return $this->GetTemplate("./zendForm.tpl", $vars);
   }
 	
-	public function controller_zendForm_error($args, $output='inline')
+	public function controller_error($args, $output='inline')
 	{
-		//print_pre($args); die;
+		print_pre($args); die;
 		$vars['formHTML'] = $args['formHTML'];
 		return $this->GetTemplate("./zendForm.tpl", $vars);
 	}

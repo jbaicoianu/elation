@@ -8,7 +8,7 @@
   {component name="blog.posts" blog=$blog}
  </div>
  <div class="blog_posts_create">
-  {component name="blog.create_postZend" blog=$blog header="Add a New Post"}
+  {component name="blog.create_postZend" blog=$blog header="Add a New Post" componentargs=$args}
  </div>
  <a class="blog_backlink" href="/blog">&laquo; back</a>
 </div>

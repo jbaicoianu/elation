@@ -86,17 +86,19 @@ class OrmMaster {
       $ormfile = file_get_contents($fname);
       $modelcfg = json_decode($ormfile);
 
-    switch(json_last_error())
-    {
-        case JSON_ERROR_DEPTH:
-            echo ' - Maximum stack depth exceeded';
-        break;
-        case JSON_ERROR_CTRL_CHAR:
-            echo ' - Unexpected control character found';
-        break;
-        case JSON_ERROR_SYNTAX:
-            echo ' - Syntax error, malformed JSON';
-        break;
+    if (function_exists("json_last_error")) {
+      switch(json_last_error())
+      {
+          case JSON_ERROR_DEPTH:
+              echo ' - Maximum stack depth exceeded';
+          break;
+          case JSON_ERROR_CTRL_CHAR:
+              echo ' - Unexpected control character found';
+          break;
+          case JSON_ERROR_SYNTAX:
+              echo ' - Syntax error, malformed JSON';
+          break;
+      }
     }
 
       if (!empty($modelcfg->classes))

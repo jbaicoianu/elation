@@ -32,6 +32,13 @@ class ComponentDispatcher extends Component {
   function Dispatch($page=NULL, $pageargs=NULL) {
     if ($page === NULL)
       $page = $_SERVER["SCRIPT_URL"];
+    if ($page === NULL) {
+      $webroot = "/";
+      if (preg_match("/^(.*?)\/go\.php$/", $_SERVER["SCRIPT_NAME"], $m)) {
+        $webroot = $m[1];
+      }
+      $page = preg_replace("/".preg_quote($webroot,"/")."(.*?)(\?.*)?$/", "$1", $_SERVER["REQUEST_URI"]);
+    }
     if ($pageargs === NULL)
       $pageargs = &$_REQUEST;
     $args = $this->ParseRequest($page, $pageargs);
@@ -109,6 +116,21 @@ class ComponentDispatcher extends Component {
           $this->dispatchargs[$v][$k] = $args[$k];
       }
     }
+  }
+
+  static public function fetch($componentname, $args=array(), $output="inline") {
+    $ret = NULL;
+    $componentmanager = self::singleton();
+    $component = $componentmanager->Get($componentname);
+    if (!empty($component)) {
+      $ret = $component->HandlePayload($args, $output);
+      if ($ret instanceOf ComponentResponse) {
+        $output = $ret->getOutput($vars["output"]);
+        //$this->root->response["type"] = $output[0];
+        $ret = $output[1];
+      }
+    }
+    return $ret;
   }
 }
 

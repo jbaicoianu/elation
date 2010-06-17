@@ -238,8 +238,29 @@ class Elation_Form extends Zend_Form
 		}
 	}
 	
-//	public function filterName($value, $allowBrackets = false)
-//  {
-//  	parent::filterName($value, $allowBrackets);
-//  }
+	/**
+	 * Renders the form. If $context is null or a Zend_View it'll render it
+	 * normally. Otherwise, it passes the form object to a component for further
+	 * processing. Note, even if passed to a second controller, it's still 
+	 * possible to render the form in traditional Zend style with {$form}
+	 * 
+	 * @param object $context [optional]
+	 * @param object $args [optional]
+	 * @return string HTML output
+	 */
+  public function render($context = NULL, $args = array())
+	{
+		if($context == NULL) {
+			$context = new Zend_View();
+		}
+		
+		if($context instanceof Zend_View_Interface) {
+			return parent::render($context);
+		}
+		else {
+			$args = array_merge($args, array('form' => $this));
+			$componentOutput = ComponentDispatcher::fetch($context, $args);
+			return $componentOutput;
+		}
+	}
 }

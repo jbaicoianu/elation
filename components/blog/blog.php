@@ -179,8 +179,10 @@ class Component_blog extends Component {
 	        }
 				}
         else {
+        	print 'here'; die;
 					$vars['formError'] = true;
 					$vars['formHTML'] = $form->render();
+					return;
         }				
       }
 			
@@ -188,6 +190,24 @@ class Component_blog extends Component {
     }
     return $ret;
   }	
+	
+	public function controller_test($args, $output="inline")
+	{
+		//print_pre($args); die;
+		$form = new Elation_Form(array('file' => 'components/blog/blog.model', 'class' => 'Blog'), Elation_Form::ELATION_OPTIONS_ZEND);
+		$args['blogForm'] = $form->render('blog.form', $args);
+		//var_dump($args['blogForm']); die; 
+		return $this->GetComponentResponse('./test.tpl', $args);
+	}
+	
+	public function controller_form($args, $output="inline")
+	{
+		//print_pre($args); die;
+		$form = $args['form'];
+		$args['subject'] = $form->getElement('subject')->getValue();
+		$args['content'] = $form->getElement('content')->getValue();
+		return $this->GetComponentResponse('./form.tpl', $args);
+	}
 	
 	protected function addFormVarsToView(&$vars, $params)
 	{

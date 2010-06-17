@@ -42,7 +42,7 @@
 							"cols": 40,							
               "validators": {
                 "alpha": {
-                  "validator": "NotEmpty"
+                  "validator": "Alpha"
                 }             
               },
               "filters": {

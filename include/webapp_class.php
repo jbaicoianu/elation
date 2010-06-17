@@ -105,10 +105,10 @@ class WebApp {
   protected function initAutoLoaders()
   {
     $zendAutoloader = Zend_Loader_Autoloader::getInstance(); //already registers Zend as an autoloader
-    $zendAutoloader->unshiftAutoloader(array('WebApp', 'autoloadTrimbo')); //add the Trimbo autoloader 
+    $zendAutoloader->unshiftAutoloader(array('WebApp', 'autoloadElation')); //add the Trimbo autoloader 
   }
 
-  public static function autoloadTrimbo($class) 
+  public static function autoloadElation($class) 
   {
     //print "$class**<br />";
   	

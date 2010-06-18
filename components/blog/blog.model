@@ -24,7 +24,7 @@
               "label": "Subject",
               "validators": {
                 "alpha": {
-                  "validator": "NotEmpty"
+                  "validator": "Alpha"
                 }             
               },
               "filters": {

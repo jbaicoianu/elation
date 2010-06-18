@@ -129,16 +129,14 @@ class Component_blog extends Component {
 	 */
   public function controller_create_postZend($args, $output="inline") 
 	{
-    //print_pre($args); die;
-		
     $vars["args"] = $args;
     $vars["blogname"] = $args["blogname"];
-    //$vars["header"] = $args["header"];
 
     if (!empty($args["blog"])) {
       $vars["blog"] = $args["blog"];
       $vars["blogname"] = $vars["blog"]->blogname;
-    } else if (!empty($args["blogname"])) {
+    } 
+		else if (!empty($args["blogname"])) {
       $vars["blogname"] = $args["blogname"];
       try {
         $vars["blog"] = $this->orm->load("Blog", $vars["blogname"]);
@@ -149,40 +147,36 @@ class Component_blog extends Component {
     if (empty($vars["blog"])) {
       $vars["blogs"] = $this->orm->select("Blog");
       $ret = $this->GetComponentResponse("./select.tpl", $vars);
-    } else {
+    } 
+		else {
       $vars["formname"] = $formname = "blogpost";
 
-      $this->addFormVarsToView($vars, array($vars["blogname"]));
+			$form = new Elation_Form(array('file' => 'components/blog/blog.model', 'class' => 'Blog'), Elation_Form::ELATION_OPTIONS_ZEND);
+			$blogName = new Zend_Form_Element_Hidden(array("name" => 'blogname', "value" => $vars["blogname"]));
+      $form->addElement($blogName);
+      $vars['blogForm'] = $form->render('blog.form', $args);
 
-      $vars["saved"] = false;
-      $vars["valid"] = false;
-			
-			//print_pre($args); 
       if (!empty($args["blogpost"])) {
-      	//print 'blogpost'; die;
-      	$zendFormComponent = new Blog_PostForm();
-        $form = $zendFormComponent->getForm(array_merge($vars, $args, array('formname' => "blogpost", 'formhandler' => "blog.create_postZend")));
-				
         if($form->isValid($args)) {
-        	//print 'formok'; die;
 	        $args["blogpost"]["timestamp"] = new DateTime();
 	        $blogpost = $vars[$formname] = new BlogPost($args["blogpost"]);
 	        $blogpost->SetBlog($vars["blog"]);
 					
 	        if ($blogpost->isValid()) {
-	        	//print 'valid'; die;
-	          $vars["valid"] = true;
 	          if ($blogpost->Save()) {
+	          	//print 'hi'; die;
 	            // FIXME - make configurable
+							//Perhaps redirect back to this controller so we can show success
 	            header("Location: ?blogname=" . urlencode($vars["blogname"]) . "#blog_posts_create_success:" . $blogpost->blogpostid);
 	          }
 	        }
 				}
         else {
-        	print 'here'; die;
 					$vars['formError'] = true;
-					$vars['formHTML'] = $form->render();
-					return;
+					$formErrors = $form->getMessages();
+					$vars['subjectErrors'] = $formErrors['subject'];
+					$vars['contentErrors'] = $formErrors['content'];
+					//print_pre($formErrors); die;
         }				
       }
 			
@@ -191,37 +185,38 @@ class Component_blog extends Component {
     return $ret;
   }	
 	
+	/**
+	 * For testing of the form only
+	 * 
+	 * @param object $args
+	 * @param object $output [optional]
+	 * @return 
+	 */
 	public function controller_test($args, $output="inline")
 	{
 		//print_pre($args); die;
 		$form = new Elation_Form(array('file' => 'components/blog/blog.model', 'class' => 'Blog'), Elation_Form::ELATION_OPTIONS_ZEND);
 		$args['blogForm'] = $form->render('blog.form', $args);
-		//var_dump($args['blogForm']); die; 
 		return $this->GetComponentResponse('./test.tpl', $args);
 	}
 	
+	/**
+	 * Populates and generates the form ... it's called from ElationForm::render
+	 * as the context. Passes in the form to the component controller for dissection 
+	 * and use to render a template. More flexible than zend's default rendering or
+	 * using those stupid form decorators
+	 * 
+	 * @param object $args
+	 * @param object $output [optional]
+	 * @return object ComponentResponse
+	 */
 	public function controller_form($args, $output="inline")
 	{
 		//print_pre($args); die;
 		$form = $args['form'];
-		$args['subject'] = $form->getElement('subject')->getValue();
-		$args['content'] = $form->getElement('content')->getValue();
+		$args['subject'] = any($args['blogpost']['subject'], $form->getElement('subject')->getValue());
+		$args['content'] = any($args['blogpost']['content'], $form->getElement('content')->getValue());
 		return $this->GetComponentResponse('./form.tpl', $args);
-	}
-	
-	protected function addFormVarsToView(&$vars, $params)
-	{
-    $vars['modelFile'] = "components/blog/blog.model";
-    $vars['modelClass'] = "Blog";
-    $vars['formConfigType'] = Elation_Form::ELATION_OPTIONS_ZEND;
-		$vars['postCreateCallback'] = array("class" => __CLASS__, "method" => "addExtraFields", "params" => $params);
-		$vars['formClass'] = "Blog_PostForm";
-	}
-	
-	public static function addExtraFields($form, $params)
-	{
-		$formName = new Zend_Form_Element_Hidden(array("name" => 'blogname', "value" => $params[0]));
-		$form->addElement($formName);
 	}
 } 
 

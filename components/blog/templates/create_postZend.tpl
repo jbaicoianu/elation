@@ -1,9 +1,21 @@
-{if $saved}<h4 class="html_form_status_success">Post saved successfully</h4>{/if}
-{$fuck}
 {if $formError} 
-	<p>Error!</p>
-  {component name="html.zendForm.error" formHTML=$formHTML}
-{else}	
-  <p>Regular</p>
-  {component name="html.zendForm" modelFile=$modelFile modelClass=$modelClass formConfigType=$formConfigType postCreateCallback=$postCreateCallback formClass=$formClass formname="blogpost"}
+	<p>Errors:</p>
+  {if $subjectErrors}
+  	<p>Subject Errors:</p>
+		<ul>
+		 {foreach from=$subjectErrors item=error}
+		   <li>{$error}</li>
+			{/foreach}
+	  </ul>
+	{/if}
+	{if $contentErrors}
+		<p>Content Errors:</p>
+	  <ul>
+	   {foreach from=$contentErrors item=error}
+	     <li>{$error}</li>
+	    {/foreach}
+	  </ul>
+  {/if}
+	<br /><br />
 {/if}
+{$blogForm}

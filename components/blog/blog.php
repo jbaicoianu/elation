@@ -125,7 +125,7 @@ class Component_blog extends Component {
 	 * 
 	 * @param object $args
 	 * @param object $output [optional]
-	 * @return 
+	 * @return object ComponentResponse
 	 */
   public function controller_create_postZend($args, $output="inline") 
 	{
@@ -171,7 +171,6 @@ class Component_blog extends Component {
 					
 	        if ($blogpost->isValid()) {
 	          if ($blogpost->Save()) {
-	          	//print 'hi'; die;
 	            // FIXME - make configurable
 							//Perhaps redirect back to this controller so we can show success
 	            header("Location: ?blogname=" . urlencode($vars["blogname"]) . "#blog_posts_create_success:" . $blogpost->blogpostid);
@@ -183,7 +182,6 @@ class Component_blog extends Component {
 					$formErrors = $form->getMessages();
 					$vars['subjectErrors'] = $formErrors['subject'];
 					$vars['contentErrors'] = $formErrors['content'];
-					//print_pre($formErrors); die;
         }				
       }
 			

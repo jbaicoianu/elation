@@ -24,7 +24,7 @@
               "label": "Subject",
               "validators": {
                 "alpha": {
-                  "validator": "Alpha"
+                  "validator": "[[validator1]]"
                 }             
               },
               "filters": {
@@ -42,7 +42,7 @@
 							"cols": 40,							
               "validators": {
                 "alpha": {
-                  "validator": "Alpha"
+                  "validator": "[[validator2]]"
                 }             
               },
               "filters": {

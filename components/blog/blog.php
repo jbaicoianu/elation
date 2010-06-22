@@ -151,10 +151,17 @@ class Component_blog extends Component {
 		else {
       $vars["formname"] = $formname = "blogpost";
 
-			$form = new Elation_Form(array('file' => 'components/blog/blog.model', 'class' => 'Blog'), Elation_Form::ELATION_OPTIONS_ZEND);
+			$form = new Elation_Form(array('file' => 'components/blog/blog.model', 
+			                               'class' => 'Blog',
+																		 'variables' => array('[[validator1]]' => 'Alnum', 
+																		                      '[[validator2]]' => 'Alpha')), 
+			                         Elation_Form::ELATION_OPTIONS_ZEND);
+			
 			$blogName = new Zend_Form_Element_Hidden(array("name" => 'blogname', "value" => $vars["blogname"]));
       $form->addElement($blogName);
-      $vars['blogForm'] = $form->render('blog.form', $args);
+			
+      $vars['blogForm'] = $form->render('blog.form', $args); //use a component to route the form through
+			//$vars['blogForm'] = $form->render(); //or use the default Zend_Form renderer
 
       if (!empty($args["blogpost"])) {
         if($form->isValid($args)) {

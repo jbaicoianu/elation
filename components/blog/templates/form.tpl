@@ -1,5 +1,6 @@
 Below is a handmade form ... ok well at least copy and pasted ... 
-The two fields only accept alpha characters (no num / symbols)
+The two fields only accept validators that are now substitued in 
+at runtime rather than hardcoded in the config. 
 <br /><br />
 <form id="create_post" method="get" class="html_form" action="">
     <dl class="zend_form">

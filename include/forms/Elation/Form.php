@@ -2,7 +2,7 @@
 /**
  * Provides a class that extends Zend_Form and builds the basic form from a
  * JSON .model file. Configuration through the .model file is limited to 
- * element options, validators, filters, and errors when using the ELATION_OPTIONS
+ * element options, validators, filters, and errors when using the ELATION_OPTIONS_SIMPLE
  * type but can accept a Zend_Config object or regular array using REGULAR_OPTIONS
  * and full config options in JSON format from a .model file using ELATION_OPTIONS_ZEND
  * 
@@ -14,9 +14,9 @@
  */
 class Elation_Form extends Zend_Form 
 { 
-  const REGULAR_OPTIONS      = 1;
-	const ELATION_OPTIONS      = 2;
-	const ELATION_OPTIONS_ZEND = 3;
+  const REGULAR_OPTIONS        = 1;
+	const ELATION_OPTIONS_SIMPLE = 2;
+	const ELATION_OPTIONS_ZEND   = 3;
 
   public function __construct($options = null, $optionType = self::REGULAR_OPTIONS) 
   { 
@@ -33,7 +33,7 @@ class Elation_Form extends Zend_Form
 	 */
 	public function build($options = null, $optionType = self::REGULAR_OPTIONS) 
 	{
-    if($optionType == self::ELATION_OPTIONS) {
+    if($optionType == self::ELATION_OPTIONS_SIMPLE) {
       $this->processJSONModel($options);
       parent::__construct();
     }
@@ -61,6 +61,10 @@ class Elation_Form extends Zend_Form
 		$jsonFile = file_get_contents($modelFile);
 		
 		if($jsonFile !== false) {
+      if(array_key_exists('variables', $options)) {
+        $jsonFile = $this->processConfigVariables($jsonFile, $options['variables']);
+      }
+						
 			$jsonData = json_decode($jsonFile, true);
 
 			if($jsonData != NULL) {
@@ -221,6 +225,10 @@ class Elation_Form extends Zend_Form
     $jsonFile = file_get_contents($modelFile);
     
     if($jsonFile !== false) {
+      if(array_key_exists('variables', $options)) {
+        $jsonFile = $this->processConfigVariables($jsonFile, $options['variables']);
+      }
+
       $jsonData = json_decode($jsonFile, true);
 			
       if($jsonData != NULL) {
@@ -233,9 +241,8 @@ class Elation_Form extends Zend_Form
         }
 			}
 		}
-		else {
-			return false;
-		}
+
+		return false;
 	}
 	
 	/**
@@ -262,5 +269,25 @@ class Elation_Form extends Zend_Form
 			$componentOutput = ComponentDispatcher::fetch($context, $args);
 			return $componentOutput;
 		}
+	}
+	
+	/**
+	 * Processes a JSON string and replaces variables with actual values. 
+	 * Technically the string does not have to be json. The format of the
+	 * The format of options should be key => value. Keys should include
+	 * the enclosing double brackets, ie: [[var]]
+	 * 
+	 * @param string $json
+	 * @param array $options
+	 * @return string The processed output or void if one of the parameters isn't correct
+	 */
+	protected function processConfigVariables($json, $options)
+	{
+		if(!isset($json) || empty($json) || !isset($options) || empty($options)) {
+			return;
+		}
+	   
+    $json = str_replace(array_keys($options), array_values($options), $json);		
+		return $json;
 	}
 }

@@ -34,7 +34,7 @@ class Component_blog extends Component {
         print_pre($e->getMessage());
       }
     }
-    //print_pre($args); die;
+
     return $this->GetComponentResponse("./view.tpl", $vars);
   }
 	
@@ -185,7 +185,7 @@ class Component_blog extends Component {
         }				
       }
 			
-      $ret = $this->GetComponentResponse("./create_postZend.tpl", $vars);
+      $ret = $this->GetComponentResponse("./create_postZend.tpl", $vars);  
     }
     return $ret;
   }	

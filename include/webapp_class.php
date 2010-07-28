@@ -23,7 +23,9 @@ include_once("common_funcs.php");
 include_once("outlet/Outlet.php");
 //include_once("config/outlet_conf.php");
 
-include_once "lib/Zend/Loader/Autoloader.php";
+if(file_exists('lib/Zend/Loader/Autoloader.php')) {
+  include_once "lib/Zend/Loader/Autoloader.php";
+}
 
 class WebApp {
   public $orm;
@@ -104,8 +106,13 @@ class WebApp {
 	
   protected function initAutoLoaders()
   {
-    $zendAutoloader = Zend_Loader_Autoloader::getInstance(); //already registers Zend as an autoloader
-    $zendAutoloader->unshiftAutoloader(array('WebApp', 'autoloadElation')); //add the Trimbo autoloader 
+  	if(class_exists('Zend_Loader_Autoloader', false)) {
+	    $zendAutoloader = Zend_Loader_Autoloader::getInstance(); //already registers Zend as an autoloader
+	    $zendAutoloader->unshiftAutoloader(array('WebApp', 'autoloadElation')); //add the Trimbo autoloader
+		}
+		else {
+			spl_autoload_register('WebApp::autoloadElation');
+		}
   }
 
   public static function autoloadElation($class) 
@@ -121,7 +128,9 @@ class WebApp {
 	  } 
 		else {
       try {
-        Zend_Loader::loadClass($class);
+      	if(class_exists('Zend_Loader', false)) {
+          Zend_Loader::loadClass($class);
+				}
         return;
       }
       catch (Exception $e) {

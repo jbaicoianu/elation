@@ -1,7 +1,6 @@
 <?php
 $root = preg_replace("|/htdocs$|", "", getcwd());
 ini_set("include_path", ".:$root/include:/usr/share/php");
-
 putenv('TZ=America/Los_Angeles');
 chdir($root);
 

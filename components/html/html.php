@@ -13,32 +13,6 @@ class Component_html extends Component {
   }
   function controller_multizoom($args, $output="inline") {
     $vars["args"] = $args;
-    $vars["imgs"] = array(
-      "ridgerun" => array(
-        'size' => array(3627, 2424),
-        'url' => 'http://gasi.ch/examples/2009/04/08/inline-multiscale-image-replacement/nytimes/ridge-run/image_files/{level}/{column}_{row}.jpg',
-        'tilesize' => 256,
-        'overlap' => 1
-      ),
-      "openstreetmap" => array(
-        'size' => array(67108864, 67108864),
-        'url' => 'http://tile.openstreetmap.org/{level}/{column}/{row}.png',
-        'tilesize' => 256,
-        'overlap' => 0
-      ),
-      "thing" => array(
-        'size' => array(83377, 4454),
-        'url' => 'http://www.deuterror.org/dtr_img/TileGroup{collection}/{level}-{column}-{row}.jpg',
-        'tilesize' => 256,
-        'overlap' => 1
-      ),
-      "google" => array(
-        'size' => array(67108864, 67108864),
-        'url' => 'http://mt0.google.com/vt/lyrs=m@116&hl=en&x={column}&y={row}&z={level}&s=Gal',
-        'tilesize' => 256,
-        'overlap' => 0
-      ),
-    );
 
     $vars["imgname"] = any($args["img"], "webtrends");
     $vars["img"] = any($args["imgdata"], $vars["imgs"][$vars["imgname"]]);

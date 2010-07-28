@@ -1,4 +1,4 @@
-{dependency type="css" url="/css/components/elation/elation.css"}
+{dependency type="component" name="elation"}
 <h2>Elation Installation Successful</h2>
 <p>If you are seeing this message, it means Elation is installed correctly, and you're ready to start developing!</p>
 

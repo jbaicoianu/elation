@@ -1,10 +1,9 @@
 {component name="html.header"}
 <meta name="apple-mobile-web-app-capable" content="yes" />
-{dependency type="javascript" url="/scripts/components/utils/sylvester.src.js"}
-{dependency type="javascript" url="/scripts/components/utils/dynamics.js"}
 
-{dependency type="css" url="/css/components/games/airhockey.css"}
-{dependency type="javascript" url="/scripts/components/games/airhockey.js"}
+{dependency type="component" name="utils.sylvester"}
+{dependency type="component" name="utils.dynamics"}
+{dependency type="component" name="games.airhockey"}
 
 <div id="testtable" class="airhockey_table">
  <div class="airhockey_table_top">

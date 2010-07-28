@@ -1,5 +1,5 @@
 {component name="html.header"}
-{dependency type="css" url="/css/components/page/page.css"}
+{dependency type="component" name="page"}
   <div id="sc_container">
    {component name="page.header"}
    <div id="sc_content">

@@ -1,4 +1,4 @@
-<?
+<?php
 /*
   Copyright (c) 2005 James Baicoianu
 
@@ -23,6 +23,8 @@ include_once("common_funcs.php");
 include_once("outlet/Outlet.php");
 //include_once("config/outlet_conf.php");
 
+include_once "lib/Zend/Loader/Autoloader.php";
+
 class WebApp {
   public $orm;
   public $smarty;
@@ -30,6 +32,7 @@ class WebApp {
 
   function WebApp($rootdir, $args) {
     $this->rootdir = $rootdir;
+		$this->initAutoLoaders();
     //$this->cfg = new ConfigManager($rootdir);
     //$this->data = new DataManager($this->cfg);
 
@@ -98,4 +101,34 @@ class WebApp {
                                "line" => $errline);
     print $this->smarty->GetTemplate("exception.tpl", $this, $vars);
   }
+	
+  protected function initAutoLoaders()
+  {
+    $zendAutoloader = Zend_Loader_Autoloader::getInstance(); //already registers Zend as an autoloader
+    $zendAutoloader->unshiftAutoloader(array('WebApp', 'autoloadElation')); //add the Trimbo autoloader 
+  }
+
+  public static function autoloadElation($class) 
+  {
+    //print "$class**<br />";
+  	
+	  if (isset(ClassMapper::$classes[$class])) {
+	    require_once(ClassMapper::$classes[$class]);
+	  } else if (file_exists("include/" . strtolower($class) . "_class.php")) {
+	    require_once("include/" . strtolower($class) . "_class.php");
+	  } else if (file_exists("include/model/" . strtolower($class) . "_class.php")) {
+	    require_once("include/model/" . strtolower($class) . "_class.php");
+	  } 
+		else {
+      try {
+        Zend_Loader::loadClass($class);
+        return;
+      }
+      catch (Exception $e) {
+        //var_dump($e);
+        //throw new Exception("Class ($class) is not in the ClassMapper.");
+      }	  	
+	    //throw new Exception("Class ($class) is not in the ClassMapper.");
+	  }
+	}
 }

@@ -1,6 +1,13 @@
 <?
 class DependencyManager {
   static private $dependencies = array();
+  static $locations = array(
+                            "css"     => "htdocs/css",
+                            "csswww" => "/~bai/elation/css",
+                            "scripts"     => "htdocs/scripts",
+                            "scriptswww" => "/~bai/elation/scripts",
+                           );
+  
 
   static function add($args) {
     if (!empty($args["type"])) {
@@ -14,7 +21,7 @@ class DependencyManager {
     $ret = "";
     foreach (self::$dependencies as $type=>$dependencies) {
       foreach ($dependencies as $dependency) {
-        $ret .= $dependency->display(array()); // FIXME - needs locations
+        $ret .= $dependency->display(self::$locations); // FIXME - needs locations
       }
     }
     return $ret;
@@ -24,12 +31,12 @@ abstract class Dependency {
   public $type;
   public $name;
   public $version;
-  
+
   function Dependency($args, $silent=false) {
     $this->browser = any($args["browser"], "all");
     $this->type = $args["type"];
 
-    $this->Init($args);
+    $this->Init($args, DependencyManager::$locations);
     if (Logger::$enabled && !$silent) {
       $content = any($this->code, $this->file, $this->url, $this->name, "(unknown)");
       Logger::Notice("Added {$this->type} dependency ({$this->browser}): '{$content}'");
@@ -63,6 +70,11 @@ abstract class Dependency {
       case 'css':
         $ret = new DependencyCSS($args);
         break;
+      case 'component':
+        $ret = new DependencyComponent($args);
+        break;
+      default:
+        throw new Exception("DependencyManager: unknown dependency type '$type'");
     }
     return $ret;
   }
@@ -72,7 +84,8 @@ class DependencyCSS extends Dependency {
   public $url;
 
   private $format = '<link rel="stylesheet" type="text/css" href="%s" media="%s" />';
-  private $extraformat = '<script type="text/javascript">elation.dependencies.register("css", %s)</script>';
+  //private $extraformat = '<script type="text/javascript">elation.dependencies.register("css", %s)</script>';
+  private $extraformat = '';
 
 
   function Display($locations, $extras=NULL) {
@@ -98,15 +111,15 @@ class DependencyJavascript extends Dependency {
   public $code;
 
   private $format = '<script type="text/javascript" src="%s"></script>';
-  private $extraformat = '<script type="text/javascript">elation.dependencies.register("javascript", %s)</script>';
+  //private $extraformat = '<script type="text/javascript">elation.dependencies.register("javascript", %s)</script>';
+  private $extraformat = '';
 
   function Display($locations, $extras=NULL) {
     if (empty($this->media)) $this->media = "all";
     if (!empty($this->file)) {
       $fname = $this->GetFilename($locations["scripts"], $this->file);
       if (!empty($fname))
-        $url = sprintf("%s/%s%s", $locations["scriptswww"], $fname, (!empty($this->version) ? "?dv=" . $this->version : "\
-"));
+        $url = sprintf("%s/%s%s", $locations["scriptswww"], $fname, (!empty($this->version) ? "?dv=" . $this->version : ""));
     } else if (!empty($this->url)) {
       $url = $this->url;
     }
@@ -121,3 +134,47 @@ class DependencyJavascript extends Dependency {
 
   }
 }
+/** 
+ * class DependencyComponent
+ * Component dependency - checks for DependencyCSS and DependencyJS associated with specified component and includes either or both
+ * @package Framework
+ * @subpackage Dependencies
+ */ 
+class DependencyComponent extends Dependency {
+  public $name;
+  public $subtypes;
+  private $subdeps;
+ 
+  function Init($args, $locations=NULL) {
+    $this->name = $args["name"];
+ 
+    if (strpos($this->name, ".") !== false)
+      $filebase = "components/" . str_replace(".", "/", $this->name);
+    else
+      $filebase = "components/" . $this->name . "/" . $this->name;
+
+    $css_path = "{$locations["css"]}/{$filebase}.css";
+    $javascript_path = "{$locations["scripts"]}/{$filebase}.js";
+
+    if (file_exists($css_path)) {
+      $this->subdeps['css'] = new DependencyCSS(array("type" => "css", "file" => "{$filebase}.css"), true);
+      $this->subtypes .= (!empty($this->subtypes) ? "," : "") . 'css';
+    }
+    if (file_exists($javascript_path)) {
+      $this->subdeps['javascript'] = new DependencyJavascript(array("type" => "javascript", "file" => "{$filebase}.js"), true);
+      $this->subtypes .= (!empty($this->subtypes) ? "," : "") . 'javascript';
+    }
+  }
+  function Display($locations, $extras=NULL) {
+    $ret = "";
+    $tmp = explode(".", $this->name);
+    $extras[$tmp[0]][] = any($tmp[1], $tmp[0]);
+    if (!empty($this->subdeps)) {
+      foreach ($this->subdeps as $dep) {
+        $ret .= $dep->Display($locations, $extras);
+      }
+    }
+    return $ret;
+  }
+}
+

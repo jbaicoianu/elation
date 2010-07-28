@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html>
  <head>
+<base href="http://www.meobets.com/~bai/elation/" />
   <title>Supercritical Industries</title>
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"></script>
   {* <script src="http://maps.google.com/maps?file=api&v=2&key=ABQIAAAAFXsdbqGFn4dgHhuKmhzLXRSbAmZjuZtdxuWBH-Uk_GrhiuOKERTNUoNYSNxCRRxo3ZVLY7HRLySR6A" type="text/javascript"></script> *}
-{dependency type="javascript" url="/scripts/components/utils/elation.js"}
-{dependency type="javascript" url="/scripts/components/utils/browser.js"}
-{dependency type="javascript" url="/scripts/components/utils/ajaxlib.js"}
-{dependency type="javascript" url="/scripts/components/utils/events.js"}
-{dependency type="javascript" url="/scripts/components/utils/ui.js"}
-{dependency type="css" url="/css/components/utils/ui.css"}
-{dependency type="css" url="/css/components/navigation/carpc.css"}
-
+{dependency type="component" name="utils.elation"}
+{dependency type="component" name="utils.browser"}
+{dependency type="component" name="utils.ajaxlib"}
+{dependency type="component" name="utils.events"}
+{dependency type="component" name="utils.dependencies"}
+{dependency type="component" name="utils.ui"}
+{dependency type="component" name="navigation.carpc"}
 [[dependencies]]
 {*
   {dependency type="javascript" url="/dynatree/jquery.cookie.js"}

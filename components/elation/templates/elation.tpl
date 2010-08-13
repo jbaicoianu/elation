@@ -1,4 +1,5 @@
 {dependency type="component" name="elation"}
+
 <h2>Elation Installation Successful</h2>
 <p>If you are seeing this message, it means Elation is installed correctly, and you're ready to start developing!</p>
 
@@ -13,15 +14,15 @@
         <h4>Blog</h4>
         <p>A simple blog to demonstrate ORM functionality.</p>
         <ul>
-          <li><a href="/blog">demo</a></li>
-          <li><a href="?inspect=blog#elation_codeview">code</a></li>
+          <li><a href="{$webapp->request.basedir}/demo/blog">demo</a></li>
+          <li><a href="?inspect=demo.blog#elation_codeview">code</a></li>
         </ul>
       </li>
       <li class="elation_demo_app">
         <h4>HTML Games</h4>
         <p>A collection of gaming experiments using HTML/JS/CSS instead of Flash</p>
         <ul>
-          <li>demos: <a href="/games/airhockey">air hockey</a> <a href="/games/scrapple">scrapple</a>  <a href="/games/arkanoid">arkanoid</a> </li>
+          <li>demos: <a href="{$webapp->request.basedir}/games/airhockey">air hockey</a> <a href="{$webapp->request.basedir}/games/scrapple">scrapple</a>  <a href="{$webapp->request.basedir}/games/arkanoid">arkanoid</a> </li>
           <li><a href="?inspect=games#elation_codeview">code</a></li>
         </ul>
       </li>
@@ -29,16 +30,16 @@
         <h4>BoxeeBox</h4>
         <p>A product demo page for a fictional product</p>
         <ul>
-          <li><a href="/boxeebox">demo</a></li>
-          <li><a href="?inspect=boxeebox#elation_codeview">code</a></li>
+          <li><a href="{$webapp->request.basedir}/supercritical/boxeebox">demo</a></li>
+          <li><a href="?inspect=supercritical.boxeebox#elation_codeview">code</a></li>
         </ul>
       </li>
       <li class="elation_demo_app">
         <h4>DeepZoom</h4>
         <p>A JavaScript Zooming User Interface (<a href="http://en.wikipedia.org/wiki/ZUI">ZUI</a>) experiment</p>
         <ul>
-          <li><a href="/deepzoom">demo</a></li>
-          <li><a href="?inspect=deepzoom#elation_codeview">DeepZoom</a></li>
+          <li><a href="{$webapp->request.basedir}/deepzoom">demo</a></li>
+          <li><a href="?inspect=deepzoom#elation_codeview">code</a></li>
         </ul>
       </li>
     </ul>
@@ -47,3 +48,4 @@
     </div>
   </li>
 </ul>
+{component name="html.footer"}

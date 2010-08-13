@@ -1,5 +1,5 @@
 {component name="html.header"}
-{dependency type="css" url="/css/components/deepzoom/deepzoom.css"}
+{dependency type="component" name="deepzoom"}
 <div class="container">
   {component name="deepzoom.imagelist"}
   {component name="html.multizoom" img=$imgname imgdata=$imgdata}

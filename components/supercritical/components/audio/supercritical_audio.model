@@ -1,0 +1,18 @@
+{
+  "name":"audio",
+  "classes":{
+    "AudioPlaylist":{
+      "table":"audio_playlist",
+      "props":{
+        "name":["name","varchar",{"pk":true}],
+        "title":["title","varchar"],
+        "description":["description","varchar"],
+        "logourl":["logourl","varchar"],
+        "streamurl":["streamurl","varchar"],
+        "last_listened":["last_listened","datetime"]
+      },
+      "associations":[
+      ]
+    }
+  }
+}

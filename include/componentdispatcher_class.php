@@ -29,20 +29,7 @@ class ComponentDispatcher extends Component {
     self::$instance =& $this;
   }
 
-  function Dispatch($page=NULL, $pageargs=NULL) {
-    if ($page === NULL)
-      $page = $_SERVER["SCRIPT_URL"];
-    if ($page === NULL) {
-      $webroot = "/";
-      if (preg_match("/^(.*?)\/go\.php$/", $_SERVER["SCRIPT_NAME"], $m)) {
-        $webroot = $m[1];
-      }
-      $page = preg_replace("/".preg_quote($webroot,"/")."(.*?)(\?.*)?$/", "$1", $_SERVER["REQUEST_URI"]);
-    }
-    if ($pageargs === NULL)
-      $pageargs = &$_REQUEST;
-    $args = $this->ParseRequest($page, $pageargs);
-
+  function Dispatch($page=NULL, $args=NULL) {
     $alternateret = $this->HandleDispatchArgs($args);
     $outputtype = "html";
 
@@ -76,14 +63,6 @@ class ComponentDispatcher extends Component {
     return $ret;
   }
 
-  function ParseRequest($page, $args=array()) {
-    if (get_magic_quotes_gpc())
-      $args = array_map('stripslashes_deep', $args);
-
-    // TODO - this is where any sort of URL argument remapping should happen, and there should be a corresponding function to build those URLs
-
-    return any($args, array());
-  }
   function GetDispatchArgs($name, $args=NULL) {
     $ret = $args;
     if (!empty($this->dispatchargs[$name]))

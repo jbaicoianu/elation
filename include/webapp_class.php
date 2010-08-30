@@ -42,11 +42,16 @@ class WebApp {
 
     if ($this->initialized()) {
       try {
+        $this->request = $this->ParseRequest();
         $this->smarty = SuperSmarty::singleton($this->rootdir);
         $this->smarty->assign_by_ref("webapp", $this);
         $this->components = new ComponentDispatcher($this);
         $this->orm = OrmManager::singleton();
         //$this->smarty->SetComponents($this->components);
+        DependencyManager::init(array("scripts" => "htdocs/scripts",
+                                      "scriptswww" => $this->request["basedir"] . "/scripts",
+                                      "css" => "htdocs/css",
+                                      "csswww" => $this->request["basedir"] . "/css"));
 
         session_set_cookie_params(30*60*60*24);
         session_start();
@@ -60,11 +65,58 @@ class WebApp {
   function initialized() {
     return is_writable("./tmp");
   }
+  function ParseRequest($page=NULL, $post=NULL) {
+    $webroot = "/";
+    if ($page === NULL)
+      $page = $_SERVER["SCRIPT_URL"];
+    if ($page === NULL) {
+      if (preg_match("/^(.*?)\/go\.php$/", $_SERVER["SCRIPT_NAME"], $m)) {
+        $webroot = $m[1];
+      }
+      $page = preg_replace("/".preg_quote($webroot,"/")."(.*?)(\?.*)?$/", "$1", $_SERVER["REQUEST_URI"]);
+    }
+    if ($post === NULL)
+      $post = &$_REQUEST;
+
+    $req = @parse_url($page); // FIXME - PHP sucks and throws a warning here on malformed URLs, with no way to catch as an exception
+
+    if (!empty($req["query"]))
+      parse_str($req["query"], $req["args"]);
+    else
+      $req["args"] = array();
+
+    if (!empty($post)) {
+      if (get_magic_quotes_gpc()) {
+        $post = array_map('stripslashes_deep', $post);
+      }
+      $req["args"] = array_merge($req["args"], $post);
+    }
+
+    $req["host"] = $_SERVER["HTTP_HOST"];
+    $req["ssl"] = !empty($_SERVER["HTTPS"]);
+    $req["scheme"] = "http" . ($req["ssl"] ? "s" : "");
+    $req["ip"] = $_SERVER["REMOTE_ADDR"];
+    $req["user_agent"] = $_SERVER['HTTP_USER_AGENT'];
+    $req["referer"] = $_SERVER["HTTP_REFERER"];
+
+    if (!empty($_SERVER["PHP_AUTH_USER"]))
+      $req["user"] = $_SERVER["PHP_AUTH_USER"];
+    if (!empty($_SERVER["PHP_AUTH_PW"]))
+      $req["password"] = $_SERVER["PHP_AUTH_PW"];
+
+    $req["basedir"] = $webroot;
+    $req["baseurl"] = $req["scheme"] . "://" . $req["host"] . $req["basedir"];
+    $req["url"] = $req["baseurl"] . $req["path"];
+      
+    // TODO - this is where any sort of URL argument remapping should happen, and there should be a corresponding function to build those URLs
+
+    return $req;
+  }
 
   function Display() {
     if (!empty($this->components)) {
       try {
-        $output = $this->components->Dispatch();
+        $output = $this->components->Dispatch($this->request["path"], $this->request["args"]);
       } catch (Exception $e) {
         //print_pre($e);
         $this->HandleException($e);
@@ -109,8 +161,7 @@ class WebApp {
   	if(class_exists('Zend_Loader_Autoloader', false)) {
 	    $zendAutoloader = Zend_Loader_Autoloader::getInstance(); //already registers Zend as an autoloader
 	    $zendAutoloader->unshiftAutoloader(array('WebApp', 'autoloadElation')); //add the Trimbo autoloader
-		}
-		else {
+		} else {
 			spl_autoload_register('WebApp::autoloadElation');
 		}
   }
@@ -125,8 +176,7 @@ class WebApp {
 	    require_once("include/" . strtolower($class) . "_class.php");
 	  } else if (file_exists("include/model/" . strtolower($class) . "_class.php")) {
 	    require_once("include/model/" . strtolower($class) . "_class.php");
-	  } 
-		else {
+	  }	else {
       try {
       	if(class_exists('Zend_Loader', false)) {
           Zend_Loader::loadClass($class);

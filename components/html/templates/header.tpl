@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
  <head>
-<base href="http://www.meobets.com/~bai/elation/" />
   <title>Supercritical Industries</title>
   <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"></script>
   {* <script src="http://maps.google.com/maps?file=api&v=2&key=ABQIAAAAFXsdbqGFn4dgHhuKmhzLXRSbAmZjuZtdxuWBH-Uk_GrhiuOKERTNUoNYSNxCRRxo3ZVLY7HRLySR6A" type="text/javascript"></script> *}

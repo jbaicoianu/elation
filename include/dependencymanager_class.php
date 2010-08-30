@@ -1,14 +1,11 @@
 <?
 class DependencyManager {
   static private $dependencies = array();
-  static $locations = array(
-                            "css"     => "htdocs/css",
-                            "csswww" => "/~bai/elation/css",
-                            "scripts"     => "htdocs/scripts",
-                            "scriptswww" => "/~bai/elation/scripts",
-                           );
-  
+  static public $locations = array();
 
+  static function init($locations) {
+    self::$locations = $locations;
+  }
   static function add($args) {
     if (!empty($args["type"])) {
       if (!is_array(self::$dependencies[$args["type"]]))
@@ -21,7 +18,7 @@ class DependencyManager {
     $ret = "";
     foreach (self::$dependencies as $type=>$dependencies) {
       foreach ($dependencies as $dependency) {
-        $ret .= $dependency->display(self::$locations); // FIXME - needs locations
+        $ret .= $dependency->display(self::$locations);
       }
     }
     return $ret;

@@ -48,6 +48,10 @@ class WebApp {
         $this->components = new ComponentDispatcher($this);
         $this->orm = OrmManager::singleton();
         //$this->smarty->SetComponents($this->components);
+        if($this->request["basedir"] == '/') {
+          $this->request["basedir"] = '';
+        }
+        
         DependencyManager::init(array("scripts" => "htdocs/scripts",
                                       "scriptswww" => $this->request["basedir"] . "/scripts",
                                       "css" => "htdocs/css",

@@ -14,8 +14,8 @@
         <h4>Blog</h4>
         <p>A simple blog to demonstrate ORM functionality.</p>
         <ul>
-          <li><a href="{$webapp->request.basedir}/demo/blog">demo</a></li>
-          <li><a href="?inspect=demo.blog#elation_codeview">code</a></li>
+          <li><a href="{$webapp->request.basedir}/blog">demo</a></li>
+          <li><a href="?inspect=blog#elation_codeview">code</a></li>
         </ul>
       </li>
       <li class="elation_demo_app">
@@ -31,7 +31,7 @@
         <p>A product demo page for a fictional product</p>
         <ul>
           <li><a href="{$webapp->request.basedir}/supercritical/boxeebox">demo</a></li>
-          <li><a href="?inspect=supercritical.boxeebox#elation_codeview">code</a></li>
+          <li><a href="?inspect=boxeebox#elation_codeview">code</a></li>
         </ul>
       </li>
       <li class="elation_demo_app">

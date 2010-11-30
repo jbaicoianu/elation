@@ -7,6 +7,8 @@
 #include <arpa/inet.h>
 #include <math.h>
 
+#define PALETTEFILE "components/deepzoom/components/mandelbrot/htdocs/images/palette.png"
+
 class Frame {
  public:
   double minx, miny, maxx, maxy;
@@ -60,7 +62,7 @@ class Mandelbrot {
       img = gdImageCreate(sizex, sizey);
       std::cout << "Load palette: " << std::flush;
       FILE *in;
-      if ((in = fopen("palette.png", "r")) != false) {
+      if ((in = fopen(PALETTEFILE, "r")) != false) {
         colors = new int[iterations+3];
         gdImagePtr palette = gdImageCreateFromPng(in);
         for (int i = 0; i < gdImageSX(palette) && i < iterations; i++) {
@@ -185,7 +187,7 @@ int main(int argc, char **argv) {
     $colors['inside'] = imagecolorallocate($img, 0, 0, 0); 
     
     Profiler::startTimer("palette");
-    $palette = imagecreatefrompng("palette.png"); 
+    $palette = imagecreatefrompng(PALETTEFILE); 
     for ($i=0; $i < imagesx($palette); $i++) { 
       $rgb = imagecolorat($palette, $i, 0); 
       $colors[$i] = imagecolorallocate($img, ($rgb >> 16) & 0xFF, ($rgb >> 8) & 0xFF, $rgb & 0xFF); 

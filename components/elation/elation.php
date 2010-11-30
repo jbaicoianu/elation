@@ -5,7 +5,7 @@ class Component_elation extends Component {
   }
 
   function controller_elation($args, $output="inline") {
-    $vars["inspect"] = "blog";
+    $vars["inspect"] = "demo.blog";
     if (!empty($args["inspect"]) && strpos($args["inspect"], "/..") === false) {
       $vars["inspect"] = $args["inspect"];
       $vars["file"] = any($args["file"], NULL);
@@ -14,9 +14,10 @@ class Component_elation extends Component {
   }
   function controller_inspect($args, $output="inline") {
     $vars["component"] = $args["component"];
+    $vars["componentdir"] = "./components/" . implode("/components/", explode(".", $vars["component"]));
     $vars["file"] = $args["file"];
-    if (!empty($vars["component"]) && file_exists("./components/" . $vars["component"])) {
-      $vars["files"] = $this->getDirContents("./components/" . $vars["component"]);
+    if (!empty($vars["component"]) && file_exists($vars["componentdir"])) {
+      $vars["files"] = $this->getDirContents($vars["componentdir"]);
     }
     return $this->GetComponentResponse("./inspect.tpl", $vars);
   }
@@ -27,13 +28,14 @@ class Component_elation extends Component {
   }
   function controller_inspect_file($args) {
     $vars["component"] = $args["component"];
+    $vars["componentdir"] = "./components/" . implode("/components/", explode(".", $vars["component"]));
     $vars["file"] = $args["file"];
     $vars["filetype"] = "unknown";
     if (preg_match("/\.\/.*\.(.*?)$/", $vars["file"], $m)) {
       $vars["filetype"] = $m[1];
     }
     if (!empty($vars["file"]) && strpos($vars["file"], "/../") === false) {
-      $vars["fullname"] = "./components/" . $vars["component"] . "/" . $vars["file"];
+      $vars["fullname"] = $vars["componentdir"] . "/" . $vars["file"];
       switch ($vars["filetype"]) {
       case 'php':
         $vars["contents"] = highlight_string(file_get_contents($vars["fullname"]), true);
@@ -45,12 +47,6 @@ class Component_elation extends Component {
       $vars["contents"] = $args["defaultcontent"];
     }
     return $this->GetComponentResponse("./inspect_file.tpl", $vars);
-  }
-  function controller_datatest($args) {
-    $data = DataManager::singleton();
-    $query = $data->query("db.config.cobrands.first10", "SELECT * FROM config.cobrand WHERE name like '%thefind%' limit 1");
-    $vars["results"] = $query->rows;
-    return $this->GetComponentResponse(NULL, $vars);
   }
   function getDirContents($dir) {
     $ret = array();

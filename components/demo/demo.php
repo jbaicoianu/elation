@@ -9,4 +9,7 @@ class Component_demo extends Component {
     $response["args"] = $args;
     return $response;
   }
+  function controller_xmlns($args) {
+    return $this->GetComponentResponse("./xmlns.tpl", $vars);
+  }
 }  

@@ -1,4 +1,3 @@
-{dependency type="css" url="/css/components/blog/blog.css"}
 {if !empty($header)}<h3>{$header|escape:html}</h3>{/if}
 {if !empty($blog)}
   {if !empty($postcount)}

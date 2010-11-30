@@ -1,17 +1,17 @@
-{dependency type="css" url="/css/exception.css"}
-<div class="exception">
- <img src="/images/stop.png" class="exception_icon" />
+{dependency type="component" name="utils.exception"}
+<div class="exception exception_{$exception.type}">
+ <img src="{$webapp->locations.imageswww}/stop.png" class="exception_icon" />
  <h2>
   {$exception.type}: {$exception.message}
-  <address>{$exception.file}:{$exception.line}</address>
+  {if $debug}<address>{$exception.file}:{$exception.line}</address>{/if}
  </h2>
-{if !empty($exception.trace)}
+{if $debug && !empty($exception.trace)}
  <ol class="exception_trace">
   {foreach from=$exception.trace item=trace}
    <li>
     {$trace.class}{$trace.type}{$trace.function}(
      {foreach from=$trace.args item=arg name=trace}
-       <code>{if is_string($arg)}'{$arg|escape:html}'{else}{$arg}{/if}</code>{if !$smarty.foreach.trace.last},{/if}
+       <code>{if is_string($arg)}'{$arg|escape:html}'{else}{php}print gettype($this->_tpl_vars["arg"]){/php}{/if}</code>{if !$smarty.foreach.trace.last},{/if}
      {/foreach}
     )
    </li>

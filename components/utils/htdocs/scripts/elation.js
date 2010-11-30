@@ -13,7 +13,100 @@ var elation = new function() {
       ptr[parts[i]] = func;
   }
 }
+elation.extend("component", new function() {
+  this.namespace = "elation";
+  this.registry = [];
+  this.init = function() {
+    var componentattr = "component";
+    var argsattr = this.namespace+':args';
+    // Find all elements which have a namespace:componentattr attribute
 
+    //var elements = $("["+this.namespace+"\\:"+componentattr+"]"); 
+/*
+    function nsresolver(prefix) {  
+      var ns = {  
+        'xhtml' : 'http://www.w3.org/1999/xhtml',  
+        'elation': 'http://www.ajaxelation.com/xmlns'  
+      };  
+alert(ns[prefix]);
+      return ns[prefix] || null;  
+    }  
+*/
+    var nsresolver = document.createNSResolver(document.documentElement);
+
+
+// FIXME - I've started work to switch this over to use xpath selectors instead of jquery but namespaces make it a pain
+//         Right now this is just selecting all elements, very inefficient...
+//var selector = '//*['+this.namespace+':'+componentattr+']';
+//var selector = "//*[@*["+this.namespace+":"+componentattr+"]]";
+//var selector = "//*[@*[namespace-uri()='http://www.ajaxelation.com/xmlns']]";
+//var selector = "//*[local-name()='component']";
+var selector = "//*";
+    var result = document.evaluate(selector, document, nsresolver, XPathResult.ANY_TYPE, null);
+    var elements = [];
+    while (element = result.iterateNext()) {
+      elements.push(element);
+    }
+console.log('i init now');
+    for (var i = 0; i < elements.length; i++) {
+      var element = elements[i];
+      var componenttype = element.getAttribute(this.namespace+':'+componentattr);
+      var componentname = element.getAttribute(this.namespace+':name') || element.id;
+      if (componenttype) {
+        var componentargs = {}, j;
+        // First look for a JSON-encoded args array in the element's direct children
+        for (j = 0; j < element.children.length; j++) {
+          if (element.children[j].nodeName == argsattr.toUpperCase()) {
+            try {
+              componentargs = JSON.parse(element.children[j].innerHTML);
+              break; // only one args array per block, bail out when we find one so we don't waste time with the rest
+            } catch(e) {
+              // Probably JSON syntax error
+              console.log("Could not parse " + argsattr + ": " + element.children[j].innerHTML);
+            }
+          }
+        }
+        // Then, loop through the attributes and parse out any individual arguments which can be specified as attributes
+        for (j = 0; j < element.attributes.length; j++) {
+          if (element.attributes[j].nodeName.substring(0, argsattr.length+1) == argsattr+'.') {
+            componentargs[element.attributes[j].nodeName.substring(argsattr.length+1)] = element.attributes[j].nodeValue;
+          }
+        }
+        // Instantiate the new component with all parsed arguments
+        //elation.component.create(componenttype, element, componentargs);
+        var componentclass = elation.utils.arrayget(elation, componenttype);
+        if (typeof componentclass == 'function') {
+          componentclass(componentname, element, componentargs);
+        } 
+      }
+    }
+  }
+  this.add = function(name, classdef) {
+    // At the top level, a component is just a function which checks to see if
+    // an instance with the given name exists already.  If it doesn't we create
+    // it, and then we return a reference to the specified instance.
+    var el = function(name, container, args) {
+      if (!name && name !== 0) // If no name was passed, use the current object count as a name instead ("anonymous" components)
+        name = el.objcount;
+      if (!el.obj[name]) {
+        el.obj[name] = new el.fn.init(name, container, args);
+        el.objcount++;
+      }
+      return el.obj[name];
+    };
+    el.objcount = 0;
+    el.obj = {}; // this is where we store all the instances of this type of component
+    el.fn = (typeof classdef == 'function' ? new classdef : classdef); // and this is where we store the functions
+    // If no init function is defined, add a default one
+    if (!el.fn.init) el.fn.init = function(name, container, args) { 
+      this.name = name;
+      this.container = container;
+      this.args = args;
+    }
+    el.fn.init.prototype = el.fn; // The functions which were passed in are attached to the insantiable component objects
+    elation.extend(name, el); // inject the newly-created component wrapper into the main elation object
+  }
+});
 elation.extend('onloads',new function() {
   this.done = false;
   this.onloads = [];
@@ -107,3 +200,31 @@ elation.extend("html.removeclass", function(element, className) {
     element.className = element.className.replace(re, " ");
   }
 });
+elation.extend("utils.arrayget", function(obj, name) {
+  var ptr = obj;
+  var x = name.split(".");
+  for (var i = 0; i < x.length; i++) {
+    if (ptr==null || (typeof ptr[x[i]] != 'array' && typeof ptr[x[i]] != 'object' && i != x.length-1)) {
+      ptr = null;
+      break;
+    }
+    ptr = ptr[x[i]];
+  }
+  return (typeof ptr == "undefined" ? null : ptr);
+});
+//Returns true if it is a DOM node
+elation.extend("utils.isnode", function(obj) {
+  return (
+    typeof Node === "object" ? obj instanceof Node : 
+    typeof obj === "object" && typeof obj.nodeType === "number" && typeof obj.nodeName==="string"
+  );
+});
+
+//Returns true if it is a DOM element    
+elation.extend("utils.iselement", function(obj) {
+  return (
+    typeof HTMLElement === "object" ? obj instanceof HTMLElement : //DOM2
+    typeof obj === "object" && obj.nodeType === 1 && typeof obj.nodeName==="string"
+  );
+});
+

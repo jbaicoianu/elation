@@ -4,6 +4,8 @@ include_once("include/ormmanager_class.php");
 
 class Component_elation_orm extends Component {
   function controller_orm($args) {
+    if (!User::authorized("orm"))
+      throw new Exception("not allowed");
     $ret = $this->GetComponentResponse("./orm.tpl");
     /*
     $user = User::singleton();

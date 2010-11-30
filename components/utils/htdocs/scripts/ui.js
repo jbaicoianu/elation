@@ -266,23 +266,31 @@ elation.extend("ui.panel.slideout", function(parentdiv, args) {
   this.init(parentdiv, args);
 });
 
-elation.extend("ui.scrollable", function(parent, args) {
-  this.parent = parent;
-  this.args = args;
-  this.timeinfo = {buckets: [], counter: 0, num: 20};;
+elation.component.add("ui.scrollable", {
+  timeinfo: {buckets: [], counter: 0, num: 20},
 
-  this.initialize = function(parent, args) {
-    this.element = args.element;
+  init: function(name, parent, args) {
+    if (typeof args.element == 'string')
+      this.element = document.getElementById(args.element);
+    else if (elation.utils.iselement(args.element))
+      this.element = args.element;
+    else if (elation.utils.iselement(parent))
+      this.element = parent;
+    
     this.orientation = args.orientation || 'vertical';
-    $(this.element).addClass("ui_scrollable").addClass("orientation_"+this.orientation);
-    this.element.scrollTop = 0;
-    this.element.scrollLeft = 0;
+    if (this.element) {
+      $(this.element).addClass("ui_scrollable").addClass("orientation_"+this.orientation);
+      this.element.scrollTop = 0;
+      this.element.scrollLeft = 0;
 
-    elation.events.add(this.element, 'mousedown', this);
-    elation.events.add(this.element, 'touchstart', this);
-  }
+      elation.events.add(this.element, 'mousedown', this);
+      elation.events.add(this.element, 'touchstart', this);
+    } else {
+      console.log('ui.scrollable: Failed to initialize, no element passed');
+    }
+  },
 
-  this.handleEvent = function(ev) {
+  handleEvent: function(ev) {
     switch(ev.type) {
       case 'mousedown':
       case 'touchstart':
@@ -301,14 +309,14 @@ elation.extend("ui.scrollable", function(parent, args) {
         this.handleClick(ev);
         break;
     }
-  }
+  },
 
-  this.handleMouseDown = function(ev) {
-    elation.events.add(window, "mousemove", this);
-    elation.events.add(window, "mouseleave", this);
-    elation.events.add(window, "mouseup", this);
-    elation.events.add(window, "touchmove", this);
-    elation.events.add(window, "touchend", this);
+  handleMouseDown: function(ev) {
+    elation.events.add(document, "mousemove", this);
+    elation.events.add(document, "mouseleave", this);
+    elation.events.add(document, "mouseup", this);
+    elation.events.add(document, "touchmove", this);
+    elation.events.add(document, "touchend", this);
 
     var xy = this.getEventXY(ev);
     this.startx = xy[0];
@@ -321,8 +329,8 @@ elation.extend("ui.scrollable", function(parent, args) {
     this.timeinfo.buckets[this.timeinfo.counter++ % this.timeinfo.num] = {time: ev.timeStamp, x: xy[0], y: xy[1]};
 
     ev.preventDefault();
-  }
-  this.handleMouseMove = function(ev) {
+  },
+  handleMouseMove: function(ev) {
     var xy = this.getEventXY(ev);
     var movedx = this.startx - xy[0];
     var movedy = this.startx - xy[1];
@@ -336,13 +344,13 @@ elation.extend("ui.scrollable", function(parent, args) {
       elation.events.add(this.element, 'click', this);
     }
     ev.preventDefault();
-  }
-  this.handleMouseUp = function(ev) {
-    elation.events.remove(window, 'touchmove', this);
-    elation.events.remove(window, 'touchend', this);
-    elation.events.remove(window, 'mousemove', this);
-    elation.events.remove(window, 'mouseup', this);
-    elation.events.remove(window, 'mouseleave', this);
+  },
+  handleMouseUp: function(ev) {
+    elation.events.remove(document, 'touchmove', this);
+    elation.events.remove(document, 'touchend', this);
+    elation.events.remove(document, 'mousemove', this);
+    elation.events.remove(document, 'mouseup', this);
+    elation.events.remove(document, 'mouseleave', this);
     //console.log("TOTAL: " + (this.startmove - ev.pageY));
 
     var flick = this.getFlickSpeed();
@@ -351,15 +359,15 @@ elation.extend("ui.scrollable", function(parent, args) {
     ev.preventDefault();
     ev.stopPropagation();
     return false;
-  }
-  this.handleMouseWheel = function(ev) {
-  }
-  this.handleClick = function(ev) {
+  },
+  handleMouseWheel: function(ev) {
+  },
+  handleClick: function(ev) {
     ev.preventDefault();
     ev.stopPropagation();
     return false;
-  }
-  this.getEventXY = function(ev) {
+  },
+  getEventXY: function(ev) {
     var x, y;
     if (ev.touches) {
       x = ev.touches[0].clientX;
@@ -369,8 +377,8 @@ elation.extend("ui.scrollable", function(parent, args) {
       y = ev.clientY;
     }
     return [x, y];
-  }
-  this.getFlickSpeed = function() {
+  },
+  getFlickSpeed: function() {
     // Figure out start/stop for ringbuffer, then use it to calculate average speed over the last 50ms
     var istart = (this.timeinfo.counter >= this.timeinfo.num ? this.timeinfo.counter % this.timeinfo.num : 0);
     var iend = (this.timeinfo.counter - 1) % this.timeinfo.num;
@@ -401,9 +409,9 @@ elation.extend("ui.scrollable", function(parent, args) {
     var distance = (speed * speed) / (-2 * accel);
 
     return {time: 500, direction: dir, distance: distance, speed: speed, t: new Date()};
-  }
+  },
   
-  this.animateFlick = function(flick) {
+  animateFlick: function(flick) {
     var t = new Date();
     if (flick) {
       this.flick = flick;
@@ -422,52 +430,89 @@ elation.extend("ui.scrollable", function(parent, args) {
       flick.t = t;
     }
   }
-
-  this.initialize(parent, args);
 });
 
-elation.extend('ui.button', function(args, container) {
-    this.init = function(args, container) {
-        this.tag = args.tag || "BUTTON";
-        this.classname = args.classname || "";
-        this.label = args.label || "Submit";
-        this.title = args.title || false;
-        this.draggable = args.draggable || false;
-        this.events = args.events || {}
+elation.component.add('ui.button', {
+  init: function(name, container, args) {
+    this.tag = args.tag || "BUTTON";
+    this.classname = args.classname || "";
+    this.title = args.title || false;
+    this.draggable = args.draggable || false;
+    this.events = args.events || {}
+
+    if (typeof(container) != 'undefined') {
+      this.label = args.label || container.innerHTML || "Submit";
+      container.innerHTML = "";
+      this.addTo(container);
+    } else {
+      this.label = args.label || "Submit";
+    }
+  },
+  create: function() {
+    this.element = document.createElement(this.tag);
+    this.element.innerHTML = this.label;
+    var classname = '';
+    if (this.draggable) {
+      classname = 'elation_ui_button_draggable';
+      this.element.draggable = true;
+    }
+    classname += this.classname;
+    this.element.className = classname;
+    if (this.title)
+      this.element.title = this.title;
+
+    for (var k in this.events) {
+      elation.events.add(this.element, k, this.events[k]);
+    }
+  },
+  addTo: function(container) {
+    if (typeof container != 'undefined') {
+      if (!this.element)
         this.create();
-  
-        if (typeof(container) != 'undefined')
-            this.addTo(container);
+      container.appendChild(this.element);
+      return true;
     }
-    this.create = function() {
-        this.element = document.createElement(this.tag);
-        this.element.innerHTML = this.label;
-        var classname = '';
-        if (this.draggable) {
-            classname = 'elation_ui_button_draggable';
-            this.element.draggable = true;
+    return false;
+  },
+  setLabel: function(label) {
+    this.label = label;
+    if (this.element)
+      this.element.innerHTML = label;
+  }
+});
+
+elation.component.add("ui.toggle", {
+  init: function(name, container, args) {
+    this.panels = container.getElementsByClassName("ui_toggle_panel");
+    this.formname = args.formname;
+    for (var i = 0; i < this.panels.length; i++) {
+      var inputs = this.panels[i].getElementsByTagName("INPUT");
+      for (var j = 0; j < inputs.length; j++) {
+        if (inputs[j].name == this.formname) {
+          elation.events.add(inputs[j], "click,change", this);
         }
-        classname += this.classname;
-        this.element.className = classname;
-        if (this.title)
-          this.element.title = this.title;
-  
-        for (var k in this.events) {
-            elation.events.add(this.element, k, this.events[k]);
+      }
+    }
+    this.setActivePanel();
+  },
+  handleEvent: function(ev) {
+    this.setActivePanel();
+  },
+  setActivePanel: function() {
+    for (var i = 0; i < this.panels.length; i++) {
+      var selected = false;
+      var inputs = this.panels[i].getElementsByTagName("INPUT");
+      for (var j = 0; j < inputs.length; j++) {
+        if (inputs[j].name == this.formname && inputs[j].checked) {
+          selected = true;
         }
+      }
+      if (selected) {
+        elation.html.addclass(this.panels[i], "state_selected");
+      } else {
+        elation.html.removeclass(this.panels[i], "state_selected");
+      }
     }
-    this.addTo = function(container) {
-        if (typeof container != 'undefined') {
-            container.appendChild(this.element);
-            return true;
-        }
-        return false;
-    }
-    this.setLabel = function(label) {
-        this.label = label;
-        if (this.element)
-            this.element.innerHTML = label;
-    }
-    this.init(args, container);
+  }
 });
 

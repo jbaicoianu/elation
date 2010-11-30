@@ -1,0 +1,46 @@
+.exception {
+  border: 1px solid red;
+  background: #fdd;
+  color: black;
+  padding: .5em;
+  max-width: 40em;
+  margin: .5em auto;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+}
+.exception .exception_icon {
+  float: left;
+  margin-right: .5em;
+}
+.exception h2 {
+  font-size: 1em;
+  min-height: 32px;
+  margin: 0;
+}
+.exception address {
+  font-size: .8em;
+  display: block;
+  color: #555;
+}
+.exception ol.exception_trace {
+  list-style: decimal inside;
+  height: 10em;
+  overflow: auto;
+  font-size: .8em;
+  margin-top: .5em;
+  border: 1px solid black;
+  background: white;
+}
+.exception ol.exception_trace li {
+  border-bottom: 1px solid black;
+  padding: .4em;
+}
+
+.exception.exception_notice {
+  background: #dfd;
+  border-color: #0f0;
+}
+.exception.exception_warning {
+  background: #ffa;
+  border-color: #990;
+}

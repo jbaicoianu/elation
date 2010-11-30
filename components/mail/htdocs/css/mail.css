@@ -1,0 +1,81 @@
+#mail_dashboard {
+  margin: 2em;
+  padding: 2em;
+  border: 1px solid black;
+  font-family: sans-serif;
+}
+#mail_dashboard ul {
+  list-style: none;
+}
+#mail_dashboard .mail_sidebar {
+  width: 20em;
+  float: left;
+}
+#mail_dashboard .mail_main {
+  margin-left: 21em;
+}
+#mail_dashboard h2 {
+  border-bottom: 1px solid black;
+  padding-bottom: .2em;
+  margin-bottom: .5em;
+}
+#mail_dashboard .mail_domains {
+  border: 1px solid black;
+  padding: 1em;
+}
+#mail_dashboard .mail_domains .mail_domain_create {
+  font-size: .8em;
+  margin: 1em .5em 0 .5em;
+}
+#mail_dashboard .mail_main {
+  border: 1px solid black;
+  padding: 1em;
+}
+#mail_dashboard .mail_main a.mail_domain {
+}
+#mail_dashboard .mail_accounts {
+  
+}
+#mail_dashboard .mail_accounts .mail_account_create {
+  font-size: .8em;
+  margin-top: 1em;
+  padding-top: 1em;
+  border-top: 1px solid black;
+}
+#mail_dashboard .mail_account {
+  text-decoration: none;
+}
+#mail_dashboard .mail_account:before {
+  display: inline-block;
+  font-size: .8em;
+  width: 1em;
+  height: 1em;
+  content: ' ';
+  margin-right: .4em;
+  border: 1px solid black;
+  -webkit-border-radius: .5em;
+}
+#mail_dashboard .mail_account.mail_account_type_inactive:before {
+  background: #f99;
+}
+#mail_dashboard .mail_account.mail_account_type_full:before {
+  background: #9f9;
+}
+#mail_dashboard .mail_account.mail_account_type_forward:before {
+  background: #ff0;
+}
+#mail_dashboard .mail_account_create_typeswitcher label {
+  display: inline-block;
+  min-width: 5em;
+  font-weight: bold;
+}
+#mail_dashboard .mail_account_create_typeswitcher .mail_account_create_accounttype label {
+  font-weight: normal;
+}
+#mail_dashboard .mail_account_create_typeswitcher .mail_account_create_accounttype {
+  display: none;
+}
+#mail_dashboard .mail_account_create_typeswitcher .state_selected .mail_account_create_accounttype {
+  display: block;
+  padding-left: 2em;
+}

@@ -135,14 +135,14 @@ function json_indent($json, $maxdepth=999) {
 
     return $result;
 }
-function object_to_array($obj, $keymap=NULL) {
+function object_to_array($obj, $keyprefix="") {
   $arr = array();
   if ($obj instanceOf SimpleXMLElement) {
     foreach ($obj->attributes() as $k=>$v) {
-      $arr[$k] = (string) $v;
+      $arr[$keyprefix.$k] = (string) $v;
     }
     foreach ($obj->children() as $k=>$v) {
-      $arr["_children"][$k] = (string) $v;
+      $arr["_children"][$keyprefix.$k] = (string) $v;
     }
     $content = (string) $obj;
     if (!empty($content))
@@ -150,58 +150,94 @@ function object_to_array($obj, $keymap=NULL) {
   } else if (is_object($obj) || is_array($obj)) {
     foreach ($obj as $k=>$v) {
       if (is_object($v) || is_array($v)) {
-        $arr[$k] = object_to_array($v);
+        $arr[$keyprefix.$k] = object_to_array($v);
       } else {
-        $arr[$k] = (string) $v;
+        $arr[$keyprefix.$k] = (string) $v;
       }
     }
   }
   return $arr;
 }
-
-function array_set(&$arr, $key, $value) {
-  //Profiler::StartTimer("array_set");
+function object_set(&$obj, $key, $value, $delim=".") {
   $ret = true;
 
-  $keyparts = explode(".", $key);
-  
-  $ptr =& $arr;
-  while ($keypart = array_shift($keyparts)) {
-    if (!isset($ptr[$keypart])) {
-      $ptr[$keypart] = array();
-      $ptr =& $ptr[$keypart];
-    } else {
-      if (is_array($ptr)) {
-        $ptr =& $ptr[$keypart];
+  $keyparts = explode($delim, $key);
+
+  $ptr =& $obj;
+  while (($keypart = array_shift($keyparts)) !== NULL) {
+    if ($keypart !== "") {
+      if (is_object($ptr)) {
+        if (!isset($ptr->{$keypart})) {
+          $ptr->{$keypart} = array();
+          $ptr =& $ptr->{$keypart};
+        } else {
+          $ptr =& $ptr->{$keypart};
+        }
+      } else if (is_array($ptr) || $ptr === NULL) {
+        if (!isset($ptr[$keypart])) {
+          $ptr[$keypart] = array();
+          $ptr =& $ptr[$keypart];
+        } else { 
+          $ptr =& $ptr[$keypart];
+        }
       } else {
         $ret = false;
         break;
       }
     }
   }
-    
+
+  if ($ret) {
+    $ptr = $value;
+  }
+
+  //Profiler::StopTimer("array_set");
+  return $ret;
+}
+function array_set(&$arr, $key, $value, $delim=".") {
+  //Profiler::StartTimer("array_set");
+  $ret = true;
+
+  $keyparts = explode($delim, $key);
+
+  $ptr =& $arr;
+  while (($keypart = array_shift($keyparts)) !== NULL) {
+    if ($keypart !== "") {
+      if (!isset($ptr[$keypart])) {
+        $ptr[$keypart] = array();
+        $ptr =& $ptr[$keypart];
+      } else { 
+        if (is_array($ptr)) {
+          $ptr =& $ptr[$keypart];
+        } else {
+          $ret = false;
+          break;
+        }
+      }
+    }
+  }
+
   if ($ret) {
     if (is_array($ptr) && is_array($value)) // If they're both arrays, merge them
       $ptr = array_merge($ptr, $value);
     else
       $ptr = $value;
   }
-  
+
   //Profiler::StopTimer("array_set");
   return $ret;
 }
-
 function array_set_multi(&$arr, $values, $keys=NULL) {
   //Profiler::StartTimer("array_set_multi");
   if ($keys === NULL) {
-    $tmp = array_keys($values);
+    $tmp = array_keys($values); 
     $keys = array_combine($tmp, $tmp);
   }
   asort($keys, SORT_STRING);
   //print_pre($keys);
-
+  
   $subelements = array();
-
+  
   foreach ($keys as $key=>$fullkey) {
     list($topkey, $subkey) = explode(".", $key, 2);
 
@@ -222,27 +258,21 @@ function array_set_multi(&$arr, $values, $keys=NULL) {
         else
           $subelements[$topkey][$subkey] = $fullkey;
 
-      } 
+      }
     }
   }
-  //print_pre($subelements);
   foreach ($subelements as $k=>$v) {
     array_set_multi($arr[$k], $values, $v);
   }
-
-  //ksort($arr, SORT_STRING);
-  //array_set_multi($arr[$topkey], $values);
-  //Profiler::StopTimer("array_set_multi");
 }
-
-function array_unset(&$arr, $key) {
+function array_unset(&$arr, $key, $delim=".") {
   $ret = true;
 
-  $keyparts = explode(".", $key);
-  
+  $keyparts = explode($delim, $key);
+
   $ptr =& $arr;
   $keypartlast = $ptrlast = NULL;
-  
+
   while ($keypart = array_shift($keyparts)) {
     if (!isset($ptr[$keypart]))
       $ptr[$keypart] = array();
@@ -256,18 +286,18 @@ function array_unset(&$arr, $key) {
       break;
     }
   }
-    
+
   if ($ret) {
     unset($ptrlast[$keypartlast]);
   }
-  
+
   return $ret;
 }
-function array_get(&$arr, $key) {
+function array_get(&$arr, $key, $delim=".") {
   //Profiler::StartTimer("array_get");
   $ret = true;
 
-  $keyparts = explode(".", $key);
+  $keyparts = explode($delim, $key);
 
   $ptr =& $arr;
   while ($keypart = array_shift($keyparts)) {
@@ -283,18 +313,8 @@ function array_get(&$arr, $key) {
       break;
     }
   }
-    
+
   //Profiler::StopTimer("array_get");
   return ($ret ? $ptr : NULL);
 }
-function array_replace($arr, $key, $newkey, $newval) {
-  $ret = array();
-  foreach ($arr as $k=>$v) {
-    if ($k == $key) {
-      $k = $newkey;
-      $v = $newval;
-    }
-    $ret[$k] = $v;
-  }
-  return $ret;
-}
+

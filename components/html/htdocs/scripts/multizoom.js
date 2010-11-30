@@ -20,7 +20,7 @@ elation.extend("zoom", {
         }
       }
       if (typeof this.options.showlevels == 'undefined')
-        this.options.showlevels = 0;
+        this.options.showlevels = 5;
   
       if (typeof this.container == 'string') {
         this.container = document.getElementById(this.container);

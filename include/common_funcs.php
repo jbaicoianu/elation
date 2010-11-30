@@ -159,3 +159,142 @@ function object_to_array($obj, $keymap=NULL) {
   return $arr;
 }
 
+function array_set(&$arr, $key, $value) {
+  //Profiler::StartTimer("array_set");
+  $ret = true;
+
+  $keyparts = explode(".", $key);
+  
+  $ptr =& $arr;
+  while ($keypart = array_shift($keyparts)) {
+    if (!isset($ptr[$keypart])) {
+      $ptr[$keypart] = array();
+      $ptr =& $ptr[$keypart];
+    } else {
+      if (is_array($ptr)) {
+        $ptr =& $ptr[$keypart];
+      } else {
+        $ret = false;
+        break;
+      }
+    }
+  }
+    
+  if ($ret) {
+    if (is_array($ptr) && is_array($value)) // If they're both arrays, merge them
+      $ptr = array_merge($ptr, $value);
+    else
+      $ptr = $value;
+  }
+  
+  //Profiler::StopTimer("array_set");
+  return $ret;
+}
+
+function array_set_multi(&$arr, $values, $keys=NULL) {
+  //Profiler::StartTimer("array_set_multi");
+  if ($keys === NULL) {
+    $tmp = array_keys($values);
+    $keys = array_combine($tmp, $tmp);
+  }
+  asort($keys, SORT_STRING);
+  //print_pre($keys);
+
+  $subelements = array();
+
+  foreach ($keys as $key=>$fullkey) {
+    list($topkey, $subkey) = explode(".", $key, 2);
+
+    if (empty($subkey)) { // If we're already at a leaf, just set it
+      //print "set $topkey<br />";
+      $arr[$topkey] = $values[$fullkey];
+    } else {
+      if (isset($arr[$topkey]) && !is_array($arr[$topkey])) {
+        //print "skip $topkey<br />";
+        Logger::Error("Failed to set $fullkey: already a node?");
+        continue;
+      } else { 
+        if (!isset($arr[$topkey]))
+          $arr[$topkey] = array();
+
+        if (strpos($subkey, ".") === FALSE) // Shortcut for leaf nodes to cut down on recursion (same effect as leaf case above)
+          $arr[$topkey][$subkey] = $values[$fullkey];
+        else
+          $subelements[$topkey][$subkey] = $fullkey;
+
+      } 
+    }
+  }
+  //print_pre($subelements);
+  foreach ($subelements as $k=>$v) {
+    array_set_multi($arr[$k], $values, $v);
+  }
+
+  //ksort($arr, SORT_STRING);
+  //array_set_multi($arr[$topkey], $values);
+  //Profiler::StopTimer("array_set_multi");
+}
+
+function array_unset(&$arr, $key) {
+  $ret = true;
+
+  $keyparts = explode(".", $key);
+  
+  $ptr =& $arr;
+  $keypartlast = $ptrlast = NULL;
+  
+  while ($keypart = array_shift($keyparts)) {
+    if (!isset($ptr[$keypart]))
+      $ptr[$keypart] = array();
+
+    if (is_array($ptr)) {
+      $keypartlast = $keypart;
+      $ptrlast =& $ptr;
+      $ptr =& $ptr[$keypart];
+    } else {
+      $ret = false;
+      break;
+    }
+  }
+    
+  if ($ret) {
+    unset($ptrlast[$keypartlast]);
+  }
+  
+  return $ret;
+}
+function array_get(&$arr, $key) {
+  //Profiler::StartTimer("array_get");
+  $ret = true;
+
+  $keyparts = explode(".", $key);
+
+  $ptr =& $arr;
+  while ($keypart = array_shift($keyparts)) {
+    if (is_array($ptr)) {
+      if (isset($ptr[$keypart])) {
+        $ptr =& $ptr[$keypart];
+      } else {
+        $ret = false;
+        break;
+      }
+    } else {
+      $ret = false;
+      break;
+    }
+  }
+    
+  //Profiler::StopTimer("array_get");
+  return ($ret ? $ptr : NULL);
+}
+function array_replace($arr, $key, $newkey, $newval) {
+  $ret = array();
+  foreach ($arr as $k=>$v) {
+    if ($k == $key) {
+      $k = $newkey;
+      $v = $newval;
+    }
+    $ret[$k] = $v;
+  }
+  return $ret;
+}

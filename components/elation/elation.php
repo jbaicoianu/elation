@@ -46,6 +46,12 @@ class Component_elation extends Component {
     }
     return $this->GetComponentResponse("./inspect_file.tpl", $vars);
   }
+  function controller_datatest($args) {
+    $data = DataManager::singleton();
+    $query = $data->query("db.config.cobrands.first10", "SELECT * FROM config.cobrand WHERE name like '%thefind%' limit 1");
+    $vars["results"] = $query->rows;
+    return $this->GetComponentResponse(NULL, $vars);
+  }
   function getDirContents($dir) {
     $ret = array();
     $dh = opendir($dir);

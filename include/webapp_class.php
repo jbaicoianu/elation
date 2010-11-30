@@ -35,8 +35,8 @@ class WebApp {
   function WebApp($rootdir, $args) {
     $this->rootdir = $rootdir;
 		$this->initAutoLoaders();
-    //$this->cfg = new ConfigManager($rootdir);
-    //$this->data = new DataManager($this->cfg);
+    $this->cfg = ConfigManager::singleton($rootdir);
+    $this->data = DataManager::singleton($this->cfg);
 
     set_error_handler(array($this, "HandleError"), E_WARNING | E_ERROR | E_PARSE);
 
@@ -48,9 +48,6 @@ class WebApp {
         $this->components = new ComponentDispatcher($this);
         $this->orm = OrmManager::singleton();
         //$this->smarty->SetComponents($this->components);
-        if($this->request["basedir"] == '/') {
-          $this->request["basedir"] = '';
-        }
         
         DependencyManager::init(array("scripts" => "htdocs/scripts",
                                       "scriptswww" => $this->request["basedir"] . "/scripts",
@@ -112,6 +109,9 @@ class WebApp {
     $req["baseurl"] = $req["scheme"] . "://" . $req["host"] . $req["basedir"];
     $req["url"] = $req["baseurl"] . $req["path"];
       
+    if($req["basedir"] == '/') {
+      $req["basedir"] = '';
+    }
     // TODO - this is where any sort of URL argument remapping should happen, and there should be a corresponding function to build those URLs
 
     return $req;

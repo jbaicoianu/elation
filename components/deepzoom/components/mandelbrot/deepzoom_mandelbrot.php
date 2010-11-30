@@ -126,7 +126,7 @@ class Component_deepzoom_mandelbrot extends Component {
     $colors['inside'] = imagecolorallocate($img, 0, 0, 0); 
     
     Profiler::startTimer("palette");
-    $palette = imagecreatefrompng("palette.png"); 
+    $palette = imagecreatefrompng("components/deepzoom/components/mandelbrot/htdocs/images/palette.png"); 
     for ($i=0; $i < imagesx($palette); $i++) { 
       $rgb = imagecolorat($palette, $i, 0); 
       $colors[$i] = imagecolorallocate($img, ($rgb >> 16) & 0xFF, ($rgb >> 8) & 0xFF, $rgb & 0xFF); 

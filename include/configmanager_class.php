@@ -99,53 +99,55 @@ class ConfigManager extends Base {
     $servers = array();
 
     $this->hostname = $hostname = trim(implode("", file("/etc/hostname")));
-    $mtime = filemtime($cfgfile);
-    if (!empty($mtime)) {
-      // NOTE - This uses APC directly, since the datamanager object requires this function to execute before initializing
-      $apcenabled = ini_get("apc.enabled");
-      $apckey = "servers.ini.$mtime";
-      //print "check apc for '$apckey'<br />";
-      if ($apcenabled && ($apccontents = apc_fetch($apckey)) != false) {
-        //print "found in apc, unserialize ($apccontents)<br />";
-        $servers = unserialize($apccontents);
-      } else {
-        //print "not found in apc, parse it<br />";
+    if (file_exists($cfgfile)) {
+      $mtime = filemtime($cfgfile);
+      if (!empty($mtime)) {
+        // NOTE - This uses APC directly, since the datamanager object requires this function to execute before initializing
+        $apcenabled = ini_get("apc.enabled");
+        $apckey = "servers.ini.$mtime";
+        //print "check apc for '$apckey'<br />";
+        if ($apcenabled && ($apccontents = apc_fetch($apckey)) != false) {
+          //print "found in apc, unserialize ($apccontents)<br />";
+          $servers = unserialize($apccontents);
+        } else {
+          //print "not found in apc, parse it<br />";
 
-        $settings = parse_ini_file($cfgfile, true);
+          $settings = parse_ini_file($cfgfile, true);
 
-        Logger::Info("Loading server config: $hostname");
-        // First load the defaults
-        if (!empty($settings["default"])) {
-          array_set_multi($servers, $settings["default"]);
-        }
+          Logger::Info("Loading server config: $hostname");
+          // First load the defaults
+          if (!empty($settings["default"])) {
+            array_set_multi($servers, $settings["default"]);
+          }
 
-        // set the role
-        $servers["role"] = ($settings["mapping"][$hostname]) ? $settings["mapping"][$hostname] : "live"; // default to live so the site will work if /etc/hostname is missing
-        // If our host is part of a grouping, load those settings up
-        if (!empty($settings["mapping"]) && !empty($settings["mapping"][$hostname]) && !empty($settings[$settings["mapping"][$hostname]])) {
-          Logger::Info("$hostname is currently in the '" . $settings["mapping"][$hostname] . "' group");
-          array_set_multi($servers, $settings[$settings["mapping"][$hostname]]);
-        }
+          // set the role
+          $servers["role"] = ($settings["mapping"][$hostname]) ? $settings["mapping"][$hostname] : "live"; // default to live so the site will work if /etc/hostname is missing
+          // If our host is part of a grouping, load those settings up
+          if (!empty($settings["mapping"]) && !empty($settings["mapping"][$hostname]) && !empty($settings[$settings["mapping"][$hostname]])) {
+            Logger::Info("$hostname is currently in the '" . $settings["mapping"][$hostname] . "' group");
+            array_set_multi($servers, $settings[$settings["mapping"][$hostname]]);
+          }
 
-        // And finally, load any host-specific settings
-        if (!empty($settings[$hostname])) {
-          array_set_multi($servers, $settings[$hostname]);
-        }
+          // And finally, load any host-specific settings
+          if (!empty($settings[$hostname])) {
+            array_set_multi($servers, $settings[$hostname]);
+          }
 
-        if ($apcenabled) {
-          apc_store($apckey, serialize($servers));
+          if ($apcenabled) {
+            apc_store($apckey, serialize($servers));
+          }
         }
       }
+
+      if ($assign)
+        $this->servers =& $servers;
+      //Profiler::StopTimer("ConfigManager::LoadServers()");
+
+      if (isset($this->servers["logger"]["enabled"]) && empty($this->servers["logger"]["enabled"]))
+        Logger::$enabled = false;
+      if (isset($this->servers["profiler"]["enabled"]) && empty($this->servers["profiler"]["enabled"]))
+        Profiler::$enabled = false;
     }
-
-    if ($assign)
-      $this->servers =& $servers;
-    //Profiler::StopTimer("ConfigManager::LoadServers()");
-
-    if (isset($this->servers["logger"]["enabled"]) && empty($this->servers["logger"]["enabled"]))
-      Logger::$enabled = false;
-    if (isset($this->servers["profiler"]["enabled"]) && empty($this->servers["profiler"]["enabled"]))
-      Profiler::$enabled = false;
 
     // Update locations to reflect any new settings we got from the ini file
     $this->locations = $this->getLocations();

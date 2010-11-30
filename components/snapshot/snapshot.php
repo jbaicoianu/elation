@@ -13,6 +13,7 @@ class Component_snapshot extends Component {
     $webkit2png = "/home/bai/src/python-webkit2png/webkit2png.py";
     $convert = "/usr/bin/convert";
     $basedir = "/home/bai/elation/tmp/snapshots";
+    $notfound = "components/snapshot/htdocs/images/notfound.png";
 
     if (!empty($args["url"])) {
       $url = $args["url"];
@@ -48,7 +49,7 @@ class Component_snapshot extends Component {
         shell_exec($cmd2);
       }
       if (!file_exists($thumbfile))
-        $thumbfile = $basedir . "/notfound.png";
+        $thumbfile = $notfound; //$basedir . "/notfound.png";
       header("Content-type: image/png");
       $expires = 60*60*24*14;
       header("Pragma: public");

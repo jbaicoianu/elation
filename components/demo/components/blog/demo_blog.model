@@ -1,0 +1,34 @@
+{
+  "name":"blog",
+  "classes":{
+    "Blog":{
+      "table":"blog",
+      "props":{
+        "blogname": ["blogname", "varchar", {"pk":true}],
+        "title":    ["title", "varchar"],
+        "subtitle": ["subtitle", "varchar"],
+        "owner":    ["owner", "varchar"]
+      },
+      "form":{
+        "subject": {"type":"input", "name":"subject", "label":"Subject", "value":"(no subject)"},
+        "content": {"type":"textarea", "name":"content", "label":"Content"}
+      },
+      "associations":[
+        ["one-to-many", "BlogPost", {"key":"blogname"}]
+      ]
+    },
+    "BlogPost":{
+      "table":"blog_post",
+      "props":{
+        "blogpostid":["blogpostid", "varchar", {"pk":true}],
+        "blogname":["blogname", "varchar"],
+        "subject":["subject", "varchar"],
+        "content":["content", "text"],
+        "timestamp":["timestamp", "datetime"]
+      },
+      "associations":[
+        ["many-to-one", "Blog", {"key":"blogname"}]
+      ]
+    }
+  }
+}

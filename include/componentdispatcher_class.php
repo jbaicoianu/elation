@@ -29,13 +29,7 @@ class ComponentDispatcher extends Component {
     self::$instance =& $this;
   }
 
-  function Dispatch($page=NULL, $pageargs=NULL) {
-    if ($page === NULL)
-      $page = $_SERVER["SCRIPT_URL"];
-    if ($pageargs === NULL)
-      $pageargs = &$_REQUEST;
-    $args = $this->ParseRequest($page, $pageargs);
-
+  function Dispatch($page=NULL, $args=NULL) {
     $alternateret = $this->HandleDispatchArgs($args);
     $outputtype = "html";
 
@@ -69,14 +63,6 @@ class ComponentDispatcher extends Component {
     return $ret;
   }
 
-  function ParseRequest($page, $args=array()) {
-    if (get_magic_quotes_gpc())
-      $args = array_map('stripslashes_deep', $args);
-
-    // TODO - this is where any sort of URL argument remapping should happen, and there should be a corresponding function to build those URLs
-
-    return any($args, array());
-  }
   function GetDispatchArgs($name, $args=NULL) {
     $ret = $args;
     if (!empty($this->dispatchargs[$name]))
@@ -109,6 +95,21 @@ class ComponentDispatcher extends Component {
           $this->dispatchargs[$v][$k] = $args[$k];
       }
     }
+  }
+
+  static public function fetch($componentname, $args=array(), $output="inline") {
+    $ret = NULL;
+    $componentmanager = self::singleton();
+    $component = $componentmanager->Get($componentname);
+    if (!empty($component)) {
+      $ret = $component->HandlePayload($args, $output);
+      if ($ret instanceOf ComponentResponse) {
+        $output = $ret->getOutput($vars["output"]);
+        //$this->root->response["type"] = $output[0];
+        $ret = $output[1];
+      }
+    }
+    return $ret;
   }
 }
 

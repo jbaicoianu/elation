@@ -1,0 +1,23 @@
+body {
+}
+* {
+  -webkit-user-select: none !important;
+}
+.container {
+  xmargin: 1em;
+  min-height: 480px;
+  width: 100%;
+}
+*:active {
+  outline: 0 !important;
+  opacity: 1;
+}
+.deepzoom_imagelist {
+  list-style: none;
+  top: 1em;
+  left: 1em;
+  max-width: 12em;
+  font-size: .6em;
+  top: 1em;
+  left: 1em;
+}

@@ -24,6 +24,16 @@ Initializing Web Environment:
     $ sudo a2enmod rewrite
     $ sudo a2ensite elation
 
+OPTIONAL: Integrating with Zend Framework
+-----------------------------------------
+    The framework can take advantage of Zend Framework components, although it will not use
+    Zend for the MVC structure. It also extends certain components (currently only Zend_Form ->
+    Elation_Form) to use with elation. If ZF is present, it'll autoload ZF classes automatically.
+    All it needs is a symlink to the /library/Zend directory. (Or you can copy the files in there
+    but that's a bit crude and only necessary on systems that do not support symlinks or hardlinks).
+    
+    $ cd elation/lib
+    $ ln -s path_to_Zend_Framework/library/Zend/ Zend
 
 Creating a component:
 ---------------------
@@ -136,3 +146,28 @@ Editing a component:
     }  
     ?>
 
+Full Component Structure:
+=========================
+|- deepzoom
+|- demo
+| `- blog
+|- elation
+| |- orm
+| |- component
+| `- notes
+|- games
+|- html
+|- index
+|- media
+|- page 
+|- supercritical
+| |- audio
+| |- boxeebox
+| |- deepzoom
+| |- iphone
+| |- maintenance
+| |- navigation
+| |- performance
+| |- snapshot
+| `- utils
+|- utils

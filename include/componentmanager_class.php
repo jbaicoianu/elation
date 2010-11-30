@@ -17,14 +17,14 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-class ComponentDispatcher extends Component {
+class ComponentManager extends Component {
   public $components = array();
   private $dispatchargs = array();
 
   protected static $instance;
   public static function singleton($args=NULL) { $name = __CLASS__; if (!self::$instance) { self::$instance = new $name($args); } return self::$instance; }
 
-  function ComponentDispatcher(&$parent) {
+  function ComponentManager(&$parent) {
     $this->Component("", $parent);
     self::$instance =& $this;
   }
@@ -104,7 +104,7 @@ class ComponentDispatcher extends Component {
     if (!empty($component)) {
       $ret = $component->HandlePayload($args, $output);
       if ($ret instanceOf ComponentResponse) {
-        $output = $ret->getOutput($vars["output"]);
+        $output = $ret->getOutput($output);
         //$this->root->response["type"] = $output[0];
         $ret = $output[1];
       }
@@ -152,6 +152,9 @@ class ComponentResponse implements ArrayAccess {
       break;
     case 'xml':
       $ret = array("application/xml", object_to_xml($this, "response"));
+      break;
+    case 'data':
+      $ret = array("", $this->data);
       break;
     default:
       $ret = array("text/html", $smarty->GenerateHTML($smarty->GetTemplate($this->template, NULL, $this->data)));

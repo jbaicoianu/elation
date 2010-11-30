@@ -2,27 +2,73 @@
   "name":"blog",
   "classes":{
     "Blog":{
-      "table":"blog",
+      "table":"blog.blog",
       "props":{
-        "blogname": ["blogname", "varchar", {"pk":true}],
-        "title":    ["title", "varchar"],
-        "subtitle": ["subtitle", "varchar"],
-        "owner":    ["owner", "varchar"]
+        "blogname": ["blogname", "varchar(255)", {"pk":true}],
+        "title":    ["title", "varchar(255)"],
+        "subtitle": ["subtitle", "varchar(255)"],
+        "owner":    ["owner", "varchar(255)"]
       },
       "form":{
-        "subject": {"type":"input", "name":"subject", "label":"Subject", "value":"(no subject)"},
-        "content": {"type":"textarea", "name":"content", "label":"Content"}
+        "method": "get",
+				"class": "html_form",
+				"name": "create_post",
+				"id": "create_post",
+        "elements": {
+          "subject": {
+            "name": "subject",
+            "type": "text",
+            "options": {
+              "belongsTo": "blogpost",
+	            "value": "(No Subject)",
+              "label": "Subject",
+              "validators": {
+                "alpha": {
+                  "validator": "[[validator1]]"
+                }             
+              },
+              "filters": {
+                "stringtrim": "StringTrim"
+              } 
+            }
+          },
+					"content": {
+            "type": "textarea",
+            "name": "content",
+            "options": {
+              "belongsTo": "blogpost",
+              "label": "Content",
+							"rows": "10",
+							"cols": 40,							
+              "validators": {
+                "alpha": {
+                  "validator": "[[validator2]]"
+                }             
+              },
+              "filters": {
+                "stringtrim": "StringTrim"
+              } 
+            }
+          },
+					"add_post": {
+            "type": "submit",
+            "name": "add_post",
+            "options": {
+              "value": "Add Post"
+            }
+          }
+        }			
       },
       "associations":[
         ["one-to-many", "BlogPost", {"key":"blogname"}]
       ]
     },
     "BlogPost":{
-      "table":"blog_post",
+      "table":"blog.blog_post",
       "props":{
-        "blogpostid":["blogpostid", "varchar", {"pk":true}],
-        "blogname":["blogname", "varchar"],
-        "subject":["subject", "varchar"],
+        "blogpostid":["blogpostid", "varchar(255)", {"pk":true}],
+        "blogname":["blogname", "varchar(255)"],
+        "subject":["subject", "varchar(255)"],
         "content":["content", "text"],
         "timestamp":["timestamp", "datetime"]
       },

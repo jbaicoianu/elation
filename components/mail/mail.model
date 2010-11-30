@@ -1,0 +1,32 @@
+{
+  "name":"mail",
+  "classes":{
+    "MailDomain":{
+      "table":"mail.domain",
+      "props":{
+        "domain":    ["domain", "varchar(255)", {"pk":true, "notnull":true}],
+        "transport": ["transport", "varchar(255)", {"default":"virtual:"}]
+      },
+      "associations":[
+        ["one-to-many", "MailAccount", {"key":"domain"}]
+      ]
+    },
+    "MailAccount":{
+      "table":"mail.account",
+      "props":{
+        "username": ["username", "varchar(255)", {"pk": true, "notnull":true}],
+        "domain":  ["domain", "varchar(255)", {"pk": true, "notnull":true}],
+        "pass":    ["pass", "varchar(255)", {"notnull":true}],
+        "forward": ["forward", "varchar(255)"],
+        "maildir": ["maildir", "varchar(255)"],
+        "active":  ["active", "boolean", {"default":true}],
+        "vuid":    ["vuid", "integer", {"default":8}],
+        "vgid":    ["vgid", "integer", {"default":8}],
+        "home":    ["home", "varchar(255)", {"default":""}]
+      },
+      "associations":[
+        ["many-to-one", "MailDomain", {"key":"domain"}]
+      ]
+    }
+  }
+}

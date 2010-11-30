@@ -38,26 +38,28 @@ class WebApp {
     $this->cfg = ConfigManager::singleton($rootdir);
     $this->data = DataManager::singleton($this->cfg);
 
-    set_error_handler(array($this, "HandleError"), E_WARNING | E_ERROR | E_PARSE);
+    set_error_handler(array($this, "HandleError"), E_ALL);
 
     if ($this->initialized()) {
       try {
         $this->request = $this->ParseRequest();
         $this->smarty = SuperSmarty::singleton($this->rootdir);
         $this->smarty->assign_by_ref("webapp", $this);
-        $this->components = new ComponentDispatcher($this);
+        $this->components = new ComponentManager($this);
         $this->orm = OrmManager::singleton();
         //$this->smarty->SetComponents($this->components);
         
         DependencyManager::init(array("scripts" => "htdocs/scripts",
                                       "scriptswww" => $this->request["basedir"] . "/scripts",
                                       "css" => "htdocs/css",
-                                      "csswww" => $this->request["basedir"] . "/css"));
+                                      "csswww" => $this->request["basedir"] . "/css",
+                                      "imageswww" => $this->request["basedir"] . "/images"));
+        $this->locations = DependencyManager::$locations;
 
         session_set_cookie_params(30*60*60*24);
         session_start();
       } catch (Exception $e) {
-        $this->HandleException($e);
+        print $this->HandleException($e);
       }
     } else {
       print file_get_contents("./templates/uninitialized.tpl");
@@ -123,7 +125,7 @@ class WebApp {
         $output = $this->components->Dispatch($this->request["path"], $this->request["args"]);
       } catch (Exception $e) {
         //print_pre($e);
-        $this->HandleException($e);
+        $output["content"] = $this->HandleException($e);
       }
       
       if ($output["type"] == "ajax") {
@@ -141,23 +143,28 @@ class WebApp {
                                "file" => $e->getFile(),
                                "line" => $e->getLine(),
                                "trace" => $e->getTrace());
-    print $this->smarty->GetTemplate("exception.tpl", $this, $vars);
+    $vars["debug"] = User::authorized("debug");
+    return $this->smarty->GetTemplate("exception.tpl", $this, $vars);
   }
   function HandleError($errno, $errstr, $errfile, $errline, $errcontext) {
-    if ($errno & E_ERROR)
-      $type = "error";
-    else if ($errno & E_WARNING)
-      $type = "warning";
-    else if ($errno & E_NOTICE)
-      $type = "notice";
-    else if ($errno & E_PARSE)
-      $type = "parse error";
+    if ($errno & error_reporting()) {
+      if ($errno & E_ERROR || $errno & E_USER_ERROR)
+        $type = "error";
+      else if ($errno & E_WARNING || $errno & E_USER_WARNING)
+        $type = "warning";
+      else if ($errno & E_NOTICE || $errno & E_USER_NOTICE)
+        $type = "notice";
+      else if ($errno & E_PARSE)
+        $type = "parse error";
 
-    $vars["exception"] = array("type" => $type,
-                               "message" => $errstr,
-                               "file" => $errfile,
-                               "line" => $errline);
-    print $this->smarty->GetTemplate("exception.tpl", $this, $vars);
+      $vars["exception"] = array("type" => $type,
+                                 "message" => $errstr,
+                                 "file" => $errfile,
+                                 "line" => $errline);
+      if (isset($this->smarty)) {
+        print $this->smarty->GetTemplate("exception.tpl", $this, $vars);
+      }
+    }
   }
 	
   protected function initAutoLoaders()

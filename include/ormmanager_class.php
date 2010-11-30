@@ -13,11 +13,17 @@ class OrmManager {
   function __construct() {
     Outlet::init(array(
       'connection' => array(
+/*
         'dsn' => 'sqlite:tmp/elation.sqlite',
         'dialect' => 'sqlite'
+*/
+        'dsn' => 'mysql:host=localhost',
+        'dialect' => 'mysql',
+        'username' => 'elation',
+        'password' => '3l4710n'
       ),
       'classes' => array(
-      )
+      ),
     ));
     $this->outlet =& Outlet::getInstance();
   }
@@ -36,7 +42,11 @@ class OrmManager {
     sort($models);
     return $models;
   }
-  function LoadModel($model) {
+  static function LoadModel($model) {
+    if ($this instanceOf OrmManager)
+      $me = $this;
+    else
+      $me = self::singleton();
     $models = explode(",", $model);
     //print_pre($models);
     foreach ($models as $model) {
@@ -45,23 +55,32 @@ class OrmManager {
       if (!empty($ormmodel->classes)) {
         $foo = object_to_array($ormmodel->classes);
         try {
-          $this->outlet->getConfig()->addEntities($foo);
+          $me->outlet->getConfig()->addEntities($foo);
         } catch (Exception $e) {
           Logger::Error("OrmManager: " . $e->GetMessage());
         }
       }
     }
-    $this->outlet->createClasses();
-    $this->outlet->createProxies();
+    $me->outlet->createClasses();
+    $me->outlet->createProxies();
   }
   function Select($type, $where=NULL) {
-    return $this->outlet->select($type, $where);
+    if ($this instanceOf OrmManager)
+      return $this->outlet->select($type, $where);
+    else
+      return self::singleton()->select($type, $where);
   }
   function Load($type, $id) {
-    return $this->outlet->load($type, $id);
+    if ($this instanceOf OrmManager)
+      return $this->outlet->load($type, $id);
+    else
+      return self::singleton()->load($type, $id);
   }
   function Save($obj) {
-    return $this->outlet->save($obj);
+    if ($this instanceOf OrmManager)
+      return $this->outlet->save($obj);
+    else
+      return self::singleton()->save($obj);
   }
 }
 /**
@@ -210,9 +229,12 @@ class OrmClass {
         $column .= " UNSIGNED";
       if (!empty($v[2]->notnull))
         $column .= " NOT NULL";
+      if (!empty($v[2]->autoincrement))
+        $column .= " AUTO_INCREMENT";
+
       if (!empty($v[2]->defaultExpr))
         $column .= " DEFAULT " . $v["2"]->defaultExpr;
-      else if (!empty($v[2]->default))
+      else if (isset($v[2]->default))
         $column .= " DEFAULT '" . $v["2"]->default . "'";
       $columns[] = $column;
 
@@ -235,7 +257,14 @@ class OrmClass {
     return $columns;
   }
   function getCreateSQL() {
-    $sql = "\nCREATE TABLE " . $this->table . " (\n\t";
+    $sql = "";
+/*
+    if (strpos($this->table, ".") !== false) {
+      list($db, $table) = explode(".", $this->table);
+      $sql .= "CREATE DATABASE IF NOT EXISTS $db;";
+    }
+*/
+    $sql .= "\nCREATE TABLE " . $this->table . " (\n\t";
     $columns = $this->getColumns();
     $sql .= implode(",\n\t", $columns);
     $sql .= "\n);";

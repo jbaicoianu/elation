@@ -17,14 +17,14 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-class ComponentDispatcher extends Component {
+class ComponentManager extends Component {
   public $components = array();
   private $dispatchargs = array();
 
   protected static $instance;
   public static function singleton($args=NULL) { $name = __CLASS__; if (!self::$instance) { self::$instance = new $name($args); } return self::$instance; }
 
-  function ComponentDispatcher(&$parent) {
+  function ComponentManager(&$parent) {
     $this->Component("", $parent);
     self::$instance =& $this;
   }

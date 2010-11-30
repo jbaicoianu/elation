@@ -30,7 +30,7 @@ function smarty_function_component($args, &$smarty) {
       $componentargs = $args;
     }
 
-    $componentmgr = ComponentDispatcher::singleton();
+    $componentmgr = ComponentManager::singleton();
     $componentargs = $componentmgr->GetDispatchArgs($args["name"], $componentargs);
     $component = $componentmgr->Get($args["name"], $componentargs);
 

@@ -33,7 +33,7 @@ class App {
 
     $this->smarty = SuperSmarty::singleton($this->rootdir);
     $this->smarty->assign_by_ref("webapp", $this);
-    $this->components = new ComponentDispatcher($this);
+    $this->components = new ComponentManager($this);
     //$this->smarty->SetComponents($this->components);
 
     //session_set_cookie_params(30*60*60*24);

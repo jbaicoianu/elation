@@ -45,7 +45,7 @@ class WebApp {
         $this->request = $this->ParseRequest();
         $this->smarty = SuperSmarty::singleton($this->rootdir);
         $this->smarty->assign_by_ref("webapp", $this);
-        $this->components = new ComponentDispatcher($this);
+        $this->components = new ComponentManager($this);
         $this->orm = OrmManager::singleton();
         //$this->smarty->SetComponents($this->components);
         
@@ -125,7 +125,7 @@ class WebApp {
         $output = $this->components->Dispatch($this->request["path"], $this->request["args"]);
       } catch (Exception $e) {
         //print_pre($e);
-        $output["content] = $this->HandleException($e);
+        $output["content"] = $this->HandleException($e);
       }
       
       if ($output["type"] == "ajax") {

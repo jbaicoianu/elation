@@ -1,9 +1,10 @@
-<?
+<?php
 class ClassMapper {
   static $classes = array(
   );
 }
-       
+  
+/*     
 function __autoload($class) {
   if (isset(ClassMapper::$classes[$class])) {
     require_once(ClassMapper::$classes[$class]);
@@ -15,3 +16,4 @@ function __autoload($class) {
     //throw new Exception("Class ($class) is not in the ClassMapper.");
   }
 }
+*/

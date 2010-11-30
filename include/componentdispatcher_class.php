@@ -104,7 +104,7 @@ class ComponentDispatcher extends Component {
     if (!empty($component)) {
       $ret = $component->HandlePayload($args, $output);
       if ($ret instanceOf ComponentResponse) {
-        $output = $ret->getOutput($vars["output"]);
+        $output = $ret->getOutput($output);
         //$this->root->response["type"] = $output[0];
         $ret = $output[1];
       }
@@ -152,6 +152,9 @@ class ComponentResponse implements ArrayAccess {
       break;
     case 'xml':
       $ret = array("application/xml", object_to_xml($this, "response"));
+      break;
+    case 'data':
+      $ret = array("", $this->data);
       break;
     default:
       $ret = array("text/html", $smarty->GenerateHTML($smarty->GetTemplate($this->template, NULL, $this->data)));

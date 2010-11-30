@@ -266,7 +266,7 @@ class Elation_Form extends Zend_Form
 		}
 		else {
 			$args = array_merge($args, array('form' => $this));
-			$componentOutput = ComponentDispatcher::fetch($context, $args);
+			$componentOutput = ComponentManager::fetch($context, $args);
 			return $componentOutput;
 		}
 	}

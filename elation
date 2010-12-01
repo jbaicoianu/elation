@@ -50,7 +50,7 @@ component_create() {
     framework_do mkdir $COMPONENTDIR/htdocs/images
     framework_do mkdir $COMPONENTDIR/templates
     #cat config/component_skeleton.php |sed "s/%COMPONENTCLASSNAME%/$COMPONENTCLASSNAME/g" >$COMPONENTDIR/$COMPONENTCLASSNAME.php
-    cat config/component_skeleton.php |perl -ne 's/%(.*?)%/$ENV{$1}/g; print' >$COMPONENTDIR/$COMPONENTCLASSNAME.php
+    cat $(dirname $0)/config/component_skeleton.php |perl -ne 's/%(.*?)%/$ENV{$1}/g; print' >$COMPONENTDIR/$COMPONENTCLASSNAME.php
     echo $COMPONENTCLASSNAME > $COMPONENTDIR/templates/$SUBCOMPONENTNAME.tpl
   fi
 }

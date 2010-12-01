@@ -20,14 +20,16 @@
 class Component extends Base {
   var $name;
   var $fullname;
+  var $path;
   var $type;
   var $components;
   var $payload;
 
-  function Component($name, &$parent) {
+  function Component($name, &$parent, $payload=NULL, $path=".") {
     $this->Base($parent);
     $this->name = $name;
     $this->fullname = $this->GetFullName();
+    $this->path = $path;
 
     $this->smarty = SuperSmarty::singleton();
   }
@@ -44,37 +46,43 @@ class Component extends Base {
         $thisname = $this->GetFullName(".");
         $componentname = (!empty($thisname) ? str_replace(".", "_", $thisname) . "_" : "") . $name;
         $componentclassname = "Component_" . str_replace(".", "_", $componentname);
-        $componentdir = $this->GetComponentDirectory();
+        $cfg = ConfigManager::singleton();
+        $componentpaths = explode(":", any($cfg->servers["elation"]["path"], "."));
 
-        $fname = sprintf("%s/components/%s/%s.php", $componentdir, $name, $componentname);
-        if (file_exists($fname)) {
-          try {
-            include_once($fname);
-            $ret = $this->CreateComponent($name, $componentclassname, NULL, &$args);
-          } catch (Exception $e) {
-            //print_pre($e);
-            print "[Could not load component: $name]";
-          }
-        } else if (method_exists($this, "controller_" . $name)) {
-          $ret = $this->CreateComponent($name, "ComponentFunction", array(&$this, "controller_" . $name), &$args);
-        } else if ($this->HasTemplate("./" . $name . ".tpl")) {
-          $ret = $this->CreateComponent($name, "ComponentTemplate", "." . $componentdir . "/templates/" . $name . ".tpl", &$args);
+        if (method_exists($this, "controller_" . $name)) {
+          $ret = $this->CreateComponent($name, "ComponentFunction", array(&$this, "controller_" . $name), $path, &$args);
         } else {
-          $ret = $this->CreateComponent($name, "ComponentMissing");
+          foreach ($componentpaths as $path) {
+            $componentdir = $this->GetComponentDirectory($path);
+            $fname = sprintf("%s/components/%s/%s.php", $componentdir, $name, $componentname);
+            if (file_exists($fname)) {
+              try {
+                include_once($fname);
+                $ret = $this->CreateComponent($name, $componentclassname, NULL, $path, &$args);
+                break;
+              } catch (Exception $e) {
+                //print_pre($e);
+                print "[Could not load component: $name]";
+              }
+            } else if ($this->HasTemplate("./" . $name . ".tpl", $path)) {
+              $ret = $this->CreateComponent($name, "ComponentTemplate", (substr($componentdir, 0, 2) == "./" ? "." : "") . $componentdir . "/templates/" . $name . ".tpl", $path, &$args);
+            }
+          }
         }
+        if ($ret === false)
+          $ret = $this->CreateComponent($name, "ComponentMissing");
       }
     }
 
     return $ret;
   }
-  function CreateComponent($name, $type="ComponentStatic", $payload="", $args=NULL) {
+  function CreateComponent($name, $type="ComponentStatic", $payload="", $path=".", $args=NULL) {
     $ret = false;
 
     if (class_exists($type)) {
       //print_pre($this->components);
       if (empty($this->components[$name])) {
-        //print_pre("CREATE $name");
-        $this->components[$name] = new $type($name, $this, $payload);
+        $this->components[$name] = new $type($name, $this, $payload, $path);
         if (method_exists($this->components[$name], "Init"))
           $this->components[$name]->Init($args);
         
@@ -111,7 +119,7 @@ class Component extends Base {
   
   function GetFullName($separator=".") {
     $ret = $this->name;
-    if (!empty($this->parent) && is_subclass_of($this->parent, "Component")) {
+    if (!empty($this->parent) && $this->parent instanceOf Component) {
       $parentName = $this->parent->GetFullName($separator);
       if (!empty($parentName))
         $ret = $parentName . $separator . $this->name;
@@ -119,16 +127,17 @@ class Component extends Base {
 
     return $ret;
   }
-  function GetComponentDirectory() {
+  function GetComponentDirectory($path="") {
     if (!empty($this->name)) {
       $ret = "/components" . (!empty($this->name) ? "/" . $this->name : "");
-      if (!empty($this->parent) && is_subclass_of($this->parent, "Component")) {
-        $parentdir = $this->parent->GetComponentDirectory();
+      if (!empty($this->parent) && $this->parent instanceOf Component) {
+        $parentdir = $this->parent->GetComponentDirectory("");
         if (!empty($parentdir))
           $ret = $parentdir . $ret;
       }
+      $ret = $path . $ret;
     } else {
-      $ret = ".";
+      $ret = $path;
     }
     return $ret;
   }
@@ -179,18 +188,22 @@ class Component extends Base {
   function ExpandTemplatePath($name) {
     $ret = $name;
     if ($name[0] == "." && $name[1] == "/") {
-      $dir = $this->GetComponentDirectory();
+      $tplpath = ($this->path == "." ? ".." : $this->path);
+      $dir = $this->GetComponentDirectory($tplpath);
       // dir should start with './' - prepend a . to go one level up
-      $ret = "." . $dir . "/templates/" . substr($name, 2);
+      $ret = $dir . "/templates/" . substr($name, 2);
     }
     return $ret;
   }
 
-  function HasTemplate($name) {
+  function HasTemplate($name, $path=NULL) {
     if (substr($name, 0, 2) == "./") {
-      $dir = $this->GetComponentDirectory();
+      if ($path === NULL) 
+        $path = $this->path;
       // dir should start with './' - prepend a . to go one level up
-      $fname = "." . $dir . "/templates/" . substr($name, 2);
+      $tplpath = ($path == "." ? ".." : $path);
+      $dir = $this->GetComponentDirectory($tplpath);
+      $fname = $dir . "/templates/" . substr($name, 2);
     } else
       $fname = $name;
 
@@ -203,8 +216,8 @@ class Component extends Base {
 }
 
 class ComponentStatic extends Component {
-  function ComponentStatic($name, &$parent, $payload) {
-    $this->Component($name, $parent);
+  function ComponentStatic($name, &$parent, $payload, $path=".") {
+    $this->Component($name, $parent, $payload, $path);
     $this->type = "static";
 
     $this->payload = $payload;
@@ -216,8 +229,8 @@ class ComponentStatic extends Component {
 }
 
 class ComponentMissing extends Component {
-  function ComponentMissing($name, &$parent, $payload) {
-    $this->Component($name, $parent);
+  function ComponentMissing($name, &$parent, $payload, $path=".") {
+    $this->Component($name, $parent, $payload, $path);
     $this->type = "missing";
 
     $this->payload = $payload;
@@ -229,8 +242,8 @@ class ComponentMissing extends Component {
 }
 
 class ComponentTemplate extends Component {
-  function ComponentTemplate($name, &$parent, $payload) {
-    $this->Component($name, $parent);
+  function ComponentTemplate($name, &$parent, $payload, $path=".") {
+    $this->Component($name, $parent, $payload, $path);
     $this->type = "missing";
 
     $this->payload = $payload;
@@ -242,8 +255,8 @@ class ComponentTemplate extends Component {
 }
 
 class ComponentFunction extends Component {
-  function ComponentFunction($name, &$parent, $payload) {
-    $this->Component($name, $parent);
+  function ComponentFunction($name, &$parent, $payload, $path=".") {
+    $this->Component($name, $parent, $payload, $path);
     $this->type = "function";
   
     $this->payload = $payload;

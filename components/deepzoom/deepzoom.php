@@ -44,7 +44,7 @@ class Component_deepzoom extends Component {
           $response["imgdata"] = array("size" => array((int)$img->Size["Width"], (int)$img->Size["Height"]),
                                    "tilesize" => (int)$img["TileSize"],
                                    "overlap" => (int)$img["Overlap"],
-                                   "url" => (!empty($img["Url"]) ? (string)$img["Url"] : sprintf("http://%s/images/components/deepzoom/%s_files/{level}/{column}_{row}.%s", $defaultdomain, $response["imgname"], $response["fileext"])),
+                                   "url" => (!empty($img["Url"]) ? (string)$img["Url"] : sprintf("http://%s/images/deepzoom/%s_files/{level}/{column}_{row}.%s", $defaultdomain, $response["imgname"], $response["fileext"])),
                                    );
         }
       }

@@ -34,13 +34,13 @@
 </style>
 {/literal}
 
-{dependency type="javascript" url="/scripts/components/html/imagescale.js"}
-{dependency type="javascript" url="/scripts/components/html/multizoom.js"}
+{dependency type="component" name="html.imagescale"}
+{dependency type="component" name="html.multizoom"}
 
 <div id="article">
  <div id="article_image_frame">
   {literal}
-  <img src="http://farm5.static.flickr.com/4028/4298034064_db789233e1.jpg" onload="elation.zoom.replace('article_image_frame', {size: [11057, 8630], tilesize: 256, overlap: 1, url: '/images/components/deepzoom/buttermilkcreek_files/{level}/{column}_{row}.jpg'})" />
+  <img src="http://farm5.static.flickr.com/4028/4298034064_db789233e1.jpg" onload="elation.zoom.replace('article_image_frame', {size: [11057, 8630], tilesize: 256, overlap: 1, url: '/elation/images/deepzoom/buttermilkcreek_files/{level}/{column}_{row}.jpg'})" />
 {/literal}
  </div>
  <p>The photo above is a high-resolution photo of Butter Milk Creek Falls, and is being used as an example of DeepZoom inline image replacement.  This image was stitched together from 19 images totalling 11,057x8630 (91 Megapixels).  The original is available at <a href="http://www.flickr.com/photos/31599474@N04/4298034064/in/pool-extremelylargepanoramas">Butter Milk Creek Falls on Flickr</a>.</p>

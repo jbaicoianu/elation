@@ -146,9 +146,9 @@ class DependencyComponent extends Dependency {
     $this->name = $args["name"];
  
     if (strpos($this->name, ".") !== false)
-      $filebase = "components/" . str_replace(".", "/", $this->name);
+      $filebase = str_replace(".", "/", $this->name);
     else
-      $filebase = "components/" . $this->name . "/" . $this->name;
+      $filebase = $this->name . "/" . $this->name;
 
     $css_path = "{$locations["css"]}/{$filebase}.css";
     $javascript_path = "{$locations["scripts"]}/{$filebase}.js";

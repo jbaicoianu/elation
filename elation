@@ -44,31 +44,45 @@ component_create() {
   else
     echo "Create $COMPONENTNAME"
     framework_do mkdir -p $COMPONENTDIR
-    framework_do mkdir $COMPONENTDIR/htdocs
-    framework_do mkdir $COMPONENTDIR/htdocs/css
-    framework_do mkdir $COMPONENTDIR/htdocs/scripts
-    framework_do mkdir $COMPONENTDIR/htdocs/images
+    framework_do mkdir $COMPONENTDIR/css
+    framework_do mkdir $COMPONENTDIR/scripts
+    framework_do mkdir $COMPONENTDIR/images
     framework_do mkdir $COMPONENTDIR/templates
-    #cat config/component_skeleton.php |sed "s/%COMPONENTCLASSNAME%/$COMPONENTCLASSNAME/g" >$COMPONENTDIR/$COMPONENTCLASSNAME.php
     cat $(dirname $0)/config/component_skeleton.php |perl -ne 's/%(.*?)%/$ENV{$1}/g; print' >$COMPONENTDIR/$COMPONENTCLASSNAME.php
     echo $COMPONENTCLASSNAME > $COMPONENTDIR/templates/$SUBCOMPONENTNAME.tpl
   fi
 }
 component_enable() {
   COMPONENTNAME=$1
+  COMPONENTDIR=$(component_get_dir $COMPONENTNAME)
+  LINKPATH=$(echo $COMPONENTNAME |tr '.' '/')
+  BASEDIR=$(pwd)
+
   if component_exists $COMPONENTNAME; then
     echo -n "Enable '${COMPONENTNAME}': "
     for TYPE in css scripts images; do
-      [ -e components/$COMPONENTNAME/htdocs/$TYPE ] && echo -n "$TYPE " && cd htdocs/$TYPE/components && ln -s ../../../components/$COMPONENTNAME/htdocs/$TYPE $COMPONENTNAME && cd ../../..
+      if [ ! -L htdocs/$TYPE/$LINKPATH ]; then
+        if [ -e $COMPONENTDIR/$TYPE ]; then
+          echo -n "$TYPE "
+          cd htdocs/$TYPE
+          ln -s $BASEDIR/$COMPONENTDIR/$TYPE $LINKPATH
+          cd $BASEDIR
+        elif [ -e $COMPONENTDIR/htdocs/$TYPE ]; then
+          echo -n "$TYPE "
+          cd htdocs/$TYPE
+          ln -s $BASEDIR/$COMPONENTDIR/htdocs/$TYPE $LINKPATH
+          cd $BASEDIR
+        fi
+      fi
     done
     if [ -e components/$COMPONENTNAME/$COMPONENTNAME.model ]; then
       [ ! -e config/model ] && mkdir config/model
-      cd config/model && ln -sf ../../components/$COMPONENTNAME/$COMPONENTNAME.model . && cd ../..
+      cd config/model && ln -sf $BASEDIR/components/$COMPONENTNAME/$COMPONENTNAME.model . && cd $BASEDIR
       echo -n "model "
     fi
     if [ -e components/$COMPONENTNAME/model ]; then
       [ ! -e include/model ] && mkdir include/model
-      cd include/model && ln -sf ../../components/$COMPONENTNAME/model/*_class.php . && cd ../..
+      cd include/model && ln -sf $BASEDIR/components/$COMPONENTNAME/model/*_class.php . && cd $BASEDIR
       echo -n "classes "
     fi
     echo "DONE"
@@ -79,16 +93,18 @@ component_enable() {
 
 component_disable() {
   COMPONENTNAME=$1
-  [ -L htdocs/css/components/$COMPONENTNAME ] && rm htdocs/css/components/$COMPONENTNAME
-  [ -L htdocs/images/components/$COMPONENTNAME ] && rm htdocs/images/components/$COMPONENTNAME
-  [ -L htdocs/scripts/components/$COMPONENTNAME ] && rm htdocs/scripts/components/$COMPONENTNAME
-  [ -L config/model/$COMPONENTNAME.conf ] && rm config/model/$COMPONENTNAME.conf
+  COMPONENTDIR=$(component_get_dir $COMPONENTNAME)
+  LINKPATH=$(echo $COMPONENTNAME |tr '.' '/')
+  echo -n "Disable ${COMPONENTNAME}: "
+  [ -L htdocs/css/$LINKPATH ] && rm htdocs/css/$LINKPATH && echo -n "css "
+  [ -L htdocs/images/$LINKPATH ] && rm htdocs/images/$LINKPATH && echo -n "images "
+  [ -L htdocs/scripts/$LINKPATH ] && rm htdocs/scripts/$LINKPATH && echo -n "scripts "
+  [ -L config/model/$COMPONENTNAME.conf ] && rm config/model/$COMPONENTNAME.conf && echo -n "model "
   for F in components/$COMPONENTNAME/model/*_class.php; do
     FNAME=$(basename $F)
     [ -L "include/model/$FNAME" ] && rm include/model/$FNAME
   done
-
-  echo "Disabled ${COMPONENTNAME}"
+  echo DONE
 }
 
 db_init() {
@@ -105,6 +121,10 @@ web_init() {
   [ ! -d tmp ] && mkdir -m 1777 tmp
   [ ! -d tmp/compiled ] && mkdir -m 1777 tmp/compiled
   echo done
+  
+  for I in $(cat config/components.enabled); do
+    component_enable $I
+  done
 }
 case "$ACTION" in
   db)

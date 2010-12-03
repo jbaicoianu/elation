@@ -1,1 +1,1 @@
-[Could not find component: {$fullname}]
+[404: Could not find component: {$fullname}]

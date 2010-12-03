@@ -14,8 +14,8 @@
         <h4>Blog</h4>
         <p>A simple blog to demonstrate ORM functionality.</p>
         <ul>
-          <li><a href="{$webapp->request.basedir}/blog">demo</a></li>
-          <li><a href="?inspect=blog#elation_codeview">code</a></li>
+          <li><a href="{$webapp->request.basedir}/demo/blog">demo</a></li>
+          <li><a href="?inspect=demo.blog#elation_codeview">code</a></li>
         </ul>
       </li>
       <li class="elation_demo_app">

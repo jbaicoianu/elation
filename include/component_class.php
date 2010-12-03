@@ -59,7 +59,7 @@ class Component extends Base {
               print "[Could not load component: $name]";
             }
           } else if ($this->HasTemplate("./" . $name . ".tpl", $path)) {
-            $ret = $this->CreateComponent($name, "ComponentTemplate", $this->path . "/" . $componentdir . "/templates/" . $name . ".tpl", $path, &$args);
+            $ret = $this->CreateComponent($name, "ComponentTemplate", ($this->path == "." ? ".." : $this->path) . "/" . $componentdir . "/templates/" . $name . ".tpl", $path, &$args);
           }
         }
         if ($ret === false) {
@@ -234,7 +234,7 @@ class ComponentMissing extends Component {
 class ComponentTemplate extends Component {
   function ComponentTemplate($name, &$parent, $payload, $path=".") {
     $this->Component($name, $parent, $payload, $path);
-    $this->type = "missing";
+    $this->type = "template";
 
     $this->payload = $payload;
   }

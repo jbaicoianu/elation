@@ -1,4 +1,4 @@
-{dependency type="component" name="utils.exception"}
+{dependency type="component" name="elation.exception"}
 <div class="exception exception_{$exception.type}">
  {img src="components/elation/stop.png" class="exception_icon"}
  <h2>

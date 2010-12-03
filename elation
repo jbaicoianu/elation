@@ -7,6 +7,9 @@ RETVAL=
 export COMPONENTPATHS=$(pwd && cat config/elation.path)
 export COMPONENTMEDIATYPES="css scripts images media"
 
+expand_path() {
+  echo $1 |sed "s/^~/$(echo $HOME |sed 's/\//\\\//g')/"
+}
 framework_do() {
   CMD=$*
   echo " * $CMD"
@@ -19,7 +22,8 @@ error() {
 component_get_dir() {
   COMPONENTNAME=$1
   COMPONENTSUBDIR=$(echo $COMPONENTNAME |sed 's/\./\/components\//g')
-  for COMPONENTPATH in $COMPONENTPATHS; do
+  for CPATH in $COMPONENTPATHS; do
+    COMPONENTPATH=$(expand_path $CPATH)
     if [ -e $COMPONENTPATH/components/$COMPONENTSUBDIR ]; then
       echo $COMPONENTPATH/components/$COMPONENTSUBDIR
       return
@@ -60,7 +64,13 @@ component_create() {
       framework_do mkdir $COMPONENTDIR/scripts
       framework_do mkdir $COMPONENTDIR/images
       framework_do mkdir $COMPONENTDIR/templates
-      cat $(dirname $0)/config/component_skeleton.php |perl -ne 's/%(.*?)%/$ENV{$1}/g; print' >$COMPONENTDIR/$COMPONENTCLASSNAME.php
+      for CPATH in $COMPONENTPATHS; do
+        COMPONENTPATH=$(expand_path $CPATH)
+        if [ -e $COMPONENTPATH/config/component_skeleton.php ]; then
+          cat $COMPONENTPATH/config/component_skeleton.php |perl -ne 's/%(.*?)%/$ENV{$1}/g; print' >$COMPONENTDIR/$COMPONENTCLASSNAME.php
+          break
+        fi
+      done
       echo $COMPONENTCLASSNAME > $COMPONENTDIR/templates/$SUBCOMPONENTNAME.tpl
     fi
   fi
@@ -77,17 +87,18 @@ component_enable() {
       if [ ! -d htdocs/$TYPE ]; then 
         mkdir htdocs/$TYPE; 
       fi
-      if [ ! -L htdocs/$TYPE/$LINKPATH ]; then
-        if [ -e $COMPONENTDIR/$TYPE ]; then
-          echo -n "$TYPE "
-          cd htdocs/$TYPE && ln -s $COMPONENTDIR/$TYPE $LINKPATH 
-          cd $BASEDIR
-        elif [ -e $COMPONENTDIR/htdocs/$TYPE ]; then
-          echo -n "$TYPE "
-          cd htdocs/$TYPE
-          ln -s $COMPONENTDIR/htdocs/$TYPE $LINKPATH
-          cd $BASEDIR
-        fi
+      if [ -L htdocs/$TYPE/$LINKPATH ]; then
+        rm htdocs/$TYPE/$LINKPATH
+      fi
+      if [ -e $COMPONENTDIR/$TYPE ]; then
+        echo -n "$TYPE "
+        cd htdocs/$TYPE && ln -sf $COMPONENTDIR/$TYPE $LINKPATH 
+        cd $BASEDIR
+      elif [ -e $COMPONENTDIR/htdocs/$TYPE ]; then
+        echo -n "$TYPE "
+        cd htdocs/$TYPE
+        ln -sf $COMPONENTDIR/htdocs/$TYPE $LINKPATH
+        cd $BASEDIR
       fi
     done
     if [ -e components/$COMPONENTNAME/$COMPONENTNAME.model ]; then

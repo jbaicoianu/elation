@@ -290,7 +290,7 @@ class ConfigManager extends Base {
 
     //remove revision key / value pair. It should be auto incremented
     unset($oldcfg["revision"]);
-    //unset($newcfg["revision"]);
+    unset($newcfg["revision"]);
 
     $diff = array_diff_assoc_recursive($newcfg, $oldcfg);
 

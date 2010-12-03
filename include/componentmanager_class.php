@@ -137,18 +137,18 @@ class ComponentResponse implements ArrayAccess {
 
   function getOutput($type) {
     $ret = array("text/html", NULL);;
-    $smarty = SuperSmarty::singleton();
+    $tplmgr = TemplateManager::singleton();
     switch($type) {
     case 'ajax':
-      $ret = array("text/xml", $smarty->GenerateXML($this->data));
+      $ret = array("text/xml", $tplmgr->GenerateXML($this->data));
       break;
     case 'json':
-      $ret = array("application/javascript", $smarty->GenerateJavascript($ret));
+      $ret = array("application/javascript", $tplmgr->GenerateJavascript($ret));
     case 'js':
       $ret = array("application/javascript", json_indent(json_encode($this)) . "\n");
       break;
     case 'txt':
-      $ret = array("text/plain", $smarty->GenerateHTML($smarty->GetTemplate($this->template, NULL, $this->data)));
+      $ret = array("text/plain", $tplmgr->GenerateHTML($tplmgr->GetTemplate($this->template, NULL, $this->data)));
       break;
     case 'xml':
       $ret = array("application/xml", object_to_xml($this, "response"));
@@ -157,7 +157,7 @@ class ComponentResponse implements ArrayAccess {
       $ret = array("", $this->data);
       break;
     default:
-      $ret = array("text/html", $smarty->GenerateHTML($smarty->GetTemplate($this->template, NULL, $this->data)));
+      $ret = array("text/html", $tplmgr->GenerateHTML($tplmgr->GetTemplate($this->template, NULL, $this->data)));
     }
     return $ret;
   }

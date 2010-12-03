@@ -16,7 +16,7 @@ class Component_elation extends Component {
     $vars["component"] = $args["component"];
     $vars["componentdir"] = "./components/" . implode("/components/", explode(".", $vars["component"]));
     $vars["file"] = $args["file"];
-    if (!empty($vars["component"]) && file_exists($vars["componentdir"])) {
+    if (!empty($vars["component"]) && dir_exists_in_path($vars["componentdir"])) {
       $vars["files"] = $this->getDirContents($vars["componentdir"]);
     }
     return $this->GetComponentResponse("./inspect.tpl", $vars);
@@ -36,12 +36,14 @@ class Component_elation extends Component {
     }
     if (!empty($vars["file"]) && strpos($vars["file"], "/../") === false) {
       $vars["fullname"] = $vars["componentdir"] . "/" . $vars["file"];
-      switch ($vars["filetype"]) {
-      case 'php':
-        $vars["contents"] = highlight_string(file_get_contents($vars["fullname"]), true);
-        break;
-      default:
-        $vars["contents"] = htmlspecialchars(file_get_contents($vars["fullname"]));
+      if (($path = file_exists_in_path($vars["fullname"])) !== false) {
+        switch ($vars["filetype"]) {
+          case 'php':
+            $vars["contents"] = str_replace("\n", "", highlight_string(file_get_contents($path . "/" . $vars["fullname"]), true));
+            break;
+          default:
+            $vars["contents"] = htmlspecialchars(file_get_contents($path . "/" . $vars["fullname"]));
+        }
       }
     } else {
       $vars["contents"] = $args["defaultcontent"];
@@ -50,14 +52,16 @@ class Component_elation extends Component {
   }
   function getDirContents($dir) {
     $ret = array();
-    $dh = opendir($dir);
-    while (($file = readdir($dh)) !== false) {
-      if ($file[0] != '.') {
-        if (is_dir($dir . "/" . $file)) {
-          $ret[$file] = $this->getDirContents($dir . "/" . $file);
-          //$ret[$file] = $dir . "/" . $file;
-        } else {
-          $ret[$file] = $file;
+    if (($path = dir_exists_in_path($dir)) !== false) {
+      $dh = opendir($path . "/" . $dir);
+      while (($file = readdir($dh)) !== false) {
+        if ($file[0] != '.') {
+          if (is_dir($path . "/" . $dir . "/" . $file)) {
+            $ret[$file] = $this->getDirContents($dir . "/" . $file);
+            //$ret[$file] = $dir . "/" . $file;
+          } else {
+            $ret[$file] = $file;
+          }
         }
       }
     }

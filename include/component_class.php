@@ -31,49 +31,42 @@ class Component extends Base {
     $this->fullname = $this->GetFullName();
     $this->path = $path;
 
-    $this->smarty = SuperSmarty::singleton();
+    $this->tplmgr = TemplateManager::singleton();
   }
 
   function HasComponent($name, $args=NULL) {
-    //return (!empty($this->components[$name]));
     $ret = false;
 
     if (!empty($name) && is_string($name)) {
       if (!empty($this->components[$name])) {
         $ret = true;
       } else {
-        //$componentName = "Component_" . $name;
         $thisname = $this->GetFullName(".");
         $componentname = (!empty($thisname) ? str_replace(".", "_", $thisname) . "_" : "") . $name;
         $componentclassname = "Component_" . str_replace(".", "_", $componentname);
-        $cfg = ConfigManager::singleton();
-        $componentpaths = explode(":", any($cfg->servers["elation"]["path"], "."));
 
         if (method_exists($this, "controller_" . $name)) {
           $ret = $this->CreateComponent($name, "ComponentFunction", array(&$this, "controller_" . $name), $path, &$args);
         } else {
-          foreach ($componentpaths as $path) {
-            $componentdir = $this->GetComponentDirectory($path);
-            $fname = sprintf("%s/components/%s/%s.php", $componentdir, $name, $componentname);
-            if (file_exists($fname)) {
-              try {
-                include_once($fname);
-                $ret = $this->CreateComponent($name, $componentclassname, NULL, $path, &$args);
-                break;
-              } catch (Exception $e) {
-                //print_pre($e);
-                print "[Could not load component: $name]";
-              }
-            } else if ($this->HasTemplate("./" . $name . ".tpl", $path)) {
-              $ret = $this->CreateComponent($name, "ComponentTemplate", (substr($componentdir, 0, 2) == "./" ? "." : "") . $componentdir . "/templates/" . $name . ".tpl", $path, &$args);
+          $componentdir = $this->GetComponentDirectory();
+          $fname = sprintf("components/%s/%s.php", $name, $componentname);
+          if (($path = file_exists_in_path($fname)) !== false) {
+            try {
+              include_once($fname);
+              $ret = $this->CreateComponent($name, $componentclassname, NULL, $path, &$args);
+            } catch (Exception $e) {
+              //print_pre($e);
+              print "[Could not load component: $name]";
             }
+          } else if ($this->HasTemplate("./" . $name . ".tpl", $path)) {
+            $ret = $this->CreateComponent($name, "ComponentTemplate", $this->path . "/" . $componentdir . "/templates/" . $name . ".tpl", $path, &$args);
           }
         }
-        if ($ret === false)
+        if ($ret === false) {
           $ret = $this->CreateComponent($name, "ComponentMissing");
+        }
       }
     }
-
     return $ret;
   }
   function CreateComponent($name, $type="ComponentStatic", $payload="", $path=".", $args=NULL) {
@@ -89,10 +82,8 @@ class Component extends Base {
         $ret = true;
       }
     }
-  
     return $ret;
   }
-
 
   function &GetComponent($name) {
     $ret = NULL;
@@ -128,16 +119,17 @@ class Component extends Base {
     return $ret;
   }
   function GetComponentDirectory($path="") {
+    $ret = "";
     if (!empty($this->name)) {
-      $ret = "/components" . (!empty($this->name) ? "/" . $this->name : "");
+      $ret = "components" . (!empty($this->name) ? "/" . $this->name : "");
       if (!empty($this->parent) && $this->parent instanceOf Component) {
         $parentdir = $this->parent->GetComponentDirectory("");
         if (!empty($parentdir))
           $ret = $parentdir . $ret;
       }
-      $ret = $path . $ret;
-    } else {
-      $ret = $path;
+    }
+    if (!empty($path)) {
+      $ret = ($path == "." ? getcwd() : $path) . "/" . $ret;
     }
     return $ret;
   }
@@ -167,19 +159,19 @@ class Component extends Base {
     $ret = NULL;
   
     if ($mode == "html") {
-      $this->smarty->left_delimiter = '{';
-      $this->smarty->right_delimiter = '}';
+      $this->tplmgr->left_delimiter = '{';
+      $this->tplmgr->right_delimiter = '}';
     } else if ($mode == "js" || $mode == "css") {
-      $this->smarty->left_delimiter = '[[{';
-      $this->smarty->right_delimiter = '}]]';
+      $this->tplmgr->left_delimiter = '[[{';
+      $this->tplmgr->right_delimiter = '}]]';
     }
 
     // Let's be smart about templates specified as "./blah.tpl"
-    $ret = $this->smarty->GetTemplate($this->ExpandTemplatePath($name), $this, $args);
+    $ret = $this->tplmgr->GetTemplate($this->ExpandTemplatePath($name), $this, $args);
 
     // Always restore safe default
-    $this->smarty->left_delimiter = '{';
-    $this->smarty->right_delimiter = '}';
+    $this->tplmgr->left_delimiter = '{';
+    $this->tplmgr->right_delimiter = '}';
 
     //Profiler::StopTimer("Component::GetTemplate($name)");
     return $ret;
@@ -188,9 +180,7 @@ class Component extends Base {
   function ExpandTemplatePath($name) {
     $ret = $name;
     if ($name[0] == "." && $name[1] == "/") {
-      $tplpath = ($this->path == "." ? ".." : $this->path);
-      $dir = $this->GetComponentDirectory($tplpath);
-      // dir should start with './' - prepend a . to go one level up
+      $dir = $this->GetComponentDirectory($this->path);
       $ret = $dir . "/templates/" . substr($name, 2);
     }
     return $ret;
@@ -198,7 +188,7 @@ class Component extends Base {
 
   function HasTemplate($name, $path=NULL) {
     if (substr($name, 0, 2) == "./") {
-      if ($path === NULL) 
+      if ($path === NULL || $path === false) 
         $path = $this->path;
       // dir should start with './' - prepend a . to go one level up
       $tplpath = ($path == "." ? ".." : $path);
@@ -207,7 +197,7 @@ class Component extends Base {
     } else
       $fname = $name;
 
-    return $this->smarty->template_exists($fname);
+    return $this->tplmgr->template_exists($fname);
   }
 
   function GetComponentResponse($template=NULL, $data=NULL) {

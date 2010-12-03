@@ -15,6 +15,14 @@ function print_pre($obj, $buffer=false, $tag="pre") {
     print $buf;
   return $buf;
 }
+function print_ln($obj, $buffer=false, $quiet=false) {
+  $buf = (!$quiet ? "print_ln: " : "") . str_replace("\n", "  ", print_r($obj, true));
+  if (!$buffer)
+    print $buf;
+  else
+    return $buf;
+}
+
 
 /**
  * Function: any
@@ -318,3 +326,31 @@ function array_get(&$arr, $key, $delim=".") {
   return ($ret ? $ptr : NULL);
 }
 
+/**
+ * Check if a file exists in the include path (modified)
+ *
+ * @version     1.2.1
+ * @author      Aidan Lister <aidan@php.net>
+ * @link        http://aidanlister.com/repos/v/function.file_exists_incpath.php
+ * @param       string     $file       Name of the file to look for
+ * @return      mixed      The full path if file exists, FALSE if it does not
+ */
+function file_exists_in_path ($file, $directory=false)
+{
+    $paths = explode(PATH_SEPARATOR, get_include_path());
+ 
+    foreach ($paths as $path) {
+        // Formulate the absolute path
+        $fullpath = $path . DIRECTORY_SEPARATOR . $file;
+        // Check it
+        if (file_exists($fullpath) || ($directory && is_dir($fullpath))) {
+            return $path;
+        }
+    }
+ 
+    return false;
+}
+
+function dir_exists_in_path($dir) {
+  return file_exists_in_path($dir, true);
+}

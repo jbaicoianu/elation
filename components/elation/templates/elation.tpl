@@ -48,4 +48,3 @@
     </div>
   </li>
 </ul>
-{component name="html.footer"}

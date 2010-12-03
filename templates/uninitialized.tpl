@@ -1,4 +1,7 @@
 <!DOCTYPE html>
+
+<!-- IMPORTANT NOTE: this template is intended to be served as a static file, since it's called in only in the worst of error cases.  Keep it simple. -->
+
 <html>
   <head>
     <title>Elation Framework - Error</title>
@@ -34,10 +37,9 @@
   </head>
   <body>
     <div id="elation_init_error">
-      <img src="/images/stop.png" />
+      <img src="images/components/elation/stop.png" />
       <h1>Elation Framework - Initialization Error</h1>
       <p>Initialization of the Elation Framework directory failed.  Please review the installation instructions, and run <code>./elation web init</code> from the command line.</p>
     </div>
   </body>
 </html>
-<!-- IMPORTANT NOTE: this template is intended to be served as a static file, since it's called in only in the worst of error cases.  Keep it simple. -->

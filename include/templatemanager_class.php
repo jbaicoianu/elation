@@ -168,14 +168,15 @@ class TemplateManager extends Smarty {
           // if there are errors, check for access and force debug
           $show_debug = $webapp->debug;
           if (Logger::hasErrors()) {
-            $user = User::singleton();
-            if ($user->HasRole("DEBUG") || $user->HasRole("ADMIN") || $user->HasRole("QA")) {
+            //$user = User::singleton();
+            //if ($user->HasRole("DEBUG") || $user->HasRole("ADMIN") || $user->HasRole("QA")) {
               /* this will override incase of errors */
               $show_debug = true;
-            }
+            //}
           }
           if ($show_debug) {
-            $replace[$pos] = $this->GetTemplate("debug.tpl");
+            //$replace[$pos] = $this->GetTemplate("debug.tpl");
+            $replace[$pos] = Logger::display(E_ALL);
           }
         }
       

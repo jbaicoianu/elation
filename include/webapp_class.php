@@ -17,11 +17,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-include_once("autoload.php");
 include_once("lib/logger.php");
-include_once("common_funcs.php");
-include_once("outlet/Outlet.php");
-//include_once("config/outlet_conf.php");
+include_once("include/common_funcs.php");
 
 if(file_exists('lib/Zend/Loader/Autoloader.php')) {
   include_once "lib/Zend/Loader/Autoloader.php";
@@ -29,11 +26,13 @@ if(file_exists('lib/Zend/Loader/Autoloader.php')) {
 
 class WebApp {
   public $orm;
-  public $smarty;
+  public $tplmgr;
   public $components;
+  public $debug = false;
 
   function WebApp($rootdir, $args) {
     $this->rootdir = $rootdir;
+    $this->debug = $args["debug"];
 		$this->initAutoLoaders();
     $this->cfg = ConfigManager::singleton($rootdir);
     $this->data = DataManager::singleton($this->cfg);
@@ -43,11 +42,11 @@ class WebApp {
     if ($this->initialized()) {
       try {
         $this->request = $this->ParseRequest();
-        $this->smarty = SuperSmarty::singleton($this->rootdir);
-        $this->smarty->assign_by_ref("webapp", $this);
+        $this->tplmgr = TemplateManager::singleton($this->rootdir);
+        $this->tplmgr->assign_by_ref("webapp", $this);
         $this->components = new ComponentManager($this);
         $this->orm = OrmManager::singleton();
-        //$this->smarty->SetComponents($this->components);
+        //$this->tplmgr->SetComponents($this->components);
         
         DependencyManager::init(array("scripts" => "htdocs/scripts",
                                       "scriptswww" => $this->request["basedir"] . "/scripts",
@@ -62,7 +61,10 @@ class WebApp {
         print $this->HandleException($e);
       }
     } else {
-      print file_get_contents("./templates/uninitialized.tpl");
+      $fname = "./templates/uninitialized.tpl"; 
+      if (($path = file_exists_in_path($fname)) !== false) {
+        print file_get_contents($path . "/" . $fname);
+      }
     }
   }
   function initialized() {
@@ -130,10 +132,10 @@ class WebApp {
       
       if ($output["type"] == "ajax") {
         header('Content-type: application/xml');
-        print $this->smarty->GenerateXML($output["content"]);
+        print $this->tplmgr->GenerateXML($output["content"]);
       } else {
         header('Content-type: ' . any($output["responsetype"], "text/html"));
-        print $this->smarty->PostProcess($output["content"]);
+        print $this->tplmgr->PostProcess($output["content"]);
       }
     }
   }
@@ -144,7 +146,10 @@ class WebApp {
                                "line" => $e->getLine(),
                                "trace" => $e->getTrace());
     $vars["debug"] = User::authorized("debug");
-    return $this->smarty->GetTemplate("exception.tpl", $this, $vars);
+    if (($path = file_exists_in_path("templates/exception.tpl")) !== false) {
+      return $this->tplmgr->GetTemplate($path . "/templates/exception.tpl", $this, $vars);
+    }
+    return "Unhandled Exception (and couldn't find exception template!)";
   }
   function HandleError($errno, $errstr, $errfile, $errline, $errcontext) {
     if ($errno & error_reporting()) {
@@ -161,8 +166,12 @@ class WebApp {
                                  "message" => $errstr,
                                  "file" => $errfile,
                                  "line" => $errline);
-      if (isset($this->smarty)) {
-        print $this->smarty->GetTemplate("exception.tpl", $this, $vars);
+      if (isset($this->tplmgr)) {
+        if (($path = file_exists_in_path("templates/exception.tpl")) !== false) {
+          print $this->tplmgr->GetTemplate($path . "/templates/exception.tpl", $this, $vars);
+        } else {
+          print "<blockquote><strong>" . $type . ":</strong> " . $errstr . "</blockquote>";
+        }
       }
     }
   }
@@ -181,11 +190,9 @@ class WebApp {
   {
     //print "$class**<br />";
   	
-	  if (isset(ClassMapper::$classes[$class])) {
-	    require_once(ClassMapper::$classes[$class]);
-	  } else if (file_exists("include/" . strtolower($class) . "_class.php")) {
+	  if (file_exists_in_path("include/" . strtolower($class) . "_class.php")) {
 	    require_once("include/" . strtolower($class) . "_class.php");
-	  } else if (file_exists("include/model/" . strtolower($class) . "_class.php")) {
+	  } else if (file_exists_in_path("include/model/" . strtolower($class) . "_class.php")) {
 	    require_once("include/model/" . strtolower($class) . "_class.php");
 	  }	else {
       try {

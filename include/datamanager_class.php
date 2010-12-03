@@ -8,8 +8,7 @@
  * @subpackage Utils
  */
 
-include_once("ormmanager_class.php");
-include_once("outlet/Outlet.php");
+include_once("include/ormmanager_class.php");
 
 class DataManager {
 
@@ -87,7 +86,7 @@ class DataManager {
       // Check to see if we have a wrapper for this sourcetype in include/datawrappers/*wrapper_class.php
       // If it exists, include the code for it and initialize
       $includefile = "include/datawrappers/" . strtolower($sourcetype) . "wrapper_class.php";
-      if (file_exists($includefile)) {
+      if (file_exists_in_path($includefile)) {
         include_once($includefile);
         foreach ($cfg as $sourcename=>$sourcecfg) {
           // Server groups get special handling at this level so they can be applied to all types

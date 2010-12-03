@@ -1,6 +1,6 @@
 <?
 //include_once("include/hashdispenser_class.php");
-include_once("include/connectionwrapper_class.php");
+include_once("include/datawrappers/connectionwrapper_class.php");
 
 /**
  * class DBWrapper
@@ -865,7 +865,6 @@ class DataBase {
       if (!empty($stmt)) {
         try {
           $stmt->execute();
-          //Logger::Debug("Database::queryBind() - $sql");
         }  catch (PDOException $e) {
           // must have been something wrong in the constructed SQL
           //throw new DataBaseException($e->getMessage(), DataBaseException::QUERY_EXECUTE_FAILED, $sql, $bind_vars);

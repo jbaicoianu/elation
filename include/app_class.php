@@ -17,7 +17,6 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-include_once("autoload.php");
 include_once("lib/logger.php");
 include_once("common_funcs.php");
 include_once("config/outlet_conf.php");
@@ -31,10 +30,10 @@ class App {
     $this->outlet->createClasses();
     $this->outlet->createProxies();
 
-    $this->smarty = SuperSmarty::singleton($this->rootdir);
-    $this->smarty->assign_by_ref("webapp", $this);
+    $this->tplmgr = TemplateManager::singleton($this->rootdir);
+    $this->tplmgr->assign_by_ref("webapp", $this);
     $this->components = new ComponentManager($this);
-    //$this->smarty->SetComponents($this->components);
+    //$this->tplmgr->SetComponents($this->components);
 
     //session_set_cookie_params(30*60*60*24);
     //session_start();
@@ -45,7 +44,7 @@ class App {
     
     if ($output["type"] == "ajax") {
       header('Content-type: application/xml');
-      print $this->smarty->GenerateXML($output["content"]);
+      print $this->tplmgr->GenerateXML($output["content"]);
     } else {
       print $output["content"];
     }

@@ -1,6 +1,6 @@
 <?
 include_once("include/common_funcs.php");
-include_once("include/connectionwrapper_class.php");
+include_once("include/datawrappers/connectionwrapper_class.php");
 
 /**
  * class GeocodeWrapper

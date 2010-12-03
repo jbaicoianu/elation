@@ -21,7 +21,7 @@ class Base {
   var $parent;
   var $root;
   var $data;
-  var $smarty;
+  var $tplmgr;
   
   function Base(&$parent) {
     $this->parent =& $parent;
@@ -29,10 +29,10 @@ class Base {
     //$this->data = DataManager::singleton();
     if (isset($this->parent) && $this->parent !== NULL) {
       $this->root =& $this->GetRootObject();
-      //$this->smarty =& $this->parent->smarty;
+      //$this->tplmgr =& $this->parent->tplmgr;
     } else {
       $this->root = NULL;
-      $this->data = $this->smarty = NULL;
+      $this->data = $this->tplmgr = NULL;
     }
   }
   

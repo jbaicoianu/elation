@@ -152,6 +152,17 @@ class ConfigManager extends Base {
     // Update locations to reflect any new settings we got from the ini file
     $this->locations = $this->getLocations();
 
+    // Merge any path settings from the config file into our environment
+    if (!empty($this->servers["elation"]["path"])) {
+      $elationpath = explode(":", $this->servers["elation"]["path"]);
+      $oldincludepath = get_include_path();
+      $includepath = explode(":", $oldincludepath);
+      $newincludepath = implode(":", array_merge(array_diff($elationpath, $includepath), $includepath));
+      if ($newincludepath != $oldincludepath) {
+//        set_include_path($newincludepath);
+      }
+    }
+
     return $servers;
   }
 
@@ -232,19 +243,13 @@ class ConfigManager extends Base {
    * @return array
    */
   function Load($name, $role=NULL) {
-    if (!$this->data) {
-      $this->data = DataManager::singleton();
-      if (!$this->data) {
-        Logger::Error("ConfigManager::Load - Could not access data manager");
-        return;
-      }
-    }
     Profiler::StartTimer("ConfigManager::Load()");
+/*
     $ret = array();
     $role = any($role, $this->servers["role"], "");
     $ret = $this->GetCobrandidAndRevision($name, $role);
     if (!empty($ret)) {
-      $result_config = $this->data->Query("db.config.cobrand_config.{$name}.{$role}:nocache",
+      $result_config = DataManager::Query("db.config.cobrand_config.{$name}.{$role}:nocache",
                                           "SELECT name,value FROM config.cobrand_config WHERE cobrandid=:cobrandid and role=:role ORDER BY name",
                                           array(":cobrandid" => $ret["cobrandid"], ":role" => $role));
       //print_pre($result_config);
@@ -259,6 +264,9 @@ class ConfigManager extends Base {
     } else {
       Logger::Error("Could not find config '$name'");
     }
+*/
+    $this->configs[$name] = new Config($name, $role);
+    $ret = $this->configs[$name]->config;
 
     Profiler::StopTimer("ConfigManager::Load()");
     return $ret;
@@ -282,7 +290,7 @@ class ConfigManager extends Base {
 
     //remove revision key / value pair. It should be auto incremented
     unset($oldcfg["revision"]);
-    unset($newcfg["revision"]);
+    //unset($newcfg["revision"]);
 
     $diff = array_diff_assoc_recursive($newcfg, $oldcfg);
 
@@ -429,13 +437,12 @@ class ConfigManager extends Base {
     $ret = false;
 
     if (!empty($cobrandname)) {
-      $data = DataManager::singleton();
-      $query = $data->query("db.config.cobrand.{$cobrandname}:nocache",
+      $query = DataManager::Query("db.config.cobrand.{$cobrandname}:nocache",
                             "INSERT INTO config.cobrand SET name=:name",
                             array(":name" => $cobrandname));
       if (!empty($query) && !empty($query->id)) {
         $ret = $query->id;
-        $query = $data->query("db.config.cobrand.{$cobrandname}.version:nocache",
+        $query = DataManager::Query("db.config.cobrand.{$cobrandname}.version:nocache",
                               "INSERT INTO config.version (cobrandid, role, revision, added, updated) VALUES(:cobrandid, :role, 1, now(), now())",
                               array(":cobrandid" => $query->id,
                                     ":role" => "dev")); // FIXME - should this add to all versions or just let the migrate script handle this?
@@ -454,11 +461,10 @@ class ConfigManager extends Base {
     $ret = false;
 
     if (!empty($cobrandname)) {
-      $data = DataManager::singleton();
       $cobrandid = $this->GetCobrandId($cobrandname);
       if (!empty($cobrandid)) {
         Logger::Warn("Deleting cobrand '$cobrandname' (this is permanent across all roles)");
-        $query = $data->query("db.config.cobrand.{$cobrandname}:nocache",
+        $query = DataManager::Query("db.config.cobrand.{$cobrandname}:nocache",
                               "DELETE FROM config.cobrand WHERE cobrandid=:cobrandid",
                               array(":cobrandid" => $cobrandid));
         if (!empty($query) && $query->numrows == 1) {
@@ -875,7 +881,7 @@ class ConfigManager extends Base {
      $ret = array();
 
      if ($name && $role) {
-       $query = $this->data->Query("db.config.version.$name.$role".($nocache?":nocache":""),
+       $query = DataManager::Query("db.config.version.$name.$role".($nocache?":nocache":""),
                                    "SELECT config.version.cobrandid, config.version.revision FROM config.version INNER JOIN config.cobrand on config.version.cobrandid=config.cobrand.cobrandid WHERE config.cobrand.name=:name and config.version.role=:role",
                                    array(":name" => $name, ":role" => $role));
        if ($query && $query->NumResults() == 1) {
@@ -956,17 +962,18 @@ class Config {
 
     $ret = $this->GetCobrandidAndRevision();
     if (!empty($ret)) {
-      $result_config = $data->Query("db.config.cobrand_config.{$name}.{$role}:nocache",
-                                    "SELECT name,value FROM config.cobrand_config WHERE cobrandid=:cobrandid and role=:role ORDER BY name",
-                                    array(":cobrandid" => $ret["cobrandid"], ":role" => $role));
-      //print_pre($result_config);
+      $result_config = DataManager::Query(
+        "db.config.cobrand_config.{$name}.{$role}:nocache",
+        "SELECT name,value FROM config.cobrand_config WHERE cobrandid=:cobrandid and role=:role ORDER BY name",
+        array(":cobrandid" => $ret["cobrandid"], ":role" => $role)
+      );
       if ($result_config && count($result_config->rows) > 0) {
         $settings = array();
         foreach ($result_config->rows as $config_obj) {
-          $settings[$config_obj->name] = $config_obj->value;
+          $settings[$config_obj["name"]] = $config_obj["value"];
         }
         array_set_multi($ret, $settings);
-        $this->configs = $ret;
+        $this->config = $ret;
       }
     } else {
       Logger::Error("Could not find config '$name'");
@@ -983,27 +990,27 @@ class Config {
    * @param $name, $role, $nocache
    * @return array
    */
-   function GetCobrandidAndRevision($nocache=false) {
-     $ret = array();
+  function GetCobrandidAndRevision($nocache=false) {
+    $ret = array();
 
-     if ($this->name && $this->role) {
-       $data = DataManager::singleton();
-       $query = $data->Query("db.config.version.{$this->name}.{$this->role}".($nocache?":nocache":""),
-                             "SELECT config.version.cobrandid, config.version.revision FROM config.version INNER JOIN config.cobrand on config.version.cobrandid=config.cobrand.cobrandid WHERE config.cobrand.name=:name and config.version.role=:role",
-                             array(":name" => $this->name, ":role" => $this->role));
-       if ($query && $query->NumResults() == 1) {
-         $version_info = $query->GetResult(0);
-         $this->cobrandid = $version_info->cobrandid;
-         $this->revision = $version_info->revision;
-       } elseif($nocache==true) {
-         if($this->AddRevisionByName($name, $role)) {
-           $this->GetCobrandidAndRevision($name, $role);
-         }
-       }
-     }
-
-     return array("cobrandid" => $this->cobrandid, "revision" => $this->revision);
-   }
+    if ($this->name && $this->role) {
+      $query = DataManager::Query(
+        "db.config.version.{$this->name}.{$this->role}".($nocache?":nocache":""),
+        "SELECT config.version.cobrandid, config.version.revision FROM config.version INNER JOIN config.cobrand on config.version.cobrandid=config.cobrand.cobrandid WHERE config.cobrand.name=:name and config.version.role=:role",
+        array(":name" => $this->name, ":role" => $this->role)
+      );
+      if ($query && $query->NumResults() == 1) {
+        $version_info = $query->GetResult(0);
+        $this->cobrandid = $version_info["cobrandid"];
+        $this->revision = $version_info["revision"];
+      } elseif($nocache==true) {
+        if($this->AddRevisionByName($name, $role)) {
+          $this->GetCobrandidAndRevision($name, $role);
+        }
+      }
+    }
+    return array("cobrandid" => $this->cobrandid, "revision" => $this->revision);
+  }
 
   public function isValid() {
     return !empty($this->configs);

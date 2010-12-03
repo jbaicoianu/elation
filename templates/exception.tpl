@@ -1,6 +1,6 @@
 {dependency type="component" name="elation.exception"}
 <div class="exception exception_{$exception.type}">
- {img src="components/elation/stop.png" class="exception_icon"}
+ {img src="/elation/stop.png" class="exception_icon"}
  <h2>
   {$exception.type}: {$exception.message}
   {if $debug}<address>{$exception.file}:{$exception.line}</address>{/if}

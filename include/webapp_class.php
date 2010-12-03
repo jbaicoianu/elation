@@ -32,7 +32,7 @@ class WebApp {
 
   function WebApp($rootdir, $args) {
     $this->rootdir = $rootdir;
-    $this->debug = $args["debug"];
+    $this->debug = !empty($args["debug"]);
 		$this->initAutoLoaders();
     $this->cfg = ConfigManager::singleton($rootdir);
     $this->data = DataManager::singleton($this->cfg);
@@ -62,7 +62,7 @@ class WebApp {
       }
     } else {
       $fname = "./templates/uninitialized.tpl"; 
-      if (($path = file_exists_in_path($fname)) !== false) {
+      if (($path = file_exists_in_path($fname, true)) !== false) {
         print file_get_contents($path . "/" . $fname);
       }
     }
@@ -146,7 +146,7 @@ class WebApp {
                                "line" => $e->getLine(),
                                "trace" => $e->getTrace());
     $vars["debug"] = User::authorized("debug");
-    if (($path = file_exists_in_path("templates/exception.tpl")) !== false) {
+    if (($path = file_exists_in_path("templates/exception.tpl", true)) !== false) {
       return $this->tplmgr->GetTemplate($path . "/templates/exception.tpl", $this, $vars);
     }
     return "Unhandled Exception (and couldn't find exception template!)";
@@ -167,7 +167,7 @@ class WebApp {
                                  "file" => $errfile,
                                  "line" => $errline);
       if (isset($this->tplmgr)) {
-        if (($path = file_exists_in_path("templates/exception.tpl")) !== false) {
+        if (($path = file_exists_in_path("templates/exception.tpl", true)) !== false) {
           print $this->tplmgr->GetTemplate($path . "/templates/exception.tpl", $this, $vars);
         } else {
           print "<blockquote><strong>" . $type . ":</strong> " . $errstr . "</blockquote>";

@@ -133,4 +133,7 @@ class Component_supercritical_navigation extends Component {
     $yelp->importCategories();
     return "";
   }
+  function controller_augmentedreality($args) {
+    return $this->GetComponentResponse("./augmentedreality.tpl", $vars);
+  }
 }  

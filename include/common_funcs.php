@@ -335,7 +335,7 @@ function array_get(&$arr, $key, $delim=".") {
  * @param       string     $file       Name of the file to look for
  * @return      mixed      The full path if file exists, FALSE if it does not
  */
-function file_exists_in_path ($file, $directory=false)
+function file_exists_in_path ($file, $realpath=false, $directory=false)
 {
     $paths = explode(PATH_SEPARATOR, get_include_path());
  
@@ -344,13 +344,13 @@ function file_exists_in_path ($file, $directory=false)
         $fullpath = $path . DIRECTORY_SEPARATOR . $file;
         // Check it
         if (file_exists($fullpath) || ($directory && is_dir($fullpath))) {
-            return $path;
+            return ($realpath ? realpath($path) : $path);
         }
     }
  
     return false;
 }
 
-function dir_exists_in_path($dir) {
-  return file_exists_in_path($dir, true);
+function dir_exists_in_path($dir, $realpath=false) {
+  return file_exists_in_path($dir, $realpath, true);
 }

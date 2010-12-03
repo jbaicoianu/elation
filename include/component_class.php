@@ -30,8 +30,6 @@ class Component extends Base {
     $this->name = $name;
     $this->fullname = $this->GetFullName();
     $this->path = $path;
-
-    $this->tplmgr = TemplateManager::singleton();
   }
 
   function HasComponent($name, $args=NULL) {
@@ -49,8 +47,11 @@ class Component extends Base {
           $ret = $this->CreateComponent($name, "ComponentFunction", array(&$this, "controller_" . $name), $path, &$args);
         } else {
           $componentdir = $this->GetComponentDirectory();
-          $fname = sprintf("components/%s/%s.php", $name, $componentname);
-          if (($path = file_exists_in_path($fname)) !== false) {
+          if (!empty($componentdir))
+            $fname = sprintf("%s/components/%s/%s.php", $componentdir, $name, $componentname);
+          else
+            $fname = sprintf("components/%s/%s.php", $name, $componentname);
+          if (($path = file_exists_in_path($fname, true)) !== false) {
             try {
               include_once($fname);
               $ret = $this->CreateComponent($name, $componentclassname, NULL, $path, &$args);
@@ -59,7 +60,7 @@ class Component extends Base {
               print "[Could not load component: $name]";
             }
           } else if ($this->HasTemplate("./" . $name . ".tpl", $path)) {
-            $ret = $this->CreateComponent($name, "ComponentTemplate", ($this->path == "." ? ".." : $this->path) . "/" . $componentdir . "/templates/" . $name . ".tpl", $path, &$args);
+            $ret = $this->CreateComponent($name, "ComponentTemplate", $this->path . "/" . $componentdir . "/templates/" . $name . ".tpl", $path, &$args);
           }
         }
         if ($ret === false) {
@@ -73,7 +74,6 @@ class Component extends Base {
     $ret = false;
 
     if (class_exists($type)) {
-      //print_pre($this->components);
       if (empty($this->components[$name])) {
         $this->components[$name] = new $type($name, $this, $payload, $path);
         if (method_exists($this->components[$name], "Init"))
@@ -125,11 +125,11 @@ class Component extends Base {
       if (!empty($this->parent) && $this->parent instanceOf Component) {
         $parentdir = $this->parent->GetComponentDirectory("");
         if (!empty($parentdir))
-          $ret = $parentdir . $ret;
+          $ret = $parentdir . "/" . $ret;
       }
     }
     if (!empty($path)) {
-      $ret = ($path == "." ? getcwd() : $path) . "/" . $ret;
+      $ret = $path . "/" . $ret;
     }
     return $ret;
   }
@@ -158,20 +158,21 @@ class Component extends Base {
     //Profiler::StartTimer("Component::GetTemplate($name)");
     $ret = NULL;
   
+    $tplmgr = TemplateManager::singleton();
     if ($mode == "html") {
-      $this->tplmgr->left_delimiter = '{';
-      $this->tplmgr->right_delimiter = '}';
+      $tplmgr->left_delimiter = '{';
+      $tplmgr->right_delimiter = '}';
     } else if ($mode == "js" || $mode == "css") {
-      $this->tplmgr->left_delimiter = '[[{';
-      $this->tplmgr->right_delimiter = '}]]';
+      $tplmgr->left_delimiter = '[[{';
+      $tplmgr->right_delimiter = '}]]';
     }
 
     // Let's be smart about templates specified as "./blah.tpl"
-    $ret = $this->tplmgr->GetTemplate($this->ExpandTemplatePath($name), $this, $args);
+    $ret = $tplmgr->GetTemplate($this->ExpandTemplatePath($name), $this, $args);
 
     // Always restore safe default
-    $this->tplmgr->left_delimiter = '{';
-    $this->tplmgr->right_delimiter = '}';
+    $tplmgr->left_delimiter = '{';
+    $tplmgr->right_delimiter = '}';
 
     //Profiler::StopTimer("Component::GetTemplate($name)");
     return $ret;
@@ -197,7 +198,8 @@ class Component extends Base {
     } else
       $fname = $name;
 
-    return $this->tplmgr->template_exists($fname);
+    $tplmgr = TemplateManager::singleton();
+    return $tplmgr->template_exists($fname);
   }
 
   function GetComponentResponse($template=NULL, $data=NULL) {
@@ -227,6 +229,9 @@ class ComponentMissing extends Component {
   }
   
   function HandlePayload(&$args, $output="text") {
+    if (($path = file_exists_in_path("templates/404.tpl", true)) !== false) {
+      return $this->GetTemplate($path . "/templates/404.tpl", $this);
+    }
     return $this->GetTemplate("404.tpl", $this);
   }
 }

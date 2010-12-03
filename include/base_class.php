@@ -18,10 +18,8 @@
 */
 
 class Base {
-  var $parent;
-  var $root;
-  var $data;
-  var $tplmgr;
+  protected $parent;
+  protected $root;
   
   function Base(&$parent) {
     $this->parent =& $parent;

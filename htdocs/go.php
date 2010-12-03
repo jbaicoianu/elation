@@ -1,12 +1,12 @@
 <?php
 $root = preg_replace("|/htdocs$|", "", getcwd());
-ini_set("include_path", ".:$root/include:/usr/share/php");
-putenv('TZ=America/Los_Angeles');
 chdir($root);
+addroot($root);
+addroot("/home/james/elation");
 
-//For Zend
-$path = "$root/lib" . PATH_SEPARATOR . "$root/include/forms";
-set_include_path($path . PATH_SEPARATOR . get_include_path());
+putenv('TZ=America/Los_Angeles');
+
+//ini_set("include_path", ".:$root/include:/usr/share/php");
 
 include_once("include/webapp_class.php");
 include_once("lib/profiler.php");
@@ -19,4 +19,13 @@ Profiler::StopTimer("Total");
 if (!empty($_REQUEST["_timing"]))
   print Profiler::Display();
 
+function addroot($root) {
+  $path = explode(PATH_SEPARATOR, get_include_path());
 
+  if ($path[0] == ".") // . should always be first
+    array_shift($path);
+  array_unshift($path, "$root");
+  array_unshift($path, ".");
+
+  set_include_path(implode(PATH_SEPARATOR, $path));
+}

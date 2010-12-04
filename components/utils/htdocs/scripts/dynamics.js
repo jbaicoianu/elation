@@ -1,4 +1,4 @@
-elation.extend("utils.dynamics", function (parent, args) {
+elation.extend("utils.dynamics", function(parent, args) {
   this.parent = parent;
   this.args = args || {};
   this.mass = 1;        // grams

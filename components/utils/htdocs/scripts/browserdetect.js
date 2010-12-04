@@ -11,13 +11,12 @@ $(document).ready(function(){
         $('body').addClass('browserIE');
         
         // Add the version number
-        $('body').addClass('browserIE' + $.browser.version.substring(0,1));
+        $('body').addclass('browserIE' + $.browser.version.substring(0,1));
     }
     
     
     // Is this a version of Chrome?
     if($.browser.chrome){
-    
         $('body').addClass('browserChrome');
         
         //Add the version number
@@ -61,6 +60,4 @@ $(document).ready(function(){
     if($.browser.opera){
         $('body').addClass('browserOpera');
     }
-    
-    
 });

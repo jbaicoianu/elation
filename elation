@@ -4,6 +4,12 @@ ACTION=$1
 SUBACTION=$2
 RETVAL=
 
+export COMPONENTPATHS=$(pwd && cat config/elation.path)
+export COMPONENTMEDIATYPES="css scripts images media"
+
+expand_path() {
+  echo $1 |sed "s/^~/$(echo $HOME |sed 's/\//\\\//g')/"
+}
 framework_do() {
   CMD=$*
   echo " * $CMD"
@@ -15,7 +21,16 @@ error() {
 }
 component_get_dir() {
   COMPONENTNAME=$1
+  COMPONENTSUBDIR=$(echo $COMPONENTNAME |sed 's/\./\/components\//g')
+  for CPATH in $COMPONENTPATHS; do
+    COMPONENTPATH=$(expand_path $CPATH)
+    if [ -e $COMPONENTPATH/components/$COMPONENTSUBDIR ]; then
+      echo $COMPONENTPATH/components/$COMPONENTSUBDIR
+      return
+    fi
+  done
   echo components/$COMPONENTNAME |sed 's/\./\/components\//g'
+
 }
 component_get_classname() {
   COMPONENTNAME=$1
@@ -44,12 +59,20 @@ component_create() {
   else
     echo "Create $COMPONENTNAME"
     framework_do mkdir -p $COMPONENTDIR
-    framework_do mkdir $COMPONENTDIR/css
-    framework_do mkdir $COMPONENTDIR/scripts
-    framework_do mkdir $COMPONENTDIR/images
-    framework_do mkdir $COMPONENTDIR/templates
-    cat $(dirname $0)/config/component_skeleton.php |perl -ne 's/%(.*?)%/$ENV{$1}/g; print' >$COMPONENTDIR/$COMPONENTCLASSNAME.php
-    echo $COMPONENTCLASSNAME > $COMPONENTDIR/templates/$SUBCOMPONENTNAME.tpl
+    if [ -d $COMPONENTDIR ]; then
+      framework_do mkdir $COMPONENTDIR/css
+      framework_do mkdir $COMPONENTDIR/scripts
+      framework_do mkdir $COMPONENTDIR/images
+      framework_do mkdir $COMPONENTDIR/templates
+      for CPATH in $COMPONENTPATHS; do
+        COMPONENTPATH=$(expand_path $CPATH)
+        if [ -e $COMPONENTPATH/config/component_skeleton.php ]; then
+          cat $COMPONENTPATH/config/component_skeleton.php |perl -ne 's/%(.*?)%/$ENV{$1}/g; print' >$COMPONENTDIR/$COMPONENTCLASSNAME.php
+          break
+        fi
+      done
+      echo $COMPONENTCLASSNAME > $COMPONENTDIR/templates/$SUBCOMPONENTNAME.tpl
+    fi
   fi
 }
 component_enable() {
@@ -60,19 +83,22 @@ component_enable() {
 
   if component_exists $COMPONENTNAME; then
     echo -n "Enable '${COMPONENTNAME}': "
-    for TYPE in css scripts images; do
-      if [ ! -L htdocs/$TYPE/$LINKPATH ]; then
-        if [ -e $COMPONENTDIR/$TYPE ]; then
-          echo -n "$TYPE "
-          cd htdocs/$TYPE
-          ln -s $BASEDIR/$COMPONENTDIR/$TYPE $LINKPATH
-          cd $BASEDIR
-        elif [ -e $COMPONENTDIR/htdocs/$TYPE ]; then
-          echo -n "$TYPE "
-          cd htdocs/$TYPE
-          ln -s $BASEDIR/$COMPONENTDIR/htdocs/$TYPE $LINKPATH
-          cd $BASEDIR
-        fi
+    for TYPE in $COMPONENTMEDIATYPES; do
+      if [ ! -d htdocs/$TYPE ]; then 
+        mkdir htdocs/$TYPE; 
+      fi
+      if [ -L htdocs/$TYPE/$LINKPATH ]; then
+        rm htdocs/$TYPE/$LINKPATH
+      fi
+      if [ -e $COMPONENTDIR/$TYPE ]; then
+        echo -n "$TYPE "
+        cd htdocs/$TYPE && ln -sf $COMPONENTDIR/$TYPE $LINKPATH 
+        cd $BASEDIR
+      elif [ -e $COMPONENTDIR/htdocs/$TYPE ]; then
+        echo -n "$TYPE "
+        cd htdocs/$TYPE
+        ln -sf $COMPONENTDIR/htdocs/$TYPE $LINKPATH
+        cd $BASEDIR
       fi
     done
     if [ -e components/$COMPONENTNAME/$COMPONENTNAME.model ]; then
@@ -95,10 +121,11 @@ component_disable() {
   COMPONENTNAME=$1
   COMPONENTDIR=$(component_get_dir $COMPONENTNAME)
   LINKPATH=$(echo $COMPONENTNAME |tr '.' '/')
+
   echo -n "Disable ${COMPONENTNAME}: "
-  [ -L htdocs/css/$LINKPATH ] && rm htdocs/css/$LINKPATH && echo -n "css "
-  [ -L htdocs/images/$LINKPATH ] && rm htdocs/images/$LINKPATH && echo -n "images "
-  [ -L htdocs/scripts/$LINKPATH ] && rm htdocs/scripts/$LINKPATH && echo -n "scripts "
+  for TYPE in $COMPONENTMEDIATYPES; do
+    [ -L htdocs/$TYPE/$LINKPATH ] && rm htdocs/$TYPE/$LINKPATH && echo -n "$TYPE "
+  done
   [ -L config/model/$COMPONENTNAME.conf ] && rm config/model/$COMPONENTNAME.conf && echo -n "model "
   for F in components/$COMPONENTNAME/model/*_class.php; do
     FNAME=$(basename $F)
@@ -122,7 +149,7 @@ web_init() {
   [ ! -d tmp/compiled ] && mkdir -m 1777 tmp/compiled
   echo done
   
-  for I in $(cat config/components.enabled); do
+  for I in $(cat config/elation.components); do
     component_enable $I
   done
 }

@@ -1,16 +1,17 @@
 var elation = new function() {
   this.extend = function(name, func) {
-      //console.log('register function: ' + name, func);
-      var ptr = this;
-      var parts = name.split(".");
-      var i;
-      for (i = 0; i < parts.length-1; i++) {
-          if (typeof ptr[parts[i]] == 'undefined') {
-              ptr[parts[i]] = {};
-          }
-          ptr = ptr[parts[i]];
-      }
-      ptr[parts[i]] = func;
+		var ptr = this,
+				parts = name.split("."),
+				i;
+		
+		for (i = 0; i < parts.length-1; i++) {
+			if (typeof ptr[parts[i]] == 'undefined')
+				ptr[parts[i]] = {};
+			
+			ptr = ptr[parts[i]];
+		}
+		
+		ptr[parts[i]] = func;
   }
 }
 elation.extend("component", new function() {
@@ -22,32 +23,33 @@ elation.extend("component", new function() {
     // Find all elements which have a namespace:componentattr attribute
 
     //var elements = $("["+this.namespace+"\\:"+componentattr+"]"); 
-/*
+		/*
     function nsresolver(prefix) {  
       var ns = {  
         'xhtml' : 'http://www.w3.org/1999/xhtml',  
         'elation': 'http://www.ajaxelation.com/xmlns'  
       };  
-alert(ns[prefix]);
+			alert(ns[prefix]);
       return ns[prefix] || null;  
     }  
-*/
+		*/
+		
     var nsresolver = document.createNSResolver(document.documentElement);
-
-
-// FIXME - I've started work to switch this over to use xpath selectors instead of jquery but namespaces make it a pain
-//         Right now this is just selecting all elements, very inefficient...
-//var selector = '//*['+this.namespace+':'+componentattr+']';
-//var selector = "//*[@*["+this.namespace+":"+componentattr+"]]";
-//var selector = "//*[@*[namespace-uri()='http://www.ajaxelation.com/xmlns']]";
-//var selector = "//*[local-name()='component']";
-var selector = "//*";
+		
+		// FIXME - I've started work to switch this over to use xpath selectors instead of jquery but namespaces make it a pain
+		//         Right now this is just selecting all elements, very inefficient...
+		//var selector = '//*['+this.namespace+':'+componentattr+']';
+		//var selector = "//*[@*["+this.namespace+":"+componentattr+"]]";
+		//var selector = "//*[@*[namespace-uri()='http://www.ajaxelation.com/xmlns']]";
+		//var selector = "//*[local-name()='component']";
+		var selector = "//*";
+		
     var result = document.evaluate(selector, document, nsresolver, XPathResult.ANY_TYPE, null);
     var elements = [];
     while (element = result.iterateNext()) {
       elements.push(element);
     }
-console.log('i init now');
+		console.log('i init now');
     for (var i = 0; i < elements.length; i++) {
       var element = elements[i];
       var componenttype = element.getAttribute(this.namespace+':'+componentattr);
@@ -170,6 +172,45 @@ elation.extend('onloads',new function() {
 });
 elation.onloads.init();
 
+elation.extend("html.dimensions", function(element, ignore_size) {
+	if (typeof element != 'object' || element === window) {
+		var	width = window.innerWidth		|| document.documentElement.clientWidth		|| document.body.clientWidth,
+				height = window.innerHeight	|| document.documentElement.clientHeight	|| document.body.clientHeight;
+		
+		return {
+			0 : width,
+			1 : height,
+			x : 0,
+			y : 0,
+			w : width,
+			h : height,
+			s : elation.html.getscroll()
+		};
+	}
+	
+	var width = ignore_size ? 0 : element.offsetWidth,
+			height = ignore_size ? 0 : element.offsetHeight,
+			left = element.offsetLeft,
+			top = element.offsetTop,
+      id = element.id || '';
+	
+	while (element = element.offsetParent) {
+		top += element.offsetTop - element.scrollTop;
+		left += element.offsetLeft - element.scrollLeft;
+	}
+	
+	if (elation.browser.type == 'safari')
+		top += elation.html.getscroll(1);
+	
+  return {
+		0 : left,
+		1 : top,
+		x : left, 
+		y : top, 
+		w : width, 
+		h : height 
+	};
+});
 elation.extend("html.size", function(obj) {
   return [obj.offsetWidth, obj.offsetHeight];
 });
@@ -200,6 +241,80 @@ elation.extend("html.removeclass", function(element, className) {
     element.className = element.className.replace(re, " ");
   }
 });
+
+// creates a new html element
+// example: elation.html.create({ 
+//	tag:'div', 
+//	classname:'example',
+//  style: { width:'30px', height:'20px' },
+//	attributes: { innerHTML: 'Test!' },
+//	append: elementObj
+// });
+elation.extend('html.create', function(parms, classname, style, additional, append, before) {
+  if (typeof parms == 'object')
+    var tag = parms.tag,
+        classname = parms.classname,
+        style = parms.style,
+        additional = parms.attributes,
+        append = parms.append,
+        before = parms.before;
+  
+  var element = document.createElement(tag || parms);
+  
+  if (classname)
+    element.className = classname;
+  
+  if (style)
+    for (var property in style)
+      element.style[property] = style[property];
+  
+  if (additional)
+    for (var property in additional)
+      element[property] = additional[property];
+  
+	if (append)
+		if (before)
+      append.insertBefore(element, before);
+    else
+      append.appendChild(element);
+	
+  return element;
+});
+
+elation.extend('html.getscroll', function(shpadoinkle) {
+  if (thefind.iphone && thefind.iphone.scrollcontent)
+    var pos = [0,0];//thefind.iphone.scrollcontent.getPosition();
+	else if (typeof pageYOffset != 'undefined') 
+		var pos = [ 
+			pageXOffset, 
+			pageYOffset 
+		];
+	else 
+		var	QuirksObj = document.body,
+				DoctypeObj = document.documentElement,		
+				element = (DoctypeObj.clientHeight) 
+					? DoctypeObj 
+					: QuirksObj,
+				pos = [ 
+					element.scrollLeft, 
+					element.scrollTop 
+				];
+
+	switch (shpadoinkle) {
+		case 0:
+			return pos[0];
+		
+		case 1:
+			return pos[1];
+		
+		default:
+			return [ 
+				pos[0], 
+				pos[1] 
+			];
+	}
+});
+
 elation.extend("utils.arrayget", function(obj, name) {
   var ptr = obj;
   var x = name.split(".");
@@ -212,6 +327,7 @@ elation.extend("utils.arrayget", function(obj, name) {
   }
   return (typeof ptr == "undefined" ? null : ptr);
 });
+
 //Returns true if it is a DOM node
 elation.extend("utils.isnode", function(obj) {
   return (
@@ -227,4 +343,61 @@ elation.extend("utils.iselement", function(obj) {
     typeof obj === "object" && obj.nodeType === 1 && typeof obj.nodeName==="string"
   );
 });
-
+elation.extend('file', function() {
+	// grabs a js or css file and adds to document
+  this.get = function(type, file, func) {
+		if (!type || !file)
+			return false;
+		
+		var	head = document.getElementsByTagName("HEAD")[0],
+				element = document.createElement((type == 'javascript' ? "SCRIPT" : "LINK"));
+		
+		if (type == 'javascript') {
+			element.type = "text/javascript";
+			element.src = file;
+		} else {
+			element.type = "text/css";
+			element.rel = "stylesheet";
+			element.href = file;
+		}
+		
+		if (func)
+			element.onload = func;
+		
+    head.appendChild(element);
+		
+		return element;
+  }
+});
+elation.extend('cookie', {
+	set: function(parms, value, expires, domain, secure, path, date) {
+		name = parms.name || parms;
+		expires = parms.expires || expires || '';
+    domain = parms.domain || domain || '';
+    secure = parms.secure || secure || '';
+    path = parms.path || path || '/';
+		date = parms.date || new Date();
+		
+		if (date instanceof Date)
+			date = dateObj.getDate() + "/" + (dateObj.getMonth() + 1) + "/" + (dateObj.getFullYear() + 1);
+		
+    var curCookie = name + "=" + escape(value) + "; expires=" + date + " 00:00:00" +
+        ((path) ? "; path=" + path : "") +
+        ((domain) ? "; domain=" + domain : "") +
+        ((secure) ? "; secure" : "");
+		
+    document.cookie = curCookie;
+    return curCookie;
+	},
+	
+	get: function(name) {
+    var theCookies = document.cookie.split(/[; ]+/);
+    
+		for (var i = 0 ; i < theCookies.length; i++) {
+			var aName = theCookies[i].substring(0,theCookies[i].indexOf('='));
+			
+			if (aName == name) 
+				return theCookies[i];
+    }
+	}
+}

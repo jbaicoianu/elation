@@ -42,7 +42,7 @@ function smarty_function_component($args, &$smarty) {
         $ret = $smarty->GenerateXML($ret);
         */
       } else if ($ret instanceOf ComponentResponse) {
-        $response = $ret->getOutput("html");
+        $response = $ret->getOutput("inline");
         $ret = $response[1];
       } else {
         $escapes = array();

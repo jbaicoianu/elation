@@ -4,8 +4,8 @@ class Component_page extends Component {
   function init() {
   }
 
-  function controller_page($args, $output="inline") {
+  function controller_page($args) {
     $vars["args"] = $args;
-    return $this->GetTemplate("./page.tpl", $vars);
+    return $this->GetComponentResponse("./page.tpl", $vars);
   }
 }  

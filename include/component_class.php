@@ -215,7 +215,7 @@ class ComponentStatic extends Component {
     $this->payload = $payload;
   }
   
-  function HandlePayload(&$args, $output="text") {
+  function HandlePayload(&$args, $output="inline") {
     return $payload;
   }
 }
@@ -228,7 +228,7 @@ class ComponentMissing extends Component {
     $this->payload = $payload;
   }
   
-  function HandlePayload(&$args, $output="text") {
+  function HandlePayload(&$args, $output="inline") {
     if (($path = file_exists_in_path("templates/404.tpl", true)) !== false) {
       return $this->GetTemplate($path . "/templates/404.tpl", $this);
     }
@@ -244,7 +244,7 @@ class ComponentTemplate extends Component {
     $this->payload = $payload;
   }
   
-  function HandlePayload(&$args, $output="text") {
+  function HandlePayload(&$args, $output="inline") {
     return $this->GetTemplate($this->payload);
   }
 }
@@ -257,7 +257,7 @@ class ComponentFunction extends Component {
     $this->payload = $payload;
   }
   
-  function HandlePayload(&$args, $output="text") {
+  function HandlePayload(&$args, $output="inline") {
     try {
       return call_user_func($this->payload, $args, $output);
     } catch (Exception $e) {

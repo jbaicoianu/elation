@@ -702,7 +702,7 @@ class ConfigManager extends Base {
   function GetCobrandList($orderby="name") {
     $ret = NULL;
 
-    $result = $this->data->Query("db.config.cobrand.list:nocache",
+    $result = DataManager::Query("db.config.cobrand.list:nocache",
                                  "SELECT * FROM config.cobrand ORDER BY $orderby");
     if ($result && count($result->rows) > 0) {
       $configs = $result->rows;
@@ -970,7 +970,7 @@ class Config {
       if ($result_config && count($result_config->rows) > 0) {
         $settings = array();
         foreach ($result_config->rows as $config_obj) {
-          $settings[$config_obj["name"]] = $config_obj["value"];
+          $settings[$config_obj->name] = $config_obj->value;
         }
         array_set_multi($ret, $settings);
         $this->config = $ret;
@@ -979,7 +979,7 @@ class Config {
       Logger::Error("Could not find config '$name'");
     }
 
-    Profiler::StopTimer("ConfigManager::Load()");
+    Profiler::StopTimer("Config::Load()");
     //print_pre($ret);
     return $ret;
   }
@@ -1001,8 +1001,8 @@ class Config {
       );
       if ($query && $query->NumResults() == 1) {
         $version_info = $query->GetResult(0);
-        $this->cobrandid = $version_info["cobrandid"];
-        $this->revision = $version_info["revision"];
+        $this->cobrandid = $version_info->cobrandid;
+        $this->revision = $version_info->revision;
       } elseif($nocache==true) {
         if($this->AddRevisionByName($name, $role)) {
           $this->GetCobrandidAndRevision($name, $role);

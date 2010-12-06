@@ -94,6 +94,7 @@ class Component extends Base {
   }
   
   function HandlePayload(&$args, $output="blank") {
+    ob_start();
     try {
       $ret = NULL;
       //$controllerfuncname = "controller_" . $this->GetFullName("_");
@@ -105,6 +106,11 @@ class Component extends Base {
       global $webapp;
       $ret = $webapp->HandleException($e);
     }
+    if ($ret instanceOf ComponentResponse)
+      $ret->prepend(ob_get_contents());
+    else
+      $ret = ob_get_contents() . $ret;
+    ob_end_clean();
     return $ret;
   }
   
@@ -155,6 +161,9 @@ class Component extends Base {
   }
   
   function GetTemplate($name, $args=NULL, $mode="html") {
+    // NOTE - GetComponentResponse() replaces GetTemplate(), and they take the same arguments anyway.  This is here as a trial to see if anything breaks, if everything works ok then we should replace all references in the code
+    return $this->GetComponentResponse($name, $args, $mode);
+
     //Profiler::StartTimer("Component::GetTemplate($name)");
     $ret = NULL;
   
@@ -245,7 +254,7 @@ class ComponentTemplate extends Component {
   }
   
   function HandlePayload(&$args, $output="inline") {
-    return $this->GetTemplate($this->payload);
+    return $this->GetComponentResponse($this->payload);
   }
 }
 
@@ -258,12 +267,15 @@ class ComponentFunction extends Component {
   }
   
   function HandlePayload(&$args, $output="inline") {
+    Profiler::StartTimer("Component: " . $this->fullname, 2);
     try {
-      return call_user_func($this->payload, $args, $output);
+      $ret = call_user_func($this->payload, $args, $output);
     } catch (Exception $e) {
       global $webapp;
-      return $webapp->HandleException($e);
+      $ret = $webapp->HandleException($e);
     }
+    Profiler::StopTimer("Component: " . $this->fullname);
+    return $ret;
   }
 }
 

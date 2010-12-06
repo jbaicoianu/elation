@@ -18,7 +18,8 @@ class DependencyManager {
     $ret = "";
     foreach (self::$dependencies as $type=>$dependencies) {
       foreach ($dependencies as $dependency) {
-        $ret .= $dependency->display(self::$locations);
+        if ($dependency instanceOf Dependency)
+          $ret .= $dependency->display(self::$locations);
       }
     }
     return $ret;

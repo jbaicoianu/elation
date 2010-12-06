@@ -9,7 +9,7 @@ class User {
     }
     return true;
   }
-  public static function getInstance() {
+  public static function singleton() {
     if (self::$instance === NULL) {
       self::$instance = new User();
     }

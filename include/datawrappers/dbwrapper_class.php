@@ -845,6 +845,7 @@ class DataBase {
       // Prepare the query and bind all of the values.
       try {
         $stmt = $this->db->prepare($sql);
+        $stmt->setFetchMode(PDO::FETCH_OBJ);
       } catch (PDOException $e) {
         //throw new DataBaseException($e->getMessage(), $e->getCode(), $sql, $bind_vars=array());
         raise;

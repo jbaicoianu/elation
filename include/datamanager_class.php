@@ -16,6 +16,7 @@ class DataManager {
   var $sources;
 
   function DataManager($cfg=NULL) {
+    $this->Init($cfg);
   }
 
   protected static $instance;
@@ -24,7 +25,6 @@ class DataManager {
     if (!self::$instance) {
       if (! empty($args)) {
         self::$instance = new $name($args);
-        self::$instance->Init($args);
       } else {
         self::$instance = null;
       }
@@ -35,7 +35,7 @@ class DataManager {
   function Init(&$cfg) {
     $this->cfg =& $cfg;
     Logger::Info("DataManager initializing");
-    //Profiler::StartTimer("DataManager::Init()");
+    Profiler::StartTimer("DataManager::Init()", 1);
 
     //Profiler::StartTimer("DataManager::Init() - caches");
     if (!empty($this->cfg->servers["caches"])) {
@@ -57,7 +57,7 @@ class DataManager {
 
     //$this->outlet = Outlet::getInstance();
     //print_pre($this->sources);
-    //Profiler::StopTimer("DataManager::Init()");
+    Profiler::StopTimer("DataManager::Init()");
   }
 
   function AddCaches($cachetype, $cfg) {
@@ -81,7 +81,7 @@ class DataManager {
   }
   function AddSource($sourcetype, $cfg) {
     if (!empty($cfg)) {
-      //Profiler::StartTimer("DataManager::Init() - Add QPM Server");
+      Profiler::StartTimer("DataManager::Init() - Add source: $sourcetype", 3);
 
       // Check to see if we have a wrapper for this sourcetype in include/datawrappers/*wrapper_class.php
       // If it exists, include the code for it and initialize
@@ -107,7 +107,7 @@ class DataManager {
       } else {
         Logger::Debug("Tried to instantiate source '$sourcetype', but couldn't find class");
       }
-      //Profiler::StopTimer("DataManager::Init() - Add QPM Server");
+      Profiler::StopTimer("DataManager::Init() - Add source: $sourcetype");
     }
   }
 
@@ -124,7 +124,7 @@ class DataManager {
   static function &Query($id, $query, $args=NULL, $extras=NULL) {
     global $webapp;
     
-    //Profiler::StartTimer("DataManager::Query()");
+    Profiler::StartTimer("DataManager::Query()");
     $result = NULL;
 
     $queryid = new DatamanagerQueryID($id);
@@ -189,7 +189,7 @@ class DataManager {
 
     }
 
-    //Profiler::StopTimer("DataManager::Query()");
+    Profiler::StopTimer("DataManager::Query()");
     return $result;
   }
 
@@ -202,13 +202,13 @@ class DataManager {
    * @return int (last insert id)
    */
   static function &QueryInsert($id, $table, $values, $extra=NULL) {
-    //Profiler::StartTimer("DataManager::QueryInsert()");
+    Profiler::StartTimer("DataManager::QueryInsert()");
     $insert_id = NULL;
     $queryid = new DatamanagerQueryID($id);
     if ($source =& DataManager::PickSource($queryid)) {
       $insert_id = $source->QueryInsert($queryid, $table, $values, $extra);
     }
-    //Profiler::StopTimer("DataManager::QueryInsert()");
+    Profiler::StopTimer("DataManager::QueryInsert()");
     return $insert_id;
   }
 
@@ -222,13 +222,13 @@ class DataManager {
    * @return int (last insert id)
    */
   static function &QueryUpdate($id, $table, $values, $where_condition, $bind_vars=array()) {
-    //Profiler::StartTimer("DataManager::QueryUpdate()");
+    Profiler::StartTimer("DataManager::QueryUpdate()");
     $rows_affected = NULL;
     $queryid = new DatamanagerQueryID($id);
     if ($source =& DataManager::PickSource($queryid)) {
       $rows_affected = $source->QueryUpdate($queryid, $table, $values, $where_condition, $bind_vars);
     }
-    //Profiler::StopTimer("DataManager::QueryUpdate()");
+    Profiler::StopTimer("DataManager::QueryUpdate()");
     return $rows_affected;
   }
 
@@ -242,13 +242,13 @@ class DataManager {
    * @return int (last insert id)
    */
   static function &QueryDelete($id, $table, $where_condition=NULL, $bind_vars=array()) {
-    //Profiler::StartTimer("DataManager::QueryUpdate()");
+    Profiler::StartTimer("DataManager::QueryUpdate()");
     $rows_affected = NULL;
     $queryid = new DatamanagerQueryID($id);
     if ($source =& DataManager::PickSource($queryid)) {
       $rows_affected = $source->QueryDelete($queryid, $table, $where_condition, $bind_vars);
     }
-    //Profiler::StopTimer("DataManager::QueryUpdate()");
+    Profiler::StopTimer("DataManager::QueryUpdate()");
     return $rows_affected;
   }
 

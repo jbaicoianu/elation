@@ -236,7 +236,7 @@ function array_set(&$arr, $key, $value, $delim=".") {
   return $ret;
 }
 function array_set_multi(&$arr, $values, $keys=NULL) {
-  //Profiler::StartTimer("array_set_multi");
+  Profiler::StartTimer("array_set_multi");
   if ($keys === NULL) {
     $tmp = array_keys($values); 
     $keys = array_combine($tmp, $tmp);
@@ -272,6 +272,7 @@ function array_set_multi(&$arr, $values, $keys=NULL) {
   foreach ($subelements as $k=>$v) {
     array_set_multi($arr[$k], $values, $v);
   }
+  Profiler::StopTimer("array_set_multi");
 }
 function array_unset(&$arr, $key, $delim=".") {
   $ret = true;

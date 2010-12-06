@@ -145,8 +145,7 @@ EOF
 
 web_init() {
   echo -n Initializing web...
-  [ ! -d tmp ] && mkdir -m 1777 tmp
-  [ ! -d tmp/compiled ] && mkdir -m 1777 tmp/compiled
+  [ ! -d tmp ] && mkdir -m 2777 tmp
   echo done
   
   for I in $(cat config/elation.components); do

@@ -12,6 +12,15 @@ class Component_elation extends Component {
     }
     return $this->GetComponentResponse("./elation.tpl", $vars);
   }
+  function controller_debug($args) {
+    return $this->GetComponentResponse("./debug.tpl", $vars);
+  }
+  function controller_logger($args) {
+    return Logger::Display(E_ALL);
+  }
+  function controller_profiler($args) {
+    return Profiler::Display(E_ALL);
+  }
   function controller_inspect($args, $output="inline") {
     $vars["component"] = $args["component"];
     $vars["componentdir"] = "./components/" . implode("/components/", explode(".", $vars["component"]));

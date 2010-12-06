@@ -1,0 +1,93 @@
+ul#tf_debug_log {
+  position:static;
+  background: #feeeee;
+  list-style: none;
+  margin: 0;
+	clear:both;
+	overflow:auto;
+  border: 1px solid black;
+}
+ul#tf_debug_log li { 
+  height: 1%;
+	scroll-x: hidden;
+  clear: left;
+} 
+ul#tf_debug_log_jsdebug li { 
+  height: 1%;
+	scroll-x: hidden;
+  clear: left;
+} 
+ul#tf_debug_log li:after { 
+  6content: '.';
+  height: 0;
+  display: block;
+  clear: both;
+  visibility: hidden;
+}
+ul#tf_debug_log_jsdebug li:after { 
+  56content: '.';
+  height: 0;
+  display: block;
+  clear: both;
+  visibility: hidden;
+}
+ul#tf_debug_log li address {
+  float:left;
+  width: 7.5em;
+  text-align: right;
+  display: block;
+  overflow:visible;
+  font-size: 8pt;
+	overflow: hidden;
+}
+ul#tf_debug_log code {
+  display: block; 
+  margin-left: 8em;
+  padding-left: 1.5em;
+  border-left: 1px solid #000;
+  font-size: 8pt;
+  text-indent: -1.4em;
+  background: #fff;
+	white-space: pre;
+}
+ul#tf_debug_log_jsdebug li address {
+  float:left;
+  width: 7.5em;
+  text-align: right;
+  display: block;
+  overflow:visible;
+  font-size: 8pt;
+}
+ul#tf_debug_log_jsdebug code { 
+  display: block; 
+  margin-left: 8em;
+  padding-left: 1.5em;
+  border-left: 1px solid #000;
+  font-size: 8pt;
+  text-indent: -1.5em;
+  background: #fff;
+}
+ul#tf_debug_log li.logError { 
+  color: #900;
+  font-weight: bold;
+}
+ul#tf_debug_log li.logNotice { 
+  color: #090;
+}
+ul#tf_debug_log li.logWarning { 
+  color: goldenRod; /* shut up, goldenrod is awesome */
+  font-weight: bold;
+}
+ul#tf_debug_log li.logDebug { 
+  color: #888;
+}
+#tf_debug_profiler { 
+  margin-bottom: 65px;
+}
+#tf_debug_profiler .timeTotal { 
+  text-align: right;
+}
+#tf_debug_profiler .timePerExecution { 
+  text-align: right;
+}
+

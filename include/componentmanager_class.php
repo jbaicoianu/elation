@@ -26,7 +26,6 @@ class ComponentManager extends Component {
 
   function ComponentManager(&$parent) {
     $this->Component("", $parent);
-    self::$instance =& $this;
   }
 
   function Dispatch($page=NULL, $args=NULL) {
@@ -55,7 +54,6 @@ class ComponentManager extends Component {
         $componentargs = (!empty($this->dispatchargs[$componentname]) ? array_merge_recursive($args, $this->dispatchargs[$componentname]) : $args);
         $ret["content"] = $component->HandlePayload($componentargs, $outputtype);
       }
-      
     }
 
     if ($ret['content'] instanceOf ComponentResponse) {
@@ -146,31 +144,41 @@ class ComponentResponse implements ArrayAccess {
     $ret = array("text/html", NULL);;
     $tplmgr = TemplateManager::singleton();
     switch($type) {
-    case 'ajax':
-      $ret = array("text/xml", $tplmgr->GenerateXML($this->data));
-      break;
-    case 'json':
-      $ret = array("application/javascript", $tplmgr->GenerateJavascript($ret));
-    case 'js':
-      $ret = array("application/javascript", json_indent(json_encode($this)) . "\n");
-      break;
-    case 'txt':
-      $ret = array("text/plain", $tplmgr->GenerateHTML($tplmgr->GetTemplate($this->template, NULL, $this->data)));
-      break;
-    case 'xml':
-      $ret = array("application/xml", object_to_xml($this, "response"));
-      break;
-    case 'data':
-      $ret = array("", $this->data);
-      break;
-    case 'html':
-      $framecomponent = any(ConfigManager::get("page.frame"), "html.page");
-      $vars["content"] = $this;
-      $ret = array("text/html", $tplmgr->GenerateHTML(ComponentManager::fetch($framecomponent, $vars, "inline")));
-      break;
-    default:
-      $ret = array("text/html", $tplmgr->GenerateHTML($tplmgr->GetTemplate($this->template, NULL, $this->data)));
+      case 'ajax':
+        $ret = array("text/xml", $tplmgr->GenerateXML($this->data));
+        break;
+      case 'json':
+        $ret = array("application/javascript", $tplmgr->GenerateJavascript($ret));
+        break;
+      case 'js':
+        $ret = array("application/javascript", json_indent(json_encode($this)) . "\n");
+        break;
+      case 'txt':
+        $ret = array("text/plain", $tplmgr->GenerateHTML($tplmgr->GetTemplate($this->template, NULL, $this->data)));
+        break;
+      case 'xml':
+        $ret = array("application/xml", object_to_xml($this, "response"));
+        break;
+      case 'data':
+        $ret = array("", $this->data);
+        break;
+      case 'componentresponse':
+        $ret = array("", $this);
+        break;
+      case 'html':
+        $framecomponent = any(ConfigManager::get("page.frame"), "html.page");
+        $vars["content"] = $this;
+        $ret = array("text/html", ComponentManager::fetch($framecomponent, $vars, "inline"));
+        break;
+      default:
+        $ret = array("text/html", $tplmgr->GetTemplate($this->template, NULL, $this->data));
+    }
+    if (!empty($this->prefix)) {
+      $ret[1] = $this->prefix . $ret[1];
     }
     return $ret;
+  }
+  function prepend($str) {
+    $this->prefix = $str;
   }
 }

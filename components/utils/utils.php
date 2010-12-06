@@ -45,7 +45,7 @@ class Component_utils extends Component {
     else
       $vars["panel"]["name"] = $args["type"];
     $vars["panel"]["top"] = any($args["top"], true);
-    $vars["panel"]["cfg"] = $this->PanelSort(any($args["panel"], getcfg("panels.types.{$vars["panel"]["name"]}")));
+    $vars["panel"]["cfg"] = $this->PanelSort(any($args["panel"], ConfigManager::get("panels.types.{$vars["panel"]["name"]}")));
     $vars["panel"]["id"] = any($args["id"], $vars["panel"]["cfg"]["id"], "tf_utils_panel_" . str_replace(".", "_", $vars["panel"]["name"]));
     $vars["panel"]["type"] = any($args["type"], "panel");
     $vars["panel"]["enabled"] = any($args["enabled"], (isset($vars["panel"]["cfg"]["enabled"]) ? $vars["panel"]["cfg"]["enabled"] : true));

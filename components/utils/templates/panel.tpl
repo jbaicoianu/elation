@@ -1,5 +1,5 @@
 {if !empty($panel.enabled)}
-  {box class="tf_utils_panel_`$panel.type` tf_util_clear_after `$panel.cfg.classname`"}
+  <div class="tf_utils_panel_{$panel.type} tf_util_clear_after {$panel.cfg.classname}">
     {if !empty($panel.cfg.label) || !empty($panel.cfg.icon)}<h3 class="tf_utils_panel_label">{if !empty($panel.cfg.link)}<a href="{$panel.cfg.link}" rel="nofollow">{else}<span class="tf_utils_panel_labeltext">{/if}{if !empty($panel.cfg.icon)}<img class="tf_utils_panel_icon" src="{$panel.cfg.icon|escape:html} alt="{$panel.cfg.label|escape:html}"/>{/if}{if !empty($panel.cfg.label)} {$panel.cfg.label}{/if}{if !empty($panel.cfg.link)}</a>{else}</span>{/if}</h3>{/if} 
     {if $panel.cfg.simple != 1}<ul {if !empty($panel.cfg.id)}id="{$panel.cfg.id}" {/if}class="tf_utils_panel_content tf_util_clear_after{if !empty($panel.cfg.orientation)} tf_utils_panel_{$panel.cfg.orientation}{/if}">{/if}
     {foreach from=$panel.cfg.items key=k item=panelitem name=panelitem}
@@ -15,7 +15,7 @@
       {/if}
     {/foreach}
     {if $panel.cfg.simple != 1}</ul>{/if}
-  {/box}
+  </div>
   {if $panel.cfg.simple != 1}
     <script type="text/javascript">
       //<!--

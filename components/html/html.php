@@ -28,17 +28,26 @@ class Component_html extends Component {
   }
   function controller_content($args) {
     $tplfile = "./content.tpl";
-    if ($args["content"] instanceOf ComponentResponse) {
-      $vars = $args["content"]->data;
-      $tplfile = $args["content"]->getTemplate();
-    } else if (!empty($args["content"]["component"])) {
-      $vars["component"] = $args["content"]["component"];
-      $vars["componentargs"] = any($args["content"]["args"], array());
-    } else if (!empty($args["content"]["template"])) {
-      $vars = any($args["content"]["data"], array());
-      $tplfile = $args["content"]["template"];
-    } else {
-      $vars["content"] = $content;
+    $content = $args["content"];
+    if ($content instanceOf ComponentResponse) {
+      if (!empty($content->data["content"])) {
+        $content = $content->data["content"];
+      } else {
+        $vars = $content->data;
+        $tplfile = $content->getTemplate();
+        $content = NULL;
+      }
+    }
+    if (!empty($content)) {
+      if (!empty($content["component"])) {
+        $vars["contentcomponent"] = $content["component"];
+        $vars["contentargs"] = any($content["args"], array());
+      } else if (!empty($content["template"])) {
+        $vars = any($content["data"], array());
+        $tplfile = $content["template"];
+      } else {
+        $vars["content"] = $content;
+      }
     }
     return $this->GetTemplate($tplfile, $vars);
   }

@@ -400,4 +400,4 @@ elation.extend('cookie', {
 				return theCookies[i];
     }
 	}
-}
+});

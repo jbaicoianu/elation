@@ -18,9 +18,10 @@
 */
 
 include_once("lib/logger.php");
+include_once("lib/profiler.php");
 include_once("include/common_funcs.php");
 
-if(file_exists('lib/Zend/Loader/Autoloader.php')) {
+if(file_exists_in_path('lib/Zend/Loader/Autoloader.php')) {
   include_once "lib/Zend/Loader/Autoloader.php";
 }
 
@@ -31,32 +32,41 @@ class WebApp {
   public $debug = false;
 
   function WebApp($rootdir, $args) {
+    Profiler::StartTimer("WebApp", 1);
+    Profiler::StartTimer("WebApp::Init", 1);
+    Profiler::StartTimer("WebApp::TimeToDisplay", 1);
+
     $this->rootdir = $rootdir;
     $this->debug = !empty($args["debug"]);
+    $this->getAppVersion();
+    Logger::Info("WebApp Initializing (" . $this->appversion . ")");
 		$this->initAutoLoaders();
+
+    $this->request = $this->ParseRequest();
+    $this->InitProfiler();
+
     $this->cfg = ConfigManager::singleton($rootdir);
     $this->data = DataManager::singleton($this->cfg);
 
     set_error_handler(array($this, "HandleError"), E_ALL);
 
+    $this->locations = array("scripts" => "htdocs/scripts",
+                             "scriptswww" => $this->request["basedir"] . "/scripts",
+                             "css" => "htdocs/css",
+                             "csswww" => $this->request["basedir"] . "/css",
+                             "imageswww" => $this->request["basedir"] . "/images",
+                             "tmp" => "tmp",
+                             "config" => "config");
+    DependencyManager::init($this->locations);
+
     if ($this->initialized()) {
       try {
-        $this->request = $this->ParseRequest();
+        $this->session = SessionManager::singleton();
         $this->tplmgr = TemplateManager::singleton($this->rootdir);
         $this->tplmgr->assign_by_ref("webapp", $this);
-        $this->components = new ComponentManager($this);
+        $this->components = ComponentManager::singleton($this);
         $this->orm = OrmManager::singleton();
         //$this->tplmgr->SetComponents($this->components);
-        
-        DependencyManager::init(array("scripts" => "htdocs/scripts",
-                                      "scriptswww" => $this->request["basedir"] . "/scripts",
-                                      "css" => "htdocs/css",
-                                      "csswww" => $this->request["basedir"] . "/css",
-                                      "imageswww" => $this->request["basedir"] . "/images"));
-        $this->locations = DependencyManager::$locations;
-
-        session_set_cookie_params(30*60*60*24);
-        session_start();
       } catch (Exception $e) {
         print $this->HandleException($e);
       }
@@ -66,9 +76,39 @@ class WebApp {
         print file_get_contents($path . "/" . $fname);
       }
     }
+    Profiler::StopTimer("WebApp::Init");
   }
   function initialized() {
-    return is_writable("./tmp");
+    $ret = false;
+    if (is_writable($this->locations["tmp"])) {
+      if (!file_exists($this->locations["tmp"] . "/initialized.txt")) {
+        umask(0002);
+        Logger::notice("Webapp instance has not been initialized yet - doing so now");
+        if (extension_loaded("apc")) {
+          Logger::notice("Flushing APC cache");
+          apc_clear_cache();
+        }
+
+        // Create required directories for program execution
+        if (!file_exists($this->locations["tmp"] . "/compiled/"))
+          mkdir($this->locations["tmp"] . "/compiled/", 02775);
+
+        $ret = touch($this->locations["tmp"] . "/initialized.txt");
+      } else {
+        $ret = true;
+      }
+    }
+    return $ret;
+  }
+  function GetAppVersion() {
+    $this->appversion = "development";
+    $verfile = "config/elation.appversion";
+    if (file_exists($verfile)) {
+      $appver = trim(file_get_contents($verfile));
+      if (!empty($appver))
+        $this->appversion = $appver;
+    }
+    return $this->appversion;
   }
   function ParseRequest($page=NULL, $post=NULL) {
     $webroot = "/";
@@ -130,12 +170,15 @@ class WebApp {
         $output["content"] = $this->HandleException($e);
       }
       
+      Profiler::StopTimer("WebApp::TimeToDisplay");
       if ($output["type"] == "ajax") {
         header('Content-type: application/xml');
         print $this->tplmgr->GenerateXML($output["content"]);
       } else {
         header('Content-type: ' . any($output["responsetype"], "text/html"));
         print $this->tplmgr->PostProcess($output["content"]);
+        if (!empty($this->request["args"]["timing"]))
+          print Profiler::Display();
       }
     }
   }
@@ -145,7 +188,7 @@ class WebApp {
                                "file" => $e->getFile(),
                                "line" => $e->getLine(),
                                "trace" => $e->getTrace());
-    $vars["debug"] = User::authorized("debug");
+    $vars["debug"] = $this->debug; //User::authorized("debug");
     if (($path = file_exists_in_path("templates/exception.tpl", true)) !== false) {
       return $this->tplmgr->GetTemplate($path . "/templates/exception.tpl", $this, $vars);
     }
@@ -166,12 +209,10 @@ class WebApp {
                                  "message" => $errstr,
                                  "file" => $errfile,
                                  "line" => $errline);
-      if (isset($this->tplmgr)) {
-        if (($path = file_exists_in_path("templates/exception.tpl", true)) !== false) {
-          print $this->tplmgr->GetTemplate($path . "/templates/exception.tpl", $this, $vars);
-        } else {
-          print "<blockquote><strong>" . $type . ":</strong> " . $errstr . "</blockquote>";
-        }
+      if (isset($this->tplmgr) && ($path = file_exists_in_path("templates/exception.tpl", true)) !== false) {
+        print $this->tplmgr->GetTemplate($path . "/templates/exception.tpl", $this, $vars);
+      } else {
+        print "<blockquote><strong>" . $type . ":</strong> " . $errstr . "</blockquote>";
       }
     }
   }
@@ -208,4 +249,20 @@ class WebApp {
 	    //throw new Exception("Class ($class) is not in the ClassMapper.");
 	  }
 	}
+  public function InitProfiler() {
+    // If timing parameter is set, force the profiler to be on
+    $timing = any($this->request["args"]["timing"], $this->cfg->servers["profiler"]["level"], 0);
+
+    if (!empty($this->cfg->servers["profiler"]["percent"])) {
+      if (rand() % 100 < $this->cfg->servers["profiler"]["percent"]) {
+        $timing = 4;
+        Profiler::$log = true;
+      }
+    }
+
+    if (!empty($timing)) {
+      Profiler::$enabled = true;
+      Profiler::setLevel($timing);
+    }
+  }
 }

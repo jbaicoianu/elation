@@ -43,6 +43,7 @@ class TemplateManager extends Smarty {
     $this->compile_dir  = $root . '/tmp/compiled';
     $this->cache_dir    = $root . '/tmp/cache';
     //$this->config_dir   = $root . '/text/'.LANGUAGE;
+    $this->_file_perms  = 0664;
 
     $this->plugins_dir[] = $root . '/include/smarty';
 
@@ -160,9 +161,6 @@ class TemplateManager extends Smarty {
           $replace[] = (!empty($this->varreplace[$m[1]]) ? htmlspecialchars($this->varreplace[$m[1]]) : (!empty($m[3]) ? $m[3] : ""));
         }
         
-        $pos = array_search("[[dependencies]]", $search);
-        $replace[$pos] = DependencyManager::display();
-
         $pos = array_search("[[debug]]", $search);
         if ($pos !== false) {
           // if there are errors, check for access and force debug
@@ -177,11 +175,15 @@ class TemplateManager extends Smarty {
           */
           if ($show_debug) {
             //$replace[$pos] = $this->GetTemplate("debug.tpl");
-            $replace[$pos] = Logger::display(E_ALL);
+            $replace[$pos] = ComponentManager::fetch("elation.debug"); //Logger::display(E_ALL);
           } else {
             $replace[$pos] = "";
           }
         }
+
+        $pos = array_search("[[dependencies]]", $search);
+        $replace[$pos] = DependencyManager::display();
+
       
         $output = str_replace($search, $replace, $output);
       }

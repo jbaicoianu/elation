@@ -37,7 +37,7 @@
   </head>
   <body>
     <div id="elation_init_error">
-      <img src="images/elation/stop.png" />
+      <img src="/images/elation/stop.png" />
       <h1>Elation Framework - Initialization Error</h1>
       <p>Initialization of the Elation Framework directory failed.  Please review the installation instructions, and run <code>./elation web init</code> from the command line.</p>
     </div>

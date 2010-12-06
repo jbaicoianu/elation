@@ -54,7 +54,7 @@ class Profiler {
       self::$times[$name] += $value;
   }
   public static function StartTimer($name, $level=2) {
-    if (!self::$enabled) return;
+    //if (!self::$enabled) return;
 
     if ($level <= self::$level) {
       if (empty(self::$scratch->start[$name])) { // only start timer if we don't already have one active

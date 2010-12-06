@@ -434,6 +434,7 @@ elation.component.add("ui.scrollable", {
 
 elation.component.add('ui.button', {
   init: function(name, container, args) {
+    args = args || {};
     this.tag = args.tag || "BUTTON";
     this.classname = args.classname || "";
     this.title = args.title || false;

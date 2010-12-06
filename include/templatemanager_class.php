@@ -178,6 +178,8 @@ class TemplateManager extends Smarty {
           if ($show_debug) {
             //$replace[$pos] = $this->GetTemplate("debug.tpl");
             $replace[$pos] = Logger::display(E_ALL);
+          } else {
+            $replace[$pos] = "";
           }
         }
       

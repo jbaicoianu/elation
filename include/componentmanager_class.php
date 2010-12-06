@@ -38,8 +38,12 @@ class ComponentManager extends Component {
     if ($page == "/") {
       $ret["type"] = $outputtype;
       $ret["component"] = "index";
-      if ($component = $this->Get("index"))
+/*
+      if ($component = $this->Get("index")) {
         $ret["content"] = $component->HandlePayload($_REQUEST, $outputtype);
+      }
+*/
+      $ret["content"] = self::fetch("index", $_REQUEST, $outputtype);
     } else if (preg_match("|^/((?:[^./]+/?)*)(?:\.(.*))?$|", $page, $m)) {
       $componentname = str_replace("/", ".", $m[1]);
       $outputtype = (isset($m[2]) ? $m[2] : "html");
@@ -134,6 +138,9 @@ class ComponentResponse implements ArrayAccess {
   function offsetUnset($name) {
     unset($this->data[$name]);
   }
+  function getTemplate() {
+    return $this->template;
+  }
 
   function getOutput($type) {
     $ret = array("text/html", NULL);;
@@ -155,6 +162,11 @@ class ComponentResponse implements ArrayAccess {
       break;
     case 'data':
       $ret = array("", $this->data);
+      break;
+    case 'html':
+      $framecomponent = any(ConfigManager::get("page.frame"), "html.page");
+      $vars["content"] = $this;
+      $ret = array("text/html", $tplmgr->GenerateHTML(ComponentManager::fetch($framecomponent, $vars, "inline")));
       break;
     default:
       $ret = array("text/html", $tplmgr->GenerateHTML($tplmgr->GetTemplate($this->template, NULL, $this->data)));

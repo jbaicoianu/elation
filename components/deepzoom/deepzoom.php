@@ -65,6 +65,14 @@ class Component_deepzoom extends Component {
     sort($vars["images"]);
     return $this->GetTemplate("./imagelist.tpl", $vars);
   }
+  function controller_multizoom($args, $output="inline") {
+    $vars["args"] = $args;
+
+    $vars["imgname"] = any($args["img"], "webtrends");
+    $vars["img"] = any($args["imgdata"], $vars["imgs"][$vars["imgname"]]);
+    return $this->GetTemplate("./multizoom.tpl", $vars);
+  }
+
   function controller_zoomtest($args, $output="inline") {
     return $this->GetTemplate("./zoomtest.tpl", $vars);
   }

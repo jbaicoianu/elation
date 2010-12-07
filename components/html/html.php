@@ -30,7 +30,10 @@ class Component_html extends Component {
     $tplfile = "./content.tpl";
     $content = $args["content"];
     if ($content instanceOf ComponentResponse) {
-      if (!empty($content->data["content"])) {
+      if (($content->data instanceOf Component)) {
+        Logger::Error("html.content - unexpected Component in content argument");
+        $content = array();
+      } else if (!empty($content->data["content"])) {
         $content = $content->data["content"];
       } else {
         $vars = $content->data;
@@ -39,17 +42,23 @@ class Component_html extends Component {
       }
     }
     if (!empty($content)) {
-      if (!empty($content["component"])) {
-        $vars["contentcomponent"] = $content["component"];
-        $vars["contentargs"] = any($content["args"], array());
-      } else if (!empty($content["template"])) {
-        $vars = any($content["data"], array());
-        $tplfile = $content["template"];
+      if (is_array($content)) {
+        if (!empty($content["component"])) {
+          $vars["contentcomponent"] = $content["component"];
+          $vars["contentargs"] = any($content["args"], array());
+        } else if (!empty($content["template"])) {
+          $vars = any($content["data"], array());
+          $tplfile = $content["template"];
+        }
       } else {
         $vars["content"] = $content;
       }
     }
     return $this->GetTemplate($tplfile, $vars);
+  }
+  function controller_static(&$args) {
+    $ret = $args["content"];
+    return $ret;
   }
 
   function controller_dragdropimage($args) {

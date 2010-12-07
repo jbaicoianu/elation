@@ -212,7 +212,7 @@ class ConfigManager extends Base {
         $cfg1[$k] = $cfg2[$k];
       }
     }
-    $this->locations = $this->getLocations();
+    //$this->locations = $this->getLocations();
     Profiler::StopTimer("ConfigManager::ConfigMerge()");
   }
   /**

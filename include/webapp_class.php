@@ -54,7 +54,8 @@ class WebApp {
 
     set_error_handler(array($this, "HandleError"), E_ALL);
 
-    $this->locations = array("scripts" => "htdocs/scripts",
+    $this->locations = array("basedir" => $this->request["basedir"],
+                             "scripts" => "htdocs/scripts",
                              "scriptswww" => $this->request["basedir"] . "/scripts",
                              "css" => "htdocs/css",
                              "csswww" => $this->request["basedir"] . "/css",

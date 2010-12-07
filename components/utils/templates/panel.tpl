@@ -6,7 +6,7 @@
       {if $panelitem.enabled !== "0"}
         {if $panel.cfg.simple != 1}
           <li id="{$panel.id}_{$k}" title="{$panelitem.title}" class="tf_utils_panel_content_item{if $smarty.foreach.panelitem.first} tf_panel_first{elseif $smarty.foreach.panelitem.last} tf_panel_last{/if}{if $panelitem.selected == 'true'} selected{/if}{if $panelitem.classname} {$panelitem.classname}{/if}{if !empty($panelitem.icon)} tf_utils_panel_item_hasicon{/if}">{/if}
-          {if $panelitem.type == "panel"}
+          {if $panelitem.type == "panel" || !empty($panelitem.items)}
             {component name="utils.panel" panelname=$k panel=$panelitem paneltype="panel_subpanel" panelargs=$panel.args parent=$panel.name}
           {else}
             {component name="utils.panel_item" panelitem=$panelitem panelargs=$panel.args}

@@ -1,0 +1,114 @@
+* {
+  padding: 0;
+  margin: 0;
+}
+.tf_utils_panel_content_item {
+  border:1px solid red;
+  padding: 1em;
+}
+.tf_utils_panel_content.tf_utils_panel_horizontal>li.tf_utils_panel_content_item {
+  display: inline-block;
+}
+.tf_utils_panel_content.tf_utils_panel_vertical>li.tf_utils_panel_content_item {
+  display: block;
+}
+{/literal}
+
+#dostuff {
+  background: cornflowerblue;
+  padding: 10px;
+}
+.a {
+  position: relative;
+  xbackground: purple;
+  xpadding: 10px;
+  white-space: nowrap;
+  background: cornflowerblue;
+}
+.b {
+  min-height: 20px;
+  border: 2px solid black;
+  padding: 8px;
+  xpadding: 1em;
+  white-space: normal;
+  -moz-border-radius: 5px;
+}
+.b.tf_utils_state_droppable {
+  border: 2px solid yellow;
+  background: #ffca73 !important;
+}
+.b.tf_utils_state_self {
+  border: 2px solid lightgreen;
+  background: #95ee6b !important;
+}
+.a.tf_utils_panel_vertical>.b {
+  background: lightblue;
+  display: block;
+  
+}
+.a.tf_utils_panel_horizontal>.b {
+  background: lightskyblue;
+  display: inline-block;
+  vertical-align: top;
+}
+.a .b:hover {
+  border: 2px solid white;
+}
+.e {
+  border: 1px solid red;
+  position: absolute;
+  background: white;
+  top: 0;
+  right: 0;
+  padding: .2em;
+  white-space: nowrap;
+  display: none;
+  z-index: 500;
+  -moz-border-radius: 5px;
+}
+.e button {
+  min-width: 1.8em;
+  text-align: center;
+}
+.e button:hover {
+  color: #900;
+}
+.a:hover>.e {
+  display: block;
+}
+#tf_utils_toolkit {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  background: #ccc;
+  min-width: 20em;
+  border-top: 2px solid black;
+  border-right: 2px solid black;
+  -moz-border-radius: 0 5px 0 0;
+}
+#tf_utils_toolkit .tf_toolkit_contextmenu {
+  position: absolute; 
+  top: -1.8em;
+  left: 0;
+  min-width: 100%;
+  background: #ccc;
+  border: 2px solid black;
+  white-space: nowrap;
+  -moz-border-radius: 5px;
+  display: none;
+}
+#tf_utils_toolkit .tf_utils_button_draggable:hover .tf_toolkit_contextmenu {
+  display: block;
+}
+.tf_utils_button_draggable {
+  display: inline-block;
+  padding: .5em;
+  margin: .5em;
+  border: 1px solid blue;
+  -moz-border-radius: 5px;
+  cursor: move;
+}
+.tf_utils_button_draggable:hover {
+  background: #99c;
+}
+

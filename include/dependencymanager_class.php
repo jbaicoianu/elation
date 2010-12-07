@@ -7,12 +7,13 @@ class DependencyManager {
     self::$locations = $locations;
   }
   static function add($args) {
-    if (!empty($args["type"])) {
-      if (!is_array(self::$dependencies[$args["type"]]))
-        self::$dependencies[$args["type"]] = array();
-      
-      self::$dependencies[$args["type"]][] = Dependency::create($args["type"], $args);
+    if (empty($args["type"])) {
+      $args["type"] = "component";
     }
+    if (!is_array(self::$dependencies[$args["type"]]))
+      self::$dependencies[$args["type"]] = array();
+    
+    self::$dependencies[$args["type"]][] = Dependency::create($args["type"], $args);
   }
   static function display() {
     $ret = "";

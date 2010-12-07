@@ -355,3 +355,30 @@ function file_exists_in_path ($file, $realpath=false, $directory=false)
 function dir_exists_in_path($dir, $realpath=false) {
   return file_exists_in_path($dir, $realpath, true);
 }
+function friendly_url($url, $encode=true) {
+  $vals = array(
+                "_"=>"//", // technically this replaces "_" with "__"
+                "/"=>"_",
+                "+"=>"&&", // technically this replaces "+" with "++"
+                "&"=>"+",
+                "-"=>"~",
+                " "=>"-",
+                "%"=>"%25",
+                "\""=>"%22",
+                "'"=>"%27",
+             );
+  if($encode) {
+    $ret = str_replace(array_keys($vals),array_values($vals),$url);
+  } else {
+    $ivals = array_reverse($vals, true);
+    $ret = str_replace(array_values($ivals),array_keys($ivals),str_replace(" ", "+", $url));
+  }
+  return $ret;
+}
+function encode_friendly($url) {
+  return friendly_url($url, true);
+}
+function decode_friendly($url) {
+  return friendly_url($url, false);
+}
+

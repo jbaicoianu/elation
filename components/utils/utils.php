@@ -59,11 +59,20 @@ class Component_utils extends Component {
     $vars["panelitem"] = $args["panelitem"];
     if (!empty($args["panelargs"])) {
       if (!empty($vars["panelitem"]["componentargs"]))
-        $vars["panelitem"]["componentargs"] = array_merge($vars["panelitem"]["componentargs"], $args["panelargs"]);
+        $vars["panelitem"]["componentargs"] = array_merge($args["panelargs"], $vars["panelitem"]["componentargs"]);
       else
         $vars["panelitem"]["componentargs"] = $vars["panelargs"];
     }
     return $this->GetTemplate("./panel_item.tpl", $vars);
+  }
+  function controller_link($args) {
+    $vars["label"] = $args["label"];
+    if (!empty($args["url"])) {
+      $vars["url"] = $args["url"];
+    } else if (!empty($args["component"])) {
+      $vars["url"] = DependencyManager::$locations["basedir"] . "/" . str_replace(".", "/", $args["component"]);
+    }
+    return $this->GetComponentResponse("./link.tpl", $vars);
   }
 
   function PanelSort($arr) {
@@ -73,3 +82,8 @@ class Component_utils extends Component {
     return $arr;
   }
 }  
+function _panelsort($a, $b) {
+  if ($a["order"] == $b["order"])
+    return 0;
+  return ($a["order"] < $b["order"] ? -1 : 1);
+}

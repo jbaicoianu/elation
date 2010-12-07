@@ -166,6 +166,7 @@ class ComponentResponse implements ArrayAccess {
         $ret = array("", $this);
         break;
       case 'html':
+      case 'fhtml':
         $framecomponent = any(ConfigManager::get("page.frame"), "html.page");
         $vars["content"] = $this;
         $ret = array("text/html", ComponentManager::fetch($framecomponent, $vars, "inline"));
@@ -180,5 +181,10 @@ class ComponentResponse implements ArrayAccess {
   }
   function prepend($str) {
     $this->prefix = $str;
+  }
+
+  function __toString() {
+    $output = $this->getOutput("snip");
+    return $output[1];
   }
 }

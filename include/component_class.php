@@ -28,8 +28,8 @@ class Component extends Base {
   function Component($name, &$parent, $payload=NULL, $path=".") {
     $this->Base($parent);
     $this->name = $name;
-    $this->fullname = $this->GetFullName();
     $this->path = $path;
+    $this->SetFullName($parent);
   }
 
   function HasComponent($name, $args=NULL) {
@@ -114,14 +114,31 @@ class Component extends Base {
     return $ret;
   }
   
+  function SetFullName(&$parent) {
+    $separator = ".";
+    $fullname = $this->name;
+    if (!empty($parent) && $parent instanceOf Component) {
+      $parentName = $parent->GetFullName();
+      if (!empty($parentName)) {
+        $fullname = $parentName . $separator . $fullname;
+      }
+    }
+    $this->fullname = $fullname;
+    return $this->fullname;
+  }
   function GetFullName($separator=".") {
+    /*
     $ret = $this->name;
     if (!empty($this->parent) && $this->parent instanceOf Component) {
       $parentName = $this->parent->GetFullName($separator);
       if (!empty($parentName))
         $ret = $parentName . $separator . $this->name;
     }
-
+    */
+    $ret = $this->name;
+    if (!empty($this->fullname)) {
+      $ret = ($separator == "." ? $this->fullname : str_replace(".", $separator, $this->fullname));
+    }
     return $ret;
   }
   function GetComponentDirectory($path="") {

@@ -19,8 +19,5 @@
  *                     result to a template variable
  */
 function smarty_function_dependency($args, &$smarty) {
-  if (!empty($args["type"])) {
-    DependencyManager::add($args);
-  }
-  
+  DependencyManager::add($args);
 }

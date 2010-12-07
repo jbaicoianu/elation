@@ -265,8 +265,9 @@ class ConfigManager extends Base {
       Logger::Error("Could not find config '$name'");
     }
 */
-    $this->configs[$name] = new Config($name, $role);
-    $ret = $this->configs[$name]->config;
+    //$this->configs[$name] = new Config($name, $role);
+    $config = new Config($name, $role);
+    $this->configs[$name] = $ret = any($config->config, array());
 
     Profiler::StopTimer("ConfigManager::Load()");
     return $ret;
@@ -298,7 +299,7 @@ class ConfigManager extends Base {
     $configdeletes = $this->FlattenConfig($deletecfg);
     if (count($configupdates) > 0) {
       foreach ($configupdates as $k=>$v) {
-        $response = $this->data->query("db.config.cobrand_config.{$name}-{$k}:nocache",
+        $response = DataManager::query("db.config.cobrand_config.{$name}-{$k}:nocache",
                                        "UPDATE config.cobrand_config SET value=:value WHERE name=:name AND cobrandid=:cobrandid and role=:role",
                                        array(":value" => $v, ":name" => $k, ":cobrandid" => $cobrandid, ":role" => $role));
         if (!empty($response) && $response->numrows > 0) {
@@ -311,7 +312,7 @@ class ConfigManager extends Base {
     if (count($configdeletes) > 0) {
       foreach ($configdeletes as $k=>$v) {
         if ($configdeletes[$k]) {
-          $query = $this->data->query("db.config.cobrand_config.delete.{$name}-{$k}:nocache",
+          $query = DataManager::query("db.config.cobrand_config.delete.{$name}-{$k}:nocache",
                                        "DELETE FROM config.cobrand_config WHERE name=:name AND cobrandid=:cobrandid and role=:role",
                                        array(":name" => $k, ":cobrandid" => $cobrandid, ":role" => $role));
           $ret |= true;
@@ -327,7 +328,7 @@ class ConfigManager extends Base {
 
       if (!empty($deletes)) {
         $deletestr = implode(",", $deletes); // FIXME - doesn't PDO have a better way to handle "IN ('blah','asdf') type statements?
-        $query = $this->data->query("db.config.cobrand_config.delete.{$name}-{$k}:nocache",
+        $query = DataManager::query("db.config.cobrand_config.delete.{$name}-{$k}:nocache",
                                     "DELETE FROM config.cobrand_config WHERE cobrandid=:cobrandid AND role=:role AND name IN ($deletestr)",
                                     array(":cobrandid" => $cobrandid, ":role" => $role));
         $ret |= true;
@@ -389,14 +390,14 @@ class ConfigManager extends Base {
         $i++;
       }
       if ($valid) {
-        $response = $this->data->query("db.config.cobrand_config.{$name}-{$newcfg['key']}:nocache",
+        $response = DataManager::query("db.config.cobrand_config.{$name}-{$newcfg['key']}:nocache",
                                        "INSERT INTO config.cobrand_config"
                                      . " SET cobrandid=(SELECT cobrandid FROM config.cobrand WHERE name=:name1),name=:name2,value=:value,role=:role",
                                        array(":name1" => $name, ":name2" => $newcfg["key"], ":value" => $newcfg["value"], ":role" => $role));
         if (!empty($response) && !empty($response->id)) {
           $this->UpdateRevision($cobrandid, $role);
-          $this->data->caches["memcache"]["data"]->delete("db.config.cobrand_config.{$name}.{$role}");
-          $this->data->caches["memcache"]["data"]->delete("db.config.version.$name.$role");
+          //$this->data->caches["memcache"]["data"]->delete("db.config.cobrand_config.{$name}.{$role}");
+          //$this->data->caches["memcache"]["data"]->delete("db.config.version.$name.$role");
           $ret = true;
           $this->data->CacheClear("db.config.cobrand_config.{$name}.{$role}");
         }
@@ -415,7 +416,7 @@ class ConfigManager extends Base {
     function DeleteConfigValue($config_name, $oldcfg, $role="") {
         $ret = false;
         if (!empty($oldcfg['key'])) {
-            $response = $this->data->query("db.config.cobrand_config.{$config_name}-{$oldcfg['key']}:nocache",
+            $response = DataManager::query("db.config.cobrand_config.{$config_name}-{$oldcfg['key']}:nocache",
                                        "DELETE FROM config.cobrand_config WHERE name=:key AND cobrandid=(SELECT cobrandid FROM config.cobrand WHERE name=:config_name) and role=:role",
                                        array(":key" => $oldcfg['key'], ":config_name" => $config_name, ":role" => $role));
             if (!empty($response)) {
@@ -468,10 +469,10 @@ class ConfigManager extends Base {
                               "DELETE FROM config.cobrand WHERE cobrandid=:cobrandid",
                               array(":cobrandid" => $cobrandid));
         if (!empty($query) && $query->numrows == 1) {
-          $data->query("db.config.cobrand.{$cobrandname}:nocache",
+          DataManager::query("db.config.cobrand.{$cobrandname}:nocache",
                        "DELETE FROM config.version WHERE cobrandid=:cobrandid",
                        array(":cobrandid" => $cobrandid));
-          $data->query("db.config.cobrand.{$cobrandname}:nocache",
+          DataManager::query("db.config.cobrand.{$cobrandname}:nocache",
                        "DELETE FROM config.cobrand_config WHERE cobrandid=:cobrandid",
                        array(":cobrandid" => $cobrandid));
           $ret = true;
@@ -492,9 +493,6 @@ class ConfigManager extends Base {
    */
   function &GetConfig($name, $setcurrent=true, $role="", $skipcache=false) {
     $ret = array();
-
-    if (empty($this->data))
-      $this->data = DataManager::singleton();
 
     if ( ($name != "base") && (strpos($name, ".") === false) && (strpos($name, "abtest") === false)  ) {
       $name = "cobrand.$name";
@@ -731,7 +729,7 @@ class ConfigManager extends Base {
     $ret = false;
 
     if ($cobrandid && $role) {
-      $query = $this->data->Query("db.config.version.{$cobrandid}.{$role}",
+      $query = DataManager::Query("db.config.version.{$cobrandid}.{$role}",
                                   "INSERT INTO config.version SET cobrandid=:cobrandid, role=:role, revision=1, added=now(), updated=now()",
                                   array(":cobrandid" => $cobrandid, ":role" => $role));
       if (!empty($query) && !empty($query->id)) {
@@ -755,7 +753,7 @@ class ConfigManager extends Base {
      $ret = false;
 
      if ($name && $role) {
-        $query = $this->data->Query("db.config.version.{$name}.{$role}:nocache",
+        $query = DataManager::Query("db.config.version.{$name}.{$role}:nocache",
                                     "INSERT INTO config.version SET cobrandid=(SELECT cobrandid FROM config.cobrand WHERE name=:name), role=:role, revision=1, added=now(), updated=now()",
                                     array(":name" => $name, ":role" => $role));
         if (!empty($query) && !empty($query->id)) {
@@ -780,7 +778,7 @@ class ConfigManager extends Base {
     $revision = 0;
 
     if ($cobrandid && $role) {
-      $query = $this->data->Query("db.config.version.{$cobrandid}.{$role}".($nocache?":nocache":""),
+      $query = DataManager::Query("db.config.version.{$cobrandid}.{$role}".($nocache?":nocache":""),
                                   "SELECT revision FROM config.version WHERE cobrandid=:cobrandid and role=:role",
                                   array(":cobrandid" => $cobrandid, ":role" => $role));
       if (!empty($query) && $query->NumResults() > 0) {
@@ -805,9 +803,9 @@ class ConfigManager extends Base {
   function GetAllRevisions($role, $nocache=false) {
     if (empty($this->allrevisions) || $nocache) {
       $data = DataManager::singleton();
-      $query = $data->Query("db.config.version.ALL.$role" . ($nocache ? ":nocache" : ""),
-                            "SELECT cobrand.cobrandid,name,revision FROM config.cobrand LEFT JOIN config.version USING(cobrandid) WHERE role=:role",
-                            array(":role" => $role));
+      $query = DataManager::Query("db.config.version.ALL.$role" . ($nocache ? ":nocache" : ""),
+                                  "SELECT cobrand.cobrandid,name,revision FROM config.cobrand LEFT JOIN config.version USING(cobrandid) WHERE role=:role",
+                                  array(":role" => $role));
       if (!empty($query->rows)) {
         foreach ($query->rows as $row) {
           $ret[$row->name] = $row->revision;
@@ -834,7 +832,7 @@ class ConfigManager extends Base {
     $ret = false;
     if ($cobrandid && $role) {
       if ($this->GetRevision($cobrandid, $role, true)) {
-        $query = $this->data->Query("db.config.version.{$cobrandid}.{$role}:nocache",
+        $query = DataManager::Query("db.config.version.{$cobrandid}.{$role}:nocache",
                                   "UPDATE config.version SET revision=revision+1, updated=now() WHERE cobrandid=:cobrandid and role=:role",
                                   array(":cobrandid" => $cobrandid, ":role" => $role));
         if (!empty($query) && $query->numrows > 0) {
@@ -861,7 +859,7 @@ class ConfigManager extends Base {
      $ret = NULL;
      if (!empty($name)) {
        $data = DataManager::singleton();
-       $query = $data->Query("db.config.version.$name.$role:nocache",
+       $query = DataManager::Query("db.config.version.$name.$role:nocache",
                              "SELECT cobrandid FROM config.cobrand WHERE name=:name",
                              array(":name" => $name));
        if (!empty($query->rows) && count($query->rows) == 1) {
@@ -1036,8 +1034,6 @@ class Config {
   }
 
   public function Save() {
-    print_pre($this);
-    die('in save function');
     if (empty($this->cobrandid)) {
       $cobrandinfo = $this->GetCobrandidAndRevision();
     }

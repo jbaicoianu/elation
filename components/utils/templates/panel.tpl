@@ -19,7 +19,7 @@
   {if $panel.cfg.simple != 1}
     <script type="text/javascript">
       //<!--
-      thefind.panel.add('{$panel.name}'{if !$panel.cfg.noargs}, {jsonencode var=$panel}{/if});
+      elation.panel.add('{$panel.name}'{if !$panel.cfg.noargs}, {jsonencode var=$panel}{/if});
       //-->
     </script>
   {/if}

@@ -40,6 +40,7 @@ class WebApp {
     $this->debug = !empty($args["debug"]);
     $this->getAppVersion();
     Logger::Info("WebApp Initializing (" . $this->appversion . ")");
+    Logger::Info("Path: " . get_include_path());
 		$this->initAutoLoaders();
 
     $this->request = $this->ParseRequest();

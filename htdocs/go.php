@@ -1,11 +1,11 @@
 <?php
-set_include_path(get_include_path() . PATH_SEPARATOR . '/usr/share/php');
+//set_include_path(get_include_path() . PATH_SEPARATOR . '/usr/share/php');
 
 $root = preg_replace("|/htdocs$|", "", getcwd());
 chdir($root);
 addroot($root);
 
-elation_readpaths();
+elation_readpaths($root);
 
 putenv('TZ=America/Los_Angeles');
 
@@ -34,13 +34,24 @@ function addroot($root) {
 /**
  * Read extra paths into the include path
  */
-function elation_readpaths() {
+function elation_readpaths($root) {
+  $matches = array(); 
+  $homedir = '';
+  
+  $homedirMatches = preg_match('@/home/\w*/@', $root, $matches);
+  if($homedirMatches > 0) {
+    $homedir = $matches[0];
+  }
+   
   $paths = file_get_contents('config/elation.path');
   
   if($paths !== false) {
     $paths = explode(PHP_EOL, $paths);
     foreach($paths as $path) {
       if($path) {
+        if($homedir) {
+          $path = str_replace('~/', $homedir, $path);
+        }
         set_include_path(get_include_path() . PATH_SEPARATOR . $path);
       }
     }

@@ -241,7 +241,12 @@ elation.extend("html.removeclass", function(element, className) {
     element.className = element.className.replace(re, " ");
   }
 });
-
+elation.extend("html.toggleclass", function(element, className) {
+  if (this.hasclass(element, className))
+    this.removeclass(element, className)
+  else
+    this.addclass(element, className);
+});
 // creates a new html element
 // example: elation.html.create({ 
 //	tag:'div', 
@@ -315,6 +320,20 @@ elation.extend('html.getscroll', function(shpadoinkle) {
 	}
 });
 
+elation.extend("utils.encodeURLParams", function(obj) {
+  var value,ret = '';
+  
+  if (typeof obj == "string") {
+    ret = obj;
+  } else {
+    for (var key in obj) {
+      ret += (ret != '' ? '&' : '') + key + '=' + encodeURIComponent(obj[key]); 
+    }
+  }
+  
+  return ret;
+});
+
 elation.extend("utils.arrayget", function(obj, name) {
   var ptr = obj;
   var x = name.split(".");
@@ -343,6 +362,130 @@ elation.extend("utils.iselement", function(obj) {
     typeof obj === "object" && obj.nodeType === 1 && typeof obj.nodeName==="string"
   );
 });
+elation.extend("utils.isTrue", function(obj) {
+  if (obj == true || obj == 'true') 
+    return true;
+  
+  return false;
+});
+	
+elation.extend("utils.isNull", function(obj) {
+  if (obj == null || typeof obj == 'undefined') 
+    return true;
+  
+  return false;
+});
+	
+elation.extend("utils.isEmpty", function(obj) {
+  if (obj !== null && 
+      obj !== "" && 
+      obj !== 0 && 
+      typeof obj !== "undefined" && 
+      obj !== false) 
+    return false;
+  
+  return true;
+});
+// runs through direct children of obj and 
+// returns the first matching <tag> [className]
+elation.extend("utils.getFirstChild", function(obj, tag, className) {
+  for (var i=0; i<obj.childNodes.length; i++)
+    if (obj.childNodes[i].nodeName == tag.toUpperCase())
+      if (className && this.hasclass(obj, className))
+        return obj.childNodes[i];
+      else if (!className)
+        return obj.childNodes[i];
+  
+  return null;
+});
+
+// runs through direct children of obj and 
+// returns the last matching <tag> [className]
+elation.extend("utils.getLastChild", function(obj, tag, className) {
+  for (var i=obj.childNodes.length-1; i>=0; i--)
+    if (obj.childNodes[i].nodeName == tag.toUpperCase())
+      if (className && this.hasclass(obj, className))
+        return obj.childNodes[i];
+      else if (!className)
+        return obj.childNodes[i];
+  
+  return null;
+});
+
+// runs through all children recursively and returns 
+// all elements matching <tag> [className]
+elation.extend("utils.getAll", function(obj, tag, className) {
+  var	ret = [],
+      all = obj.getElementsByTagName(tag);
+  
+  for (var i=0; i<all.length; i++)
+    if (className && this.hasclass(all[i], className))
+      ret.push(all[i]);
+    else if (!className)
+      ret.push(all[i]);
+  
+  return ret;
+});
+
+// runs through the direct children of obj and returns 
+// all elements matching <tag> [className]
+elation.extend("utils.getOnly", function(obj, tag, className) {
+  if (!obj || !tag)
+    return;
+  
+  var ret = [];
+  
+  for (var i=0; el=obj.childNodes[i]; i++)
+    if (el.nodeName == tag.toUpperCase()) {
+      if (className && this.hasclass(el, className))
+        ret.push(el);
+      else if (!className)
+        ret.push(el);
+    }
+  
+  return ret;
+});
+
+// Navigates up the DOM from a given element looking for match
+elation.extend("utils.getParent", function(element, tag, all_occurrences) {
+  var ret = [];
+  
+  while (element && element.nodeName != 'BODY') {
+    if (element.nodeName == tag.toUpperCase()) {
+      if (all_occurrences)
+        ret.push(element);
+      else
+        return element;
+    }
+    
+    element = element.parentNode;
+  }
+  
+  return (ret.length == 0 ? false : ret);
+});
+
+elation.extend("utils.getTarget", function(event) {
+  return window.event ? event.srcElement : event.target;
+});
+
+elation.extend("utils.getRelated", this.getRelatedTarget);
+elation.extend("utils.getRelatedTarget", function(event) {
+  var reltg;
+  
+  if (event.relatedTarget) {
+    reltg = event.relatedTarget;
+  } else {
+    if (event.type == "mouseover")
+      reltg = event.fromElement;
+    else if (event.type == "mouseout")
+      reltg = event.toElement;
+    else
+      reltg = document;
+  }
+  
+  return reltg;
+});
+
 elation.extend('file', function() {
 	// grabs a js or css file and adds to document
   this.get = function(type, file, func) {

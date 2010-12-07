@@ -1,12 +1,13 @@
 <?php
+set_include_path(get_include_path() . PATH_SEPARATOR . '/usr/share/php');
+
 $root = preg_replace("|/htdocs$|", "", getcwd());
 chdir($root);
 addroot($root);
-addroot("/home/james/elation");
+
+elation_readpaths();
 
 putenv('TZ=America/Los_Angeles');
-
-//ini_set("include_path", ".:$root/include:/usr/share/php");
 
 include_once("include/webapp_class.php");
 include_once("lib/profiler.php");
@@ -28,4 +29,20 @@ function addroot($root) {
   array_unshift($path, ".");
 
   set_include_path(implode(PATH_SEPARATOR, $path));
+}
+
+/**
+ * Read extra paths into the include path
+ */
+function elation_readpaths() {
+  $paths = file_get_contents('config/elation.path');
+  
+  if($paths !== false) {
+    $paths = explode(PHP_EOL, $paths);
+    foreach($paths as $path) {
+      if($path) {
+        set_include_path(get_include_path() . PATH_SEPARATOR . $path);
+      }
+    }
+  }
 }

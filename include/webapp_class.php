@@ -43,10 +43,13 @@ class WebApp {
 		$this->initAutoLoaders();
 
     $this->request = $this->ParseRequest();
+    $this->cobrand = $this->GetRequestedConfigName($this->request);
     $this->InitProfiler();
 
     $this->cfg = ConfigManager::singleton($rootdir);
     $this->data = DataManager::singleton($this->cfg);
+
+    $this->cfg->GetConfig($this->cobrand, true, $this->cfg->servers["role"]);
 
     set_error_handler(array($this, "HandleError"), E_ALL);
 
@@ -265,4 +268,21 @@ class WebApp {
       Profiler::setLevel($timing);
     }
   }
+  function GetRequestedConfigName($req=NULL) {
+    $ret = "default";
+
+    if (empty($req))
+      $req = $this->request;
+
+    if (!empty($req["args"]["cobrand"]) && is_string($req["args"]["cobrand"])) {
+      $ret = $req["args"]["cobrand"];
+      $_SESSION["temporary"]["cobrand"] = $ret;
+    } else if (!empty($_SESSION["temporary"]["cobrand"])) {
+      $ret = $_SESSION["temporary"]["cobrand"];
+    }
+
+    Logger::Info("Requested config is '$ret'");
+    return $ret;
+  }
+  
 }

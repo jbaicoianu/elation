@@ -1,11 +1,12 @@
-<?
+<?php
 
 class Component_%COMPONENTCLASSNAME% extends Component {
-  function init() {
+  public function init() {
     OrmManager::LoadModel("%SUBCOMPONENTNAME%");
   }
 
-  function controller_%SUBCOMPONENTNAME%($args) {
+  public function controller_%SUBCOMPONENTNAME%($args) {
+    $vars = array();
     return $this->GetComponentResponse("./%SUBCOMPONENTNAME%.tpl", $vars);
   }
 }  

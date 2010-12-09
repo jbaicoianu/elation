@@ -526,3 +526,13 @@ iframe = new Object();
     }
   }
 });
+
+function ajaxLink(ajaxlib, link, history) {
+  ajaxlib.Get(link, history);
+  return false;
+}
+
+function ajaxForm(ajaxlib, form, history) {
+  ajaxlib.Post(form, history);
+  return false;
+}

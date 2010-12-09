@@ -395,7 +395,7 @@ function TFUtilsPanelToolkit() {
 
   this.addComponent = function(args) {
     if (typeof args != 'undefined' && args.name) {
-      elation.utils.arraySet(this.components, args.name, new TFComponent(args));
+      elation.utils.arrayset(this.components, args.name, new TFComponent(args));
     }
   }
   this.addComponents = function(components) {
@@ -568,5 +568,4 @@ function TFPanelEditor() {
   }
   this.init();
 }
-TFPanelEditor();
 

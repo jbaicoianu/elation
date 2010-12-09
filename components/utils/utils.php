@@ -74,6 +74,14 @@ class Component_utils extends Component {
     }
     return $this->GetComponentResponse("./link.tpl", $vars);
   }
+  function controller_select($args) {
+    $vars["id"] = $args["id"];
+    $vars["selectname"] = $args["selectname"];
+    $vars["class"] = $args["class"];
+    $vars["items"] = any($args["items"], array());
+    $vars["selected"] = $args["selected"];
+    return $this->GetComponentResponse("./select.tpl", $vars);
+  }
 
   function PanelSort($arr) {
     if (!empty($arr["items"])) {

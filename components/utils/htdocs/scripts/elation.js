@@ -334,6 +334,24 @@ elation.extend("utils.encodeURLParams", function(obj) {
   return ret;
 });
 
+/* Sets value in a multilevel object element 
+* args:
+* obj -- multilevel object
+* element -- 'quoted' object element (as string)
+*/
+elation.extend("utils.arrayset", function(obj, element, value) {
+  var ptr = obj;
+  var x = element.split(".");
+  for (var i = 0; i < x.length - 1; i++) {
+    if (ptr==null || (typeof ptr[x[i]] != 'array' && typeof ptr[x[i]] != 'object' && i != x.length-1)) {
+      ptr[x[i]] = {};
+    }
+    ptr = ptr[x[i]];
+  }
+  if (typeof ptr == "object") {
+    ptr[x[x.length-1]] = value;
+  }
+});
 elation.extend("utils.arrayget", function(obj, name) {
   var ptr = obj;
   var x = name.split(".");

@@ -21,8 +21,8 @@ include_once("lib/logger.php");
 include_once("lib/profiler.php");
 include_once("include/common_funcs.php");
 
-if(file_exists_in_path('lib/Zend/Loader/Autoloader.php')) {
-  include_once "lib/Zend/Loader/Autoloader.php";
+if(file_exists_in_path('Zend/Loader/Autoloader.php')) {
+  include_once "Zend/Loader/Autoloader.php";
 }
 
 class WebApp {
@@ -243,7 +243,7 @@ class WebApp {
 	  }	else {
       try {
       	if(class_exists('Zend_Loader', false)) {
-          Zend_Loader::loadClass($class);
+          @Zend_Loader::loadClass($class); //TODO: for fucks sake remove the @ ... just a tmp measure while porting ... do it or i will chum kiu you!
 				}
         return;
       }

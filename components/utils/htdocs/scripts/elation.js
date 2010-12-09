@@ -287,7 +287,7 @@ elation.extend('html.create', function(parms, classname, style, additional, appe
 });
 
 elation.extend('html.getscroll', function(shpadoinkle) {
-  if (thefind.iphone && thefind.iphone.scrollcontent)
+  if (elation.iphone && elation.iphone.scrollcontent)
     var pos = [0,0];//thefind.iphone.scrollcontent.getPosition();
 	else if (typeof pageYOffset != 'undefined') 
 		var pos = [ 
@@ -482,26 +482,17 @@ elation.extend("utils.getParent", function(element, tag, all_occurrences) {
   return (ret.length == 0 ? false : ret);
 });
 
-elation.extend("utils.getTarget", function(event) {
-  return window.event ? event.srcElement : event.target;
-});
-
-elation.extend("utils.getRelated", this.getRelatedTarget);
-elation.extend("utils.getRelatedTarget", function(event) {
-  var reltg;
-  
-  if (event.relatedTarget) {
-    reltg = event.relatedTarget;
-  } else {
-    if (event.type == "mouseover")
-      reltg = event.fromElement;
-    else if (event.type == "mouseout")
-      reltg = event.toElement;
-    else
-      reltg = document;
-  }
-  
-  return reltg;
+elation.extend("utils.indexOf", function(array, object) {
+	if (typeof array == 'string')
+		array = array.split("");
+	
+	for (var i=0; i<array.length; i++) {
+		if (array[i] === object) {
+			return i;
+		}
+	}
+	
+	return -1;
 });
 
 elation.extend('file', function() {
@@ -530,6 +521,23 @@ elation.extend('file', function() {
 		return element;
   }
 });
+elation.extend('JSON', new function() {
+  this.parse = function(text) {
+    return this.JSON(['decode','parse'],text);
+  },
+  
+  this.stringify = function(text) {
+    return this.JSON(['encode','stringify'],text);
+  },
+  
+  this.JSON = function(parms,text) {
+		var key = typeof JSON[parms[0]] == 'function' 
+			? parms[0]
+			: parms[1];
+    
+		return JSON[key](text);
+  }
+});
 elation.extend('cookie', {
 	set: function(parms, value, expires, domain, secure, path, date) {
 		name = parms.name || parms;
@@ -540,7 +548,7 @@ elation.extend('cookie', {
 		date = parms.date || new Date();
 		
 		if (date instanceof Date)
-			date = dateObj.getDate() + "/" + (dateObj.getMonth() + 1) + "/" + (dateObj.getFullYear() + 1);
+			date = date.getDate() + "/" + (date.getMonth() + 1) + "/" + (date.getFullYear() + 1);
 		
     var curCookie = name + "=" + escape(value) + "; expires=" + date + " 00:00:00" +
         ((path) ? "; path=" + path : "") +
@@ -555,7 +563,7 @@ elation.extend('cookie', {
     var theCookies = document.cookie.split(/[; ]+/);
     
 		for (var i = 0 ; i < theCookies.length; i++) {
-			var aName = theCookies[i].substring(0,theCookies[i].indexOf('='));
+			var aName = theCookies[i].substring(0, elation.utils.indexOf(theCookies[i], '='));
 			
 			if (aName == name) 
 				return theCookies[i];

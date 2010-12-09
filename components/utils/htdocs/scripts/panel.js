@@ -47,7 +47,7 @@ elation.extend('panel', new function(options) {
 				this.lis = $('div.tf_utils_panel_' + name + ' ul li');;
         
         for (var i=0; i<this.lis.length; i++)
-          if (elation.utils.hasclass(this.lis[i], 'selected'))
+          if (elation.html.hasclass(this.lis[i], 'selected'))
             panel.li = this.lis[i];
 				
 				for (var item in panel.items) {
@@ -81,7 +81,7 @@ elation.extend('panel', new function(options) {
 		while (target && target.nodeName != 'LI') 
 			target = target.parentNode;
 		
-		if (!target || elation.utils.hasclass(target, 'tf_utils_state_disabled')) 
+		if (!target || elation.html.hasclass(target, 'tf_utils_state_disabled')) 
 			return;
 		
 		// find the proper panel for event and item for target
@@ -168,7 +168,7 @@ elation.extend('panel', new function(options) {
 						if (form) 
 							form.action = href;
 						
-						elation.utils.addclass(input, 'tf_util_form_error');
+						elation.html.addclass(input, 'tf_util_form_error');
 						input.focus();
 					}
 				}
@@ -543,7 +543,7 @@ elation.extend('myfinds_picker', function(parent, panel) {
 				selid = this.selected_ids[this.args.mode];
 		
 		if (item) {
-			if (elation.utils.hasclass(parent, 'selected')) {
+			if (elation.html.hasclass(parent, 'selected')) {
 				elation.utils.removeclass(parent, 'selected');
 				sel.splice(item.added_index, 1);
 				delete item.added_index;

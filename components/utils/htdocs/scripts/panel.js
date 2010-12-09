@@ -47,14 +47,14 @@ elation.extend('panel', new function(options) {
 				this.lis = $('div.tf_utils_panel_' + name + ' ul li');;
         
         for (var i=0; i<this.lis.length; i++)
-          if (elation.utils.hasclass(this.lis[i], 'selected'))
+          if (elation.html.hasclass(this.lis[i], 'selected'))
             panel.li = this.lis[i];
 				
 				for (var item in panel.items) {
 					var	element = panel.items[item].element;
 					
 					if (typeof element == 'object' && element.length > 0) {
-						thefind.events.add(element[0], 'click', this);
+						elation.events.add(element[0], 'click', this);
 						element[0].onselectstart = function() { return(false); };
 					}
 				}
@@ -81,7 +81,7 @@ elation.extend('panel', new function(options) {
 		while (target && target.nodeName != 'LI') 
 			target = target.parentNode;
 		
-		if (!target || elation.utils.hasclass(target, 'tf_utils_state_disabled')) 
+		if (!target || elation.html.hasclass(target, 'tf_utils_state_disabled')) 
 			return;
 		
 		// find the proper panel for event and item for target
@@ -168,7 +168,7 @@ elation.extend('panel', new function(options) {
 						if (form) 
 							form.action = href;
 						
-						elation.utils.addclass(input, 'tf_util_form_error');
+						elation.html.addclass(input, 'tf_util_form_error');
 						input.focus();
 					}
 				}
@@ -249,13 +249,13 @@ elation.extend('panel', new function(options) {
 		var	li = arrayGet(item, 'element'),
         li = li.length > 0 ? li[0] : li;
 		
-		if ($(li).hasClass('tf_utils_state_disabled'))
+		if (elation.html.hasclass(li, 'tf_utils_state_disabled'))
 			return;
 		
 		if (panel.li) 
-			$(panel.li).removeClass('selected');
+			elation.html.removeclass(panel.li, 'selected');
 		
-		$(li).addClass('selected');
+		elation.html.addclass(li, 'selected');
 		
 		return panel.li = li;
 	}
@@ -270,10 +270,10 @@ elation.extend('panel', new function(options) {
 			for (var item_key in panel.items) {
 				item = panel.items[item_key];
 				if ((item.args.disableiffalse && !elation.utils.isTrue(args[item.args.disableiffalse])) || (item.args.disableiftrue && elation.utils.isTrue(args[item.args.disableiftrue])) || (item.args.disableifempty && elation.utils.isEmpty(args[item.args.disableifempty]))) {
-					$(item.element[0]).addClass('tf_utils_state_disabled');
+					elation.html.addclass(item.element[0], 'tf_utils_state_disabled');
           
           if(item.args.disabledtype)
-  					$(item.element[0]).addClass('tf_utils_state_disabled_'+item.args.disabledtype);
+  					elation.html.addclass(item.element[0], 'tf_utils_state_disabled_'+item.args.disabledtype);
         }
 			}
 		}

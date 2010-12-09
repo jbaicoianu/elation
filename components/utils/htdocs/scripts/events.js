@@ -102,6 +102,28 @@ elation.extend("events", {
     return event;
   },
 	
+  getTarget: function(event) {
+    return window.event ? event.srcElement : event.target;
+  },
+  
+  getRelated: this.getRelatedTarget,
+  getRelatedTarget: function(event) {
+    var reltg;
+    
+    if (event.relatedTarget) {
+      reltg = event.relatedTarget;
+    } else {
+      if (event.type == "mouseover")
+        reltg = event.fromElement;
+      else if (event.type == "mouseout")
+        reltg = event.toElement;
+      else
+        reltg = document;
+    }
+    
+    return reltg;
+  },
+  
   // returns mouse or all finger touch coords
 	coords: function(event) {
 		if (typeof event.touches != 'undefined' && event.touches.length > 0) {

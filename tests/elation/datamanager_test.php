@@ -60,7 +60,7 @@ class DataManagerTest extends PHPUnit_Framework_TestCase {
     // Compare each row against the expected original value
     for ($i = 0; $i < $q->numrows; $i++) {
       foreach ($table["rows"][$i] as $k=>$v) {
-        $this->assertEquals($q->rows[$i][$k], $v, "Check value for '$k' in row $i of {$table["name"]} is equal ('{$q->rows[$i][$k]}' == '$v')");
+        $this->assertEquals($q->rows[$i]->{$k}, $v, "Check value for '$k' in row $i of {$table["name"]} is equal ('{$q->rows[$i]->{$k}}' == '$v')");
       }
     }
     
@@ -108,7 +108,7 @@ class DataManagerTest extends PHPUnit_Framework_TestCase {
     // Compare each row against the expected original value
     for ($i = 0; $i < $q->numrows; $i++) {
       foreach ($expected[$i] as $k=>$v) {
-        $this->assertEquals($q->rows[$i][$k], $v, "Check value for '$k' in row $i of {$table["name"]} is equal ('{$q->rows[$i][$k]}' == '$v')");
+        $this->assertEquals($q->rows[$i]->{$k}, $v, "Check value for '$k' in row $i of {$table["name"]} is equal ('{$q->rows[$i]->{$k}}' == '$v')");
       }
     }
   }
@@ -121,7 +121,7 @@ class DataManagerTest extends PHPUnit_Framework_TestCase {
     $q = DataManager::QueryDelete($table["keyprefix"].".select.all", $table["name"]);
     $this->assertTrue($q, "Delete all rows from '{$table["name"]}'");
     $qcount = DataManager::Query($table["keyprefix"]."count", "SELECT COUNT(*) AS cnt FROM {$table["name"]}");
-    $this->assertEquals($qcount->rows[0]['cnt'], 0, "Check no rows still exist in '{$table["name"]}'");
+    $this->assertEquals($qcount->rows[0]->cnt, 0, "Check no rows still exist in '{$table["name"]}'");
   }
   public function testDrop() {
     // TODO - test and functionality both need to be implemented

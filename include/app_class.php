@@ -177,7 +177,7 @@ class App {
     }
   }
   function GetRequestedConfigName($req=NULL) {
-    $ret = "default";
+    $ret = "thefind";
 
     if (empty($req))
       $req = $this->request;

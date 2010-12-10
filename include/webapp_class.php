@@ -20,69 +20,18 @@
 include_once("lib/logger.php");
 include_once("lib/profiler.php");
 include_once("include/common_funcs.php");
+include_once("include/app_class.php");
 
 if(file_exists_in_path('Zend/Loader/Autoloader.php')) {
   include_once "Zend/Loader/Autoloader.php";
 }
 
-class WebApp {
+class WebApp extends App {
   public $orm;
   public $tplmgr;
   public $components;
   public $debug = false;
 
-  function WebApp($rootdir, $args) {
-    Profiler::StartTimer("WebApp", 1);
-    Profiler::StartTimer("WebApp::Init", 1);
-    Profiler::StartTimer("WebApp::TimeToDisplay", 1);
-
-    $this->rootdir = $rootdir;
-    $this->debug = !empty($args["debug"]);
-    $this->getAppVersion();
-    Logger::Info("WebApp Initializing (" . $this->appversion . ")");
-    Logger::Info("Path: " . get_include_path());
-		$this->initAutoLoaders();
-
-    $this->request = $this->ParseRequest();
-    $this->cobrand = $this->GetRequestedConfigName($this->request);
-    $this->InitProfiler();
-
-    $this->cfg = ConfigManager::singleton($rootdir);
-    $this->data = DataManager::singleton($this->cfg);
-
-    $this->cfg->GetConfig($this->cobrand, true, $this->cfg->servers["role"]);
-
-    set_error_handler(array($this, "HandleError"), E_ALL);
-
-    $this->locations = array("basedir" => $this->request["basedir"],
-                             "scripts" => "htdocs/scripts",
-                             "scriptswww" => $this->request["basedir"] . "/scripts",
-                             "css" => "htdocs/css",
-                             "csswww" => $this->request["basedir"] . "/css",
-                             "imageswww" => $this->request["basedir"] . "/images",
-                             "tmp" => "tmp",
-                             "config" => "config");
-    DependencyManager::init($this->locations);
-
-    if ($this->initialized()) {
-      try {
-        $this->session = SessionManager::singleton();
-        $this->tplmgr = TemplateManager::singleton($this->rootdir);
-        $this->tplmgr->assign_by_ref("webapp", $this);
-        $this->components = ComponentManager::singleton($this);
-        $this->orm = OrmManager::singleton();
-        //$this->tplmgr->SetComponents($this->components);
-      } catch (Exception $e) {
-        print $this->HandleException($e);
-      }
-    } else {
-      $fname = "./templates/uninitialized.tpl"; 
-      if (($path = file_exists_in_path($fname, true)) !== false) {
-        print file_get_contents($path . "/" . $fname);
-      }
-    }
-    Profiler::StopTimer("WebApp::Init");
-  }
   function initialized() {
     $ret = false;
     if (is_writable($this->locations["tmp"])) {
@@ -104,16 +53,6 @@ class WebApp {
       }
     }
     return $ret;
-  }
-  function GetAppVersion() {
-    $this->appversion = "development";
-    $verfile = "config/elation.appversion";
-    if (file_exists($verfile)) {
-      $appver = trim(file_get_contents($verfile));
-      if (!empty($appver))
-        $this->appversion = $appver;
-    }
-    return $this->appversion;
   }
   function ParseRequest($page=NULL, $post=NULL) {
     $webroot = "/";
@@ -161,11 +100,21 @@ class WebApp {
     if($req["basedir"] == '/') {
       $req["basedir"] = '';
     }
-    // TODO - this is where any sort of URL argument remapping should happen, and there should be a corresponding function to build those URLs
+
+    if (!empty($req["args"]["req"])) {
+      array_set_multi($req, $req["args"]["req"]);
+    }
+    $rewritefile = $this->locations["config"] . "/redirects.xml";
+    if (file_exists($rewritefile)) {
+      $rewrites = new SimpleXMLElement(file_get_contents($rewritefile));
+      $req = $this->ApplyRedirects($req, $rewrites->rule);
+    }
+
+    if (!empty($req["contenttype"]))
+      $this->response["type"] = $req["contenttype"];
 
     return $req;
   }
-
   function Display() {
     if (!empty($this->components)) {
       try {
@@ -187,104 +136,133 @@ class WebApp {
       }
     }
   }
-  function HandleException($e) {
-    $vars["exception"] = array("type" => "exception",
-                               "message" => $e->getMessage(),
-                               "file" => $e->getFile(),
-                               "line" => $e->getLine(),
-                               "trace" => $e->getTrace());
-    $vars["debug"] = $this->debug; //User::authorized("debug");
-    if (($path = file_exists_in_path("templates/exception.tpl", true)) !== false) {
-      return $this->tplmgr->GetTemplate($path . "/templates/exception.tpl", $this, $vars);
-    }
-    return "Unhandled Exception (and couldn't find exception template!)";
-  }
-  function HandleError($errno, $errstr, $errfile, $errline, $errcontext) {
-    if ($errno & error_reporting()) {
-      if ($errno & E_ERROR || $errno & E_USER_ERROR)
-        $type = "error";
-      else if ($errno & E_WARNING || $errno & E_USER_WARNING)
-        $type = "warning";
-      else if ($errno & E_NOTICE || $errno & E_USER_NOTICE)
-        $type = "notice";
-      else if ($errno & E_PARSE)
-        $type = "parse error";
+  function ApplyRedirects($req, $rules) {
+    $doRedirect = false;
+    
+    foreach ($rules as $rule) {
+      if (!empty($rule->match)) { // FIXME - Never ever upgrade to PHP 5.2.6.  It breaks empty() on SimpleXML objects.
+        $ismatch = true;
+        $isexcept = false;
+        $matchvars = array(NULL); // Force first element to NULL to start array indexing at 1 (regex-style)
+        
+        foreach ($rule->match->attributes() as $matchkey=>$matchstr) {
+          $checkstr = array_get($req, $matchkey);
+          if ($checkstr !== NULL) {
+            $m = NULL;
+            if (substr($matchstr, 0, 1) == "!") {
+              $ismatch &= !preg_match("#" . substr($matchstr, 1) . "#", $checkstr, $m);
+            } else {
+              $ismatch &= preg_match("#" . $matchstr . "#", $checkstr, $m);
+            }
+            
+            //Logger::Debug("Check rewrite (%s): '%s' =~ '%s' ? %s", $matchkey, $checkstr, $matchstr, ($ismatch ? "YES" : "NO"));
+            if (is_array($m) && count($m) > 0) {
+              if (count($m) > 1) {
+                for ($i = 1; $i < count($m); $i++) {
+                  $matchvars[] = $m[$i];
+                }
+              }
+            }
+          } else {
+            if (substr($matchstr, 0, 1) != "!")
+              $ismatch = false;
+          }
+        }
+        if ($ismatch && !empty($rule->except)) {
+          $exceptflag = true;
+          foreach ($rule->except->attributes() as $exceptkey=>$exceptstr) {
+            $checkstr = array_get($req, $exceptkey);
+            if ($checkstr !== NULL) {
+              $m = NULL;
+              if (substr($exceptstr, 0, 1) == "!") {
+                $exceptflag &= !preg_match("#" . substr($exceptstr, 1) . "#", $checkstr, $m);
+              } else {
+                $exceptflag &= preg_match("#" . $exceptstr . "#", $checkstr, $m);
+              }
+            }
+          }
+          if ($exceptflag)
+            $isexcept = true;
+        }
+        if ($ismatch && !$isexcept) {
+          // Apply nested rules first...
+          if (!empty($rule->rule)) {
+            $req = $this->ApplyRedirects($req, $rule->rule);
+          }
+          // Then process "set" command
+          if (!empty($rule->set)) {
+            Logger::Info("Applying redirect:\n   " . $rule->asXML());
+            if (!empty($req["args"]["testredir"]))
+              print "<pre>" . htmlspecialchars($rule->asXML()) . "</pre><hr />";
 
-      $vars["exception"] = array("type" => $type,
-                                 "message" => $errstr,
-                                 "file" => $errfile,
-                                 "line" => $errline);
-      if (isset($this->tplmgr) && ($path = file_exists_in_path("templates/exception.tpl", true)) !== false) {
-        print $this->tplmgr->GetTemplate($path . "/templates/exception.tpl", $this, $vars);
+            foreach ($rule->set->attributes() as $rewritekey=>$rewritestr) {
+              if (count($matchvars) > 1 && strpos($rewritestr, "%") !== false) {
+                $find = array(NULL);
+                for ($i = 1; $i < count($matchvars); $i++)
+                  $find[] = "%$i";
+                
+                $rewritestr = str_replace($find, $matchvars, $rewritestr);
+              }
+              array_set($req, (string) $rewritekey, (string) $rewritestr);
+            }
+            if ($rule["type"] == "redirect") {
+              $doRedirect = 301;
+            } else if ($rule["type"] == "bounce") {
+              $doRedirect = 302;
+            }
+          }
+          // And finally process "unset"
+          if (!empty($rule->unset)) {
+            $unset = false;
+            foreach ($rule->unset->attributes() as $unsetkey=>$unsetval) {
+              if ($unsetkey == "_ALL_" && $unsetval == "ALL") {
+                $req["args"] = array();
+              } else if (!empty($unsetval)) {
+                $reqval = array_get($req, $unsetkey);
+                if ($reqval !== NULL) {
+                  array_unset($req, $unsetkey);
+                  $unset = true;
+                }
+              }
+            }
+            if ($unset) {
+              if ($rule["type"] == "redirect") {
+                $doRedirect = 301;
+              } else if ($rule["type"] == "bounce") {
+                $doRedirect = 302;
+              }
+            }
+          }
+          if ($doRedirect !== false) break;
+        }
+      }
+    }
+    
+    if ($doRedirect !== false) {
+      $origscheme = "http" . ($req["ssl"] ? "s" : "");
+      if ($req["host"] != $_SERVER["HTTP_HOST"] || $req["scheme"] != $origscheme) {
+        $newurl = sprintf("%s://%s%s", $req["scheme"], $req["host"], $req["path"]);
       } else {
-        print "<blockquote><strong>" . $type . ":</strong> " . $errstr . "</blockquote>";
+        $newurl = $req["path"];
+      }
+      if (empty($req["args"]["testredir"])) {
+        if (empty($req["friendly"])) {
+          $querystr = makeQueryString($req["args"]);
+          $newurl = http_build_url($newurl, array("query"=>$querystr));
+        } else {
+          $newurl = makeFriendlyURL($newurl, $req["args"]);
+        }
+
+        if ($newurl != $req["url"]) {
+          http_redirect($newurl, NULL, true, $doRedirect);
+        } 
+
+      } else {
+        print_pre($req);
       }
     }
-  }
-	
-  protected function initAutoLoaders()
-  {
-  	if(class_exists('Zend_Loader_Autoloader', false)) {
-	    $zendAutoloader = Zend_Loader_Autoloader::getInstance(); //already registers Zend as an autoloader
-	    $zendAutoloader->unshiftAutoloader(array('WebApp', 'autoloadElation')); //add the Trimbo autoloader
-		} else {
-			spl_autoload_register('WebApp::autoloadElation');
-		}
-  }
-
-  public static function autoloadElation($class) 
-  {
-    //print "$class**<br />";
-  	
-	  if (file_exists_in_path("include/" . strtolower($class) . "_class.php")) {
-	    require_once("include/" . strtolower($class) . "_class.php");
-	  } else if (file_exists_in_path("include/model/" . strtolower($class) . "_class.php")) {
-	    require_once("include/model/" . strtolower($class) . "_class.php");
-	  }	else {
-      try {
-      	if(class_exists('Zend_Loader', false)) {
-          @Zend_Loader::loadClass($class); //TODO: for fucks sake remove the @ ... just a tmp measure while porting ... do it or i will chum kiu you!
-				}
-        return;
-      }
-      catch (Exception $e) {
-        //var_dump($e);
-        //throw new Exception("Class ($class) is not in the ClassMapper.");
-      }	  	
-	    //throw new Exception("Class ($class) is not in the ClassMapper.");
-	  }
-	}
-  public function InitProfiler() {
-    // If timing parameter is set, force the profiler to be on
-    $timing = any($this->request["args"]["timing"], $this->cfg->servers["profiler"]["level"], 0);
-
-    if (!empty($this->cfg->servers["profiler"]["percent"])) {
-      if (rand() % 100 < $this->cfg->servers["profiler"]["percent"]) {
-        $timing = 4;
-        Profiler::$log = true;
-      }
-    }
-
-    if (!empty($timing)) {
-      Profiler::$enabled = true;
-      Profiler::setLevel($timing);
-    }
-  }
-  function GetRequestedConfigName($req=NULL) {
-    $ret = "default";
-
-    if (empty($req))
-      $req = $this->request;
-
-    if (!empty($req["args"]["cobrand"]) && is_string($req["args"]["cobrand"])) {
-      $ret = $req["args"]["cobrand"];
-      $_SESSION["temporary"]["cobrand"] = $ret;
-    } else if (!empty($_SESSION["temporary"]["cobrand"])) {
-      $ret = $_SESSION["temporary"]["cobrand"];
-    }
-
-    Logger::Info("Requested config is '$ret'");
-    return $ret;
+    
+    return $req;
   }
   
 }

@@ -18,27 +18,63 @@
 */
 
 include_once("lib/logger.php");
-include_once("common_funcs.php");
-include_once("config/outlet_conf.php");
+include_once("include/common_funcs.php");
+//include_once("config/outlet_conf.php");
 
 class App {
   function App($rootdir, $args) {
+    Profiler::StartTimer("WebApp", 1);
+    Profiler::StartTimer("WebApp::Init", 1);
+    Profiler::StartTimer("WebApp::TimeToDisplay", 1);
+
     $this->rootdir = $rootdir;
-    //$this->cfg = new ConfigManager($rootdir);
-    //$this->data = new DataManager($this->cfg);
-    $this->outlet = Outlet::getInstance();
-    $this->outlet->createClasses();
-    $this->outlet->createProxies();
+    $this->debug = !empty($args["debug"]);
+    $this->getAppVersion();
+    Logger::Info("WebApp Initializing (" . $this->appversion . ")");
+    Logger::Info("Path: " . get_include_path());
+		$this->initAutoLoaders();
 
-    $this->tplmgr = TemplateManager::singleton($this->rootdir);
-    $this->tplmgr->assign_by_ref("webapp", $this);
-    $this->components = new ComponentManager($this);
-    //$this->tplmgr->SetComponents($this->components);
+    $this->locations = array("scripts" => "htdocs/scripts",
+                             "css" => "htdocs/css",
+                             "tmp" => "tmp",
+                             "config" => "config");
+    $this->request = $this->ParseRequest();
+    $this->locations["basedir"] = $this->request["basedir"];
+    $this->locations["scriptswww"] = $this->request["basedir"] . "/scripts";
+    $this->locations["csswww"] = $this->request["basedir"] . "/css";
+    $this->locations["imageswww"] = $this->request["basedir"] . "/images";
 
-    //session_set_cookie_params(30*60*60*24);
-    //session_start();
+    $this->cobrand = $this->GetRequestedConfigName($this->request);
+    $this->InitProfiler();
+
+    $this->cfg = ConfigManager::singleton($rootdir);
+    $this->data = DataManager::singleton($this->cfg);
+
+    $this->cfg->GetConfig($this->cobrand, true, $this->cfg->servers["role"]);
+
+    set_error_handler(array($this, "HandleError"), E_ALL);
+
+    DependencyManager::init($this->locations);
+
+    if ($this->initialized()) {
+      try {
+        $this->session = SessionManager::singleton();
+        $this->tplmgr = TemplateManager::singleton($this->rootdir);
+        $this->tplmgr->assign_by_ref("webapp", $this);
+        $this->components = ComponentManager::singleton($this);
+        $this->orm = OrmManager::singleton();
+        //$this->tplmgr->SetComponents($this->components);
+      } catch (Exception $e) {
+        print $this->HandleException($e);
+      }
+    } else {
+      $fname = "./templates/uninitialized.tpl"; 
+      if (($path = file_exists_in_path($fname, true)) !== false) {
+        print file_get_contents($path . "/" . $fname);
+      }
+    }
+    Profiler::StopTimer("WebApp::Init");
   }
-
   function Display($page=NULL, $pageargs=NULL) {
     $output = $this->components->Dispatch($page, $pageargs);
     
@@ -48,5 +84,112 @@ class App {
     } else {
       print $output["content"];
     }
+  }
+  function GetAppVersion() {
+    $this->appversion = "development";
+    $verfile = "config/elation.appversion";
+    if (file_exists($verfile)) {
+      $appver = trim(file_get_contents($verfile));
+      if (!empty($appver))
+        $this->appversion = $appver;
+    }
+    return $this->appversion;
+  }
+  function HandleException($e) {
+    $vars["exception"] = array("type" => "exception",
+                               "message" => $e->getMessage(),
+                               "file" => $e->getFile(),
+                               "line" => $e->getLine(),
+                               "trace" => $e->getTrace());
+    $vars["debug"] = $this->debug; //User::authorized("debug");
+    if (($path = file_exists_in_path("templates/exception.tpl", true)) !== false) {
+      return $this->tplmgr->GetTemplate($path . "/templates/exception.tpl", $this, $vars);
+    }
+    return "Unhandled Exception (and couldn't find exception template!)";
+  }
+  function HandleError($errno, $errstr, $errfile, $errline, $errcontext) {
+    if ($errno & error_reporting()) {
+      if ($errno & E_ERROR || $errno & E_USER_ERROR)
+        $type = "error";
+      else if ($errno & E_WARNING || $errno & E_USER_WARNING)
+        $type = "warning";
+      else if ($errno & E_NOTICE || $errno & E_USER_NOTICE)
+        $type = "notice";
+      else if ($errno & E_PARSE)
+        $type = "parse error";
+
+      $vars["exception"] = array("type" => $type,
+                                 "message" => $errstr,
+                                 "file" => $errfile,
+                                 "line" => $errline);
+      if (isset($this->tplmgr) && ($path = file_exists_in_path("templates/exception.tpl", true)) !== false) {
+        print $this->tplmgr->GetTemplate($path . "/templates/exception.tpl", $this, $vars);
+      } else {
+        print "<blockquote><strong>" . $type . ":</strong> " . $errstr . "</blockquote>";
+      }
+    }
+  }
+  protected function initAutoLoaders()
+  {
+  	if(class_exists('Zend_Loader_Autoloader', false)) {
+	    $zendAutoloader = Zend_Loader_Autoloader::getInstance(); //already registers Zend as an autoloader
+	    $zendAutoloader->unshiftAutoloader(array('WebApp', 'autoloadElation')); //add the Trimbo autoloader
+		} else {
+			spl_autoload_register('WebApp::autoloadElation');
+		}
+  }
+  public static function autoloadElation($class) 
+  {
+    //print "$class**<br />";
+  	
+	  if (file_exists_in_path("include/" . strtolower($class) . "_class.php")) {
+	    require_once("include/" . strtolower($class) . "_class.php");
+	  } else if (file_exists_in_path("include/model/" . strtolower($class) . "_class.php")) {
+	    require_once("include/model/" . strtolower($class) . "_class.php");
+	  }	else {
+      try {
+      	if(class_exists('Zend_Loader', false)) {
+          @Zend_Loader::loadClass($class); //TODO: for fucks sake remove the @ ... just a tmp measure while porting ... do it or i will chum kiu you!
+				}
+        return;
+      }
+      catch (Exception $e) {
+        //var_dump($e);
+        //throw new Exception("Class ($class) is not in the ClassMapper.");
+      }	  	
+	    //throw new Exception("Class ($class) is not in the ClassMapper.");
+	  }
+	}
+  public function InitProfiler() {
+    // If timing parameter is set, force the profiler to be on
+    $timing = any($this->request["args"]["timing"], $this->cfg->servers["profiler"]["level"], 0);
+
+    if (!empty($this->cfg->servers["profiler"]["percent"])) {
+      if (rand() % 100 < $this->cfg->servers["profiler"]["percent"]) {
+        $timing = 4;
+        Profiler::$log = true;
+      }
+    }
+
+    if (!empty($timing)) {
+      Profiler::$enabled = true;
+      Profiler::setLevel($timing);
+    }
+  }
+  function GetRequestedConfigName($req=NULL) {
+    $ret = "default";
+
+    if (empty($req))
+      $req = $this->request;
+
+    if (!empty($req["args"]["cobrand"]) && is_string($req["args"]["cobrand"])) {
+      $ret = $req["args"]["cobrand"];
+      $_SESSION["temporary"]["cobrand"] = $ret;
+    } else if (!empty($_SESSION["temporary"]["cobrand"])) {
+      $ret = $_SESSION["temporary"]["cobrand"];
+    }
+
+    Logger::Info("Requested config is '$ret'");
+    return $ret;
   }
 }

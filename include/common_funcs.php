@@ -405,3 +405,17 @@ function decode_friendly($url) {
   return friendly_url($url, false);
 }
 
+function str_map($str, $map, $reverse=false) {
+  if (!empty($map)) {
+    if (!$reverse && !empty($map[$str])) {
+      $str = $map[$str];
+    } else {
+      $tmp = array_search($str, $map);
+      if ($tmp !== false)
+        $str = $tmp;
+    }
+  }
+  return $str;
+}
+
+

@@ -32,7 +32,7 @@ function smarty_block_box($params, $content, &$smarty) {
   $typecfg["template"] = any($params["template"],$typecfg["template"],"box_default.tpl");
   $params = array_merge(any($params,array()), any($typecfg["params"],array()), any($placementcfg["params"],array()));
 
-  $vars["box"] = new stdClass();
+  $vars["box"] = $box = new stdClass();
   $vars["box"]->content = (!empty($content) ? $content : "");
   $vars["box"]->tag = (!empty($params["tag"]) ? $params["tag"] : "div");
   $vars["box"]->id = (!empty($params["id"]) ? $params["id"] : NULL);
@@ -41,5 +41,14 @@ function smarty_block_box($params, $content, &$smarty) {
   $vars["box"]->onmouseout = (!empty($params["onmouseout"]) ? $params["onmouseout"] : NULL);
   $vars["box"]->onclick = (!empty($params["onclick"]) ? $params["onclick"] : NULL);
 
-  return $smarty->GetTemplate("boxes/{$typecfg["template"]}", $null, $vars);
+  if ($smarty->template_exists("boxes/{$typecfg["template"]}")) {
+    return $smarty->GetTemplate("boxes/{$typecfg["template"]}", $null, $vars);
+  } else {
+    return '<div' . (!empty($box->id) ? ' id="' . $box->id . '"' : '') .
+                    (!empty($box->class) ? ' class="' . $box->class . '"' : '') .
+                    (!empty($box->onmouseover) ? ' onmouseover="' . $box->onmouseover . '"' : '') .
+                    (!empty($box->onmouseout) ? ' onmouseout="' . $box->onmouseout . '"' : '') .
+                    (!empty($box->onclick) ? ' onclick="' . $box->onclick . '"' : '') . '>' . $box->content . '</div>';
+
+  }
 }

@@ -1,4 +1,10 @@
 <?
+/**
+ * class DependencyManager
+ * Singleton class for managing dependencies as templates render
+ * @package Framework
+ * @subpackage Dependencies
+ */
 class DependencyManager {
   static private $dependencies = array();
   static public $locations = array();
@@ -10,22 +16,36 @@ class DependencyManager {
     if (empty($args["type"])) {
       $args["type"] = "component";
     }
+    $browser = any($args["browser"], "all");
+    $priority = any($args["priority"], 2);
     if (!is_array(self::$dependencies[$args["type"]]))
       self::$dependencies[$args["type"]] = array();
     
-    self::$dependencies[$args["type"]][] = Dependency::create($args["type"], $args);
+    //self::$dependencies[$args["type"]][] = Dependency::create($args["type"], $args);
+    $dep = Dependency::create($args["type"], $args);
+    self::$dependencies[$priority][$browser][$deptype][$dep->id()] = $dep;
   }
   static function display() {
     $ret = "";
-    foreach (self::$dependencies as $type=>$dependencies) {
-      foreach ($dependencies as $dependency) {
-        if ($dependency instanceOf Dependency)
-          $ret .= $dependency->display(self::$locations);
+    foreach (self::$dependencies as $priority=>$browsers) {
+      foreach ($browsers as $browser=>$types) { 
+        // FIXME - we're not actually wrapping the per-browser dependencies in their proper conditional comments yet
+        foreach ($types as $type=>$deps) {
+          foreach ($deps as $dep) {
+            $ret .= $dep->display(self::$locations);
+          }
+        }
       }
     }
     return $ret;
   }
 }
+/**
+ * class Dependency
+ * Abstract interface class representing any type of Dependency
+ * @package Framework
+ * @subpackage Dependencies
+ */
 abstract class Dependency {
   public $type;
   public $name;
@@ -49,6 +69,9 @@ abstract class Dependency {
   }
   abstract function Display($locations, $extras=NULL);
   
+  function id() {
+    return md5($this->type . ":" . any($this->name, $this->property, $this->code, $this->file, $this->url));
+  }
   function GetFilename($path, $fname) {
     $ret = NULL;
     $accept = explode(",", any($this->accept, $_SERVER["HTTP_ACCEPT_ENCODING"], ""));
@@ -72,12 +95,27 @@ abstract class Dependency {
       case 'component':
         $ret = new DependencyComponent($args);
         break;
+      case 'onload':
+        $ret = new DependencyOnload($args);
+        break;
+      case 'placemark':
+        $ret = new DependencyPlacemark($args);
+        break;
+      case 'meta':
+        $ret = new DependencyMeta($args);
+        break;
       default:
         throw new Exception("DependencyManager: unknown dependency type '$type'");
     }
     return $ret;
   }
 }
+/**
+ * class DependencyCSS
+ * CSS dependency
+ * @package Framework
+ * @subpackage Dependencies
+ */
 class DependencyCSS extends Dependency {
   public $file;
   public $url;
@@ -104,6 +142,12 @@ class DependencyCSS extends Dependency {
     return $ret;
   }
 }
+/**
+ * class DependencyJavascript
+ * Javascript dependency
+ * @package Framework
+ * @subpackage Dependencies
+ */
 class DependencyJavascript extends Dependency {
   public $file;
   public $url;
@@ -173,6 +217,73 @@ class DependencyComponent extends Dependency {
         $ret .= $dep->Display($locations, $extras);
       }
     }
+    return $ret;
+  }
+}
+
+/**
+ * class DependencyOnload
+ * Onload dependency - fires ondomready
+ * @package Framework
+ * @subpackage Dependencies
+ */
+class DependencyOnload extends Dependency {
+  public $code;
+
+  function Display($locations, $extras=NULL) {
+    if (!empty($this->code))
+      $ret = sprintf('<script type="text/javascript">thefind.onloads.add(%s);</script>'."\n", json_encode($this->code));
+    return $ret;
+  }
+}
+
+/**
+ * class DependencyPlacemark
+ * Print debug info in an HTML comment
+ * @package Framework
+ * @subpackage Dependencies
+ */
+class DependencyPlacemark extends Dependency {
+  function Display($locations, $extras=NULL) {
+    return sprintf("%s: %s\n", $this->name, $this->value);
+  }
+}
+
+/**
+ * class DependencyMeta
+ * Custom META tag
+ * @package Framework
+ * @subpackage Dependencies
+ */
+class DependencyMeta extends Dependency {
+  public $meta;
+
+  function Init($args, $locations) {
+    $this->meta = array("property"=>$args["property"], "name"=>$args["name"], "content"=>$args["content"]);
+  }
+
+  function Display($locations, $extras=NULL) {
+    if (!empty($this->meta["name"]) && !empty($this->meta["content"]))
+      $ret .= sprintf('<meta name="%s" content="%s" />'."\n", $this->meta["name"], $this->meta["content"]);
+    else if (!empty($this->meta["property"]) && !empty($this->meta["content"]))
+      $ret .= sprintf('<meta property="%s" content="%s" />'."\n", $this->meta["property"], $this->meta["content"]);
+    return $ret;
+  }
+}
+
+/**
+ * class DependencyRSS
+ * Generate a <link /> tag for related RSS
+ * @package Framework
+ * @subpackage Dependencies
+ */
+class DependencyRSS extends Dependency {
+  public $url;
+  public $title;
+  public $id;
+
+  function Display($locations, $extras=NULL) {
+    $ret = sprintf('<link rel="alternate" href="%s" type="application/rss+xml" title="%s" id="%s" />', htmlspecialchars($this->url), $this->title, $this->id);
     return $ret;
   }
 }

@@ -19,7 +19,7 @@
  *                     result to a template variable
  */
 function smarty_function_getcfg($args, &$smarty) {
-  $ret = getcfg($args["config"]);
+  $ret = ConfigManager::get($args["config"]);
   return $ret;
 }
 

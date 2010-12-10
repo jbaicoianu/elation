@@ -26,9 +26,9 @@
 function smarty_block_box($params, $content, &$smarty) {
   $null = NULL;
   $placement = any($params["placement"],"default");
-  $type = any($params["type"],getcfg("page.box.placements.{$placement}.type"),"default");
-  $typecfg = any(getcfg("page.box.types.{$type}"),array());
-  $placementcfg = any(getcfg("page.box.placements.{$placement}"),array());
+  $type = any($params["type"],ConfigManager::get("page.box.placements.{$placement}.type"),"default");
+  $typecfg = any(ConfigManager::get("page.box.types.{$type}"),array());
+  $placementcfg = any(ConfigManager::get("page.box.placements.{$placement}"),array());
   $typecfg["template"] = any($params["template"],$typecfg["template"],"box_default.tpl");
   $params = array_merge(any($params,array()), any($typecfg["params"],array()), any($placementcfg["params"],array()));
 

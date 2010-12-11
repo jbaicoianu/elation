@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * class DependencyManager
  * Singleton class for managing dependencies as templates render

@@ -3,8 +3,6 @@
 
 $root = preg_replace("|/htdocs$|", "", getcwd());
 chdir($root);
-addroot($root);
-
 elation_readpaths($root);
 
 putenv('TZ=America/Los_Angeles');
@@ -20,24 +18,24 @@ Profiler::StopTimer("Total");
 if (!empty($_REQUEST["_timing"]))
   print Profiler::Display();
 
-function addroot($root) {
+function elation_addroot($roots) {
   $path = explode(PATH_SEPARATOR, get_include_path());
-
+  if (!is_array($roots)) {
+    $roots = array($roots);
+  }
+  
   if ($path[0] == ".") // . should always be first
     array_shift($path);
-  array_unshift($path, "$root");
+  $path = array_merge($roots, $path);
   array_unshift($path, ".");
 
   set_include_path(implode(PATH_SEPARATOR, $path));
 }
-
-/**
- * Read extra paths into the include path
- */
 function elation_readpaths($root) {
   $matches = array(); 
   $homedir = '';
   
+  // FIXME - Linux-specific expansion of ~/ in paths for developer directories.  Is there a clean way to make this cross-platform?
   $homedirMatches = preg_match('@/home/\w*/@', $root, $matches);
   if($homedirMatches > 0) {
     $homedir = $matches[0];
@@ -47,13 +45,15 @@ function elation_readpaths($root) {
   
   if($paths !== false) {
     $paths = explode(PHP_EOL, $paths);
+    $newpaths = array($root);
     foreach($paths as $path) {
-      if($path) {
+      if(!empty($path)) {
         if($homedir) {
           $path = str_replace('~/', $homedir, $path);
         }
-        set_include_path(get_include_path() . PATH_SEPARATOR . $path);
+        $newpaths[] = $path;
       }
     }
+    elation_addroot($newpaths);
   }
 }

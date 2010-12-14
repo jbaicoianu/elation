@@ -1,4 +1,7 @@
-<?
+<?php
+
+include_once("include/base_class.php");
+
 /**
  * class ConfigManager
  * Singleton for handling basic config functions
@@ -6,13 +9,11 @@
  * @subpackage Config
  */
 class ConfigManager extends Base {
-  var $parent;
+  public $servers;
+  public $configs;
 
-  var $servers;
-  var $configs;
-
-  var $rootdir;
-  var $locations;
+  public $rootdir;
+  public $locations;
 
   /**
    * constructor
@@ -299,7 +300,7 @@ class ConfigManager extends Base {
     $configupdates = $this->FlattenConfig($diff);
     $configdeletes = $this->FlattenConfig($deletecfg);
     
-        print_pre($configupdates);
+    //print_pre($configupdates);
 
     if (count($configupdates) > 0) {
       foreach ($configupdates as $k=>$v) {
@@ -506,9 +507,10 @@ class ConfigManager extends Base {
 
     $cachewrapper = null;
     $cachekey = "config.$role.$name";
-    $cachewrapper =& $this->data->caches["apc"]["default"];
+    $data = DataManager::singleton();
+    $cachewrapper =& $data->caches["apc"]["default"];
     $allversions = $this->GetAllRevisions($role);
-    if (!$skipcache && !empty($this->data->caches["apc"]["default"])) {
+    if (!$skipcache && !empty($cachewrapper)) {
       if (($cachedresult = $cachewrapper->get($cachekey)) !== false ) {
         /*
         Logger::Info("Found '$cachekey' in apc cache (revision=" . $ret["revision"] . ")");
@@ -649,8 +651,9 @@ class ConfigManager extends Base {
       //$cachekey = "config.$role.$name.heirarchy";
       $cachekey = "config.$role.$name";
 
-      if (!empty($this->data->caches["apc"]["default"])) {
-        $cachewrapper =& $this->data->caches["apc"]["default"];
+      $data = DataManager::singleton();
+      if (!empty($data->caches["apc"]["default"])) {
+        $cachewrapper =& $data->caches["apc"]["default"];
 
         if (($cachedresult = $cachewrapper->get($cachekey)) !== false) {
           Logger::Info("Found '$cachekey' in apc cache");
@@ -967,7 +970,7 @@ class Config {
     $ret = $this->GetCobrandidAndRevision();
     if (!empty($ret)) {
       $result_config = DataManager::Query(
-        "db.config.cobrand_config.{$name}.{$role}:nocache",
+        "db.config.cobrand_config.{$name}.{$role}",
         "SELECT name,value FROM config.cobrand_config WHERE cobrandid=:cobrandid and role=:role ORDER BY name",
         array(":cobrandid" => $ret["cobrandid"], ":role" => $role)
       );
@@ -1042,6 +1045,7 @@ class Config {
   public function Save() {
     if (empty($this->cobrandid)) {
       $cobrandinfo = $this->GetCobrandidAndRevision();
+      //print_pre($cobrandinfo);
     }
   }
 }

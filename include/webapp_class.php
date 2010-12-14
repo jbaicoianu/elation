@@ -32,30 +32,9 @@ class WebApp extends App {
   public $components;
   public $debug = false;
 
-  function initialized() {
-    $ret = false;
-    if (is_writable($this->locations["tmp"])) {
-      if (!file_exists($this->locations["tmp"] . "/initialized.txt")) {
-        umask(0002);
-        Logger::notice("Webapp instance has not been initialized yet - doing so now");
-        if (extension_loaded("apc")) {
-          Logger::notice("Flushing APC cache");
-          apc_clear_cache();
-        }
-
-        // Create required directories for program execution
-        if (!file_exists($this->locations["tmp"] . "/compiled/"))
-          mkdir($this->locations["tmp"] . "/compiled/", 02775);
-
-        $ret = touch($this->locations["tmp"] . "/initialized.txt");
-      } else {
-        $ret = true;
-      }
-    }
-    return $ret;
-  }
   function ParseRequest($page=NULL, $post=NULL) {
-    $webroot = "/";
+    Profiler::StartTimer("WebApp::Init - parserequest", 1);
+    $webroot = "";
     if ($page === NULL)
       $page = $_SERVER["SCRIPT_URL"];
     if ($page === NULL) {
@@ -79,6 +58,22 @@ class WebApp extends App {
         $post = array_map('stripslashes_deep', $post);
       }
       $req["args"] = array_merge($req["args"], $post);
+    }
+    $req["friendly"] = false;
+    // Parse friendly URLs
+    if (preg_match_all("/\/([^-\/]+)-([^\/]+)/", $req["path"], $m, PREG_SET_ORDER)) {
+      $req["friendly"] = true;
+      $friendlyargs = array();
+      foreach ($m as $match) {
+        $search[] = $match[0];
+        $replace[] = "";
+        array_set($friendlyargs, $match[1], decode_friendly($match[2]));
+      }
+      $req["path"] = str_replace($search, $replace, $req["path"]);
+      if (empty($req["path"]))
+        $req["path"] = "/";
+      if (!empty($friendlyargs))
+        $req["args"] = array_merge($friendlyargs, $req["args"]);
     }
 
     $req["host"] = $_SERVER["HTTP_HOST"];
@@ -104,37 +99,20 @@ class WebApp extends App {
     if (!empty($req["args"]["req"])) {
       array_set_multi($req, $req["args"]["req"]);
     }
+    Profiler::StopTimer("WebApp::Init - parserequest");
+
+    Profiler::StartTimer("WebApp::Init - handleredirects", 1);
     $rewritefile = $this->locations["config"] . "/redirects.xml";
     if (file_exists($rewritefile)) {
       $rewrites = new SimpleXMLElement(file_get_contents($rewritefile));
       $req = $this->ApplyRedirects($req, $rewrites->rule);
     }
+    Profiler::StopTimer("WebApp::Init - handleredirects");
 
     if (!empty($req["contenttype"]))
       $this->response["type"] = $req["contenttype"];
 
     return $req;
-  }
-  function Display() {
-    if (!empty($this->components)) {
-      try {
-        $output = $this->components->Dispatch($this->request["path"], $this->request["args"]);
-      } catch (Exception $e) {
-        //print_pre($e);
-        $output["content"] = $this->HandleException($e);
-      }
-      
-      Profiler::StopTimer("WebApp::TimeToDisplay");
-      if ($output["type"] == "ajax") {
-        header('Content-type: application/xml');
-        print $this->tplmgr->GenerateXML($output["content"]);
-      } else {
-        header('Content-type: ' . any($output["responsetype"], "text/html"));
-        print $this->tplmgr->PostProcess($output["content"]);
-        if (!empty($this->request["args"]["timing"]))
-          print Profiler::Display();
-      }
-    }
   }
   function ApplyRedirects($req, $rules) {
     $doRedirect = false;

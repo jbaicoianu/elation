@@ -60,6 +60,7 @@ class Logger {
     if (!empty($args))
       $msg = vsprintf($msg, $args);
 
+    //print $msg . "\n";
     self::$msgs[] = array("lvl"=>$lvl, "txt"=>$msg, "class"=>$realclass);
   }
 

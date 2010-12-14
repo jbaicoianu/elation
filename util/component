@@ -1,18 +1,55 @@
 #!/usr/bin/php
-<?
+<?php
 
 $root = getcwd();
-ini_set("include_path", ".:$root/include:/usr/share/php");
-include_once("include/app_class.php");
+elation_readpaths($root);
 
-if (count($argv) > 2) {
+require_once("include/app_class.php");
+
+if (count($argv) >= 2) {
   $script = array_shift($argv);
   $component = array_shift($argv);
   $componentargs = array();
-  foreach ($argv as $arg) {
-    list($k, $v) = explode("=", $arg, 2);
-    $componentargs[$k] = $v;
+  if (!empty($argv)) {
+    foreach ($argv as $arg) {
+      list($k, $v) = explode("=", $arg, 2);
+      $componentargs[$k] = $v;
+    }
   }
   $app = new App($root, $componentargs);
-  $app->display($component, $componentargs);
+  print $app->display("/" . str_replace(".", "/", $component), $componentargs);
+}
+
+function elation_addroot($roots) {
+  $path = explode(PATH_SEPARATOR, get_include_path());
+  if (!is_array($roots)) {
+    $roots = array($roots);
+  }
+  
+  if ($path[0] == ".") // . should always be first
+    array_shift($path);
+  $path = array_merge($roots, $path);
+  array_unshift($path, ".");
+
+  set_include_path(implode(PATH_SEPARATOR, $path));
+}
+function elation_readpaths($root) {
+  $matches = array(); 
+  $homedir = $_ENV['HOME'] . '/';
+  
+  $paths = file_get_contents('config/elation.path');
+  
+  if($paths !== false) {
+    $paths = explode(PHP_EOL, $paths);
+    $newpaths = array($root);
+    foreach($paths as $path) {
+      if(!empty($path)) {
+        if($homedir) {
+          $path = str_replace('~/', $homedir, $path);
+        }
+        $newpaths[] = $path;
+      }
+    }
+    elation_addroot($newpaths);
+  }
 }

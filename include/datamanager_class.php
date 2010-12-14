@@ -77,7 +77,6 @@ class DataManager {
     } else {
       Logger::Debug("Tried to instantiate cache '$cachetype', but couldn't find class");
     }
-    
   }
   function AddSource($sourcetype, $cfg) {
     if (!empty($cfg)) {

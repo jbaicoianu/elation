@@ -10,8 +10,10 @@ function smarty_block_config($params, $content, &$smarty) {
     foreach (array_reverse($heirarchy) as $cfgname) { // Walk heirarchy from bottom up
       if (preg_match("/^cobrand\.(.*)$/", $cfgname, $m) || $cfgname == "base") { // FIXME - most general-purpose would be to use the cobrand key as imagedir (s/\./\//g?)
         $cobrandname = ($cfgname == "base" ? $cfgname : $m[1]);
-        DependencyManager::add(array("type"=>"component", "name"=>"cobrands.".$cobrandname, "priority"=>4));
-        DependencyManager::add(array("type"=>"component", "name"=>"cobrands.".$cobrandname."-fixes", "priority"=>4));
+        if (!empty($cobrandname)) {
+          DependencyManager::add(array("type"=>"component", "name"=>"cobrands.".$cobrandname, "priority"=>4));
+          DependencyManager::add(array("type"=>"component", "name"=>"cobrands.".$cobrandname."-fixes", "priority"=>4));
+        }
 /*
         if (file_exists($webapp->locations["css"] . "/cobrands/$cobrandname.css"))
           DependencyManager::add(array("type"=>"css", "file"=>"cobrands/$cobrandname.css", "priority"=>4));

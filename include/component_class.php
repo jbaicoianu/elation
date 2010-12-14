@@ -271,7 +271,7 @@ class ComponentTemplate extends Component {
   }
   
   function HandlePayload(&$args, $output="inline") {
-    return $this->GetComponentResponse($this->payload);
+    return $this->GetComponentResponse($this->payload, $args);
   }
 }
 

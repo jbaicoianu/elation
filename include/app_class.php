@@ -1,4 +1,4 @@
-<?
+<?php
 /*
   Copyright (c) 2005 James Baicoianu
 
@@ -18,8 +18,8 @@
 */
 
 include_once("lib/logger.php");
+include_once("lib/profiler.php");
 include_once("include/common_funcs.php");
-//include_once("config/outlet_conf.php");
 
 class App {
   function App($rootdir, $args) {
@@ -38,7 +38,7 @@ class App {
                              "css" => "htdocs/css",
                              "tmp" => "tmp",
                              "config" => "config");
-    $this->request = $this->ParseRequest();
+    $this->request = $this->ParseRequest(NULL, $args);
     $this->locations["basedir"] = $this->request["basedir"];
     $this->locations["scriptswww"] = $this->request["basedir"] . "/scripts";
     $this->locations["csswww"] = $this->request["basedir"] . "/css";
@@ -75,14 +75,25 @@ class App {
     }
     Profiler::StopTimer("WebApp::Init");
   }
-  function Display($page=NULL, $pageargs=NULL) {
-    $output = $this->components->Dispatch($page, $pageargs);
-    
-    if ($output["type"] == "ajax") {
-      header('Content-type: application/xml');
-      print $this->tplmgr->GenerateXML($output["content"]);
-    } else {
-      print $output["content"];
+  function Display() {
+    if (!empty($this->components)) {
+      try {
+        $output = $this->components->Dispatch($this->request["path"], $this->request["args"]);
+      } catch (Exception $e) {
+        //print_pre($e);
+        $output["content"] = $this->HandleException($e);
+      }
+      
+      Profiler::StopTimer("WebApp::TimeToDisplay");
+      if ($output["type"] == "ajax") {
+        header('Content-type: application/xml');
+        print $this->tplmgr->GenerateXML($output["content"]);
+      } else {
+        header('Content-type: ' . any($output["responsetype"], "text/html"));
+        print $this->tplmgr->PostProcess($output["content"]);
+        if (!empty($this->request["args"]["timing"]))
+          print Profiler::Display();
+      }
     }
   }
   function GetAppVersion() {
@@ -94,6 +105,44 @@ class App {
         $this->appversion = $appver;
     }
     return $this->appversion;
+  }
+  function initialized() {
+    $ret = false;
+    if (is_writable($this->locations["tmp"])) {
+      if (!file_exists($this->locations["tmp"] . "/initialized.txt")) {
+        umask(0002);
+        Logger::notice("App instance has not been initialized yet - doing so now");
+        if (extension_loaded("apc")) {
+          Logger::notice("Flushing APC cache");
+          apc_clear_cache();
+        }
+
+        // Create required directories for program execution
+        if (!file_exists($this->locations["tmp"] . "/compiled/"))
+          mkdir($this->locations["tmp"] . "/compiled/", 02775);
+
+        $ret = touch($this->locations["tmp"] . "/initialized.txt");
+      } else {
+        $ret = true;
+      }
+    }
+    return $ret;
+  }
+  function ParseRequest($page=NULL, $args=NULL) {
+    $ret = array();
+    //$scriptname = array_shift($req);
+    //$component = array_shift($req);
+    //$ret["path"] = "/" . str_replace(".", "/", $component);
+    if ($page === NULL)
+      $page = $_SERVER["SCRIPT_URL"];
+    $ret["path"] = "/";
+    $ret["type"] = "commandline";
+    $ret["user_agent"] = "commandline";
+
+    if (!empty($args)) {
+      $ret["args"] = $args;
+    }
+    return $ret;
   }
   function HandleException($e) {
     $vars["exception"] = array("type" => "exception",
@@ -135,7 +184,7 @@ class App {
 	    $zendAutoloader = Zend_Loader_Autoloader::getInstance(); //already registers Zend as an autoloader
 	    $zendAutoloader->unshiftAutoloader(array('WebApp', 'autoloadElation')); //add the Trimbo autoloader
 		} else {
-			spl_autoload_register('WebApp::autoloadElation');
+			spl_autoload_register('App::autoloadElation');
 		}
   }
   public static function autoloadElation($class) 

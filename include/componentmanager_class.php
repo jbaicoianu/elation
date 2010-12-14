@@ -120,8 +120,13 @@ class ComponentResponse implements ArrayAccess {
   private $template;
   
   function __construct($template=NULL, $data=NULL) {
-    $this->template = $template;
-    $this->data = $data;
+    if ($template instanceOf ComponentResponse) {
+      $this->template = $template->getTemplate();
+      $this->data = $template->data;
+    } else {
+      $this->template = $template;
+      $this->data = $data;
+    }
   }
   
   function offsetExists($name) {

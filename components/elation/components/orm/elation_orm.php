@@ -4,8 +4,10 @@ include_once("include/ormmanager_class.php");
 
 class Component_elation_orm extends Component {
   function controller_orm($args) {
+/*
     if (!User::authorized("orm"))
       throw new Exception("not allowed");
+*/
     $ret = $this->GetComponentResponse("./orm.tpl");
     /*
     $user = User::singleton();
@@ -83,5 +85,17 @@ class Component_elation_orm extends Component {
       $ret = "";
     }
     return $ret;
+  }
+  function controller_thrift($args) {
+    $vars["objects"] = array(
+      "product" => array(
+        array("type" => "i64", "name" => "ddkey"),
+        array("type" => "string", "name" => ""),
+        array("type" => "string", "name" => "ddkey"),
+        array("type" => "string", "name" => "ddkey"),
+        array("type" => "i64", "name" => "ddkey"),
+      )
+    );
+    return $this->GetComponentResponse("./thrift.tpl", $vars);
   }
 }

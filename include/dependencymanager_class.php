@@ -27,7 +27,7 @@ class DependencyManager {
   }
   static function display() {
     $ret = "";
-print_pre(self::$dependencies);
+    //print_pre(self::$dependencies);
     foreach (self::$dependencies as $priority=>$browsers) {
       foreach ($browsers as $browser=>$types) { 
         // FIXME - we're not actually wrapping the per-browser dependencies in their proper conditional comments yet

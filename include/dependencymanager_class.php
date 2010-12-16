@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * class DependencyManager
  * Singleton class for managing dependencies as templates render
@@ -27,7 +27,7 @@ class DependencyManager {
   }
   static function display() {
     $ret = "";
-//print_pre(self::$dependencies);
+    //print_pre(self::$dependencies);
     foreach (self::$dependencies as $priority=>$browsers) {
       foreach ($browsers as $browser=>$types) { 
         // FIXME - we're not actually wrapping the per-browser dependencies in their proper conditional comments yet
@@ -106,7 +106,6 @@ abstract class Dependency {
         $ret = new DependencyMeta($args);
         break;
       case 'jstemplate':
-        print_pre('JSTEMPLATE');
         $ret = new DependencyJSTemplate($args);
         break;
       default:
@@ -237,7 +236,7 @@ class DependencyOnload extends Dependency {
 
   function Display($locations, $extras=NULL) {
     if (!empty($this->code))
-      $ret = sprintf('<script type="text/javascript">thefind.onloads.add(%s);</script>'."\n", json_encode($this->code));
+      $ret = sprintf('<script type="text/javascript">elation.onloads.add(%s);</script>'."\n", json_encode($this->code));
     return $ret;
   }
 }

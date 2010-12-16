@@ -14,6 +14,16 @@
     {dependency type="component" name="utils.dependencies"}
     {dependency type="component" name="utils.ui"}
     {dependency type="component" name="utils.msie-xpath"}
+    
+    {*
+    DependencyManager::add("jstemplate", array("name" => "tplmgr.tflightbox", "component" => "tplmgr/tflightbox.tpl"));
+    DependencyManager::add("jstemplate", array("name" => "tplmgr.tfinfobox.closebutton", "component" => "/tplmgr/tfinfobox_closebutton.tpl"));
+    *}
+    
+    {dependency type="jstemplate" name="ui.infobox" component="ui.infobox"}
+    {dependency type="jstemplate" name="ui.lightbox" component="ui.lightbox"}
+    {dependency type="jstemplate" name="ui.infobox_titlebar" component="ui.infobox_titlebar"}
+
   {/strip}
   
   [[dependencies]]

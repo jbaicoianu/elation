@@ -184,7 +184,6 @@ class TemplateManager extends Smarty {
         $pos = array_search("[[dependencies]]", $search);
         $replace[$pos] = DependencyManager::display();
 
-      
         $output = str_replace($search, $replace, $output);
       }
     }

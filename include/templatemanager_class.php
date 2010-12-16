@@ -180,19 +180,9 @@ class TemplateManager extends Smarty {
             $replace[$pos] = "";
           }
         }
-          // Render jstemplates as part of dependency block
-					print_pre(class_exists("JSTemplateManager", false));
-          if (class_exists("JSTemplateManager", false)) {
-            $jstpl = JSTemplateManager::singleton();
-            $vars["templates"] = $jstpl->GetTemplates();
-            $dependencystr .= $this->GetTemplate("jstemplate.tpl", $null, $vars);
-          }
-               if (!empty($dependencystr))
-            $search["[[dependencies]]"] = $dependencystr;
 						
         $pos = array_search("[[dependencies]]", $search);
         $replace[$pos] = DependencyManager::display();
-				
         $output = str_replace($search, $replace, $output);
       }
     }

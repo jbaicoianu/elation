@@ -70,6 +70,19 @@ elation.extend("ajax", new function () {
     var req = this.parseURL(url);
     this.ProcessRequest(req, args);
   }
+  this.Inject = function(targetid, url, params, args) {
+    if (!args)
+      args = {};
+    
+    args.callback = function(html) {
+      var destination = document.getElementById(targetid);
+      
+      if (destination)
+        destination.innerHTML = html;
+    }
+    
+    this.Get(url, params, args);
+  }
   this.Post = function (form, params, args) {
     // FIXME - handle merging params array into form request
     var req = this.parseForm(form);
@@ -536,3 +549,5 @@ function ajaxForm(ajaxlib, form, history) {
   ajaxlib.Post(form, history);
   return false;
 }
+
+ajaxlib = elation.ajax;

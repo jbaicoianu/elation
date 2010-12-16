@@ -21,6 +21,46 @@ class Component_elation extends Component {
   function controller_profiler($args) {
     return Profiler::Display(E_ALL);
   }
+  function controller_settings(&$args) {
+    $cfg = $this->root->cfg->FlattenConfig($this->root->cfg->LoadServers($this->root->locations["config"] . "/servers.ini", false));
+    
+    $vars["tfdev"] = (!empty($_COOKIE["tf-dev"]) ? json_decode($_COOKIE["tf-dev"], true) : array());
+
+    if (!empty($args["clear"])) {
+      Logger::Info("Cleared dev settings");
+      setcookie("tf-dev", NULL, 0, "/");
+      $vars["tfdev"] = array();
+      $this->root->cfg->servers = $cfg;
+    }
+
+    if (!empty($args["settings"])) {
+      $diff_orig = array_diff_assoc_recursive($args["settings"], $cfg);
+      $diff_curr = array_diff_assoc_recursive($args["settings"], $this->root->cfg->FlattenConfig($this->root->cfg->servers));
+
+      $vars["tfdev"]["serveroverrides"] = $diff_orig;
+      setcookie("tf-dev", json_encode($vars["tfdev"]), 0, "/");
+      
+      if (!empty($diff_curr)) {
+        foreach ($diff_curr as $setting=>$value) {
+          Logger::Info("Override setting: $setting = '$value'");
+          $this->root->cfg->AppendSetting($this->root->cfg->servers, $setting, $value);
+        }
+      } else {
+        Logger::Error("No config differences!");
+      }
+
+    }
+
+    $vars["settings"] = $this->root->cfg->FlattenConfig($this->root->cfg->servers);
+    $ret = $this->GetComponentResponse("./settings.tpl", $vars);
+
+    //if ($this->root->request["ajax"]) {
+    //  $ret = $responses;
+    //} else {
+    //  $ret = $responses["tf_debug_tab_settings"];
+    //}
+    return $ret;
+  }
   function controller_inspect($args, $output="inline") {
     $vars["component"] = $args["component"];
     $vars["componentdir"] = "./components/" . implode("/components/", explode(".", $vars["component"]));

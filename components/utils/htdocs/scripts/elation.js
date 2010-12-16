@@ -226,6 +226,8 @@ elation.extend("html.position", function(obj) {
   }
   return [curleft,curtop];
 });
+
+// methods for css classname information and manipulation
 elation.extend("html.hasclass", function(element, className) {
   var re = new RegExp("(^| )" + className + "( |$)", "g");
   return element.className.match(re);
@@ -247,14 +249,22 @@ elation.extend("html.toggleclass", function(element, className) {
   else
     this.addclass(element, className);
 });
-// creates a new html element
-// example: elation.html.create({ 
-//	tag:'div', 
-//	classname:'example',
-//  style: { width:'30px', height:'20px' },
-//	attributes: { innerHTML: 'Test!' },
-//	append: elementObj
-// });
+
+// for great justice
+elation.extend("html.hasClass", elation.html.hasClass);
+elation.extend("html.addClass", elation.html.addClass);
+elation.extend("html.removeClass", elation.html.removeClass);
+elation.extend("html.toggleClass", elation.html.toggleClass);
+
+/* creates a new html element
+      example: elation.html.create({ 
+        tag:'div', 
+        classname:'example',
+        style: { width:'30px', height:'20px' },
+        attributes: { innerHTML: 'Test!' },
+        append: elementObj
+      });
+*/
 elation.extend('html.create', function(parms, classname, style, additional, append, before) {
   if (typeof parms == 'object')
     var tag = parms.tag,
@@ -288,7 +298,7 @@ elation.extend('html.create', function(parms, classname, style, additional, appe
 
 elation.extend('html.getscroll', function(shpadoinkle) {
   if (elation.iphone && elation.iphone.scrollcontent)
-    var pos = [0,0];//thefind.iphone.scrollcontent.getPosition();
+    var pos = [0,0];//elation.iphone.scrollcontent.getPosition();
 	else if (typeof pageYOffset != 'undefined') 
 		var pos = [ 
 			pageXOffset, 
@@ -319,6 +329,8 @@ elation.extend('html.getscroll', function(shpadoinkle) {
 			];
 	}
 });
+elation.extend("html.get_scroll", elation.html.getscroll);
+elation.extend("html.getScroll", elation.html.getscroll);
 
 elation.extend("utils.encodeURLParams", function(obj) {
   var value,ret = '';

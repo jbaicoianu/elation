@@ -27,6 +27,7 @@ class DependencyManager {
   }
   static function display() {
     $ret = "";
+print_pre(self::$dependencies);
     foreach (self::$dependencies as $priority=>$browsers) {
       foreach ($browsers as $browser=>$types) { 
         // FIXME - we're not actually wrapping the per-browser dependencies in their proper conditional comments yet
@@ -103,6 +104,9 @@ abstract class Dependency {
         break;
       case 'meta':
         $ret = new DependencyMeta($args);
+        break;
+      case 'jstemplate':
+        $ret = new DependencyJSTemplate($args);
         break;
       default:
         throw new Exception("DependencyManager: unknown dependency type '$type'");
@@ -288,3 +292,39 @@ class DependencyRSS extends Dependency {
   }
 }
 
+/**
+ * class DependencyJSTemplate
+ * Generate a JavaScript template dependency
+ * @package Framework
+ * @subpackage Dependencies
+ */
+class DependencyJSTemplate extends Dependency {
+  public $name;
+  public $component;
+  public $componentvars;
+  static private $templates = array();
+  static private $rendered = false;
+
+  function Init($args, $locations) {
+    foreach ($args as $k=>$v) {
+      $this->{$k} = $v;
+    }
+    if (!empty($args["name"]) && !empty($args["component"]) && !isset(self::$templates[$args["name"]])) {
+      self::$templates[$args["name"]] = ComponentManager::fetch($args["component"], $args["componentargs"]);
+    }
+  }
+
+  function Display($locations, $extras=NULL) {
+    if (!self::$rendered) { // We render all our jstemplates in one pass, this prevents it from being duplicated.  It could be more efficient...
+      $ret = '<script type="text/javascript">';
+      $ret .= "\n//<![CDATA[\n";
+      foreach (self::$templates as $tplname=>$tplstr) {
+        $ret .= sprintf("thefind.tplmgr.Create('%s', %s);\n", $tplname, json_encode($tplstr));
+      }
+      $ret .= "//]]>\n</script>\n";
+      self::$rendered = true;
+      return $ret;
+    }
+    return '';
+  }
+}

@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * class DependencyManager
  * Singleton class for managing dependencies as templates render
@@ -236,7 +236,7 @@ class DependencyOnload extends Dependency {
 
   function Display($locations, $extras=NULL) {
     if (!empty($this->code))
-      $ret = sprintf('<script type="text/javascript">thefind.onloads.add(%s);</script>'."\n", json_encode($this->code));
+      $ret = sprintf('<script type="text/javascript">elation.onloads.add(%s);</script>'."\n", json_encode($this->code));
     return $ret;
   }
 }
@@ -319,7 +319,7 @@ class DependencyJSTemplate extends Dependency {
       $ret = '<script type="text/javascript">';
       $ret .= "\n//<![CDATA[\n";
       foreach (self::$templates as $tplname=>$tplstr) {
-        $ret .= sprintf("thefind.tplmgr.Create('%s', %s);\n", $tplname, json_encode($tplstr));
+        $ret .= sprintf("elation.tplmgr.Create('%s', %s);\n", $tplname, json_encode($tplstr));
       }
       $ret .= "//]]>\n</script>\n";
       self::$rendered = true;

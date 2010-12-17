@@ -186,37 +186,41 @@ elation.extend("ajax", new function () {
         
         if (type == "xhtml") {
           var targetattr = res.attributes.getNamedItem("target");
+          
           if (targetattr) {
             var target = targetattr.nodeValue;
             var append = res.attributes.getNamedItem("append");
-						
             var content = res.firstChild.nodeValue;
             var element = docroot.getElementById(target);
+            
             if (element) {
               if (append && (append.nodeValue == 1 || append.nodeValue == "true")) {
                 element.innerHTML += content;
               } else {
-								//alert(content);
                 element.innerHTML = content;
-								//alert('done');
               }
               
               var scripts = element.getElementsByTagName("SCRIPT");
+              
               if (scripts.length > 0) {
                 for (var j = 0; j < scripts.length; j++) {
                   if (typeof scripts[j].src == 'string' && scripts[j].src.length > 0) {
-                      console.log(scripts[j]);
-                      var blah = document.createElement("SCRIPT");
-                      blah.src = scripts[j].src;
-                      element.removeChild(scripts[j]);
-                      document.getElementsByTagName("HEAD")[0].appendChild(blah);
+                    var blah = document.createElement("SCRIPT");
+                    blah.src = scripts[j].src;
+                    element.removeChild(scripts[j]);
+                    document.getElementsByTagName("HEAD")[0].appendChild(blah);
                   } else if (typeof scripts[j].text == 'string') {
                     var text = scripts[j].text;
-                    //batch.callback(text);
                     inlinescripts.push(text);
                   } else if (scripts[j].src) {
                   }
                 }
+              }
+              
+              var infobox = elation.ui.infobox.target(element);
+ 							
+              if (infobox && infobox.args.reposition) {
+								inlinescripts.push("elation.ui.infobox.position('"+infobox.name+"');");
               }
             }
           }

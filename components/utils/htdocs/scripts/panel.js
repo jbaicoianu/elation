@@ -93,7 +93,7 @@ elation.extend('panel', new function(options) {
 				break;
 		}
 		
-		if (arrayGet(item, 'args.unselectable'))
+		if (elation.utils.arrayget(item, 'args.unselectable'))
 			return;
 		
 		event.preventDefault();

@@ -305,7 +305,7 @@ elation.extend('panel', new function(options) {
 			if (this.args.contentcomponent && !this.args.nopopup && this.element.length > 0) {
 				var panelname = this.panel.name.replace(/\./g, "_") + "_" + this.name;
 				
-				elation.infobox.add(
+				elation.ui.infobox.add(
 					panelname, 
 					{
 						width:			this.args.contentwidth		|| '20em',
@@ -357,7 +357,7 @@ elation.extend('myfinds_picker', function(parent, panel) {
 		this.catul = document.getElementById('tf_picker_category');
 		this.catli = elation.utils.getOnly(this.catul, 'li');		
 		
-		elation.infobox.get('lightbox').dragging = false;
+		elation.ui.infobox.get('lightbox').dragging = false;
 		
 		for (var i=0; i<this.modeli.length; i++) {
 			var li = this.modeli[i],

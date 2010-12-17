@@ -418,4 +418,9 @@ function str_map($str, $map, $reverse=false) {
   return $str;
 }
 
-
+function str_varreplace($str, $vars) {
+  foreach ($vars as $k=>$v) {
+    $replace["[[".$k."]]"] = $v;
+  }
+  return str_replace(array_keys($replace), array_values($replace), $str);
+}

@@ -154,11 +154,11 @@ class TemplateManager extends Smarty {
     Profiler::StartTimer("TemplateManager::PostProcess()");
 
     if (!is_array($output)) { // FIXME - we should probably still postprocess if we're returning XML
-      if (preg_match_all("/\[\[([^\]:]+)(:(.*?))?\]\]/", $output, $matches, PREG_SET_ORDER)) {
+      if (preg_match_all("/\[\[([^\]:|]+)(?:[:|](.*?))?\]\]/", $output, $matches, PREG_SET_ORDER)) {
         $search = $replace = array();
         foreach ($matches as $m) {
           $search[] = $m[0];
-          $replace[] = (!empty($this->varreplace[$m[1]]) ? htmlspecialchars($this->varreplace[$m[1]]) : (!empty($m[3]) ? $m[3] : ""));
+          $replace[] = (!empty($this->varreplace[$m[1]]) ? htmlspecialchars($this->varreplace[$m[1]]) : (!empty($m[2]) ? $m[2] : ""));
         }
         
         $pos = array_search("[[debug]]", $search);

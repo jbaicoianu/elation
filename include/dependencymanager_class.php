@@ -18,16 +18,17 @@ class DependencyManager {
     }
     $browser = any($args["browser"], "all");
     $priority = any($args["priority"], 2);
-    if (!is_array(self::$dependencies[$args["type"]]))
-      self::$dependencies[$args["type"]] = array();
+    if (!is_array(self::$dependencies[$priority]))
+      self::$dependencies[$priority] = array();
     
     //self::$dependencies[$args["type"]][] = Dependency::create($args["type"], $args);
     $dep = Dependency::create($args["type"], $args);
-    self::$dependencies[$priority][$browser][$deptype][$dep->id()] = $dep;
+    self::$dependencies[$priority][$browser][$args["type"]][$dep->id()] = $dep;
   }
   static function display() {
     $ret = "";
     //print_pre(self::$dependencies);
+    ksort(self::$dependencies);
     foreach (self::$dependencies as $priority=>$browsers) {
       foreach ($browsers as $browser=>$types) { 
         // FIXME - we're not actually wrapping the per-browser dependencies in their proper conditional comments yet
@@ -311,6 +312,7 @@ class DependencyJSTemplate extends Dependency {
     }
     if (!empty($args["name"]) && !empty($args["component"]) && !isset(self::$templates[$args["name"]])) {
       self::$templates[$args["name"]] = ComponentManager::fetch($args["component"], $args["componentargs"]);
+      DependencyManager::add(array("type" => "component", "name" => "tplmgr.tplmgr", "priority" => 2));
     }
   }
 

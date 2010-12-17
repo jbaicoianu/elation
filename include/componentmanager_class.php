@@ -32,10 +32,37 @@ class ComponentManager extends Component {
     $alternateret = $this->HandleDispatchArgs($args);
     $outputtype = "html";
 
+    $cfg = ConfigManager::singleton();
+    $contentpages = $cfg->getSetting("page.content");
+    foreach($contentpages as $pagename=>$pagevalues) {
+      $contenturls[$pagevalues["url"]] = $pagevalues;
+      $contenturls[$pagevalues["url"]]["name"] = $pagename;
+    }
+
+    $tplmgr = TemplateManager::singleton();
+
+    $ret["type"] = $outputtype;
     $ret["page"] = $page;
 
-    if ($page == "/") {
-      $ret["type"] = $outputtype;
+    if(!empty($contenturls[$page])) {
+      $pagevars = $contenturls[$page];
+      if(!empty($pagevars["options"])) {
+        $cfg->ConfigMerge($cfg->current, $pagevars["options"]);
+      }
+      $args = $this->ApplyOverrides($args, $applysettings);
+
+      if (!empty($pagevars["component"]) && self::has($pagevars["component"])) {
+        $componentargs = (!empty($pagevars["vars"]) ? array_merge($pagevars["vars"], $args) : $args);
+        $ret["component"] = $pagevars["component"];
+        $ret["content"] = self::fetch($pagevars["component"], $componentargs, $outputtype);
+      } else if (!empty($pagevars["template"]) && $tplmgr->template_exists($pagevars["template"])) {
+        $pagevars["vars"]["args"] = $args;
+        $pagevars["vars"]["sitecfg"] = $this->root->sitecfg;
+        $ret["content"] = $this->GetTemplate($pagevars["template"], $pagevars["vars"]);
+      } else {
+        $ret["content"] = $this->GetTemplate("404.tpl", $pagevars["vars"]);
+      }
+    } else if ($page == "/") {
       $ret["component"] = "index";
 /*
       if ($component = $this->Get("index")) {
@@ -99,6 +126,83 @@ class ComponentManager extends Component {
     }
   }
 
+  function ApplyOverrides($req, $applysettings=true) {
+    $ret = $req;
+    // override arguments as specified in the config
+    $override_params = ConfigManager::get("search.request.override");
+    if(!empty($override_params)) {
+      foreach($override_params as $param_key=>$param_values) {
+        if (isset($req[$param_key])) {
+          $this->ApplySingleOverride($ret, $param_key, $req[$param_key], $param_values, $applysettings);
+        }
+      }
+    }
+    //print_pre($ret);
+    return $ret;
+  }
+
+  function ApplySingleOverride(&$final, $param_key, $param_value=NULL, $param_args=NULL, $applysettings=true) {
+    $cfg = ConfigManager::singleton();
+    $logmsg = "Applying URL map for $param_key ($param_value)";
+    if (!empty($param_args["override"])) {
+      $cfg->ConfigMerge($cfg->current, $param_args["override"]);
+      $param_args = ConfigManager::fetch("search.request.override.{$param_key}");
+    }
+    $new_value = NULL;
+    if(!empty($param_args["values"][$param_value])) {
+      $valuemap = $param_args["values"][$param_value];
+      if (is_array($valuemap)) {
+        if (!empty($valuemap["override"])) {
+          $cfg->ConfigMerge($cfg->current, $valuemap["override"]);
+          $param_args = ConfigManager::get("search.request.override.{$param_key}");
+        }
+        if (isset($valuemap["newvalue"])) {
+          $new_value = $valuemap["newvalue"];
+          $logmsg .= " (newvalue: '$new_value')";
+        } else {
+          $new_value = $param_value;
+        }
+      } else {
+        $new_value = $param_args["values"][$param_value];
+      }
+    } else {
+      $new_value = $param_value;
+    }
+    if(!empty($param_args["key"]) && $new_value !== NULL) {
+      array_set($final,$param_args["key"],$new_value);
+      //array_unset($final,$param_key);
+    }
+
+    if(!empty($param_args["alsooverride"])) {
+      $alsolog = "";
+      //print_pre($param_values["alsooverride"]);
+      foreach ($param_args["alsooverride"] as $also_key=>$also_value) {
+        $also_params = ConfigManager::get("search.request.override.{$also_key}");
+        if (!empty($also_params)) {
+          $alsolog .= (!empty($alsolog) ? "; " : "") . "$also_key=$also_value";
+          $this->ApplySingleOverride($final, $also_key, $also_value, $also_params, $applyoverrides);
+        }
+      }
+      if (!empty($alsolog))
+        $logmsg .= "(ALSO: $alsolog)";
+    }
+
+    if($applysettings && !empty($param_args["settings"])) {
+      $settingslog = "";
+      $updated_settings = ConfigManager::get("search.request.override.{$param_key}.settings");
+      if (!empty($updated_settings)) {
+        $flattened_settings = array_flatten($updated_settings);
+        $user = User::singleton();
+        foreach ($flattened_settings as $setting_key=>$setting_value) {
+          $settingslog .= (!empty($settingslog) ? "; " : "") . "$setting_key=$setting_value";
+          $user->SetPreference($setting_key, $setting_value, "temporary");
+        }
+      }
+      if (!empty($settingslog))
+        $logmsg .= " (SETTINGS: $settingslog)";
+    }
+    Logger::Info($logmsg);
+  }
   static public function fetch($componentname, $args=array(), $output="inline") {
     $ret = NULL;
     $componentmanager = self::singleton();
@@ -112,6 +216,10 @@ class ComponentManager extends Component {
       }
     }
     return $ret;
+  }
+  static public function has($componentname) {
+    $self = self::singleton();
+    return $self->HasComponent($componentname);
   }
 }
 

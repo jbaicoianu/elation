@@ -75,10 +75,13 @@ class App {
     }
     Profiler::StopTimer("WebApp::Init");
   }
-  function Display() {
+  function Display($path=NULL, $args=array()) {
+    $path = any($path, $this->request["path"], "/");
+    $args = any($args, $this->request["args"], "/");
+
     if (!empty($this->components)) {
       try {
-        $output = $this->components->Dispatch($this->request["path"], $this->request["args"]);
+        $output = $this->components->Dispatch($path, $args);
       } catch (Exception $e) {
         //print_pre($e);
         $output["content"] = $this->HandleException($e);

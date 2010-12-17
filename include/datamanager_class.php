@@ -206,6 +206,9 @@ class DataManager {
     $queryid = new DatamanagerQueryID($id);
     if ($source =& DataManager::PickSource($queryid)) {
       $insert_id = $source->QueryInsert($queryid, $table, $values, $extra);
+      if ($insertid) {
+        $this->CacheClear($id);
+      }
     }
     Profiler::StopTimer("DataManager::QueryInsert()");
     return $insert_id;
@@ -226,6 +229,9 @@ class DataManager {
     $queryid = new DatamanagerQueryID($id);
     if ($source =& DataManager::PickSource($queryid)) {
       $rows_affected = $source->QueryUpdate($queryid, $table, $values, $where_condition, $bind_vars);
+      if ($rows_affected > 0) {
+        $this->CacheClear($id);
+      }
     }
     Profiler::StopTimer("DataManager::QueryUpdate()");
     return $rows_affected;
@@ -269,6 +275,70 @@ class DataManager {
     }
     Profiler::StopTimer("DataManager::QueryCreate()");
     return $rows_affected;
+  }
+
+  /**
+   * This function performs a fetch query from the specified table
+   *
+   * @param string $id (resource id)
+   * @param string $table
+   * @param array $where
+   * @return object $result
+   */
+  function &QueryFetch($id, $table, $where, $extra=NULL) {
+    //Profiler::StartTimer("DataManager::QueryFetch()");
+    $result = NULL;
+    $queryid = new DatamanagerQueryID($id);
+    if ($source =& $this->PickSource($queryid)) {
+      // Pull default caching policy from connection object, then force enabled/disable as requested
+      $cache = $source->cachepolicy;
+      if (!empty($queryid->args["nocache"]))
+        $cache = false;
+      if (!empty($queryid->args["cache"])) {
+        $cache = any($source->cachepolicy, true);
+      }
+      $query = "SELECT *"; // FIXME - quick hack to truck CacheSet into thinking I'm a simple select
+
+
+      $foundincache = false;
+      if ($cache) {
+        //Profiler::StartTimer("DataManager::Query() - Check cache");
+        if (($cacheresult = $source->CacheGet($queryid, $query, $args)) !== NULL) {
+          if ($cacheresult && !$cacheresult->isExpired()) {
+            $result = $cacheresult->getPayload(false);
+            $foundincache = true;
+          }
+        }
+        //Profiler::StopTimer("DataManager::Query() - Check cache");
+      }
+
+      if ($result === NULL && empty($queryid->args["nosource"])) {
+        $result = $source->QueryFetch($queryid, $table, $where, $extra);
+        if ($cache && !$foundincache && !empty($result)) {
+          $source->CacheSet($queryid, $query, $args, $result);
+        }
+      }
+    }
+    //Profiler::StopTimer("DataManager::QueryFetch()");
+    return $result;
+  }
+  /**
+   * This function performs a count query from the specified table
+   *
+   * @param string $id (resource id)
+   * @param string $table
+   * @param array $where
+   * @return integer $count
+   */
+  function &QueryCount($id, $table, $where, $extra=NULL) {
+    //Profiler::StartTimer("DataManager::QueryCount()");
+    $count = 0;
+    $queryid = new DatamanagerQueryID($id);
+    if ($source =& $this->PickSource($queryid)) {
+      $count = $source->QueryCount($queryid, $table, $where, $extra);
+    }
+    //Profiler::StopTimer("DataManager::QueryCount()");
+    return $count;
   }
   
   function CacheClear($id) {

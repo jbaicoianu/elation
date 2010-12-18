@@ -174,6 +174,9 @@ class App {
                                  "message" => $errstr,
                                  "file" => $errfile,
                                  "line" => $errline);
+                                 
+      $vars['dumpedException'] = var_export($vars['exception'], true);
+      
       if (isset($this->tplmgr) && ($path = file_exists_in_path("templates/exception.tpl", true)) !== false) {
         print $this->tplmgr->GetTemplate($path . "/templates/exception.tpl", $this, $vars);
       } else {
@@ -181,6 +184,7 @@ class App {
       }
     }
   }
+  
   protected function initAutoLoaders()
   {
   	if(class_exists('Zend_Loader_Autoloader', false)) {
@@ -190,28 +194,31 @@ class App {
 			spl_autoload_register('App::autoloadElation');
 		}
   }
+  
   public static function autoloadElation($class) 
   {
-    //print "$class**<br />";
+//    print "$class <br />";
   	
 	  if (file_exists_in_path("include/" . strtolower($class) . "_class.php")) {
 	    require_once("include/" . strtolower($class) . "_class.php");
-	  } else if (file_exists_in_path("include/model/" . strtolower($class) . "_class.php")) {
+	  } 
+	  else if (file_exists_in_path("include/model/" . strtolower($class) . "_class.php")) {
 	    require_once("include/model/" . strtolower($class) . "_class.php");
-	  }	else {
+	  }	
+	  else if (file_exists_in_path("include/Smarty/{$class}.class.php")) {
+	    require_once("include/Smarty/{$class}.class.php");
+	  }		  
+	  else {
       try {
       	if(class_exists('Zend_Loader', false)) {
           @Zend_Loader::loadClass($class); //TODO: for fucks sake remove the @ ... just a tmp measure while porting ... do it or i will chum kiu you!
 				}
         return;
       }
-      catch (Exception $e) {
-        //var_dump($e);
-        //throw new Exception("Class ($class) is not in the ClassMapper.");
-      }	  	
-	    //throw new Exception("Class ($class) is not in the ClassMapper.");
+      catch (Exception $e) {}
 	  }
 	}
+	
   public function InitProfiler() {
     // If timing parameter is set, force the profiler to be on
     $timing = any($this->request["args"]["timing"], $this->cfg->servers["profiler"]["level"], 0);

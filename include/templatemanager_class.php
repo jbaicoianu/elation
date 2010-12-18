@@ -49,7 +49,7 @@ class TemplateManager extends Smarty {
 
     //$this->load_filter("output", "varreplace");
     // Initialize SmartyValidate
-    //SmartyValidate::connect($this);
+    SmartyValidate::connect($this);
 
     // Make global variables accessible from within smarty templates
     /*

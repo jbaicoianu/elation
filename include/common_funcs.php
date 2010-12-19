@@ -424,3 +424,104 @@ function str_varreplace($str, $vars) {
   }
   return str_replace(array_keys($replace), array_values($replace), $str);
 }
+/*
+ * PHP's internal base_convert sucks with numbers > 32bit.  
+ * This function treats the number as a string and does the processing that way.
+ * Copied from comments in http://us.php.net/base_convert and modified to support up to base 64
+ */
+function unfucked_base_convert ($numstring, $frombase, $tobase) {
+  $chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_^";
+  $tostring = substr($chars, 0, $tobase);
+
+  $length = strlen($numstring);
+  $result = '';
+  for ($i = 0; $i < $length; $i++) {
+    $number[$i] = strpos($chars, $numstring{$i});
+  }
+  do {
+    $divide = 0;
+    $newlen = 0;
+    for ($i = 0; $i < $length; $i++) {
+      $divide = $divide * $frombase + $number[$i];
+      if ($divide >= $tobase) {
+        $number[$newlen++] = (int)($divide / $tobase);
+        $divide = $divide % $tobase;
+      } elseif ($newlen > 0) {
+        $number[$newlen++] = 0;
+      }
+    }
+    $length = $newlen;
+    $result = $tostring{$divide} . $result;
+  }
+  while ($newlen != 0);
+  return $result;
+}
+
+
+function md5unpack($str, $bitsize) {
+  $parts = unpack("c*c", md5($str, true));
+  switch($bitsize) {
+  case 8:
+    $p = pack("cccc", 0, 0, 0, $parts["c1"]);
+    break;
+  case 16:
+    $p = pack("cccc", 0, 0, $parts["c1"], $parts["c2"]);
+    break;
+  case 24:
+    $p = pack("cccc", 0, $parts["c1"], $parts["c2"], $parts["c3"]);
+    break;
+  case 32:
+  default:
+    $p = pack("cccc", $parts["c1"], $parts["c2"], $parts["c3"], $parts["c4"]);
+    break;
+  }
+  $whole = unpack("Nret", $p);
+  return $whole["ret"];
+}
+
+function intshrink($ddkey) {
+  return unfucked_base_convert($ddkey, 10, 62);
+}
+function intgrow($ddkey) {
+  return unfucked_base_convert($ddkey, 62, 10);
+}
+/* replaced by unpack versions, which are 3x faster
+function md5int8($data) {
+  return unfucked_base_convert(substr(md5($data), 0, 2), 16, 10);
+}
+function md5int16($data) {
+  return unfucked_base_convert(substr(md5($data), 0, 4), 16, 10);
+}
+function md5int32($data) {
+  return unfucked_base_convert(substr(md5($data), 0, 8), 16, 10);
+}
+*/
+
+function md5int8($data) { return md5unpack($data, 8); }
+function md5int16($data) { return md5unpack($data, 16); }
+function md5int24($data) { return md5unpack($data, 24); }
+function md5int32($data) { return md5unpack($data, 32); }
+function md5int64($data) {
+  return unfucked_base_convert(substr(md5($data), 0, 16), 16, 10);
+}
+function md5int128($data) {
+  return unfucked_base_convert(md5($data), 16, 10);
+}
+function makeRequestURL($page, $args=NULL, $ignore=NULL) {
+  //Profiler::StartTimer("makeRequestURL");
+  $ret = $page;
+  if (!empty($args))
+    $ret .= (strpos($ret, "?") ? "&" : "?") . http_build_query($args);
+
+  if (! empty($ignore)) {
+    foreach ($ignore as $ign) {
+      $match[] = "/[&?]" . preg_quote(urlencode($ign)) . "=[^&#]+/";
+      $replace[] = "";
+   }
+  }
+  if (!empty($match))
+    $ret = preg_replace($match, $replace, $ret);
+
+  //Profiler::StartTimer("makeRequestURL");
+  return $ret;
+}

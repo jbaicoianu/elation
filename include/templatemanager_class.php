@@ -25,17 +25,20 @@
 require("include/Smarty/Smarty.class.php");
 
 // Form validation
-//include_once("Smarty/SmartyValidate.class.php");
+include_once("Smarty/SmartyValidate.class.php");
 
 
 class TemplateManager extends Smarty {
+  private $_template_exists_cache = array();
+  private $_is_combined_cache = array();
+  protected static $instance;
+  public static function singleton($args=NULL) { $name = __CLASS__; if (!self::$instance) { self::$instance = new $name($args); } return self::$instance;  }
+
+
   function TemplateManager($root=".") {
     if (!empty($root))
       $this->Init($root);
   }
-
-  protected static $instance;
-  public static function singleton($args=NULL) { $name = __CLASS__; if (!self::$instance) { self::$instance = new $name($args); } return self::$instance;  }
 
   function Init($root) {
     // Set up all Smarty default settings
@@ -106,42 +109,108 @@ class TemplateManager extends Smarty {
     $this->_tpl_vars =& $newvars;
 
     // Parse the template...
-    if ($this->template_exists($resource_name))
+    if ($this->HasTemplate($resource_name)) {
       $return = $this->fetch($resource_name);
-    else
+    } else {
       $return = "[Could not find template '$resource_name']";
+    }
 
     // And put everything back where we found it.
     $this->_tpl_vars =& $oldvars;
 
     return $return;
   }
+  function HasTemplate($resource_name) {
+    if (!isset($this->_template_exists_cache[$resource_name])) {
+      $this->_template_exists_cache[$resource_name] = $this->template_exists($resource_name);
+    }
+    return $this->_template_exists_cache[$resource_name];
+  }
 
   function GenerateHTML($responses) {
     return $this->PostProcess($responses);
   }
   function GenerateXML($responses) {
-    global $webapp;
+    $real = $this->ConvertOutputAjaxlib($responses);
 
-    $output = '<responses>';
-    foreach ($responses as $k=>$v) {
-      if ($k == "javascript") {
-        if (is_array($v)) {
-          foreach ($v as $js)
-            $output .= '  <response type="javascript"><![CDATA[' . $js . ']]></response>' . "\n";
-        } else {
-          $output .= '  <response type="javascript"><![CDATA[' . $v . ']]></response>' . "\n";
-        }
+    $output = "<responses>\n";
+    foreach ($real as $r) {
+      $output .= "\t<response ";
+      foreach ($r as $k=>$v) {
+        if ($k[0] != '_') 
+          $output .= $k . '="' . htmlspecialchars($v) . '" ';
+      }
+      if (!empty($r["_content"])) {
+        // FIXME - calling postprocess here can cause issues with jsonencoding and with other strings which contain [[ and ]], but it's somewhat necessary for some things...
+        //$output .= '><![CDATA[' . $this->PostProcess($r["_content"]) . ']]></response>';
+        $output .= '><![CDATA[' . $r["_content"] . ']]></response>';
       } else {
-        $output .= '  <response target="' . $k . '"><![CDATA[' . $v . ']]></response>' . "\n";
+        $output .= '/>';
+      }
+      $output .= "\n";
+    }
+    $output .= "</responses>";
+    return $output;
+  }
+  function GenerateJavascript($responses, $jsonp="ajaxlib.blah") {
+    if (is_string($responses))
+      $responses = array("data" => array("content" => $responses));
+    $real = $this->ConvertOutputAjaxlib($responses);
+    $output = $jsonp . "(" . json_encode($real) . ");";
+    return $output;
+  }
+  function ConvertOutputAjaxlib($responses) {
+    //$depmgr = DependencyManager::singleton();
+    $dependencies = DependencyManager::get();
+    $ret = array();
+    foreach ($dependencies as $prio=>$browsers) {
+      foreach ($browsers as $browser=>$deptypes) {
+        foreach ($deptypes as $deptype=>$deps) {
+          foreach ($deps as $depid=>$dep) { // jesus
+            $depobj = object_to_array($dep);
+            $depobj["deptype"] = $depobj["type"];
+            $depobj["type"] = "dependency";
+            $ret[] = $depobj;
+          }
+        }
       }
     }
-    if ($webapp->debug) {
-      $output .= '  <response type="debug"><![CDATA[' . Logger::Display(E_ALL) . ']]></response>' . "\n";
+    
+    if (!empty($responses)) {
+      foreach ($responses as $name=>$response) {
+        if (is_array($response)) {
+          foreach ($response as $respname=>$respval) {
+            $responseobj = array("type" => "$name",
+                                 "name" => $respname);
+            switch ($name) {
+            case "data":
+              $responseobj["_content"] = json_encode($respval);
+              break;
+            default:
+              $responseobj["_content"] = $respval;
+            }
+            $ret[] = $responseobj;
+          }
+        } else {
+          if ($response instanceOf AjaxlibResponse) {
+            $responseobj = $response->flatten(array("target" => $name));
+          } else {
+            $responseobj = array("type" => "xhtml",
+                                 "target" => $name,
+                                 //"append" => false,
+                                 "_content" => $response);
+          }
+          $ret[] = $responseobj;
+        }
+      }
     }
-    $output .= '</responses>';
 
-    return $output;
+    $user = User::singleton();
+    global $webapp;
+    if (!empty($webapp->debug) && ($user->HasRole("DEBUG") || $user->HasRole("ADMIN") || $user->HasRole("QA"))) {
+      $ret[] = array("type" => "debug", "_content" => Logger::Display(E_ALL));
+    }
+    return $ret;
   }
 
   function SetComponents(&$components) {
@@ -188,6 +257,12 @@ class TemplateManager extends Smarty {
     }
     Profiler::StopTimer("TemplateManager::PostProcess()");
     return $output;
+  }
+  function _is_compiled($resource_name, $compile_path) {
+    if (!isset($this->_is_compiled_cache[$resource_name])) {
+      $this->_is_compiled_cache[$resource_name] = Smarty::_is_compiled($resource_name, $compile_path);
+    }
+    return $this->_is_compiled_cache[$resource_name];
   }
 }
 

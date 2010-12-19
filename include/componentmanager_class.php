@@ -258,10 +258,11 @@ class ComponentResponse implements ArrayAccess {
     $tplmgr = TemplateManager::singleton();
     switch($type) {
       case 'ajax':
-        $ret = array("text/xml", $tplmgr->GenerateXML($this->data));
+        $ret = array("application/xml", $tplmgr->GenerateXML($this->data));
         break;
       case 'json':
-        $ret = array("application/javascript", $tplmgr->GenerateJavascript($ret));
+      case 'jsonp':
+        $ret = array("application/javascript", $tplmgr->GenerateJavascript($ret, any($_REQUEST["jsonp"], "ajaxlib.blah")));
         break;
       case 'js':
         $ret = array("application/javascript", json_indent(json_encode($this)) . "\n");
@@ -283,6 +284,10 @@ class ComponentResponse implements ArrayAccess {
         $framecomponent = any(ConfigManager::get("page.frame"), "html.page");
         $vars["content"] = $this;
         $ret = array("text/html", ComponentManager::fetch($framecomponent, $vars, "inline"));
+        break;
+      case 'popup': // Popup is same as HTML, but we only use the bare-minimum html.page frame
+        $vars["content"] = $this;
+        $ret = array("text/html", ComponentManager::fetch("html.page", $vars, "inline"));
         break;
       default:
         $ret = array("text/html", $tplmgr->GetTemplate($this->template, NULL, $this->data));

@@ -27,6 +27,7 @@ class App {
     Profiler::StartTimer("WebApp::Init", 1);
     Profiler::StartTimer("WebApp::TimeToDisplay", 1);
 
+    ob_start();
     $this->rootdir = $rootdir;
     $this->debug = !empty($args["debug"]);
     $this->getAppVersion();
@@ -75,9 +76,9 @@ class App {
     }
     Profiler::StopTimer("WebApp::Init");
   }
-  function Display($path=NULL, $args=array()) {
+  function Display($path=NULL, $args=NULL) {
     $path = any($path, $this->request["path"], "/");
-    $args = any($args, $this->request["args"], "/");
+    $args = any($args, $this->request["args"], array());
 
     if (!empty($this->components)) {
       try {
@@ -88,15 +89,15 @@ class App {
       }
       
       Profiler::StopTimer("WebApp::TimeToDisplay");
-      if ($output["type"] == "ajax") {
-        header('Content-type: application/xml');
-        print $this->tplmgr->GenerateXML($output["content"]);
+      header('Content-type: ' . any($output["responsetype"], "text/html"));
+      if ($output["type"] == "ajax" || $output["type"] == "jsonp") {
+        print $output["content"];
       } else {
-        header('Content-type: ' . any($output["responsetype"], "text/html"));
         print $this->tplmgr->PostProcess($output["content"]);
         if (!empty($this->request["args"]["timing"]))
           print Profiler::Display();
       }
+      ob_end_flush();
     }
   }
   function GetAppVersion() {

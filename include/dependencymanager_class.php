@@ -25,6 +25,9 @@ class DependencyManager {
     $dep = Dependency::create($args["type"], $args);
     self::$dependencies[$priority][$browser][$args["type"]][$dep->id()] = $dep;
   }
+  static function get() {
+    return self::$dependencies;
+  }
   static function display() {
     $ret = "";
     //print_pre(self::$dependencies);

@@ -50,7 +50,7 @@
   XMLHttpRequest objects for parallelized data retrieval
 */
 
-elation.extend("ajax", new function () {
+elation.extend("ajax", new function() {
 	this.Queue = function (obj) {
     if (obj.constructor.toString().indexOf("Array") != -1) {
       for (var i = 0; i < obj.length; i++) {
@@ -70,6 +70,11 @@ elation.extend("ajax", new function () {
     var req = this.parseURL(url);
     this.ProcessRequest(req, args);
   }
+  this.Post = function (form, params, args) {
+    // FIXME - handle merging params array into form request
+    var req = this.parseForm(form);
+    this.ProcessRequest(req, args);
+  }
   this.Inject = function(targetid, url, params, args) {
     if (!args)
       args = {};
@@ -82,11 +87,6 @@ elation.extend("ajax", new function () {
     }
     
     this.Get(url, params, args);
-  }
-  this.Post = function (form, params, args) {
-    // FIXME - handle merging params array into form request
-    var req = this.parseForm(form);
-    this.ProcessRequest(req, args);
   }
   this.ProcessRequest = function (req, args) {
     if (typeof args != 'undefined') {
@@ -141,13 +141,13 @@ elation.extend("ajax", new function () {
       
       if (name.length > 0 && name != "undefined" && element.value != "undefined" && !element.disabled) {
         if (element.type == "checkbox") {
-          ret.args += "&" + escape(name) + "=" + (element.checked ? "1" : "0");
+          ret.args += "&" + escape(name) + "=" + (element.checked ? (element.getAttribute("value") ? escape(element.value) : 1) : 0);
         } else if (element.type == "radio") {
           if (element.checked) {
             ret.args += "&" + escape(name) + "=" + escape(element.value);
           }
         } else {
-          ret.args += "&" + escape(name) + "=" + escape(element.value).replace(/\+/g, "%2B");
+	        ret.args += "&" + escape(name) + "=" + escape(element.value).replace(/\+/g, "%2B");
         }
       }
     }
@@ -163,144 +163,198 @@ elation.extend("ajax", new function () {
     return true;
   }
 
-  this.processResponse = function(dom, docroot, obj, ignore) {
-		//if (thefind && thefind.ajax_back_button && typeof search != 'undefined' && search.urlhash && !ignore)
-			//thefind.ajax_back_button.add(dom, docroot, obj);
+  this.processResponse = function(responses) {
+    /* DISABLED - back button code (still seems to be working...)
+		if (
+			(typeof thefind != 'undefined' && typeof thefind.ajax_back_button != 'undefined') && 
+			(typeof search != 'undefined' && search.urlhash) && 
+			(typeof obj != 'undefined' && obj.url == '') && 
+			(!ignore)
+		) {
+			thefind.ajax_back_button.add(dom, docroot, obj);
+		}
+    */
+    var common = { // Used to keep track of registered dependencies, etc. while all responses are processed
+      inlinescripts: [],
+      data: {},
+      dependencies: {}
+    };
 		
-		//alert('xmlresponse'+dom);
-    if (!dom) return;
-    
-    //var batch = new thefind.func.dependencies_batch();
-    
-    var data = {}, components = {}, css = {}, js = {};
-    var inlinescripts = [];
+    for (var i = 0; i < responses.length; i++) {
+      var type = responses[i].type || 'xhtml';
+      if (typeof this.responsehandlers[type] == 'function') {
+        this.responsehandlers[type](responses[i], common);
+      } else {
+        console.log('No handler for type ' + type);
+      }
+    }
 		
-    for (var i = 0; i < dom.childNodes.length; i++) {
-      var res = dom.childNodes.item(i);
-
-      if (res.nodeType == 1) { // Right now we only understand ELEMENT_NODE types
-        var typeattr = res.attributes.getNamedItem("type");
-        var type = "xhtml"; // default the type to standard XHTML
-        if (typeattr)
-          type = typeattr.nodeValue;
-        
-        if (type == "xhtml") {
-          var targetattr = res.attributes.getNamedItem("target");
-          
-          if (targetattr) {
-            var target = targetattr.nodeValue;
-            var append = res.attributes.getNamedItem("append");
-            var content = res.firstChild.nodeValue;
-            var element = docroot.getElementById(target);
-            
-            if (element) {
-              if (append && (append.nodeValue == 1 || append.nodeValue == "true")) {
-                element.innerHTML += content;
-              } else {
-                element.innerHTML = content;
-              }
-              
-              var scripts = element.getElementsByTagName("SCRIPT");
-              
-              if (scripts.length > 0) {
-                for (var j = 0; j < scripts.length; j++) {
-                  if (typeof scripts[j].src == 'string' && scripts[j].src.length > 0) {
-                    var blah = document.createElement("SCRIPT");
-                    blah.src = scripts[j].src;
-                    element.removeChild(scripts[j]);
-                    document.getElementsByTagName("HEAD")[0].appendChild(blah);
-                  } else if (typeof scripts[j].text == 'string') {
-                    var text = scripts[j].text;
-                    inlinescripts.push(text);
-                  } else if (scripts[j].src) {
-                  }
-                }
-              }
-              
-              var infobox = elation.ui.infobox.target(element);
- 							
-              if (infobox && infobox.args.reposition) {
-								inlinescripts.push("elation.ui.infobox.position('"+infobox.name+"');");
-              }
-            }
-          }
-        } else if (type == "javascript") {
-          var content = res.firstChild.nodeValue;
-          //batch.callback(content);
-          inlinescripts.push(content);
-        } else if (type == "data") {
-          var nameattr = res.attributes.getNamedItem("name");
-          var content = res.firstChild;
-          if (nameattr && content) {
-            data[nameattr.nodeValue] = JSON.parse(content.nodeValue);
-          }
-        } else if (type == "debug") {
-          var content = res.firstChild.nodeValue;
-          var debugcontainer = document.getElementById('tf_debug_tab_logger');
-          if (debugcontainer)
-            debugcontainer.innerHTML += content;
-        } else if (type == "dependency") {
-          deptype = isNull(res.attributes) ? '' : res.attributes.getNamedItem("deptype").nodeValue;
-          
-          switch (deptype) {
-            case 'javascript':
-              var  url = isNull(res.attributes) ? '' : res.attributes.getNamedItem("url").nodeValue;
-							
-              batch.add(url + '&async=2');
-              break;
-            case 'component':
-              var  name = isNull(res.attributes) 
-                ? '' 
-                : res.attributes.getNamedItem("name").nodeValue.split('.');
-							
-              if (name[0]) {
-								if (name[0]+name[1] == 'searchinfobox') break;
-								if (name[0]+name[1] == 'searchnoresults') break;
-								if (name[0]+name[1] == 'localsettings') break;
-								
-                var num = typeof name[1] == 'undefined' ? 0 : 1;
-                if (!components[name[0]])
-                  components[name[0]] = [];
-								
-                components[name[0]].push(name[num]);
-              }
-              break;
-            case 'placemark':
-              break;
-            case 'css':
-              break;
-          }
+    // Process all CSS and JS dependencies into URLs
+    var cssparms = '', javascriptparms = '';
+    for (var key in common.dependencies.css) {
+      if (common.dependencies.css.hasOwnProperty(key)) {
+        if (common.dependencies.css[key].length > 0)
+          cssparms += key + '=' + common.dependencies.css[key].join('+') + '&';
+      }
+    }
+    for (var key in common.dependencies.javascript) {
+      if (common.dependencies.javascript.hasOwnProperty(key)) {
+        if (common.dependencies.javascript[key].length > 0) 
+          javascriptparms += key + '=' + common.dependencies.javascript[key].join('+') + '&';
+      }
+    }
+    var batch = new elation.func.dependencies_batch();
+    if (cssparms.length > 0)
+      batch.add('/css/main?'+cssparms.substr(0,cssparms.length-1),'css');
+    if (javascriptparms.length > 0)
+      batch.add('/scripts/main?'+javascriptparms.substr(0,javascriptparms.length-1),null,true);
+		
+    // Execute all inline scripts
+    var execute_scripts = function() {
+      if (common.inlinescripts.length > 0) {
+        var  script_text = '';
+        for (var i = 0; i < common.inlinescripts.length; i++) {
+          if (!common.inlinescripts[i] || typeof common.inlinescripts[i] == 'undefined') 
+            continue;
+          else
+            script_text += common.inlinescripts[i] + '\n';
+        }
+        try {
+          eval(script_text);
+        } catch(e) {
+          batch.callback(script_text);
         }
       }
     }
 		
-    var parms = '', key;
-    
-    for (var key in components) 
-      if (components[key].length > 0) 
-        parms += key + '=' + components[key].join('+') + '&';
-    
-    if (parms.length > 0) {
-      //batch.add('/css/main?'+parms.substr(0,parms.length-1),'css');
-      batch.add('/scripts/main?'+parms.substr(0,parms.length-1),null,true);
-    }
-		
-    if (inlinescripts.length > 0) {
-        inlinescripts.push("console.log('done');");
-      for (var i = 0; i < inlinescripts.length; i++) {
-				if (!inlinescripts[i] || typeof inlinescripts[i] == 'undefined') 
-					continue;
-				
-					eval(inlinescripts[i]);
+    // FIXME - this had a delay of 1ms when type='data' and name='infobox.data' was passed, I'm sure there was a reason but it doesn't work with the way this is done now... 
+    execute_scripts();  // no timer makes priceslider happy!  no ugly delay.
+
+    // If caller passed in a callback, execute it
+    if (typeof obj != 'undefined' && obj.callback) {
+      try {
+        elation.ajax.executeCallback(obj.callback, common.data);
+      } catch(e) {
+        batch.callback(function() { elation.ajax.executeCallback(obj.callback, common.data); });
       }
     }
-		
-    // If caller passed in a callback, execute it
-    if (obj && obj.callback) {
-      elation.ajax.executeCallback(obj.callback, data);
+  }
+
+  this.responsehandlers = {
+    'xhtml': function(response, common) {
+      //console.log('process xhtml', response);
+      if (response['target'] && response['_content']) {
+        var targetel = document.getElementById(response['target']);
+        if (targetel) {
+          if (response['append'] == 1 || response['append'] == 'true') {
+            targetel.innerHTML += response['_content'];
+          } else {
+            //thefind.func.ie6_purge(targetel);
+						targetel.innerHTML = response['_content'];
+          }
+          var scripts = targetel.getElementsByTagName("SCRIPT");
+          if (scripts.length > 0) {
+            for (var j = 0; j < scripts.length; j++) {
+              if (typeof scripts[j].text == 'string') {
+                common.inlinescripts.push(scripts[j].text);
+              } else if (scripts[j].src) {
+                console.log('elation.ajax: found inline script with src parameter');
+              }
+            }
+          }
+          /* FIXME - this seems like an odd place to have this... */
+          var infobox = elation.ui.infobox.target(targetel);
+          if (infobox && infobox.args.reposition) {
+            common.inlinescripts.push("elation.ui.infobox.position('"+infobox.name+"', true);");
+          }
+        }
+      }
+    },
+    'javascript': function(response, common) {
+      //console.log('process javascript', response);
+      if (response['_content'])
+        common.inlinescripts.push(response['_content']);
+    },
+    'data': function(response, common) {
+      //console.log('process data', response);
+      if (response['name'] && response['_content']) {
+        common.data[response['name']] = elation.JSON.parse(response['_content']);
+
+        /* FIXME - this also seems like an odd place for infobox-related code (see above) */
+        if (response['name'] == 'infobox.content') {
+          var	text = elation.JSON.parse(response['_content']),
+              div = document.createElement('div');
+          
+          //thefind.func.ie6_purge(div);
+          div.innerHTML = text;
+          
+          var scripts = div.getElementsByTagName("SCRIPT");
+          if (scripts.length > 0) {
+            for (var j = 0; j < scripts.length; j++) {
+              if (typeof scripts[j].text == 'string') {
+                common.inlinescripts.push(scripts[j].text);
+              } else if (scripts[j].src) {
+                console.log('elation.ajax: found inline script with src parameter');
+              }
+            }
+          }
+          /* FIXME - this seems like an odd place to have this... */
+          var infobox = elation.ui.infobox.current;
+          if (infobox && infobox.args.reposition)
+            common.inlinescripts.push("elation.ui.infobox.position('"+infobox.name+"', true);");
+        }
+      }
+    },
+    'dependency': function(response, common) {
+      //console.log('process dependency', response);
+      if (response['deptype'] == 'component' && response['name']) {
+        var name = response['name'].split('.', 2); // FIXME - this won't work with "deep" components (eg. thefind.search.filters.color)
+        if (name[0] && response['subtypes']) {
+          var subtypes = response['subtypes'].split(',');
+          for (var i = 0; i < subtypes.length; i++) {
+            if (!common.dependencies[subtypes[i]])
+              common.dependencies[subtypes[i]] = [];
+            if (!common.dependencies[subtypes[i]][name[0]])
+              common.dependencies[subtypes[i]][name[0]] = [];
+            common.dependencies[subtypes[i]][name[0]].push(name[1]);
+          }
+        }
+      }
+    },
+    'debug': function(response, common) {
+      //console.log('process debug', response);
+      if (response['_content']) {
+        var debugcontainer = document.getElementById('tf_debug_tab_logger');
+        if (debugcontainer) {
+          //thefind.func.ie6_purge(debugcontainer);
+					debugcontainer.innerHTML += response['_content'];
+        }
+				
+				if (typeof tf_debugconsole != 'undefined')
+          tf_debugconsole.scrollToBottom();
+      }
     }
   }
-	
+
+
+  this.translateXML = function(dom) { // Convert an XML object into a simple object
+    var ret = [];
+    if (dom && dom.childNodes) {
+      for (var i = 0; i < dom.childNodes.length; i++) {
+        var res = dom.childNodes.item(i);
+        if (res.nodeType == 1) { // Right now we only understand ELEMENT_NODE types
+          var newres = {};
+          for (var j = 0; j < res.attributes.length; j++) {
+            newres[res.attributes[j].nodeName] = res.attributes[j].nodeValue;
+          }
+          newres['_content'] = (res.firstChild ? res.firstChild.nodeValue : false);
+          ret.push(newres);
+        }
+      }
+    }
+    return ret;   
+  }
+
   this._go = function(obj) {
     var docroot = this.docroot;
 
@@ -322,7 +376,6 @@ elation.extend("ajax", new function () {
       obj.args = (obj.args && obj.args.length > 0 ? obj.args + "&" : "") + "_ajaxlibreqid=" + (parseInt(new Date().getTime().toString().substring(0, 10)) + parseFloat(Math.random()));
     }
 
-
     if (obj.timeout && obj.timeoutcallback) {
       timeouttimer = window.setTimeout(function() { obj.failurecallback = false; xmlhttp.abort(); obj.timeoutcallback(); }, obj.timeout || 5000);
     }
@@ -335,7 +388,9 @@ elation.extend("ajax", new function () {
         if (xmlhttp.status == 200) {
           if (xmlhttp.responseXML) {
             var dom = xmlhttp.responseXML.firstChild;
-            processResponse(dom, docroot, obj);
+            var results = [];
+            //processResponse(dom, docroot, obj);
+            processResponse.call(elation.ajax, elation.ajax.translateXML(dom));
           } else if (xmlhttp.responseText) {
             if (obj.callback) {
               elation.ajax.executeCallback(obj.callback, xmlhttp.responseText);
@@ -350,20 +405,23 @@ elation.extend("ajax", new function () {
       }
     }
 
+     //alert('trying '+obj.method+' '+obj.url);
     try {
-
-      //console.log('trying '+obj.method+' '+obj.url);
       if (obj.method == "POST") {
         xmlhttp.open(obj.method, obj.url, true);
         xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         xmlhttp.setRequestHeader("X-Ajax", "1");
         xmlhttp.onreadystatechange = readystatechange;
         xmlhttp.send(obj.args);
-      } else {
+      } else if (obj.method == "GET") {
         xmlhttp.open(obj.method, obj.url + "?" + obj.args, true);
         xmlhttp.setRequestHeader("X-Ajax", "1");
         xmlhttp.onreadystatechange = readystatechange;
         xmlhttp.send(null);
+      } else if (obj.method == "SCRIPT") {
+        var url = this.host + obj.url;
+        if (obj.args) url += '?' + elation.utils.encodeURLParams(obj.args);
+        elation.file_utils.get('javascript', url);
       }
     } catch (e) {
       if (obj.failurecallback) {
@@ -402,6 +460,7 @@ elation.extend("ajax", new function () {
   this.setLoader = function(target, img, text) {
     if (!text) text = "";
     if (e = document.getElementById(target)) {
+			//thefind.func.ie6_purge(e);
       e.innerHTML = '<div style="text-align: center;">' + text + '<img src="' + img + '" alt="Loading..." /></div>';
     }
   }
@@ -409,10 +468,8 @@ elation.extend("ajax", new function () {
   this.getHTTPObject = function() {
     if (!this.xmlhttp) {
       var xmlhttp = false;
-      /*@cc_on @*/
-      /*@if (@_jscript_version >= 5)
-        // JScript gives us Conditional compilation, we can cope with old IE versions.
-        // and security blocked creation of the objects.
+      
+      if (typeof ActiveXObject != 'undefined') {
         try {
           xmlhttp = new ActiveXObject("Msxml2.XMLHTTP");
         } catch (e) {
@@ -422,7 +479,8 @@ elation.extend("ajax", new function () {
             xmlhttp = false;
           }
         }
-      @end @*/
+      } 
+      
       if (!xmlhttp && typeof XMLHttpRequest != "undefined") {
         try {
           xmlhttp = new XMLHttpRequest();
@@ -498,17 +556,27 @@ iframe = new Object();
     var args = [];
     for (var i = 0; i < arguments.length; i++)
       args[i] = arguments[i];
+		
     var callback = args.shift();
-
+		
     if (callback) {
       if (callback.constructor.toString().indexOf("Array") != -1 && callback.length == 2) {
         // If array is passed, use first element as thisObject, and second element as function reference
-        callback[1].apply(callback[0], args);
+				callback[1].apply(callback[0], args);
       } else {
         callback.apply(this, args);
       }
     }
   }
+  this.link = function(link, history) {
+    this.Get(link, history);
+    return false;
+  }
+  this.form = function(form, history) {
+    this.Post(form, history);
+    return false;
+  }
+
 
   // AJAX object initialization
   this.getHTTPObject(); 
@@ -519,30 +587,25 @@ iframe = new Object();
   this.lasthash = "";
   this.urlqueue = new Array();
   this.docroot = document;
+  this.host = document.location.protocol + '//' + document.location.host;
+});
 
-  this.link = function(link, history) {
-    this.Get(link, history);
-    return false;
-  }
-  this.form = function(form, history) {
-    this.Post(form, history);
-    return false;
-  }
+/*
+// AJAX child for use within an IFRAME 
+function ajaxChild(url) {
+  var qstr = url.substr(url.indexOf("?")+1, (url.indexOf("#") - url.indexOf("?") - 1));
+  var file = url.substr(url.indexOf("#")+1);
 
-  // AJAX child for use within an IFRAME 
-  this.child = function(url) {
-    var qstr = url.substr(url.indexOf("?")+1, (url.indexOf("#") - url.indexOf("?") - 1));
-    var file = url.substr(url.indexOf("#")+1);
-
-    if (file.length > 0 && qstr.length > 0) {
-      if (parent.elation.ajax) { // Workaround for when iframe finishes loading before parent does
-        parent.elation.ajax.Get(file + "?" + qstr);
-      } else {
-        setTimeout('parent.elation.ajax.Get("' + file + '?' + qstr + '")', 100);
-      }
+  if (file.length > 0 && qstr.length > 0) {
+    if (parent.elation.ajax) { // Workaround for when iframe finishes loading before parent does
+      parent.elation.ajax.Get(file + "?" + qstr);
+    } else {
+      setTimeout('parent.elation.ajax.Get("' + file + '?' + qstr + '")', 100);
     }
   }
-});
+}
+
+// Convenience functions to use within webpages
 
 function ajaxLink(ajaxlib, link, history) {
   ajaxlib.Get(link, history);
@@ -553,5 +616,5 @@ function ajaxForm(ajaxlib, form, history) {
   ajaxlib.Post(form, history);
   return false;
 }
-
+*/
 ajaxlib = elation.ajax;

@@ -582,3 +582,70 @@ elation.extend('cookie', {
     }
 	}
 });
+elation.extend("find", function(selectors, parent, first) {
+  /*
+    selector engine can use commas, spaces, and find classnames via period.
+    need to add id support and multiple classname on single tag support
+    this code is used for browsers which dont have their own selector engines
+    this could be made a lot better.
+  */
+  this.findCore = function(selectors, oparent) {
+    var	selectors = selectors.split(','),
+        elements = [],
+        selector, section, tag, tags, classname, isParent, parent, parents;
+    
+    for (var s=0; s<selectors.length; s++) {
+      parent = oparent || document.getElementsByTagName('BODY')[0];
+      parents = [parent];
+      section = selectors[s].split(' ');
+      
+      for (var p=0; parent = parents[p]; p++) {
+        for (var q=0; q<section.length; q++) {
+          isParent = (q = section.length - 1);
+          selector = section[q].split('.');
+          tag = selector[0] || '*';
+          tags = parent.getElementsByTagName(tag);
+          classname = selector.length > 1 ? selector[1] : false;
+          
+          for (var i=0; i<tags.length; i++) {
+            if (classname) {
+              if (elation.html.hasclass(tags[i], classname))
+                if (isParent)
+                  parents.push(tags[i]);
+                else
+                  elements.push(tags[i]);
+            } else
+              if (isParent)
+                parents.push(tags[i]);
+              else
+                elements.push(tags[i]);
+          }
+        }
+      }
+    }
+    
+    return elements;
+  }
+
+  var result;
+  
+  if (elation.utils.isTrue(parent)) {
+    first = true;
+    parent = null;
+  }
+  
+  if (document.querySelectorAll) 
+    result = (parent) 
+      ? parent.querySelectorAll(selectors) 
+      : document.querySelectorAll(selectors);
+  else
+    result = this.findCore(selectors, parent);
+  
+  if (first && typeof result == 'object')
+    if (result.length > 0)
+      result = result[0];
+    else
+      result = null;
+  
+  return result;
+});

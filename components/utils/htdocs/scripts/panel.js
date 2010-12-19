@@ -246,7 +246,7 @@ elation.extend('panel', new function(options) {
 	}
   
 	this.select_item = function(item, panel) {
-		var	li = arrayGet(item, 'element'),
+		var	li = elation.utils.arrayget(item, 'element'),
         li = li.length > 0 ? li[0] : li;
 		
 		if (elation.html.hasclass(li, 'tf_utils_state_disabled'))

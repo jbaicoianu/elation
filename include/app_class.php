@@ -74,6 +74,8 @@ class App {
         print file_get_contents($path . "/" . $fname);
       }
     }
+    $this->user = User::singleton();
+    $this->user->InitActiveUser($this->request);
     Profiler::StopTimer("WebApp::Init");
   }
   function Display($path=NULL, $args=NULL) {

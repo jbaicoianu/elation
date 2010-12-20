@@ -268,6 +268,9 @@ class ComponentResponse implements ArrayAccess {
         $ret = array("application/javascript", $tplmgr->GenerateJavascript($ret, any($_REQUEST["jsonp"], "ajaxlib.blah")));
         break;
       case 'js':
+        $ret = array("application/javascript", json_encode($this) . "\n");
+        break;
+      case 'jsi':
         $ret = array("application/javascript", json_indent(json_encode($this)) . "\n");
         break;
       case 'txt':

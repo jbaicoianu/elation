@@ -22,9 +22,13 @@ class DBWrapper extends ConnectionWrapper {
 
     $servers = $this->cfg["servers"];
     // Establish database connection
-    if ($servernum == 0) {
+    if ($servernum == 0 && !empty($this->cfg["host"])) {
       //Profiler::StartTimer("DBWrapper:Open() - dbconnect");
-      $servers[0] = $this->cfg;
+      if (!empty($this->cfg["username"])) {
+        $servers[0] = $this->cfg;
+      } else {
+        Logger::Error("Could not connect to database username is not set.");
+      }
       //Profiler::StopTimer("DBWrapper:Open() - dbconnect");
     } else {
       if (!isset($servers[$servernum]["username"]))
@@ -34,8 +38,6 @@ class DBWrapper extends ConnectionWrapper {
     }
 
     if (isset($servers[$servernum])) {
-      $dsn = Database::dsn($servers[$servernum]);
-      //$this->conn[$servernum] = new PDO($dsn, $this->cfg["username"], $this->cfg["password"]);
       $this->conn[$servernum] = new Database($servers[$servernum]);
       if (!$this->conn[$servernum]) {
         Logger::Error("Could not connect to database '" . $servers[$servernum]["host"] . "'");
@@ -56,7 +58,7 @@ class DBWrapper extends ConnectionWrapper {
   }
 
   function Ping($servernum) {
-    return !empty($this->conn[$servernum]);    
+    return ($this->conn[$servernum] !== NULL && $this->conn[$servernum]->isConnected());
   }
 
   function &Query($queryid, $query, $args=NULL) {
@@ -67,7 +69,7 @@ class DBWrapper extends ConnectionWrapper {
     foreach ($servers as $server) {
       $servernum = $server[0];
       if (!$this->LazyOpen($servernum)) {
-        Logger::Info("Database connection '{$this->name}' marked as failed, skipping query");
+        Logger::Info("Database connection '{$this->name}:{$servernum}' marked as failed, skipping SELECT query");
         continue;
         //return NULL;
       } else {
@@ -130,32 +132,44 @@ class DBWrapper extends ConnectionWrapper {
    */
   function &QueryInsert($queryid, $table, $values, $extra=NULL) {
     $servers = $this->HashToServer($queryid);
-    //print_pre($this->cfg);
+    $failed = false;
+    Profiler::StartTimer("DBWrapper:QueryInsert()");
     foreach ($servers as $server) {
       $servernum = $server[0];
       // If we're not connected and we're in lazy mode, open the connection.  Bail out if lazy connect fails.
       if (!$this->LazyOpen($servernum)) {
-        Logger::Info("Database connection '{$this->name}:{$servernum}' marked as failed, skipping query");
-        return NULL;
-      }
-      Profiler::StartTimer("DBWrapper:QueryInsert()");
-      
-      // Double check that conn exists before using it (FIXME - could be smarter here)
-      $last_insert_id = null;
-      if ($this->conn[$servernum]) {
-        $realtable = $table . ($server[1] !== NULL ? "_" . $server[1] : "");
-        $last_insert_id = $this->conn[$servernum]->insert($realtable, $values, $extra);
-        if ($last_insert_id) {
-          Logger::Info("Insert into table $table succeeded: $last_insert_id");
-        } else {
-          Logger::Error("Mysql error: error inserting into $table with data " . print_ln($values,true)); 
-        }
+        $failed = true;
+        Logger::Info("Database connection '{$this->name}:{$servernum}' marked as failed, skipping INSERT query");
       } else {
-        Logger::Warn("Tried to use db '{$this->name}', but no connection was active");
+        // Double check that conn exists before using it (FIXME - could be smarter here)
+        $last_insert_id = null;
+        if ($this->conn[$servernum]) {
+          $realtable = $table . ($server[1] !== NULL ? "_" . $server[1] : "");
+          try {
+            $last_insert_id = $this->conn[$servernum]->insert($realtable, $values, $extra);
+            if ($last_insert_id !== false) {
+              Logger::Info("Insert into table $realtable succeeded: $last_insert_id");
+            } else {
+              Logger::Error("Mysql error: error inserting into $realtable with data " . print_ln($values,true)); 
+              $failed = true;
+              break;
+            }
+          } catch (Exception $e) {
+            $failed = true;
+            $last_insert_id = NULL;
+            if ($extra["exceptionpassthrough"]) { // Duplicate key constraint violation
+              throw($e);
+            } else {
+              Logger::Error("Failed to insert '{$queryid->id}' into '$realtable': " . $e->getMessage());
+            }
+          }
+        } else {
+          Logger::Warn("Tried to use db '{$this->name}', but no connection was active");
+        }
       }
     }
     Profiler::StopTimer("DBWrapper:QueryInsert()");
-    return $last_insert_id;
+    return ($failed ? null : $last_insert_id);
   }
 
   /**
@@ -168,34 +182,52 @@ class DBWrapper extends ConnectionWrapper {
    * @return int
    */
   function &QueryUpdate($queryid, $table, $values, $where_condition, $bind_vars=array()) {
+    // If we passed an array for the where clause, we need to synthesize a string and populate the appropriate bind_vars
+    if (is_array($where_condition)) { 
+      $new_wheres = array();
+      foreach ($where_condition as $k=>$v) {
+        $bind_vars[':where'.$k] = $v;
+        $new_wheres[] = $k . "=:where" . $k;
+      }
+      $where_condition = implode(" AND ", $new_wheres);
+    }
     $servers = $this->HashToServer($queryid);
-    //print_pre($servers);
     foreach ($servers as $server) {
       $servernum = $server[0];
       // If we're not connected and we're in lazy mode, open the connection.  Bail out if lazy connect fails.
       if (!$this->LazyOpen($servernum)) {
-        Logger::Info("Database connection '{$this->name}:{$servernum}' marked as failed, skipping query");
-        return NULL;
-      }
-      Profiler::StartTimer("DBWrapper:QueryUpdate()");
-      
-      // Double check that conn exists before using it (FIXME - could be smarter here)
-      $rows_affected = null;
-      if ($this->conn[$servernum]) {
-        $realtable = $table . ($server[1] !== NULL ? "_" . $server[1] : "");
-        /*
-        print_pre($realtable);
-        print_pre($values);
-        print_pre($where_condition);
-        print_pre($bind_vars);
-        */
-        $rows_affected = $this->conn[$servernum]->update($realtable, $values, $where_condition, $bind_vars);
-        if ($rows_affected > 0) {
-          $this->CacheClear($queryid);
-        }
-        //Logger::Warn("Execute update query into table $table (Using " . $this->dsn . ")");
+        Logger::Info("Database connection '{$this->name}:{$servernum}' marked as failed, skipping UPDATE query");
       } else {
-        Logger::Warn("Tried to use db '{$this->name}:{$servernum}', but no connection was active");
+        Profiler::StartTimer("DBWrapper:QueryUpdate()");
+        
+        // Double check that conn exists before using it (FIXME - could be smarter here)
+        $rows_affected = null;
+        if ($this->conn[$servernum]) {
+          $realtable = $table . ($server[1] !== NULL ? "_" . $server[1] : "");
+          /*
+          print_pre($realtable);
+          print_pre($values);
+          print_pre($where_condition);
+          print_pre($bind_vars);
+          */
+          if (is_array(current($values))) { // FIXME - dirty hack to only use the first element if we're passed a multi-dimensional array
+            if (count($values) > 1)
+              Logger::Error("DBWrapper::QueryUpdate() passed multiple updates, but could only execute the first one");
+            $values = current($values);
+          }
+          try {
+            $rows_affected = $this->conn[$servernum]->update($realtable, $values, $where_condition, $bind_vars);
+            if ($rows_affected > 0) {
+              $this->CacheClear($queryid);
+            }
+            //Logger::Warn("Execute update query into table $table (Using " . $this->dsn . ")");
+          } catch (Exception $e) {
+            Logger::Error("Failed to update '{$queryid->id}' in '$realtable': " . $e->getMessage());
+            $last_insert_id = NULL;
+          }
+        } else {
+          Logger::Warn("Tried to use db '{$this->name}:{$servernum}', but no connection was active");
+        }
       }
     }
 
@@ -212,31 +244,44 @@ class DBWrapper extends ConnectionWrapper {
    * @param array $bind_vars
    * @return int
    */
-  function &QueryDelete($queryid, $table, $where_condition=NULL, $bind_vars=array()) {
+  function &QueryDelete($queryid, $table, $where_condition, $bind_vars=array()) {
+    // If we passed an array for the where clause, we need to synthesize a string and populate the appropriate bind_vars
+    if (is_array($where_condition)) { 
+      $new_wheres = array();
+      foreach ($where_condition as $k=>$v) {
+        $bind_vars[':where'.$k] = $v;
+        $new_wheres[] = $k . "=:where" . $k;
+      }
+      $where_condition = implode(" AND ", $new_wheres);
+    }
     $servers = $this->HashToServer($queryid);
     //print_pre($servers);
     foreach ($servers as $server) {
       $servernum = $server[0];
       // If we're not connected and we're in lazy mode, open the connection.  Bail out if lazy connect fails.
       if (!$this->LazyOpen($servernum)) {
-        Logger::Info("Database connection '{$this->name}:{$servernum}' marked as failed, skipping query");
-        return NULL;
-      }
-      Profiler::StartTimer("DBWrapper:QueryDelete()");
-      
-      // Double check that conn exists before using it (FIXME - could be smarter here)
-      $rows_affected = null;
-      if ($this->conn[$servernum]) {
-        $realtable = $table . ($server[1] !== NULL ? "_" . $server[1] : "");
-        /*
-        print_pre($realtable);
-        print_pre($where_condition);
-        print_pre($bind_vars);
-        */
-        $rows_affected = $this->conn[$servernum]->delete($realtable, $where_condition, $bind_vars);
-        //Logger::Warn("Execute delete query on table $table (Using " . $this->dsn . ")");
+        Logger::Info("Database connection '{$this->name}:{$servernum}' marked as failed, skipping DELETE query");
       } else {
-        Logger::Warn("Tried to use db '{$this->name}:{$servernum}', but no connection was active");
+        Profiler::StartTimer("DBWrapper:QueryDelete()");
+        
+        // Double check that conn exists before using it (FIXME - could be smarter here)
+        $rows_affected = null;
+        if ($this->conn[$servernum]) {
+          $realtable = $table . ($server[1] !== NULL ? "_" . $server[1] : "");
+          /*
+          print_pre($realtable);
+          print_pre($where_condition);
+          print_pre($bind_vars);
+          */
+          try {
+            $rows_affected = $this->conn[$servernum]->delete($realtable, $where_condition, $bind_vars);
+            //Logger::Warn("Execute delete query on table $table (Using " . $this->dsn . ")");
+          } catch (Exception $e) {
+            Logger::Error("Failed to delete '{$queryid->id}' from '$realtable': " . $e->getMessage());
+          }
+        } else {
+          Logger::Warn("Tried to use db '{$this->name}:{$servernum}', but no connection was active");
+        }
       }
     }
 
@@ -245,16 +290,17 @@ class DBWrapper extends ConnectionWrapper {
   }
   function &QueryCreate($queryid, $table, $columns) { 
     $columnsql .= "(" . implode(", ", $columns) . ")";
+    $ret = false;
     //print_pre($queryid);
     //print_pre($table);
     if (empty($this->cfg["buckets"])) {
       if (!$this->LazyOpen(0)) {
-        Logger::Info("Database connection '{$this->name}' marked as failed, skipping query");
+        Logger::Info("Database connection '{$this->name}' marked as failed, skipping CREATE query");
         return false;
       }
       if ($this->conn[0]) {
-        $foo = $this->conn[0]->queryBind("CREATE TABLE " . $table . " " . $columnsql);
-        return !empty($foo);
+        $result = $this->conn[0]->queryBind("CREATE TABLE " . $table . " " . $columnsql);
+        $ret = !empty($result);
       }
     } else {
       $tables = array();
@@ -269,7 +315,7 @@ class DBWrapper extends ConnectionWrapper {
         //$servernum = $brick->server[0] + 1;
         foreach ($bucket["servers"] as $servernum) {
           if (!$this->LazyOpen($servernum)) {
-            Logger::Info("Database connection '{$this->name}' marked as failed, skipping query");
+            Logger::Info("Database connection '{$this->name}:{$servernum}' marked as failed, skipping CREATE query");
             $ret = false;
           }
           if ($this->conn[$servernum]) {
@@ -296,9 +342,116 @@ class DBWrapper extends ConnectionWrapper {
         }
       }
       */
-      return $ret;
     }
-    return false;
+    return $ret;
+  }
+  /**
+   * This function perform a simple fetch from a SQL datasource.
+   *
+   * @param DatamanagerQueryID $queryid
+   * @param string $table
+   * @param array $where
+   * @return integer $count
+   */
+  function &QueryFetch($queryid, $table, $where, $extra=NULL) {
+    $servers = $this->HashToServer($queryid);
+    foreach ($servers as $server) {
+      $servernum = $server[0];
+      // If we're not connected and we're in lazy mode, open the connection.  Bail out if lazy connect fails.
+      if (!$this->LazyOpen($servernum)) {
+        Logger::Info("Database connection '{$this->name}:{$servernum}' marked as failed, skipping FETCH query");
+      } else {
+        if ($this->conn[$servernum]) {
+          $realtable = $table . ($server[1] !== NULL ? "_" . $server[1] : "");
+          $whereflat = $this->flatten_where($where);
+          $query = "SELECT * FROM {$table} " . $whereflat["where"];
+          if (!empty($extra["orderby"])) {
+            $query .= " ORDER BY " . $extra["orderby"];
+            if (!empty($extra["reverse"])) { // "reverse" only applies if "orderby" is also passed
+              $query .= " DESC";
+            }
+          }
+          if (!empty($extra["limit"])) {
+            $query .= " LIMIT " . $extra["limit"];
+          }
+          if (!empty($extra["offset"])) {
+            $query .= " OFFSET " . $extra["offset"];
+          }					
+          $results = $this->Query($queryid, $query, $whereflat["args"]);
+          if (!empty($results) && $results->numrows > 0) {
+            foreach ($results->rows as $row) {
+              $item = object_to_array($row);
+              if (!empty($extra["indexby"])) {
+                $idx = $this->GenerateIndex($extra["indexby"], $item);
+                $ret[$idx] = $item;
+              }
+              else
+                $ret[] = $item;
+            }
+            break; // If we've found results, no need to check the next server
+          }
+        }
+      }
+    }
+    return $ret;
+  }
+  /**
+   * This function perform a count query from a SQL datasource.
+   *
+   * @param DatamanagerQueryID $queryid
+   * @param string $table
+   * @param array $where
+   * @return integer $count
+   */
+  function &QueryCount($queryid, $table, $where, $extra=NULL) {
+    $ret = 0;
+    $servers = $this->HashToServer($queryid);
+    foreach ($servers as $server) {
+      $servernum = $server[0];
+      // If we're not connected and we're in lazy mode, open the connection.  Bail out if lazy connect fails.
+      if (!$this->LazyOpen($servernum)) {
+        Logger::Info("Database connection '{$this->name}:{$servernum}' marked as failed, skipping COUNT query");
+      } else {
+        if ($this->conn[$servernum]) {
+          $realtable = $table . ($server[1] !== NULL ? "_" . $server[1] : "");
+          $query = "SELECT count(*) AS cnt FROM {$realtable}";
+
+          $bindings = array();
+          if (!empty($where)) {
+            $whereargs = array();
+            foreach ($where as $k=>$v) {
+              $whereargs[] = "$k=:{$k}";
+              $bindings[":".$k] = $v;
+            }
+            if (!empty($whereargs)) {
+              $query .= " WHERE " . implode(" AND ", $whereargs);
+            }
+          }
+          try {
+            $resource = $this->conn[$servernum]->queryBind($query, $bindings);
+          } catch (Exception $e) {
+            // display the error on the page, just the SQL statement
+            $backtrace = $e->getTrace();
+            $errmsg = "File: " . $backtrace[2]["file"] . "\t"
+              . "Line: " . $backtrace[2]["line"] . "\t"
+              . "Msg: " . $e->getMessage() . "\t"
+              . "SQL: " . $backtrace[2]["args"][1] . "\t"
+              . "Binds: " . print_ln($backtrace[2]["args"][2],true,true) . "\t";
+            Logger::Error($errmsg);
+            return 0;
+          }
+          $rows = array();
+          foreach ($resource as $r) {
+            $rows[] = $r; 
+          }
+          if (count($rows) == 1) {
+            $ret = $rows[0]->cnt;
+            break;
+          }
+        }
+      }
+    }
+    return $ret;
   }
   
   function CacheGet($queryid, $query, $args) {
@@ -370,6 +523,22 @@ class DBWrapper extends ConnectionWrapper {
       }
       return $ret;
     }
+  }
+  function flatten_where($where) {
+    $ret = NULL;
+    $bindings = array();
+    if (!empty($where)) {
+      $whereargs = array();
+      foreach ($where as $k=>$v) {
+        $whereargs[] = "$k=:where{$k}";
+        $bindings[":where".$k] = $v;
+      }
+      if (!empty($whereargs)) {
+        $ret["where"] = "WHERE " . implode(" AND ", $whereargs);
+        $ret["args"] = $bindings;
+      }
+    }
+    return $ret;
   }
 }
 
@@ -596,7 +765,8 @@ class DataBase {
    * @return string
    */
   public static function dsn($cfg) {
-    switch ($cfg['driver']) {
+    $driver = any($cfg['driver'], "mysql");
+    switch ($driver) {
       case 'mysql':
         $dsn_port = '';
         if (!is_null($cfg['port']) && is_numeric($cfg['port'])) {
@@ -609,7 +779,7 @@ class DataBase {
         break;
     }
     if (!empty($driveroptions))
-      $ret = $cfg['driver'].':'.$driveroptions;
+      $ret = $driver.':'.$driveroptions;
     return $ret;
   }
 
@@ -626,35 +796,55 @@ class DataBase {
       throw new PDOException('No Values Defined.');
     }
 
+    if (is_string($extra)) { // Force $extra to be an associative array of options
+      $extra = array("extrasql" => $extra);
+    }
+
+    $bind_vars = array();
     $keys = array_keys($values);
-    $sql = "INSERT INTO $table ("
+    if (is_array($values[$keys[0]]) || is_object($values[$keys[0]])) {
+      $keys = array_keys($values[$keys[0]]);
+      foreach ($values as $k=>$item) { 
+        $safekey = preg_replace("/[^\w\d_]+/", "_", $k);
+        $row = array();
+        foreach ($item as $itemkey=>$itemval) {
+          $bindname = ":" . $safekey . "_" . $itemkey; 
+          $row[] = $bindname;
+          $bind_vars[$bindname] = $itemval;
+        }
+        $allrows[] = "(".implode(",",$row).")";
+      }
+      $insertstr = implode(",",$allrows);
+    } else {
+      $insertstr = "(:" . implode(",:", $keys) . ")";
+      foreach ($values as $k=>$v) {
+        $bind_vars[":".$k] = $v;
+      }
+    }
+
+    $sql = "INSERT " . ($extra["ignore"] ? "IGNORE " : "") . "INTO $table ("
          . implode(',', $keys)
-         . ") VALUES (:"
-         . implode(',:', $keys) . ")";
+         . ") VALUES " . $insertstr;
 
-    if ($extra !== null)
-      $sql .= " " . $extra;
+    if ($extra["extrasql"] !== null)
+      $sql .= " " . $extra["extrasql"];
 
-    //Logger::Warn("Execute query: '" . $sql . "' " . print_ln($values, true));
+    Logger::Warn("Execute query: '" . $sql . "' " . print_ln($bind_vars, true));
     /**
      * Prepare the SQL, bind it, and execute it.
      */
     try {
       $stmt = $this->db->prepare($sql);
     } catch (PDOException $e) {
-      //throw new DataBaseException($e->getMessage(), $e->getCode(), $sql, $bind_vars);
-      throw $e;
+      throw new DataBaseException($e->getMessage(), $e->getCode(), $sql, $bind_vars);
     }
-    $bind_vars = array();
-    foreach($values as $key => $value) {
-      $bind_vars[':' . $key] = $value;
-      $stmt->bindValue(':' . $key, $value);
+    foreach($bind_vars as $key => $value) {
+      $stmt->bindValue($key, $value);
     }
     try {
       $result = $stmt->execute();
     } catch (PDOException $e) {
-      //throw new DataBaseException($e->getMessage(), $e->getCode(), $sql, $bind_vars);
-      throw $e;
+      throw new DataBaseException($e->getMessage(), $e->getCode(), $sql, $bind_vars);
     }
 
     $ret = false;
@@ -662,7 +852,12 @@ class DataBase {
     if ($errorcode == '00000') { // '00000' means success
       // get and return the last inserted id, or true if no insertid is returned.
       $id = $this->db->lastInsertId();
-      $ret = ($id ? $id : true);
+      //$ret = ($id || $extra["ignore"] ? $id : true);
+      if ($id > 0) {
+        $ret = $id;
+      } else {
+        $ret = ($stmt->rowCount() > 0);
+      }
     }
     return $ret;
   }

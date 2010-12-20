@@ -32,7 +32,15 @@ class ConnectionWrapper {
   function &QueryUpdate($queryid, $table, $values, $where_condition, $bind_vars=array()) { return false; }
   function &QueryDelete($queryid, $table, $where_condition, $bind_vars=array()) { return false; }
   function &QueryCreate($queryid, $table, $values) { return false; }
-
+  function &QueryFetch($queryid, $table, $where=NULL, $extras=NULL) { return false; }
+  function &QueryCount($queryid, $table, $where=NULL, $extras=NULL) { return false; }
+  function GenerateIndex($indexby, $item, $separator=".") {
+   $idxby = explode(",", $indexby);
+    foreach ($idxby as $k) {
+      $key[] = $item[$k];
+    }
+    return implode($separator,$key);
+  }
   function SetCacheServer($cache, $cacheByDefault=NULL) { 
     $this->cache = $cache;
     $this->cachepolicy = any($cacheByDefault, $this->cfg["cachepolicy"], false);

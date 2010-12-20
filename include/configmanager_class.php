@@ -177,6 +177,9 @@ class ConfigManager extends Base {
   }
   function GetSetting($string) {
     $ret = array_get($this->current,$string);
+    // FIXME - quick hack for "true" and "False" values stored as strings.  This should look at type...
+    if ($ret == "false") $ret = false;
+    if ($ret == "true") $ret = true;
     return $ret;
   }
   /**

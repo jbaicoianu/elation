@@ -30,8 +30,13 @@ class ComponentManager extends Component {
 
   function Dispatch($page=NULL, $args=NULL) {
     $alternateret = $this->HandleDispatchArgs($args);
-    $outputtype = "html";
+    $outputtype = any($args["_output"], (!empty($_SERVER["HTTP_X_AJAX"]) ? "ajax" : "html"));
 
+    if ($args === NULL) {
+      $args = $_REQUEST;
+    }
+
+    // Load all content URLs from the config, and build a lookup table based on URL
     $cfg = ConfigManager::singleton();
     $contentpages = $cfg->getSetting("page.content");
     foreach($contentpages as $pagename=>$pagevalues) {
@@ -45,6 +50,7 @@ class ComponentManager extends Component {
     $ret["page"] = $page;
 
     if(!empty($contenturls[$page])) {
+      // Check for config-mapped URL first
       $pagevars = $contenturls[$page];
       if(!empty($pagevars["options"])) {
         $cfg->ConfigMerge($cfg->current, $pagevars["options"]);
@@ -63,16 +69,13 @@ class ComponentManager extends Component {
         $ret["content"] = $this->GetTemplate("404.tpl", $pagevars["vars"]);
       }
     } else if ($page == "/") {
+      // Handle the homepage
       $ret["component"] = "index";
-/*
-      if ($component = $this->Get("index")) {
-        $ret["content"] = $component->HandlePayload($_REQUEST, $outputtype);
-      }
-*/
-      $ret["content"] = self::fetch("index", $_REQUEST, $outputtype);
+      $ret["content"] = self::fetch("index", $args, $outputtype);
     } else if (preg_match("|^/((?:[^./]+/?)*)(?:\.(.*))?$|", $page, $m)) {
+      // Dispatch directly to a component.  File extension determines output type
       $componentname = str_replace("/", ".", $m[1]);
-      $outputtype = (isset($m[2]) ? $m[2] : "html");
+      $outputtype = any($args["_output"], $m[2], $outputtype);
 
       $ret["component"] = $componentname;
       $ret["type"] = $outputtype;

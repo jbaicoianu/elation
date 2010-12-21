@@ -203,7 +203,7 @@ elation.extend("ajax", new function() {
           javascriptparms += key + '=' + common.dependencies.javascript[key].join('+') + '&';
       }
     }
-    var batch = new elation.func.dependencies_batch();
+    var batch = new elation.file.batch();
     if (cssparms.length > 0)
       batch.add('/css/main?'+cssparms.substr(0,cssparms.length-1),'css');
     if (javascriptparms.length > 0)

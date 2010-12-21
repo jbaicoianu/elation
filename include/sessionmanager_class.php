@@ -329,7 +329,7 @@ class SessionManager
   protected function create_new_persist_record($force=false)
   {
     // if bot, don't create a db record
-    if (isBot()) {
+    if (function_exists("isBot") && isBot()) {
       return;
     }
     // insert a record into userdata.usersession

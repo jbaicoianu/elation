@@ -20,6 +20,7 @@
 include_once("lib/logger.php");
 include_once("lib/profiler.php");
 include_once("include/common_funcs.php");
+include_once("lib/Conteg_class.php");
 
 class App {
   function App($rootdir, $args) {
@@ -90,8 +91,19 @@ class App {
         $output["content"] = $this->HandleException($e);
       }
       
-      Profiler::StopTimer("WebApp::TimeToDisplay");
-      header('Content-type: ' . any($output["responsetype"], "text/html"));
+      $contegargs = any($this->cfg->servers["conteg"], array());
+      if (is_array($this->cfg->servers["conteg"]["policy"][$output["type"]]))
+        $contegargs = array_merge($contegargs, $this->cfg->servers["conteg"]["policy"][$output["type"]]);
+      if (is_array($this->sitecfg["conteg"]))
+        $contegargs = array_merge($contegargs, $this->sitecfg["conteg"]);
+      if (is_array($this->sitecfg["conteg"]["policy"][$output["type"]]))
+        $contegargs = array_merge($contegargs, $this->sitecfg["conteg"]["policy"][$output["type"]]);
+      $contegargs["type"] = $output["type"];
+
+      if (empty($contegargs["modified"])) // Set modified time to mtime of base directory if not set
+        $contegargs["modified"] = filemtime($this->rootdir);
+
+      //header('Content-type: ' . any($output["type"], "text/html"));
       if ($output["type"] == "ajax" || $output["type"] == "jsonp") {
         print $output["content"];
       } else {
@@ -99,7 +111,8 @@ class App {
         if (!empty($this->request["args"]["timing"]))
           print Profiler::Display();
       }
-      ob_end_flush();
+      Profiler::StopTimer("WebApp::TimeToDisplay");
+      new Conteg($contegargs);
     }
   }
   function GetAppVersion() {

@@ -525,3 +525,41 @@ function makeRequestURL($page, $args=NULL, $ignore=NULL) {
   //Profiler::StartTimer("makeRequestURL");
   return $ret;
 }
+function object_to_xml($obj, $container="", $level=0) {
+  $tabs = str_repeat("\t",$level);
+  if (is_object($obj)) {
+    $xml = $tabs . "<$container";
+    $properties = get_object_vars($obj);
+    $attributes = $children = array();
+    foreach ($properties as $k=>$v) {
+      if (is_object($v) || is_array($v))
+        $children[$k] = $v;
+      else
+        $attributes[$k] = $v;
+    }
+    foreach ($attributes as $k2=>$v2) {
+      if ($v2 !== NULL)
+        $xml .= sprintf(' %s="%s"', htmlspecialchars($k2), htmlspecialchars($v2));
+    }
+    if (!empty($children)) {
+      $xml .= ">\n";
+      foreach ($children as $k2=>$v2) {
+        $xml .= object_to_xml($v2, $k2, $level+1);
+      }
+      $xml .= $tabs . "</" . $container . ">\n";
+    } else {
+      $xml .= " />\n";
+    }
+  } else if (is_array($obj)) {
+    $xml = $tabs . "<$container>\n";
+    foreach ($obj as $k=>$v) {
+      $subcontainer = (is_object($v) ? get_class($v) : $k);
+      $xml .= object_to_xml($v, $subcontainer, $level+1);
+    }
+    $xml .= $tabs . "</" . $container . ">\n";
+  } else {
+    if ($obj !== NULL)
+      $xml .= sprintf("%s<%s>%s</%s>\n", $tabs, $container, $obj, $container);
+  }
+  return $xml;
+}

@@ -53,20 +53,6 @@ class SessionManager
 
   protected function __construct()
   {
-    // set the session cookie name
-    session_name($this->cookiename);
-
-    // set the cache limiter to 'private' - keeps us from sending Pragma: no-cache
-    session_cache_limiter('private');
-
-    // initiate sessionization
-    session_start();
-
-    return; //FIXME: god knows wtf is going on in a lot of this
-
-
-    
-    
     global $webapp;
     /**
      * If this page is one of the pages to serve the widgets, do not start

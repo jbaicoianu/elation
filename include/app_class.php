@@ -92,13 +92,13 @@ class App {
       }
       
       $contegargs = any($this->cfg->servers["conteg"], array());
-      if (is_array($this->cfg->servers["conteg"]["policy"][$output["type"]]))
-        $contegargs = array_merge($contegargs, $this->cfg->servers["conteg"]["policy"][$output["type"]]);
+      if (is_array($this->cfg->servers["conteg"]["policy"][$output["responsetype"]]))
+        $contegargs = array_merge($contegargs, $this->cfg->servers["conteg"]["policy"][$output["responsetype"]]);
       if (is_array($this->sitecfg["conteg"]))
         $contegargs = array_merge($contegargs, $this->sitecfg["conteg"]);
-      if (is_array($this->sitecfg["conteg"]["policy"][$output["type"]]))
-        $contegargs = array_merge($contegargs, $this->sitecfg["conteg"]["policy"][$output["type"]]);
-      $contegargs["type"] = $output["type"];
+      if (is_array($this->sitecfg["conteg"]["policy"][$output["responsetype"]]))
+        $contegargs = array_merge($contegargs, $this->sitecfg["conteg"]["policy"][$output["responsetype"]]);
+      $contegargs["type"] = $output["responsetype"];
 
       if (empty($contegargs["modified"])) // Set modified time to mtime of base directory if not set
         $contegargs["modified"] = filemtime($this->rootdir);

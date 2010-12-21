@@ -53,6 +53,20 @@ class SessionManager
 
   protected function __construct()
   {
+    // set the session cookie name
+    session_name($this->cookiename);
+
+    // set the cache limiter to 'private' - keeps us from sending Pragma: no-cache
+    session_cache_limiter('private');
+
+    // initiate sessionization
+    session_start();
+
+    return; //FIXME: god knows wtf is going on in a lot of this
+
+
+    
+    
     global $webapp;
     /**
      * If this page is one of the pages to serve the widgets, do not start
@@ -134,6 +148,8 @@ class SessionManager
       array(&$this, 'destroy'),
       array(&$this, 'gc')
     );
+
+
     // register_shutdown_function('session_write_close');
 
     // figure out domain to set fl-uid cookie for (TLD for thefind/fatlens/im2-inc.com, FQDN for all others)

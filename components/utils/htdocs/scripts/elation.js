@@ -507,32 +507,6 @@ elation.extend("utils.indexOf", function(array, object) {
 	return -1;
 });
 
-elation.extend('file', function() {
-	// grabs a js or css file and adds to document
-  this.get = function(type, file, func) {
-		if (!type || !file)
-			return false;
-		
-		var	head = document.getElementsByTagName("HEAD")[0],
-				element = document.createElement((type == 'javascript' ? "SCRIPT" : "LINK"));
-		
-		if (type == 'javascript') {
-			element.type = "text/javascript";
-			element.src = file;
-		} else {
-			element.type = "text/css";
-			element.rel = "stylesheet";
-			element.href = file;
-		}
-		
-		if (func)
-			element.onload = func;
-		
-    head.appendChild(element);
-		
-		return element;
-  }
-});
 elation.extend('JSON', new function() {
   this.parse = function(text) {
     return this.JSON(['decode','parse'],text);
@@ -648,4 +622,309 @@ elation.extend("find", function(selectors, parent, first) {
       result = null;
   
   return result;
+});
+
+// grabs a js or css file and adds to document
+elation.extend('file.get', function(type, file, func) {
+  if (!type || !file)
+    return false;
+  
+  var	head = document.getElementsByTagName("HEAD")[0],
+      element = document.createElement((type == 'javascript' ? "SCRIPT" : "LINK"));
+  
+  if (type == 'javascript') {
+    element.type = "text/javascript";
+    element.src = file;
+  } else {
+    element.type = "text/css";
+    element.rel = "stylesheet";
+    element.href = file;
+  }
+  
+  if (func)
+    element.onload = func;
+  
+  head.appendChild(element);
+  
+  return element;
+});
+
+// create file.batch object for grabbing multiple files
+elation.extend('file.batch', function() {
+	this.callbacks = [];
+	this.files = [];
+	
+	this.add = function(url, type, component) {
+		if (typeof url == 'string') {
+      var dependency = elation.file.dependencies.add(url, this, type, component)
+      
+			if (dependency) 
+        this.files.push(dependency);
+    }
+	}
+	
+	this.callback = function(script) {
+		this.callbacks.push(script);
+		
+		if (this.files.length == 0)
+			this.done(true);
+	}
+	
+	this.done = function(url) {
+		if (url)
+			for (var i=0; i<this.files.length; i++) 
+				if (!this.files[i].loaded && this.files[i].type != 'css') 
+					return;
+		
+		for (var i=0; i<this.callbacks.length; i++) 
+			switch (typeof this.callbacks[i]) {
+				case "string": 
+					eval(this.callbacks[i]); 
+					break;
+				
+				case "function": 
+					this.callbacks[i](); 
+					break;
+			}
+		
+		this.callbacks = [];
+	}
+});
+
+// ajaxlib uses this to keep track of which css/js files are loaded and fetch ones that arent.
+elation.extend('file.dependencies', new function() {
+	this.host = '';
+	this.files = {};
+	this.registered = { 
+		javascript: {}, 
+		css: {} 
+	};
+	this.waiting = { 
+		javascript: {}, 
+		css: {} 
+	};
+	
+	this.register = function(sFile, check, type) {
+    var	type = type || 'javascript',
+				registered = this.registered[type],
+				waiting = this.waiting[type];
+		
+		if (registered[sFile])
+			return;
+		
+    if (typeof check == 'undefined')
+      check = true;
+		
+		registered[sFile] = true;
+		
+		if (waiting[sFile]) {
+			var	url = waiting[sFile],
+					file = this.files[url],
+					components = this.getComponents(url);
+			
+			delete waiting[sFile];
+      
+      this.checkWaiting(file, components, type);
+		}
+	}
+  
+	this.registerMany = function(components, type) {
+    for (var k in components) 
+      if (components.hasOwnProperty(k) && components[k].length > 0) 
+        for (var i = 0; i < components[k].length; i++) 
+          if (components[k][i] != null)
+            this.register(k + '.' + components[k][i], false, type);
+  }
+  
+  this.checkWaiting = function(file, components, type) {
+		var	type = type || 'javascript',
+				waiting = this.waiting[type],
+				flag = true;
+    
+		for (var i=0; i<components.length; i++) {
+			if (waiting[components[i]]) {
+				flag = false;
+				
+				break;
+			}
+		}
+		
+		if (flag) 
+			this.done(file);
+  }
+	
+	this.getComponents = function(url) {
+		var	ret = [],
+				url = url.split('?'),
+				page = url[0],
+				parms = url.length > 1
+					? url[1].split('&')
+					: [];
+		
+		for (var i=0; i<parms.length; i++) {
+			var parm = parms[i].split('='),
+					files = parm[1].split('+');
+			
+			for (var f=0; f<files.length; f++) {
+				file = parm[0] +'.'+ files[f];
+				
+				ret.push(file);
+			}
+		}
+		
+		return ret;
+	}
+	
+	this.wait = function(url, type) {
+		var	type = type || 'javascript',
+				registered = this.registered[type],
+				waiting = this.waiting[type],
+				components = this.getComponents(url);
+		
+		for (var i=0; i<components.length; i++)
+			if (!registered[components[i]]) 
+				waiting[components[i]] = true;
+		
+		url = this.url(waiting);
+		
+		for (var key in waiting)
+			waiting[key] = '/' + (type == 'css' ? 'css' : 'scripts') + '/main' + url;
+		
+		return url;
+	}
+	
+	this.url = function(oParms) {
+		var	parms = {},
+				ret = '';
+		
+		for (var key in oParms) {
+			parm = key.split('.');
+			
+			if (!parms[parm[0]])
+				parms[parm[0]] = [];
+			
+			parms[parm[0]].push(parm[1]);
+		}
+		
+		for (var key in parms) {
+			ret += (ret == '' ? '?' : '&') + key + '=';
+			
+			for (var i=0; i<parms[key].length; i++) {
+				if (parms[key][i] != 'map')
+					ret += parms[key][i] + (i == parms[key].length-1?'':'+');
+				else if (i == parms[key].length-1)
+					ret = ret.substr(0,ret.length-1);
+			}
+		}
+		
+		if (ret.indexOf("=") < 0)
+			ret = '';
+		
+		return ret;
+	}
+	
+	this.done = function(oFile) {
+    if (typeof oFile != 'undefined') {
+  		oFile.loaded = true;
+			
+	  	if (oFile.batch)
+		  	oFile.batch.done(oFile.url);
+    }
+	}
+	
+	this.add = function(url, batch, type, component) {
+		var	file = this.files[url] || {},
+				type = type || 'javascript';
+		
+		if (!elation.utils.isNull(file.url)) {
+			if (batch) {
+				batch.done(url);
+				
+				return file;
+			}
+		}
+		
+		if (component || type == 'css') {
+			url = this.wait(url, type);
+			
+			if (url) 
+				url = '/' + (type == 'css' ? 'css' : 'scripts') + '/main' + url;
+			else 
+				return false;
+		}
+		
+		file.batch = batch;
+		file.loaded = false;
+		file.url = url;
+		file.type = type;
+		file.element = elation.file.get(type, this.host + url, (
+			(component)
+				? null
+				: (function(self) { 
+						self.done(file); 
+					})(this)
+		));
+		
+		this.files[url] = file;
+		
+		return file;
+	}
+});
+
+elation.extend('ui.getCaretPosition', function(oField) {
+	// Initialize
+	var iCaretPos = 0;
+
+	// IE Support
+	if (document.selection) { 
+		// Set focus on the element
+		oField.focus();
+		
+		// To get cursor position, get empty selection range
+		var oSel = document.selection.createRange ();
+		
+		// Move selection start to 0 position
+		oSel.moveStart('character', -oField.value.length);
+		
+		// The caret position is selection length
+		iCaretPos = oSel.text.length;
+	}
+	
+	// Firefox support
+	else if (oField.selectionStart || oField.selectionStart == '0')
+		iCaretPos = oField.selectionStart;
+	
+	// Return results
+	return iCaretPos;
+});
+
+
+/*
+**  Sets the caret (cursor) position of the specified text field.
+**  Valid positions are 0-oField.length.
+*/
+elation.extend('ui.setCaretPosition', function(oField, iCaretPos) {
+	// IE Support
+	if (document.selection) { 
+		// Set focus on the element
+		oField.focus();
+		
+		// Create empty selection range
+		var oSel = document.selection.createRange ();
+		
+		// Move selection start and end to 0 position
+		oSel.moveStart('character', -oField.value.length);
+		
+		// Move selection start and end to desired position
+		oSel.moveStart('character', iCaretPos);
+		oSel.moveEnd('character', 0);
+		oSel.select();
+	}
+	
+	// Firefox support
+	else if (oField.selectionStart || oField.selectionStart == '0') {
+		oField.selectionStart = iCaretPos;
+		oField.selectionEnd = iCaretPos;
+		oField.focus();
+	}
 });

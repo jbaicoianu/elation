@@ -19,7 +19,9 @@
   {if $panel.cfg.simple != 1}
     <script type="text/javascript">
       //<!--
-      elation.panel.add('{$panel.name}'{if !$panel.cfg.noargs}, {jsonencode var=$panel}{/if});
+      $(document).ready(function() {ldelim}
+        elation.panel.add('{$panel.name}'{if !$panel.cfg.noargs}, {jsonencode var=$panel}{/if});
+      {rdelim});
       //-->
     </script>
   {/if}

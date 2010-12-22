@@ -207,7 +207,7 @@ class DataManager {
     if ($source =& DataManager::PickSource($queryid)) {
       $insert_id = $source->QueryInsert($queryid, $table, $values, $extra);
       if ($insertid) {
-        $this->CacheClear($id);
+        DataManager::CacheClear($id);
       }
     }
     Profiler::StopTimer("DataManager::QueryInsert()");
@@ -230,7 +230,7 @@ class DataManager {
     if ($source =& DataManager::PickSource($queryid)) {
       $rows_affected = $source->QueryUpdate($queryid, $table, $values, $where_condition, $bind_vars);
       if ($rows_affected > 0) {
-        $this->CacheClear($id);
+        DataManager::CacheClear($id);
       }
     }
     Profiler::StopTimer("DataManager::QueryUpdate()");

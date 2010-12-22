@@ -5,7 +5,6 @@
   {$exception.type}: {$exception.message}
   {if $debug}<address>{$exception.file}:{$exception.line}</address>{/if}
  </h2>
- <pre>{$dumpedException}</pre>
 {if !empty($exception.trace)}
  <ol class="exception_trace">
   {foreach from=$exception.trace item=trace}

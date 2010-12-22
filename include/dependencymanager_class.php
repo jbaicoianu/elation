@@ -23,7 +23,12 @@ class DependencyManager {
     
     //self::$dependencies[$args["type"]][] = Dependency::create($args["type"], $args);
     $dep = Dependency::create($args["type"], $args);
-    self::$dependencies[$priority][$browser][$args["type"]][$dep->id()] = $dep;
+    if (!isset(self::$dependencies[$priority][$browser][$args["type"]][$dep->id()])) {
+      self::$dependencies[$priority][$browser][$args["type"]][$dep->id()] = $dep;
+      if (Logger::$enabled && !$silent) {
+        Logger::Notice("Added {$args["type"]} dependency ({$browser}): '{$dep->content()}'");
+      }
+    }
   }
   static function get() {
     return self::$dependencies;
@@ -61,11 +66,6 @@ abstract class Dependency {
     $this->type = $args["type"];
 
     $this->Init($args, DependencyManager::$locations);
-    if (Logger::$enabled && !$silent) {
-      $content = any($this->code, $this->file, $this->url, $this->name, "(unknown)");
-      Logger::Notice("Added {$this->type} dependency ({$this->browser}): '{$content}'");
-      //Logger::Notice("Added dependency");
-    }
   }
   function Init($args, $locations=NULL) {
     foreach ($args as $k=>$v) {
@@ -75,7 +75,10 @@ abstract class Dependency {
   abstract function Display($locations, $extras=NULL);
   
   function id() {
-    return md5($this->type . ":" . any($this->name, $this->property, $this->code, $this->file, $this->url));
+    return md5($this->type . ":" . $this->content());
+  }
+  function content() {
+    return any($this->name, $this->property, $this->code, $this->file, $this->url, "(unknown)");
   }
   function GetFilename($path, $fname) {
     $ret = NULL;
@@ -253,7 +256,7 @@ class DependencyOnload extends Dependency {
  */
 class DependencyPlacemark extends Dependency {
   function Display($locations, $extras=NULL) {
-    return sprintf("%s: %s\n", $this->name, $this->value);
+    return sprintf("<!-- %s: %s -->\n", $this->name, $this->value);
   }
 }
 

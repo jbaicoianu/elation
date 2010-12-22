@@ -61,6 +61,12 @@ class App {
     if ($this->initialized()) {
       try {
         $this->session = SessionManager::singleton();
+        // Set sticky debug flag
+        if (isset($this->request["args"]["debug"])) {
+          $this->debug = $_SESSION["debug"] = ($this->request["args"]["debug"] == 1);
+        } else if (!empty($_SESSION["debug"])) {
+          $this->debug = $_SESSION["debug"];
+        }
         $this->tplmgr = TemplateManager::singleton($this->rootdir);
         $this->tplmgr->assign_by_ref("webapp", $this);
         $this->components = ComponentManager::singleton($this);

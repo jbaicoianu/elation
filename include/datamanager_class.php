@@ -299,7 +299,6 @@ class DataManager {
       }
       $query = "SELECT *"; // FIXME - quick hack to truck CacheSet into thinking I'm a simple select
 
-
       $foundincache = false;
       if ($cache) {
         //Profiler::StartTimer("DataManager::Query() - Check cache");

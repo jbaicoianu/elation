@@ -606,3 +606,7 @@ function array_flatten(&$arr, $prefix="") {
   }
   return $ret;
 }
+function ucwordssmart($str) {
+  $str = ucwords($str);
+  return str_replace(array("And ", "To ", "Or "), array("and ", "to ", "or "), $str);
+}

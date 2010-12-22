@@ -44,11 +44,11 @@ function smarty_block_box($params, $content, &$smarty) {
   if ($smarty->template_exists("boxes/{$typecfg["template"]}")) {
     return $smarty->GetTemplate("boxes/{$typecfg["template"]}", $null, $vars);
   } else {
-    return '<div' . (!empty($box->id) ? ' id="' . $box->id . '"' : '') .
+    return '<' . $box->tag . (!empty($box->id) ? ' id="' . $box->id . '"' : '') .
                     (!empty($box->class) ? ' class="' . $box->class . '"' : '') .
                     (!empty($box->onmouseover) ? ' onmouseover="' . $box->onmouseover . '"' : '') .
                     (!empty($box->onmouseout) ? ' onmouseout="' . $box->onmouseout . '"' : '') .
-                    (!empty($box->onclick) ? ' onclick="' . $box->onclick . '"' : '') . '>' . $box->content . '</div>';
+                    (!empty($box->onclick) ? ' onclick="' . $box->onclick . '"' : '') . '>' . $box->content . '</' . $box->tag . '>';
 
   }
 }

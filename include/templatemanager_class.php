@@ -208,7 +208,8 @@ class TemplateManager extends Smarty {
     $user = User::singleton();
     global $webapp;
     if (!empty($webapp->debug) && ($user->HasRole("DEBUG") || $user->HasRole("ADMIN") || $user->HasRole("QA"))) {
-      $ret[] = array("type" => "debug", "_content" => Logger::Display(E_ALL));
+      //$ret[] = array("type" => "debug", "_content" => Logger::Display(E_ALL));
+      $ret[] = array("type" => "debug", "_content" => "\n[[debug]]\n");
     }
     return $ret;
   }
@@ -217,7 +218,7 @@ class TemplateManager extends Smarty {
     $this->components =& $components;
   }
 
-  function PostProcess(&$output) {
+  function PostProcess(&$output, $simpledebug=false) {
     global $webapp;
 
     Profiler::StartTimer("TemplateManager::PostProcess()");
@@ -244,14 +245,15 @@ class TemplateManager extends Smarty {
           */
           if ($show_debug) {
             //$replace[$pos] = $this->GetTemplate("debug.tpl");
-            $replace[$pos] = ComponentManager::fetch("elation.debug"); //Logger::display(E_ALL);
+            $replace[$pos] = ($simpledebug ? Logger::Display(E_ALL) : ComponentManager::fetch("elation.debug"));
           } else {
             $replace[$pos] = "";
           }
         }
 						
-        $pos = array_search("[[dependencies]]", $search);
-        $replace[$pos] = DependencyManager::display();
+        if (($pos = array_search("[[dependencies]]", $search)) !== false) {
+          $replace[$pos] = DependencyManager::display();
+        }
         $output = str_replace($search, $replace, $output);
       }
     }

@@ -111,7 +111,7 @@ class App {
 
       //header('Content-type: ' . any($output["type"], "text/html"));
       if ($output["type"] == "ajax" || $output["type"] == "jsonp") {
-        print $output["content"];
+        print $this->tplmgr->PostProcess($output["content"], true);
       } else {
         print $this->tplmgr->PostProcess($output["content"]);
         if (!empty($this->request["args"]["timing"]))
@@ -196,8 +196,13 @@ class App {
                                  "message" => $errstr,
                                  "file" => $errfile,
                                  "line" => $errline);
-                                 
-      $vars['dumpedException'] = var_export($vars['exception'], true);
+
+      if ($this->debug) {
+        $vars["exception"]["trace"] = debug_backtrace();
+        array_shift($vars["exception"]["trace"]);
+      }                                 
+
+      //$vars['dumpedException'] = var_export($vars['exception'], true);
       
       if (isset($this->tplmgr) && ($path = file_exists_in_path("templates/exception.tpl", true)) !== false) {
         print $this->tplmgr->GetTemplate($path . "/templates/exception.tpl", $this, $vars);

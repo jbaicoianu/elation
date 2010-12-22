@@ -1043,6 +1043,7 @@ class DataBase {
         $stmt->setFetchMode(PDO::FETCH_OBJ);
       } catch (PDOException $e) {
         //throw new DataBaseException($e->getMessage(), $e->getCode(), $sql, $bind_vars=array());
+        Logger::Error($e->getMessage());
         raise;
       }
 

@@ -168,17 +168,26 @@ function array_diff_assoc_recursive($array1, $array2) {
 
 function object_to_array($obj, $keyprefix="") {
   $arr = array();
-  if ($obj instanceOf SimpleXMLElement) {
-    foreach ($obj->attributes() as $k=>$v) {
-      $arr[$keyprefix.$k] = (string) $v;
+
+  if ($obj instanceOf SimpleXMLElement && (string)$obj) {
+    if($obj->attributes()) {
+      foreach ($obj->attributes() as $k=>$v) {
+        $arr[$keyprefix.$k] = (string) $v;
+      }
     }
-    foreach ($obj->children() as $k=>$v) {
-      $arr["_children"][$keyprefix.$k] = (string) $v;
+
+    if($obj->children()) {
+      foreach ($obj->children() as $k=>$v) {
+        $arr["_children"][$keyprefix.$k] = (string) $v;
+      }
     }
+
     $content = (string) $obj;
-    if (!empty($content))
+    if (!empty($content)) {
       $arr["_content"] = $content;
-  } else if (is_object($obj) || is_array($obj)) {
+    }
+  }
+  else if (is_object($obj) || is_array($obj)) {
     foreach ($obj as $k=>$v) {
       if (is_object($v) || is_array($v)) {
         $arr[$keyprefix.$k] = object_to_array($v);
@@ -187,8 +196,10 @@ function object_to_array($obj, $keyprefix="") {
       }
     }
   }
+  
   return $arr;
 }
+
 function object_set(&$obj, $key, $value, $delim=".") {
   $ret = true;
 

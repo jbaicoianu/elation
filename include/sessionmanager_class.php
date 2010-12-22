@@ -134,6 +134,8 @@ class SessionManager
       array(&$this, 'destroy'),
       array(&$this, 'gc')
     );
+
+
     // register_shutdown_function('session_write_close');
 
     // figure out domain to set fl-uid cookie for (TLD for thefind/fatlens/im2-inc.com, FQDN for all others)

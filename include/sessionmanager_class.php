@@ -324,6 +324,9 @@ class SessionManager
 
     //Profiler::StopTimer("SessionManager::Init()");
   }
+  public function quit() {
+    session_write_close();
+  }
 
   /**
    * Create a new persist record in the userdata.usersssion table

@@ -223,7 +223,7 @@ class DataManager {
    * @param array $where_condition
    * @return int (last insert id)
    */
-  static function &QueryUpdate($id, $table, $values, $where_condition, $bind_vars=array()) {
+  static function &QueryUpdate($id, $table, $values, $where_condition=NULL, $bind_vars=array()) {
     Profiler::StartTimer("DataManager::QueryUpdate()");
     $rows_affected = NULL;
     $queryid = new DatamanagerQueryID($id);
@@ -285,11 +285,11 @@ class DataManager {
    * @param array $where
    * @return object $result
    */
-  function &QueryFetch($id, $table, $where, $extra=NULL) {
+  static function &QueryFetch($id, $table, $where=NULL, $extra=NULL) {
     //Profiler::StartTimer("DataManager::QueryFetch()");
     $result = NULL;
     $queryid = new DatamanagerQueryID($id);
-    if ($source =& $this->PickSource($queryid)) {
+    if ($source =& DataManager::PickSource($queryid)) {
       // Pull default caching policy from connection object, then force enabled/disable as requested
       $cache = $source->cachepolicy;
       if (!empty($queryid->args["nocache"]))
@@ -330,11 +330,11 @@ class DataManager {
    * @param array $where
    * @return integer $count
    */
-  function &QueryCount($id, $table, $where, $extra=NULL) {
+  static function &QueryCount($id, $table, $where, $extra=NULL) {
     //Profiler::StartTimer("DataManager::QueryCount()");
     $count = 0;
     $queryid = new DatamanagerQueryID($id);
-    if ($source =& $this->PickSource($queryid)) {
+    if ($source =& DataManager::PickSource($queryid)) {
       $count = $source->QueryCount($queryid, $table, $where, $extra);
     }
     //Profiler::StopTimer("DataManager::QueryCount()");
@@ -432,6 +432,26 @@ class DataManager {
   function LoadModel($model) {
     $ormmgr = OrmManager::singleton();
     $ormmgr->LoadModel($model);
+  }
+
+  // Simple remappings
+  static function &insert($id, $table, $values, $extra=NULL) {
+    return self::QueryInsert($id, $table, $values, $extra);
+  }
+  static function &update($id, $table, $values, $where_condition=NULL, $bind_vars=array()) {
+    return self::QueryUpdate($id, $table, $values, $where_condition, $bind_vars);
+  }
+  static function &delete($id, $table, $where_condition=NULL, $bind_vars=array()) {
+    return self::QueryDelete($id, $table, $where_condition, $bind_vars);
+  }
+  static function &create($id, $table, $columns) {
+    return self::QueryCreate($id, $table, $columns);
+  }
+  static function &fetch($id, $table, $where=NULL, $extra=NULL) {
+    return self::QueryFetch($id, $table, $where, $extra);
+  }
+  static function &count($id, $table, $where, $extra=NULL) {
+    return self::QueryCount($id, $table, $where, $extra);
   }
 }
 

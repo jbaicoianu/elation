@@ -563,3 +563,46 @@ function object_to_xml($obj, $container="", $level=0) {
   }
   return $xml;
 }
+function makeQueryString($args) {
+  return implode("&", array_map(create_function('$k, $v', 'return $k . "=" . urlencode($v);'), array_keys($args), array_values($args)));
+}
+function makeFriendlyURL($page="/", $urlargs=NULL, $queryargs=NULL) {
+  $url = $page;
+
+  if (!empty($urlargs) && is_array($urlargs)) {
+    $urlargs = array_flatten($urlargs);
+    foreach ($urlargs as $k=>$v) {
+      $url .= ($url[strlen($url)-1] != "/" ? "/" : "") . "$k-" . encode_friendly($v);
+    }
+  }
+
+  if (!empty($queryargs) && is_array($queryargs)) {
+    $urlseperator .= "?";
+    foreach ($queryargs as $k=>$v) {
+      if (is_array($v)) {
+        foreach ($v as $k2=>$v2) {
+          $url .= $urlseperator . urlencode($k . "[" . $k2 . "]") . "=" . urlencode($v2);
+          $urlseperator = "&";
+        }
+      } else {
+        $url .= $urlseperator . urlencode($k) . "=" . urlencode($v);
+      }
+      $urlseperator = "&";
+    }
+  }
+  return $url;
+}
+function array_flatten(&$arr, $prefix="") {
+  $ret = array();
+  if (empty($arr)) {
+    return $ret;
+  }
+  foreach ($arr as $k=>$v) {
+    $fullkeyname = (!empty($prefix) ? "$prefix." : "") . $k;
+    if (is_array($v))
+      $ret = array_merge($ret, array_flatten($arr[$k], $fullkeyname));
+    else
+      $ret[$fullkeyname] = $v;
+  }
+  return $ret;
+}

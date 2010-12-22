@@ -97,6 +97,8 @@ class App {
         $output["content"] = $this->HandleException($e);
       }
       
+      $this->session->quit();
+
       $contegargs = any($this->cfg->servers["conteg"], array());
       if (is_array($this->cfg->servers["conteg"]["policy"][$output["responsetype"]]))
         $contegargs = array_merge($contegargs, $this->cfg->servers["conteg"]["policy"][$output["responsetype"]]);

@@ -499,7 +499,7 @@ class SessionManager
   /**
    * Generate GUID based on the counter and the script session ID
    */
-  protected function generate_guid()
+  public function generate_guid()
   {
     return $this->flssid . ":" . str_pad($this->counter++, 4, "0", STR_PAD_LEFT);
   }

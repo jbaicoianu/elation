@@ -39,6 +39,9 @@ elation.extend('panel', new function(options) {
 				if (typeof obj == 'function') {
 					panel.jsobj = new obj(this, panel);
 					elation[panel.name] = panel.jsobj;
+          
+          if (typeof panel.jsobj.init == 'function')
+            panel.jsobj.init();
 				}
 			}
 			
@@ -222,9 +225,14 @@ elation.extend('panel', new function(options) {
 		
 		var parms = elation.utils.encodeURLParams(urlargs);
 		
-		if (panel.jsobj && panel.jsobj.args)
-			parms = parms + (parms ? '&' : '') + elation.utils.encodeURLParams(panel.jsobj.args);
-		
+		if (panel.jsobj) {
+      if (typeof panel.jsobj.setTab == 'function')
+        panel.jsobj.setTab(target, item, panel);
+      
+      if (panel.jsobj.args)
+        parms = parms + (parms ? '&' : '') + elation.utils.encodeURLParams(panel.jsobj.args);
+		}
+    
 		var componentname = item.args.contentcomponent || panel.cfg.contentcomponent;
 		
 		// ajax-fetch tab content
@@ -558,5 +566,5 @@ elation.extend('myfinds_picker', function(parent, panel) {
 		return false;
 	}
 	
-	this.init();
+	//this.init();
 });

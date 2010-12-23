@@ -241,14 +241,17 @@ elation.extend('panel', new function(options) {
 			args: parms,
 			callback: [ 
 				this, 
-				function() {
+				function(response) {
 					// tab fade-in effect
 					if (elation.browser && elation.browser.type != 'msie')
 						$(panel.container).css({ opacity: 0 })
 							.animate({ opacity: 1 }, 'fast')
 							.animate({ opacity: 'auto' }, 0);
 					
-				} 
+          if (panel.jsobj && typeof panel.jsobj.success == 'function') {
+            panel.jsobj.success(response);
+          } 
+        }
 			]
 		});
 	}
@@ -347,7 +350,7 @@ elation.extend('panel', new function(options) {
   }
 });
 
-elation.extend('myfinds_picker', function(parent, panel) {
+elation.extend('myfinds.picker', function(parent, panel) {
 	this.parent = parent;
 	this.panel = panel;
 	this.args = { mode: 'store' };

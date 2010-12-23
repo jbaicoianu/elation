@@ -143,7 +143,8 @@ class TemplateManager extends Smarty {
       if (!empty($r["_content"])) {
         // FIXME - calling postprocess here can cause issues with jsonencoding and with other strings which contain [[ and ]], but it's somewhat necessary for some things...
         //$output .= '><![CDATA[' . $this->PostProcess($r["_content"]) . ']]></response>';
-        $output .= '><![CDATA[' . $r["_content"] . ']]></response>';
+        //FIXME: warning supression is evil!
+        @$output .= '><![CDATA[' . $r["_content"] . ']]></response>';
       } else {
         $output .= '/>';
       }

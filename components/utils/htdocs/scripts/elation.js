@@ -928,3 +928,125 @@ elation.extend('ui.setCaretPosition', function(oField, iCaretPos) {
 		oField.focus();
 	}
 });
+
+elation.extend('ui.combobox', function(parent, callback) {
+	this.visible = false;
+	this.parent = parent;
+	this.callback = callback;
+	
+	this.init = function() {
+		var	selects = elation.find("select.tf_search_input_sub_navigation", this.parent),
+				select, dim, combobox, label, button, ul, lis, img, option, actions, options;
+		
+		for (var i=0; i<selects.length; i++) {
+			select = selects[i];
+			options = [];
+			
+			combobox = this.combobox = elation.html.create({
+				tag: 'div',
+				classname: 'tf_combobox',
+				append: select.parentNode,
+				before: select
+			});
+			
+			label = this.label = elation.html.create({
+				tag: 'div',
+				classname: 'tf_combobox_label',
+				append: combobox
+			});
+			
+			button = this.button = elation.html.create({
+				tag: 'div',
+				classname: 'tf_combobox_button',
+				append: combobox
+			});
+			
+			img = elation.html.create({
+				tag: 'div',
+				classname: 'tf_combobox_image',
+				append: button
+			});			
+			
+			ul = this.ul = elation.html.create({
+				tag: 'ul',
+				classname: 'tf_combobox_options',
+				append: combobox
+			});
+			
+			label.innerHTML = select.options[select.selectedIndex].innerHTML;
+			
+      for (var s=0; s<select.options.length; s++) {
+				option = select.options[s];
+				
+				li = elation.html.createv({
+					tag: 'li',
+					classname: 'tf_combobox_option',
+					append: ul,
+					attributes: {
+						innerHTML: option.innerHTML
+					}
+				});
+				
+				options.push({ 
+					li: li, 
+					label: option.innerHTML, 
+					value: option.value 
+				});
+			}
+			
+			this.options = options;
+			this.actions = actions;
+			
+			this.ul.style.display = 'block';
+			this.height = this.ul.offsetHeight;
+			this.ul.style.display = 'none';
+			
+      elation.events.add(combobox, 'click', this);
+			
+			select.parentNode.removeChild(select);
+		}
+	}
+	
+	this.show = function() {
+		this.visible = true;
+		
+		elation.html.addclass(this.button, 'selected');
+		
+		$TF(this.ul)
+			.css({ display: 'block', height: 0 })
+			.animate({ height: this.height + 'px' }, 150, "easein");
+	}
+	
+	this.hide = function() {
+		this.visible = false;
+		
+		elation.html.removeclass(this.button, 'selected');
+		
+		(function(self) {
+			$(self.ul)
+				.animate({ height: 0 }, 200, "easeout", function() { self.ul.style.display = 'none'; });
+		})(this);
+	}
+	
+	this.toggle = function(target) {
+		this.visible
+			? this.hide()
+			: this.show();
+		
+		if (target.nodeName == 'LI')
+			this.callback(target, this);
+	}
+	
+	this.handleEvent = function(event) {
+		var type = event.type || window.event,
+				target = event.target || event.srcElement;
+		
+		switch (type) {
+			case 'click': this.toggle(target); break;
+			case 'mouseover': break;
+			case 'mouseout': break;
+		}
+	}
+	
+	this.init();
+});

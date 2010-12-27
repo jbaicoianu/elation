@@ -42,6 +42,19 @@ function any() {
   return $last;
 }
 
+function all() {
+  $ret = array();
+  foreach (func_get_args() as $arg) {
+    if ($arg !== NULL) {
+      if (is_array($arg))
+        $ret = array_merge_recursive($ret, $arg);
+      else 
+        $ret[] = $arg;
+    }
+  }
+  return $ret;
+}
+
 function stripslashes_deep($value)
 {
   $value = is_array($value) ?

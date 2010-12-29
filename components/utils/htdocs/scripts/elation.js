@@ -14,6 +14,10 @@ var elation = new function() {
 		ptr[parts[i]] = func;
   }
 }
+
+// FIXME: need to do this the right way, but sick of all these errors
+$TF = $;
+
 elation.extend("component", new function() {
   this.namespace = "elation";
   this.registry = [];
@@ -505,6 +509,21 @@ elation.extend("utils.indexOf", function(array, object) {
 	}
 	
 	return -1;
+});
+
+elation.extend("utils.fixPNG", function() {
+  if (elation.browser.type == "msie" && elation.browser.version <= 6) {
+    //FIXME this breaks fixpng, I'm commenting it out, if this breaks other things... well, if you happen to see this comment maybe it will inspire you to try uncommenting out the line below to see if that has an effect -- mac daddy
+    document.execCommand("BackgroundImageCache",false,true);
+    var imglist = document.getElementsByTagName("img");
+    for (var i = 0; i < imglist.length; i++) {
+      if(imglist[i].src.substr(imglist[i].src.length - 3, 3) == "png" && !imglist[i].style.filter) {
+        var origsrc = imglist[i].src;
+        imglist[i].src = '/images/misc/nothing.gif';
+        imglist[i].style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + origsrc + "', sizingMethod='image')";
+      }
+    }
+  }
 });
 
 elation.extend('JSON', new function() {
@@ -1050,3 +1069,101 @@ elation.extend('ui.combobox', function(parent, callback) {
 	
 	this.init();
 });
+
+elation.extend('data', new function() {
+	this.add = function(name, data) {
+		if (!this[name])
+			this[name] = [];
+		
+		for (var i=0; i<data.length; i++)
+			this[name].push(data[i]);
+	}
+	
+	this.find = function(name, path, value) {
+		if (elation.utils.isNull(this[name]))
+			return false;
+		
+		for (var i=0; i<this[name].length; i++) {
+			var item = this[name][i],
+					property = elation.utils.arrayget(item, path);
+			
+			if (property == value)
+				return item;
+		}
+		
+		return false;
+	}
+});
+
+// execute callback onhover
+elation.extend('ui.hover', function() {
+  this.init = function(element, mouseover, mouseout, alternate, click) {
+    if (!element || !mouseover || !mouseout)
+      return;
+    
+    this.element = element;
+    this.mouseover = mouseover;
+    this.mouseout = mouseout;
+		this.click = click;
+    this.alternate = alternate || element;
+    
+    elation.events.add(element, "mouseover,mouseout", this);
+    
+		// onclick is optional
+		if (click)
+			elation.events.add(this.alternate, "click", this);
+  }
+  
+  this.handleEvent = function(event) {
+    var	event = this.event = event || window.event,
+        target = this.target = event.target || event.srcElement,
+				related = this.related = elation.events.getRelated(event);
+    
+		if (this.checkRelated(target, related))
+			return;
+		
+    switch(event.type) {
+      case "mouseover":
+        this.mouseover();
+        break;
+      
+      case "mouseout":
+        this.mouseout();
+        break;
+      
+			case "click":
+        this.click();
+        break;
+    }
+  }
+	
+	this.checkRelated = function(target, related) {
+ 		while (!elation.utils.isNull(related)) { 
+ 			if (related == this.element)
+				return true;
+			
+			related = related.parentNode;
+		}
+		
+		return false;
+	}
+});
+
+elation.extend('log_size', function(result_view_id) {
+	if (typeof result_view_id == 'undefined')
+		result_view_id = '';
+	
+	if (window.innerWidth) 
+		var	tr_width = window.innerWidth,
+				tr_height = window.innerHeight;
+	else 
+		if (document.body.offsetWidth) 
+			var	tr_width = document.body.offsetWidth,
+					tr_height = document.body.offsetHeight;
+	
+	if (elation.ajax) {
+    elation.ajax.Get('/page/sizelog?width=' + tr_width + '&height=' + tr_height + '&result_view_id=' + result_view_id);
+  }
+});
+
+tr_size = elation.log_size;

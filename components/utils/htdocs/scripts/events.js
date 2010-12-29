@@ -106,8 +106,7 @@ elation.extend("events", {
     return window.event ? event.srcElement : event.target;
   },
   
-  getRelated: this.getRelatedTarget,
-  getRelatedTarget: function(event) {
+  getRelated: function(event) {
     var reltg;
     
     if (event.relatedTarget) {
@@ -124,6 +123,50 @@ elation.extend("events", {
     return reltg;
   },
   
+	getEventTarget: function(event, parentClassName) {
+		var target;
+		
+		if (!event) 
+			var event = window.event;
+		
+		if (event.target) 
+			target = event.target;
+		else if (event.srcElement) 
+			target = event.srcElement;
+		
+		if (target.nodeType == 3) 
+			target = target.parentNode; // Defeat Safari bug
+		
+		if (parentClassName) {
+			// Make sure we're working with the correct element
+			var classUp, classDown;
+			
+			if (parentClassName.indexOf(">")) {
+				var classes = parentClassName.split(">", 2);
+				classDown = classes[0];
+				classUp = classes[1];
+			} else {
+				classDown = parentClassName;
+			}
+			
+			// First run DOWN the heirarchy to find the base class...
+			while (!elation.html.hasclass(target,classDown) && target.parentNode) {
+				target = target.parentNode;
+			}
+			
+			// Now if we've specified a child to attach to, find it!
+			if (classUp) {
+				var elements;
+				elements = elation.find("." + classUp, target);
+				if (elements.length > 0) {
+					target = elements[0];
+				}
+			}
+		}
+		
+		return target;
+	},
+
   // returns mouse or all finger touch coords
 	coords: function(event) {
 		if (typeof event.touches != 'undefined' && event.touches.length > 0) {

@@ -1,0 +1,90 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+ul {
+  list-style: none;
+}
+.tf_layout_column_left {
+  float: left;
+  position: relative;
+}
+.tf_layout_column_right {
+  float: right;
+  position: relative;
+}
+.tf_layout_column_main {
+  position: relative;
+}
+.tf_page_search #tf_content {
+	padding-top:1em;
+}
+#tf_content.tf_layout_threecolumn .tf_layout_column_left {
+  width: 10.8em;
+  overflow-y: visible;
+  overflow-x: visible;
+  padding: 0 .5em;
+}
+#tf_content.tf_layout_threecolumn .tf_layout_column_right {
+  width: 160px;
+  padding: 0 2px;
+}
+#tf_content.tf_layout_threecolumn .tf_layout_column_main {
+  margin-left: 11.8em;
+  margin-right: 165px;
+}
+#tf_content.tf_layout_twocolumn_left .tf_layout_column_main {
+  margin-left: 11.8em;
+}
+#tf_content.tf_layout_twocolumn_left .tf_layout_column_left {
+  width: 10.8em;
+  overflow: hidden;
+  padding: 0 .5em;
+}
+#tf_content.tf_layout_twocolumn_right .tf_layout_column_right {
+  width: 300px;
+  overflow: hidden;
+  padding: 0;
+	padding-right: 5px;
+}
+#tf_content.tf_layout_twocolumn_right .tf_layout_column_main {
+  margin-right: 305px;
+}
+#tf_content.tf_layout_twocolumn_left.tf_layout_size_narrow .tf_layout_column_left,
+#tf_content.tf_layout_twocolumn_right.tf_layout_size_narrow .tf_layout_column_right  {
+  width: 130px;
+  /*padding: 0 .5em;*/
+}
+#tf_content.tf_layout_twocolumn_left.tf_layout_size_narrow .tf_layout_column_main  {
+  margin-left: 10.8em;
+}
+#tf_content.tf_layout_twocolumn_right.tf_layout_size_narrow .tf_layout_column_main  {
+  margin-right: 135px;
+}
+#tf_content.tf_layout_twocolumn_left.tf_layout_size_wide .tf_layout_column_left {
+  width: 300px;
+  /* padding: 0 5px 0 0; */
+}
+#tf_content.tf_layout_twocolumn_right.tf_layout_size_wide .tf_layout_column_right {
+  width: 300px;
+	position: relative;
+	/* background-color: #fff; */
+	z-index: 1; /* pos: rel, bgcolor, and zindex to filters ontop of product tiles while resizing -lazarus */
+  /* padding: 0 0 0 5px; */
+}
+#tf_content.tf_layout_twocolumn_left.tf_layout_size_wide .tf_layout_column_main  {
+  margin-left: 315px; /* 305px; */
+}
+#tf_content.tf_layout_twocolumn_left.tf_layout_size_wide {
+  margin-top: 1em;
+}
+#tf_content .tf_layout_column_main_inner {
+  float: left;
+  width: 100%;
+  padding-left: 1em;
+}
+@media all and (max-width: 640px) {
+  #tf_content .tf_layout_column_main_inner {
+    margin-left: 0;
+  }
+}

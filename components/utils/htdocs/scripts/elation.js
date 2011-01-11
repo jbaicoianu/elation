@@ -1176,5 +1176,11 @@ elation.extend('log_size', function(result_view_id) {
     elation.ajax.Get('/page/sizelog?width=' + tr_width + '&height=' + tr_height + '&result_view_id=' + result_view_id);
   }
 });
+elation.extend("utils.escapeHTML", function(str) {
+   var div = document.createElement('div');
+   var text = document.createTextNode(str);
+   div.appendChild(text);
+   return div.innerHTML;
+});
 
 tr_size = elation.log_size;

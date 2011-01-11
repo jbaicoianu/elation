@@ -38,4 +38,4 @@
   *}
   
 </head>
-<body{if !empty($page)} class="tf_page_{$page}"{/if}>
+<body{if !empty($pagecfg.pagename)} class="tf_page_{$pagecfg.pagename}"{/if}>

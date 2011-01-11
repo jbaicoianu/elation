@@ -57,19 +57,21 @@ function elation_readpaths($root) {
     $homedir = $matches[0];
   }
    
-  $paths = file_get_contents('config/elation.path');
-  
-  if($paths !== false) {
-    $paths = explode(PHP_EOL, $paths);
-    $newpaths = array($root);
-    foreach($paths as $path) {
-      if(!empty($path)) {
-        if($homedir) {
-          $path = str_replace('~/', $homedir, $path);
+  if (file_exists('config/elation.path')) {
+    $paths = file_get_contents('config/elation.path');
+    
+    if($paths !== false) {
+      $paths = explode(PHP_EOL, $paths);
+      $newpaths = array($root);
+      foreach($paths as $path) {
+        if(!empty($path)) {
+          if($homedir) {
+            $path = str_replace('~/', $homedir, $path);
+          }
+          $newpaths[] = $path;
         }
-        $newpaths[] = $path;
       }
+      elation_addroot($newpaths);
     }
-    elation_addroot($newpaths);
   }
 }

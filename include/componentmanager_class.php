@@ -46,11 +46,17 @@ class ComponentManager extends Component {
 
     $tplmgr = TemplateManager::singleton();
 
-    $ret["type"] = $outputtype;
-    $ret["page"] = $page;
+    $pagecfg = array();
+    $smarty = TemplateManager::singleton();
+    $smarty->assign_by_ref("pagecfg", $pagecfg);
+    $ret["type"] = $pagecfg["type"] = $outputtype;
+    $ret["page"] = $pagecfg["page"] = $page;
+    $ret["pagename"] = $pagecfg["pagename"] = str_replace("/", "_", substr($page, 1));
 
     if(!empty($contenturls[$page])) {
       // Check for config-mapped URL first
+      $pagecfg["pagename"] = $contenturls[$page]["name"];
+      $pagecfg["pagegroup"] = $contenturls[$page]["pagegroup"];
       $pagevars = $contenturls[$page];
       if(!empty($pagevars["options"])) {
         $cfg->ConfigMerge($cfg->current, $pagevars["options"]);

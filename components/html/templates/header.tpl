@@ -38,4 +38,4 @@
   *}
   
 </head>
-<body>
+<body{if !empty($page)} class="tf_page_{$page}"{/if}>

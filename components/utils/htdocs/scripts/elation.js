@@ -526,6 +526,17 @@ elation.extend("utils.fixPNG", function() {
   }
 });
 
+elation.extend("utils.stringify", function() {
+  var value, ret = '';
+  
+  for (var key in parms) {
+    value = parms[key];
+    ret += key + '=' + value + '&'; 
+  }
+  
+  return ret.substr(0,ret.length-1);
+});
+
 elation.extend('JSON', new function() {
   this.parse = function(text) {
     return this.JSON(['decode','parse'],text);

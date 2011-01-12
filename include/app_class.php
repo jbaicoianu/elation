@@ -36,7 +36,7 @@ class App {
     Logger::Info("Path: " . get_include_path());
 		$this->initAutoLoaders();
 
-    Logger::Error("Turning Pandora flag on");
+    Logger::Info("Turning Pandora flag on");
     $pandora = PandoraLog::singleton();
     $pandora->setFlag(true);
 

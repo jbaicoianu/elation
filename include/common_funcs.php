@@ -179,37 +179,27 @@ function array_diff_assoc_recursive($array1, $array2) {
   return !isset($difference) ? FALSE : $difference;
 }
 
-function object_to_array($obj, $keyprefix="") {
+function object_to_array($obj, $keymap=NULL) {
   $arr = array();
-
   if (get_class($obj) == "SimpleXMLElement") {
-    if($obj->attributes()) {
-      foreach ($obj->attributes() as $k=>$v) {
-        $arr[$keyprefix.$k] = (string) $v;
-      }
+    foreach ($obj->attributes() as $k=>$v) {
+      $arr[$k] = (string) $v;
     }
-
-    if($obj->children()) {
-      foreach ($obj->children() as $k=>$v) {
-        $arr["_children"][$keyprefix.$k] = (string) $v;
-      }
+    foreach ($obj->children() as $k=>$v) {
+      $arr["_children"][$k] = (string) $v;
     }
-
     $content = (string) $obj;
-    if (!empty($content)) {
+    if (!empty($content))
       $arr["_content"] = $content;
-    }
-  }
-  else if (is_object($obj) || is_array($obj)) {
+  } else if (is_object($obj) || is_array($obj)) {
     foreach ($obj as $k=>$v) {
       if (is_object($v) || is_array($v)) {
-        $arr[$keyprefix.$k] = object_to_array($v);
+        $arr[$k] = object_to_array($v);
       } else {
-        $arr[$keyprefix.$k] = (string) $v;
+        $arr[$k] = (string) $v;
       }
     }
   }
-  
   return $arr;
 }
 

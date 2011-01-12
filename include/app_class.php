@@ -185,7 +185,8 @@ class App {
                                "file" => $e->getFile(),
                                "line" => $e->getLine(),
                                "trace" => $e->getTrace());
-    $vars["debug"] = $this->debug; //User::authorized("debug");
+    $user = User::singleton();
+    $vars["debug"] = ($this->debug || $user->HasRole("ADMIN"));
     if (($path = file_exists_in_path("templates/exception.tpl", true)) !== false) {
       return $this->tplmgr->GetTemplate($path . "/templates/exception.tpl", $this, $vars);
     }
@@ -207,7 +208,9 @@ class App {
                                  "file" => $errfile,
                                  "line" => $errline);
 
-      if ($this->debug) {
+      $user = User::singleton();
+      $vars["debug"] = ($this->debug || $user->HasRole("ADMIN"));
+      if ($vars["debug"]) {
         $vars["exception"]["trace"] = debug_backtrace();
         array_shift($vars["exception"]["trace"]);
       }                                 

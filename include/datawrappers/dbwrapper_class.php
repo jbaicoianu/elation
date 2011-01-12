@@ -836,7 +836,8 @@ class DataBase {
     try {
       $stmt = $this->db->prepare($sql);
     } catch (PDOException $e) {
-      throw new DataBaseException($e->getMessage(), $e->getCode(), $sql, $bind_vars);
+      //throw new DataBaseException($e->getMessage(), $e->getCode(), $sql, $bind_vars);
+      throw $e;
     }
     foreach($bind_vars as $key => $value) {
       $stmt->bindValue($key, $value);
@@ -844,7 +845,8 @@ class DataBase {
     try {
       $result = $stmt->execute();
     } catch (PDOException $e) {
-      throw new DataBaseException($e->getMessage(), $e->getCode(), $sql, $bind_vars);
+      //throw new DataBaseException($e->getMessage(), $e->getCode(), $sql, $bind_vars);
+      throw $e;
     }
 
     $ret = false;

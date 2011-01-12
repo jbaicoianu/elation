@@ -182,7 +182,7 @@ function array_diff_assoc_recursive($array1, $array2) {
 function object_to_array($obj, $keyprefix="") {
   $arr = array();
 
-  if ($obj instanceOf SimpleXMLElement) { // && (string)$obj) {
+  if ($obj instanceOf SimpleXMLElement && (string)$obj) {
     if($obj->attributes()) {
       foreach ($obj->attributes() as $k=>$v) {
         $arr[$keyprefix.$k] = (string) $v;

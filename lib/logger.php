@@ -1,4 +1,4 @@
-<?
+<?php
 /*
   Copyright (c) 2005 James Baicoianu
 
@@ -38,7 +38,7 @@ class Logger {
     // email settings
     $sitecfg["logger"]["email"]["level"] = "E_WARNING";
     $sitecfg["logger"]["email"]["interval"] = 10;
-    $sitecfg["logger"]["email"]["email_to"] = "lkuang@thefind.com";
+    $sitecfg["logger"]["email"]["email_to"] = "ui@thefind.com";
     // log file settings
     $sitecfg["logger"]["file"]["level"] = "E_WARNING";
     $sitecfg["logger"]["file"]["path"] = "/data/logs/ui";

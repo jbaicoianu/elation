@@ -312,8 +312,6 @@ class SessionManager
 
     //save session data once per session
 //    if(!array_key_exists('pandora_session_data_added', $_SESSION)) {
-//      Logger::Warn('FUCKING PANDORA SESSION SHITE BBBBBBBBBBBBBBBBBBBBBBBB' . var_export($pandora_session, true));
-//      Logger::Warn("Got session!!!!!!!!!!!!!!!!!!!!: " . $pandoraUserTypeNum);
 //      $pandora->addData("session", $pandora_session);
 //      $_SESSION['pandora_session_data_added'] = true;
 //    }
@@ -325,6 +323,12 @@ class SessionManager
     //Profiler::StopTimer("SessionManager::Init()");
   }
   public function quit() {
+    // instantiate the pandora object
+//    Logger::Info("Writing Pandora Log");
+//    $pandora = PandoraLog::singleton();
+//    $pandora->writeLog();
+    
+    Logger::Info("Closing Session");
     session_write_close();
   }
 
@@ -365,7 +369,7 @@ class SessionManager
    * session close requirement
    * Persist the data warehouse log data.
    */
-  public  function close()
+  public function close()
   {
     //$this->data->Quit();
 

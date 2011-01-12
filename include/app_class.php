@@ -36,6 +36,11 @@ class App {
     Logger::Info("Path: " . get_include_path());
 		$this->initAutoLoaders();
 
+    Logger::Error("Turning Pandora flag on");
+    $pandora = PandoraLog::singleton();
+    $pandora->setFlag(true);
+
+
     $this->locations = array("scripts" => "htdocs/scripts",
                              "css" => "htdocs/css",
                              "tmp" => "tmp",
@@ -85,6 +90,7 @@ class App {
     $this->user->InitActiveUser($this->request);
     Profiler::StopTimer("WebApp::Init");
   }
+
   function Display($path=NULL, $args=NULL) {
     $path = any($path, $this->request["path"], "/");
     $args = any($args, $this->request["args"], array());
@@ -98,7 +104,7 @@ class App {
       }
       
       $this->session->quit();
-
+      
       $contegargs = any($this->cfg->servers["conteg"], array());
       if (is_array($this->cfg->servers["conteg"]["policy"][$output["responsetype"]]))
         $contegargs = array_merge($contegargs, $this->cfg->servers["conteg"]["policy"][$output["responsetype"]]);
@@ -123,6 +129,7 @@ class App {
       new Conteg($contegargs);
     }
   }
+
   function GetAppVersion() {
     $this->appversion = "development";
     $verfile = "config/elation.appversion";
@@ -133,6 +140,7 @@ class App {
     }
     return $this->appversion;
   }
+
   function initialized() {
     $ret = false;
     if (is_writable($this->locations["tmp"])) {
@@ -218,7 +226,7 @@ class App {
   {
   	if(class_exists('Zend_Loader_Autoloader', false)) {
 	    $zendAutoloader = Zend_Loader_Autoloader::getInstance(); //already registers Zend as an autoloader
-	    $zendAutoloader->unshiftAutoloader(array('WebApp', 'autoloadElation')); //add the Trimbo autoloader
+	    $zendAutoloader->unshiftAutoloader(array('WebApp', 'autoloadElation')); //add the Elation autoloader
 		} else {
 			spl_autoload_register('App::autoloadElation');
 		}

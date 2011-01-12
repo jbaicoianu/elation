@@ -14,6 +14,7 @@
        <code>{if is_string($arg)}'{$arg|escape:html}'{else}{php}print gettype($this->_tpl_vars["arg"]){/php}{/if}</code>{if !$smarty.foreach.trace.last},{/if}
      {/foreach}
     )
+    <address>{$trace.file}:{$trace.line}</address>
    </li>
   {/foreach}
  </ol>

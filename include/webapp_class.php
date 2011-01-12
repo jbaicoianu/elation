@@ -118,7 +118,8 @@ class WebApp extends App {
     $doRedirect = false;
     
     foreach ($rules as $rule) {
-      if (!empty($rule->match)) { // FIXME - Never ever upgrade to PHP 5.2.6.  It breaks empty() on SimpleXML objects.
+      //if (!empty($rule->match)) { // FIXME - Never ever upgrade to PHP 5.2.6.  It breaks empty() on SimpleXML objects.
+      if($rule->match) {
         $ismatch = true;
         $isexcept = false;
         $matchvars = array(NULL); // Force first element to NULL to start array indexing at 1 (regex-style)

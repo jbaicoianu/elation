@@ -1,4 +1,4 @@
-<?
+<?php
 /*
   Copyright (c) 2005 James Baicoianu
 
@@ -97,6 +97,28 @@ class ComponentManager extends Component {
       $ret['responsetype'] = $output[0];
       $ret['content'] = $output[1];
     }
+
+    // Pandora page log
+    $pandora = PandoraLog::singleton();
+    $session = SessionManager::singleton();
+
+    $pandora_pages = array(
+      "timestamp"     => time(),
+      "session_id"    => $session->flsid,
+      "fluid"         => $session->fluid,
+      "referrer_url"  => $_SERVER['HTTP_REFERER'],
+      "page_url"      => "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
+      "page_type"     => $pagecfg["pagename"],
+    );
+
+    if ($pandora instanceof PandoraLog) {
+      $pandora->addData("pages", $pandora_pages);
+      // if $pagecfg["pagename"] known, update the session
+      if (!empty($pagecfg["type"])) {
+        $pandora->setPageType($pagecfg["pagename"]);
+      }
+    }
+
     // TODO - handle redirects and postprocessing for different output types here
     return $ret;
   }

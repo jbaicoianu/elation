@@ -94,7 +94,7 @@ class ConnectionWrapper {
         $ret = true;
       } else {
         // Not connected, let's see what we can do
-        Logger::Notice("Establishing connection: $this->name");
+        Logger::Notice("Establishing connection: $this->name (" . get_class($this) . ")");
         if ($this->Open($num)) {
           $ret = true;
         } else {

@@ -276,7 +276,7 @@ elation.extend('panel', new function(options) {
 		
   	if (panel = this.panels[this.panelmap[panelname]]) {
       for (var key in args) 
-        arraySet(panel.args, key, args[key]);
+        elation.utils.arrayset(panel.args, key, args[key]);
 			
 			for (var item_key in panel.items) {
 				item = panel.items[item_key];

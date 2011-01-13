@@ -659,3 +659,40 @@ function ucwordssmart($str) {
   $str = ucwords($str);
   return str_replace(array("And ", "To ", "Or "), array("and ", "to ", "or "), $str);
 }
+
+function unobfuscateString($str) {
+  if (substr($str, 0, 2) == '$$') {
+    if (strpos($str, ' ')) {
+      return substr($str, 2); 
+    } else {
+      return gzinflate(base64_decode(substr($str, 2)));
+    }
+  } else {
+    return $str;
+  }
+}
+
+/**
+ * performs a 302 redirect to the url specified
+ * but the php can still continue
+ *
+ * @param string $url
+ * @param array $args hash of extra query string args
+ * @see   header()
+ * @see   queryString()
+ */
+function redirect1($url, $args = array()) {
+  if (ob_get_contents()) ob_end_clean();
+  ob_start();
+  //if ($args) $url .= '?' . queryString($args);
+  if ($args) $url = makeRequestURL($url, $args);
+  http_redirect("$url");
+  /*
+  header('Connection: close');
+
+  $size=ob_get_length();
+  header("Content-Length: $size");
+  */
+  ob_flush();
+  flush();
+}

@@ -115,6 +115,9 @@ abstract class Dependency {
       case 'jstemplate':
         $ret = new DependencyJSTemplate($args);
         break;
+      case 'rss':
+        $ret = new DependencyRSS($args);
+        break;
       default:
         throw new Exception("DependencyManager: unknown dependency type '$type'");
     }

@@ -1182,7 +1182,7 @@ elation.extend('ui.combobox', function(parent, callback) {
       for (var s=0; s<select.options.length; s++) {
 				option = select.options[s];
 				
-				li = elation.html.createv({
+				li = elation.html.create({
 					tag: 'li',
 					classname: 'tf_combobox_option',
 					append: ul,
@@ -1200,7 +1200,6 @@ elation.extend('ui.combobox', function(parent, callback) {
 			
 			this.options = options;
 			this.actions = actions;
-			
 			this.ul.style.display = 'block';
 			this.height = this.ul.offsetHeight;
 			this.ul.style.display = 'none';

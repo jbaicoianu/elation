@@ -1200,7 +1200,6 @@ elation.extend('ui.combobox', function(parent, callback) {
 			
 			this.options = options;
 			this.actions = actions;
-			
 			this.ul.style.display = 'block';
 			this.height = this.ul.offsetHeight;
 			this.ul.style.display = 'none';

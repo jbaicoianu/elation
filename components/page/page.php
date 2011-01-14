@@ -9,7 +9,7 @@ class Component_page extends Component
     return $this->GetComponentResponse("./page.tpl", $vars);
   }
 
-  public function component_sizelog($args)
+  public function controller_sizelog($args)
   {
     $pandora = PandoraLog::singleton();
     $session = SessionManager::singleton();

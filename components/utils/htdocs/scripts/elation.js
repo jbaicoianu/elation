@@ -1356,9 +1356,6 @@ elation.extend("utils.escapeHTML", function(str) {
 tr_size = elation.log_size;
 
 
-
-
-
 /**
  * Google analytics tracking class and object
  */
@@ -1624,4 +1621,11 @@ function TFHtmlUtilsGoogleAnalytics(args) {
       this.trackEvent(['permissions', 'shoplikeme', permTxt]);
     }
   };
+}
+
+/**
+ * This is used for something apparently
+ */
+function TFHtmlUtilsPandoraLog() {
+  this.mouseovertype = "";
 }

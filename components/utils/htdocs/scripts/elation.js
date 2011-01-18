@@ -15,9 +15,6 @@ var elation = new function() {
   }
 }
 
-// FIXME: need to do this the right way, but sick of all these errors
-//$ = $; //use search and replace
-
 elation.extend("component", new function() {
   this.namespace = "elation";
   this.registry = [];

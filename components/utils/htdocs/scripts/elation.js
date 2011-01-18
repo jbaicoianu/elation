@@ -15,6 +15,8 @@ var elation = new function() {
   }
 }
 
+$TF = $ = jQuery.noConflict();
+
 elation.extend("component", new function() {
   this.namespace = "elation";
   this.registry = [];

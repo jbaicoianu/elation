@@ -1,5 +1,6 @@
-[[debug]]
+  [[debug]]
   {dependency type="component" name="html.footer"}
+  {dependency type="component" name="utils.panel"}
 
   {if $GAenabled}
     <script type="text/javascript">
@@ -55,10 +56,6 @@
         {/if}
         googleAnalytics.trackPageview();
         pandoraLog = new TFHtmlUtilsPandoraLog();
-
-        {*If we port this, uncomment below
-        //elation.common_events.handleClicks(['tf_footer_merchantcenter', 'tf_middle_bottom_merchantcenter']);
-        *}
       {rdelim});
     </script>
   {/if}

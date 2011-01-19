@@ -1,4 +1,5 @@
 <?php
+
 /*
   Copyright (c) 2005 James Baicoianu
 
@@ -15,18 +16,19 @@
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 
 include_once("lib/logger.php");
 include_once("lib/profiler.php");
 include_once("include/common_funcs.php");
 include_once("include/app_class.php");
 
-if(file_exists_in_path('Zend/Loader/Autoloader.php')) {
+if (file_exists_in_path('Zend/Loader/Autoloader.php')) {
   include_once "Zend/Loader/Autoloader.php";
 }
 
 class WebApp extends App {
+
   public $orm;
   public $tplmgr;
   public $components;
@@ -41,7 +43,7 @@ class WebApp extends App {
       if (preg_match("/^(.*?)\/go\.php$/", $_SERVER["SCRIPT_NAME"], $m)) {
         $webroot = $m[1];
       }
-      $page = preg_replace("/".preg_quote($webroot,"/")."(.*?)(\?.*)?$/", "$1", $_SERVER["REQUEST_URI"]);
+      $page = preg_replace("/" . preg_quote($webroot, "/") . "(.*?)(\?.*)?$/", "$1", $_SERVER["REQUEST_URI"]);
     }
     if ($post === NULL)
       $post = &$_REQUEST;
@@ -54,7 +56,7 @@ class WebApp extends App {
       $req["args"] = array();
 
     if (!empty($post)) {
-      if (get_magic_quotes_gpc()) {
+      if (get_magic_quotes_gpc ()) {
         $post = array_map('stripslashes_deep', $post);
       }
       $req["args"] = array_merge($req["args"], $post);
@@ -91,8 +93,8 @@ class WebApp extends App {
     $req["basedir"] = $webroot;
     $req["baseurl"] = $req["scheme"] . "://" . $req["host"] . $req["basedir"];
     $req["url"] = $req["baseurl"] . $req["path"];
-      
-    if($req["basedir"] == '/') {
+
+    if ($req["basedir"] == '/') {
       $req["basedir"] = '';
     }
 
@@ -114,26 +116,27 @@ class WebApp extends App {
 
     return $req;
   }
+
   function ApplyRedirects($req, $rules) {
     $doRedirect = false;
-    
+
     foreach ($rules as $rule) {
       //if (!empty($rule->match)) { // FIXME - Never ever upgrade to PHP 5.2.6.  It breaks empty() on SimpleXML objects.
-      if($rule->match) {
+      if ($rule->match) {
         $ismatch = true;
         $isexcept = false;
         $matchvars = array(NULL); // Force first element to NULL to start array indexing at 1 (regex-style)
-        
-        foreach ($rule->match->attributes() as $matchkey=>$matchstr) {
+
+        foreach ($rule->match->attributes() as $matchkey => $matchstr) {
           $checkstr = array_get($req, $matchkey);
           if ($checkstr !== NULL) {
             $m = NULL;
             if (substr($matchstr, 0, 1) == "!") {
-              $ismatch &= !preg_match("#" . substr($matchstr, 1) . "#", $checkstr, $m);
+              $ismatch &= ! preg_match("#" . substr($matchstr, 1) . "#", $checkstr, $m);
             } else {
               $ismatch &= preg_match("#" . $matchstr . "#", $checkstr, $m);
             }
-            
+
             //Logger::Debug("Check rewrite (%s): '%s' =~ '%s' ? %s", $matchkey, $checkstr, $matchstr, ($ismatch ? "YES" : "NO"));
             if (is_array($m) && count($m) > 0) {
               if (count($m) > 1) {
@@ -149,12 +152,12 @@ class WebApp extends App {
         }
         if ($ismatch && !empty($rule->except)) {
           $exceptflag = true;
-          foreach ($rule->except->attributes() as $exceptkey=>$exceptstr) {
+          foreach ($rule->except->attributes() as $exceptkey => $exceptstr) {
             $checkstr = array_get($req, $exceptkey);
             if ($checkstr !== NULL) {
               $m = NULL;
               if (substr($exceptstr, 0, 1) == "!") {
-                $exceptflag &= !preg_match("#" . substr($exceptstr, 1) . "#", $checkstr, $m);
+                $exceptflag &= ! preg_match("#" . substr($exceptstr, 1) . "#", $checkstr, $m);
               } else {
                 $exceptflag &= preg_match("#" . $exceptstr . "#", $checkstr, $m);
               }
@@ -174,12 +177,12 @@ class WebApp extends App {
             if (!empty($req["args"]["testredir"]))
               print "<pre>" . htmlspecialchars($rule->asXML()) . "</pre><hr />";
 
-            foreach ($rule->set->attributes() as $rewritekey=>$rewritestr) {
+            foreach ($rule->set->attributes() as $rewritekey => $rewritestr) {
               if (count($matchvars) > 1 && strpos($rewritestr, "%") !== false) {
                 $find = array(NULL);
                 for ($i = 1; $i < count($matchvars); $i++)
                   $find[] = "%$i";
-                
+
                 $rewritestr = str_replace($find, $matchvars, $rewritestr);
               }
               array_set($req, (string) $rewritekey, (string) $rewritestr);
@@ -193,7 +196,7 @@ class WebApp extends App {
           // And finally process "unset"
           if (!empty($rule->unset)) {
             $unset = false;
-            foreach ($rule->unset->attributes() as $unsetkey=>$unsetval) {
+            foreach ($rule->unset->attributes() as $unsetkey => $unsetval) {
               if ($unsetkey == "_ALL_" && $unsetval == "ALL") {
                 $req["args"] = array();
               } else if (!empty($unsetval)) {
@@ -212,11 +215,12 @@ class WebApp extends App {
               }
             }
           }
-          if ($doRedirect !== false) break;
+          if ($doRedirect !== false)
+            break;
         }
       }
     }
-    
+
     if ($doRedirect !== false) {
       $origscheme = "http" . ($req["ssl"] ? "s" : "");
       if ($req["host"] != $_SERVER["HTTP_HOST"] || $req["scheme"] != $origscheme) {
@@ -227,21 +231,20 @@ class WebApp extends App {
       if (empty($req["args"]["testredir"])) {
         if (empty($req["friendly"])) {
           $querystr = makeQueryString($req["args"]);
-          $newurl = http_build_url($newurl, array("query"=>$querystr));
+          $newurl = http_build_url($newurl, array("query" => $querystr));
         } else {
           $newurl = makeFriendlyURL($newurl, $req["args"]);
         }
 
         if ($newurl != $req["url"]) {
           http_redirect($newurl, NULL, true, $doRedirect);
-        } 
-
+        }
       } else {
         print_pre($req);
       }
     }
-    
+
     return $req;
   }
-  
+
 }

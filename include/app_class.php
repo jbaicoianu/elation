@@ -1,4 +1,5 @@
 <?php
+
 /*
   Copyright (c) 2005 James Baicoianu
 
@@ -15,7 +16,7 @@
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
+ */
 
 include_once("lib/logger.php");
 include_once("lib/profiler.php");
@@ -23,6 +24,7 @@ include_once("include/common_funcs.php");
 include_once("lib/Conteg_class.php");
 
 class App {
+
   function App($rootdir, $args) {
     Profiler::StartTimer("WebApp", 1);
     Profiler::StartTimer("WebApp::Init", 1);
@@ -34,7 +36,7 @@ class App {
     $this->getAppVersion();
     Logger::Info("WebApp Initializing (" . $this->appversion . ")");
     Logger::Info("Path: " . get_include_path());
-		$this->initAutoLoaders();
+    $this->initAutoLoaders();
 
     Logger::Info("Turning Pandora flag on");
     $pandora = PandoraLog::singleton();
@@ -42,9 +44,9 @@ class App {
 
 
     $this->locations = array("scripts" => "htdocs/scripts",
-                             "css" => "htdocs/css",
-                             "tmp" => "tmp",
-                             "config" => "config");
+        "css" => "htdocs/css",
+        "tmp" => "tmp",
+        "config" => "config");
     $this->request = $this->ParseRequest(NULL, $args);
     $this->locations["basedir"] = $this->request["basedir"];
     $this->locations["scriptswww"] = $this->request["basedir"] . "/scripts";
@@ -72,6 +74,16 @@ class App {
         } else if (!empty($_SESSION["debug"])) {
           $this->debug = $_SESSION["debug"];
         }
+
+        // And the google analytics flag
+        if (isset($this->request["args"]["GAalerts"])) {
+          $this->GAalerts = $this->session->temporary["GAalerts"] = ($this->request["args"]["GAalerts"] == 1) ? 1 : 0;
+        } else if (!empty($this->session->temporary["GAalerts"])) {
+          $this->GAalerts = $this->session->temporary["GAalerts"];
+        } else {
+          $this->GAalerts = 0;
+        }
+
         $this->tplmgr = TemplateManager::singleton($this->rootdir);
         $this->tplmgr->assign_by_ref("webapp", $this);
         $this->components = ComponentManager::singleton($this);
@@ -81,7 +93,7 @@ class App {
         print $this->HandleException($e);
       }
     } else {
-      $fname = "./templates/uninitialized.tpl"; 
+      $fname = "./templates/uninitialized.tpl";
       if (($path = file_exists_in_path($fname, true)) !== false) {
         print file_get_contents($path . "/" . $fname);
       }
@@ -102,9 +114,9 @@ class App {
         //print_pre($e);
         $output["content"] = $this->HandleException($e);
       }
-      
+
       $this->session->quit();
-      
+
       $contegargs = any($this->cfg->servers["conteg"], array());
       if (is_array($this->cfg->servers["conteg"]["policy"][$output["responsetype"]]))
         $contegargs = array_merge($contegargs, $this->cfg->servers["conteg"]["policy"][$output["responsetype"]]);
@@ -163,6 +175,7 @@ class App {
     }
     return $ret;
   }
+
   function ParseRequest($page=NULL, $args=NULL) {
     $ret = array();
     //$scriptname = array_shift($req);
@@ -179,12 +192,13 @@ class App {
     }
     return $ret;
   }
+
   function HandleException($e) {
     $vars["exception"] = array("type" => "exception",
-                               "message" => $e->getMessage(),
-                               "file" => $e->getFile(),
-                               "line" => $e->getLine(),
-                               "trace" => $e->getTrace());
+        "message" => $e->getMessage(),
+        "file" => $e->getFile(),
+        "line" => $e->getLine(),
+        "trace" => $e->getTrace());
     $user = User::singleton();
     $vars["debug"] = ($this->debug || $user->HasRole("ADMIN"));
     if (($path = file_exists_in_path("templates/exception.tpl", true)) !== false) {
@@ -192,6 +206,7 @@ class App {
     }
     return "Unhandled Exception (and couldn't find exception template!)";
   }
+
   function HandleError($errno, $errstr, $errfile, $errline, $errcontext) {
     if ($errno & error_reporting()) {
       if ($errno & E_ERROR || $errno & E_USER_ERROR)
@@ -204,19 +219,19 @@ class App {
         $type = "parse error";
 
       $vars["exception"] = array("type" => $type,
-                                 "message" => $errstr,
-                                 "file" => $errfile,
-                                 "line" => $errline);
+          "message" => $errstr,
+          "file" => $errfile,
+          "line" => $errline);
 
       $user = User::singleton();
       $vars["debug"] = ($this->debug || $user->HasRole("ADMIN"));
       if ($vars["debug"]) {
         $vars["exception"]["trace"] = debug_backtrace();
         array_shift($vars["exception"]["trace"]);
-      }                                 
+      }
 
       //$vars['dumpedException'] = var_export($vars['exception'], true);
-      
+
       if (isset($this->tplmgr) && ($path = file_exists_in_path("templates/exception.tpl", true)) !== false) {
         print $this->tplmgr->GetTemplate($path . "/templates/exception.tpl", $this, $vars);
       } else {
@@ -224,41 +239,37 @@ class App {
       }
     }
   }
-  
-  protected function initAutoLoaders()
-  {
-  	if(class_exists('Zend_Loader_Autoloader', false)) {
-	    $zendAutoloader = Zend_Loader_Autoloader::getInstance(); //already registers Zend as an autoloader
-	    $zendAutoloader->unshiftAutoloader(array('WebApp', 'autoloadElation')); //add the Elation autoloader
-		} else {
-			spl_autoload_register('App::autoloadElation');
-		}
+
+  protected function initAutoLoaders() {
+    if (class_exists('Zend_Loader_Autoloader', false)) {
+      $zendAutoloader = Zend_Loader_Autoloader::getInstance(); //already registers Zend as an autoloader
+      $zendAutoloader->unshiftAutoloader(array('WebApp', 'autoloadElation')); //add the Elation autoloader
+    } else {
+      spl_autoload_register('App::autoloadElation');
+    }
   }
-  
-  public static function autoloadElation($class) 
-  {
+
+  public static function autoloadElation($class) {
 //    print "$class <br />";
-  	
-	  if (file_exists_in_path("include/" . strtolower($class) . "_class.php")) {
-	    require_once("include/" . strtolower($class) . "_class.php");
-	  } 
-	  else if (file_exists_in_path("include/model/" . strtolower($class) . "_class.php")) {
-	    require_once("include/model/" . strtolower($class) . "_class.php");
-	  }	
-	  else if (file_exists_in_path("include/Smarty/{$class}.class.php")) {
-	    require_once("include/Smarty/{$class}.class.php");
-	  }		  
-	  else {
+
+    if (file_exists_in_path("include/" . strtolower($class) . "_class.php")) {
+      require_once("include/" . strtolower($class) . "_class.php");
+    } else if (file_exists_in_path("include/model/" . strtolower($class) . "_class.php")) {
+      require_once("include/model/" . strtolower($class) . "_class.php");
+    } else if (file_exists_in_path("include/Smarty/{$class}.class.php")) {
+      require_once("include/Smarty/{$class}.class.php");
+    } else {
       try {
-      	if(class_exists('Zend_Loader', false)) {
+        if (class_exists('Zend_Loader', false)) {
           @Zend_Loader::loadClass($class); //TODO: for fucks sake remove the @ ... just a tmp measure while porting ... do it or i will chum kiu you!
-				}
+        }
         return;
+      } catch (Exception $e) {
+        
       }
-      catch (Exception $e) {}
-	  }
-	}
-	
+    }
+  }
+
   public function InitProfiler() {
     // If timing parameter is set, force the profiler to be on
     $timing = any($this->request["args"]["timing"], $this->cfg->servers["profiler"]["level"], 0);
@@ -275,6 +286,7 @@ class App {
       Profiler::setLevel($timing);
     }
   }
+
   function GetRequestedConfigName($req=NULL) {
     $ret = "thefind";
 
@@ -291,4 +303,5 @@ class App {
     Logger::Info("Requested config is '$ret'");
     return $ret;
   }
+
 }

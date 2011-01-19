@@ -36,9 +36,10 @@ class Component_html extends Component {
       $args['query'] = $this->sanitizeStrForGA(any($analytics->search["input"]["query"], 'none'));
     }
 
+    $args['bs'] = $componentmgr->pagecfg;//testing
+    
     $args['pagegroup'] = $componentmgr->pagecfg['pagegroup'];
-    $args['pagetype'] = any(ConfigManager::get("page.content.{$componentmgr->pagecfg['pagename']}.pagename"), $componentmgr->pagecfg['pagename']);
-    $args['pagetype'] = ConfigManager::get("page.content.{$componentmgr->pagecfg['pagename']}.pagename");
+    $args['pagetype'] = $componentmgr->pagecfg['pagename'];
 
     $args['status'] = any($analytics->status, $webapp->response['http_status']);
     $args['total'] = $analytics->total;
@@ -90,8 +91,7 @@ class Component_html extends Component {
     $args['useremail'] = $user->email;
 
 
-    $args['GAenabled'] = 1; //testing only
-    //$args['GAalerts'] = 1;
+    //$args['GAenabled'] = 1; //testing only
     
     if (empty($this->shown["footer"])) { // Only allow footer once per page
       $this->shown["footer"] = true;

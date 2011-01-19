@@ -137,8 +137,13 @@ class TemplateManager extends Smarty {
     foreach ($real as $r) {
       $output .= "\t<response ";
       foreach ($r as $k=>$v) {
-        if ($k[0] != '_') 
-          $output .= $k . '="' . htmlspecialchars($v) . '" ';
+        if ($k[0] != '_') {
+          if (!is_array($v))  {
+            $output .= $k . '="' . htmlspecialchars($v) . '" ';
+          } else {
+            $output .= $k . "=\"" . htmlspecialchars(json_encode($v)) . "\" ";
+          }
+        }
       }
       if (!empty($r["_content"])) {
         // FIXME - calling postprocess here can cause issues with jsonencoding and with other strings which contain [[ and ]], but it's somewhat necessary for some things...

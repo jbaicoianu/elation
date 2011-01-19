@@ -117,4 +117,83 @@ class Component_elation extends Component {
     ksort($ret);
     return $ret;
   }
+
+  function controller_memcache(&$args, $output="inline") {
+    $vars["admin"] = false;
+    $user = User::singleton();
+    if ($user->isLoggedIn() && ($user->HasRole("ADMIN"))) {
+      if (!empty($args["memcacheaction"])) {
+        if ($args["memcacheaction"] == "delete" && !empty($args["memcachekey"])) {
+          $this->data->caches["memcache"]["data"]->delete($args["memcachekey"]);
+          $vars["tf_debug_memcache_status"] = "Deleted key '{$args['memcachekey']}'";
+        } else if ($args["memcacheaction"] == "flush" && !empty($args["memcachetype"])) {
+          if (!empty($this->data->caches["memcache"][$args["memcachetype"]])) {
+            if ($this->data->caches["memcache"][$args["memcachetype"]]->flush()) {
+              $vars["tf_debug_memcache_status"] = "Cache flushed successfully (" . $args["memcachetype"] . ")";
+            } else {
+              $vars["tf_debug_memcache_status"] = "FAILED TO FLUSH CACHE: " . $args["memcachetype"];
+            }
+          } else {
+            $vars["tf_debug_memcache_status"] = "ERROR: Unknown memcache type '" . $args["memcachetype"] . "'";
+          }
+        }
+      }
+      $vars["admin"] = true;
+    }
+
+    if (!empty($this->data->caches["memcache"]["session"])) {
+      $vars["stats"]["session"] = $this->data->caches["memcache"]["session"]->getExtendedStats();
+    }
+    if (!empty($this->data->caches["memcache"]["data"])) {
+      $vars["stats"]["data"] = $this->data->caches["memcache"]["data"]->getExtendedStats();
+    }
+
+    if ($output == "ajax") {
+      $vars = array("tf_debug_tab_memcache" => $this->GetTemplate("./memcache.tpl", $vars));
+    }
+    return $this->GetComponentResponse("./memcache.tpl", $vars);
+  }
+  function controller_apc(&$args, $output="inline") {
+    $user = User::Singleton();
+    if (!($user->isLoggedIn() && ($user->HasRole("ADMIN")))) 
+      return;
+
+    $vars["args"] = $args;
+
+    if (!empty($args["flush"])) {
+      apc_clear_cache();
+      $vars["message"] = "APC cache cleared";
+    }
+
+    $vars["apc"]["smainfo"] = apc_sma_info();
+    $vars["apc"]["cacheinfo"] = apc_cache_info();
+    $vars["time"] = time();
+
+    $nseg = $freeseg = $fragsize = $freetotal = 0;
+    for($i=0; $i<$vars["apc"]["smainfo"]['num_seg']; $i++) {
+      $ptr = 0;
+      foreach($vars["apc"]["smainfo"]['block_lists'][$i] as $block) {
+        if ($block['offset'] != $ptr) {
+          ++$nseg;
+        }
+        $ptr = $block['offset'] + $block['size'];
+        /* Only consider blocks <5M for the fragmentation % */
+        if($block['size']<(5*1024*1024)) $fragsize+=$block['size'];
+        $freetotal+=$block['size'];
+      }
+      $freeseg += count($vars["apc"]["smainfo"]['block_lists'][$i]);
+    }
+
+    if ($freeseg > 1) {
+      $vars["frag"] = sprintf("%.2f%% (%s out of %s in %d fragments)", ($fragsize/$freetotal)*100,bsize($fragsize),bsize($freetotal),$freeseg);
+    } else {
+      $vars["frag"] = "0%";
+    }
+
+
+    if ($output == "ajax") {
+      $vars = array("tf_debug_tab_apc" => $this->GetTemplate("./apc.tpl", $vars));
+    }
+    return $this->GetComponentResponse("./apc.tpl", $vars);
+  }
 }  

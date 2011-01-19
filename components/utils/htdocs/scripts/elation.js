@@ -525,7 +525,7 @@ elation.extend("utils.fixPNG", function() {
   }
 });
 
-elation.extend("utils.stringify", function() {
+elation.extend("utils.stringify", function(parms) {
   var value, ret = '';
   
   for (var key in parms) {

@@ -87,6 +87,8 @@ class ComponentManager extends Component {
       $ret["component"] = $componentname;
       $ret["type"] = $outputtype;
 
+      $args = $this->ApplyOverrides($args, $applysettings);
+
       if ($component = $this->Get($componentname)) {
         $componentargs = (!empty($this->dispatchargs[$componentname]) ? array_merge_recursive($args, $this->dispatchargs[$componentname]) : $args);
         $ret["content"] = $component->HandlePayload($componentargs, $outputtype);
@@ -258,6 +260,7 @@ class ComponentManager extends Component {
 }
 
 class ComponentResponse implements ArrayAccess {
+  public $flsid;
   public $data = array();
   private $template;
   
@@ -269,6 +272,7 @@ class ComponentResponse implements ArrayAccess {
       $this->template = $template;
       $this->data = $data;
     }
+    $this->flsid = SessionManager::singleton()->flsid;
   }
   
   function offsetExists($name) {

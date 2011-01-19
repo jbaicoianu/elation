@@ -170,12 +170,12 @@ class SessionManager
      */
 
     // read the permanent cookie
-    if (isset($_COOKIE['fl-uid']))
+    if (isset($_REQUEST['fluid']))
+      $fluid_str = $_REQUEST['fluid'];
+    else if (isset($_COOKIE['fl-uid']))
       $fluid_str = $_COOKIE['fl-uid'];
     else if (isset($_SESSION['fluid']))
       $fluid_str = $_SESSION['fluid'];
-    else if (isset($_REQUEST['fluid']))
-      $fluid_str = $_REQUEST['fluid'];
 
     $fluid_data = explode(",", $fluid_str);
     $this->fluid = $fluid_data[0];

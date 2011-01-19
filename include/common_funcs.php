@@ -696,3 +696,10 @@ function redirect1($url, $args = array()) {
   ob_flush();
   flush();
 }
+function bsize($s) {
+  foreach (array('','K','M','G') as $i => $k) {
+    if ($s < 1024) break;
+    $s/=1024;
+  }
+  return sprintf("%5.1f %sBytes",$s,$k);
+}

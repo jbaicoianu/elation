@@ -83,7 +83,14 @@ class WebApp extends App {
     $req["scheme"] = "http" . ($req["ssl"] ? "s" : "");
     $req["ip"] = $_SERVER["REMOTE_ADDR"];
     $req["user_agent"] = $_SERVER['HTTP_USER_AGENT'];
-    $req["referer"] = $_SERVER["HTTP_REFERER"];
+    $req["referrer"] = $_SERVER["HTTP_REFERER"];
+    if (!empty($_SERVER["HTTP_REFERER"])) {
+      $req["referer"] = parse_url($_SERVER["HTTP_REFERER"]);
+      if (!empty($req["referer"]["query"]))
+        parse_str($req["referer"]["query"], $req["referer"]["args"]);
+      else
+        $req["referer"]["args"] = array();
+    }  
 
     if (!empty($_SERVER["PHP_AUTH_USER"]))
       $req["user"] = $_SERVER["PHP_AUTH_USER"];

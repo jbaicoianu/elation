@@ -1357,6 +1357,17 @@ elation.extend("utils.escapeHTML", function(str) {
 
 tr_size = elation.log_size;
 
+/* Return first non-empty value from list of args, or null if all are empty
+* Empty string, null and undefined are considered 'empty' and skipped over
+* Numeric 0 is considered non-empty and returned
+*/
+function any() {
+	var arg;
+	for (var i=0; i<arguments.length; i++) {
+		if (((arg=arguments[i]) !== null) && (arg !== "") && (typeof arg !== "undefined")) return arg;
+	}
+	return null;
+}
 
 /**
  * Google analytics tracking class and object

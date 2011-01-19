@@ -23,39 +23,50 @@ class Component_html extends Component {
   public function controller_footer($args) {
     // Assemble page-level args for Google Analytics --
     global $webapp;
+
     $analytics = Analytics::singleton();
     $componentmgr = ComponentManager::singleton();
     $args['cobrand'] = $webapp->cobrand;
     $args['store_name'] = $this->sanitizeStrForGA($analytics->store_name);
+
     if ($webapp->request['referer']['host'] && !stristr($webapp->request['referer']['host'],  $webapp->request['host'])) {
       $args['query'] = $this->getQueryFromURL($webapp->request['referrer'], $args['store_name']);
-    } else {
+    }
+    else {
       $args['query'] = $this->sanitizeStrForGA(any($analytics->search["input"]["query"], 'none'));
     }
+
     $args['pagegroup'] = $componentmgr->pagecfg['pagegroup'];
-    $args['pagetype'] = any(ConfigManager::get("page.content.{$componentmgr->pagecfg['type']}.pagename"), $componentmgr->pagecfg['type']);
+    $args['pagetype'] = any(ConfigManager::get("page.content.{$componentmgr->pagecfg['pagename']}.pagename"), $componentmgr->pagecfg['pagename']);
+    $args['pagetype'] = ConfigManager::get("page.content.{$componentmgr->pagecfg['pagename']}.pagename");
+
     $args['status'] = any($analytics->status, $webapp->response['http_status']);
     $args['total'] = $analytics->total;
+
     $args['GAenabled'] = $args['pagegroup'] ? $webapp->cfg->servers['tracking']['googleanalytics']['enabled'] : 0;
     $args['GAalerts'] = $webapp->GAalerts;
+    
     $args['trackingcode'] = $webapp->cfg->servers['tracking']['googleanalytics']['trackingcode'];
     $args['category'] = any($analytics->category, $analytics->pandora_result['top_category'], $analytics->item->category, $analytics->qpmquery['protocolheaders']['category'], 'none');
     $args['subcategory'] = preg_replace("#\s#", "_", any($analytics->subcategory, $analytics->pandora_result['top_subcategory'], 'none'));
     $args['city'] = "Mountain View";
     $args['state'] = "CA";
     $args['country'] = "USA";
+
     if($analytics->city && $analytics->state) {
       $args['city'] = ucWords($analytics->city);
       $args['state'] = $analytics->state;
       $args['country'] = "USA";
     }
+
     if (in_array($args['cobrand'], array('paypaluk','thefinduk','paypalcanada'))) {
       $args['city'] = 'unknown';
       $args['state'] = 'unknown';
       $args['country'] = $args['cobrand']=='paypalcanada'?"Canada":"UK";
     }
+
     $args['pagenum'] = any($analytics->pandora_result['page_num'], 1);
-    $args['version'] = $webapp->version;
+    $args['version'] = $webapp->getAppVersion();
     $args['filters']  = $analytics->qpmreq->filter['brand']?'1':'0';
     $args['filters'] .= $analytics->qpmreq->filter['color']?'1':'0';
     $args['filters'] .= $analytics->qpmreq->filter['storeswithdeals']?'1':'0'; //(coupons)
@@ -78,6 +89,10 @@ class Component_html extends Component {
     $args['userid'] = $user->userid;
     $args['useremail'] = $user->email;
 
+
+    $args['GAenabled'] = 1; //testing only
+    //$args['GAalerts'] = 1;
+    
     if (empty($this->shown["footer"])) { // Only allow footer once per page
       $this->shown["footer"] = true;
       return $this->GetComponentResponse("./footer.tpl", $args);

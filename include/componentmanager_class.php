@@ -19,6 +19,7 @@
 
 class ComponentManager extends Component {
   public $components = array();
+  public $pagecfg = array();
   private $dispatchargs = array();
 
   protected static $instance;
@@ -118,6 +119,8 @@ class ComponentManager extends Component {
         $pandora->setPageType($pagecfg["pagename"]);
       }
     }
+
+    $this->pagecfg = $pagecfg;
 
     // TODO - handle redirects and postprocessing for different output types here
     return $ret;

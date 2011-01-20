@@ -182,7 +182,7 @@ class ComponentManager extends Component {
     $logmsg = "Applying URL map for $param_key ($param_value)";
     if (!empty($param_args["override"])) {
       $cfg->ConfigMerge($cfg->current, $param_args["override"]);
-      $param_args = ConfigManager::fetch("search.request.override.{$param_key}");
+      $param_args = ConfigManager::get("search.request.override.{$param_key}");
     }
     $new_value = NULL;
     if(!empty($param_args["values"][$param_value])) {

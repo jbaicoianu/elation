@@ -703,3 +703,89 @@ function bsize($s) {
   }
   return sprintf("%5.1f %sBytes",$s,$k);
 }
+
+// Take a hex string and return a color string in a format the backend supports
+function hex2rgbstr($color) {
+  // Check to make sure we're working with a valid color
+  if (!preg_match("/^[0-9a-f]{6}$/i", $color)) 
+    return false;
+
+  $rgb = array(0, 0, 0);
+  for ($i = 0; $i < 3; $i++) {
+    $rgb[$i] = hexdec(substr($color, $i * 2, 2));
+  }
+
+  return "rgb" . implode(".", $rgb);
+}
+function rgb2hex($rgb) {
+  $rgbstr = "";
+  if (!empty($rgb) && is_array($rgb)) {
+    foreach ($rgb as $c) {
+      $rgbstr .= str_pad(dechex($c), 2, "0");
+    }
+  }
+  return $rgbstr;
+}
+function hsv2rgb($hsv)
+{
+  $H = $hsv[0];
+  $S = $hsv[1];
+  $V = $hsv[2];
+
+  $Hi = floor($H*6);
+
+  $f = ($H*6) - $Hi;
+
+  $p = $V * (1 - $S);
+  $q = $V * (1 - $f*$S);
+  $t = $V * (1 - (1-$f)*$S);
+
+  switch($Hi)
+    {
+    case 0:
+      $R = $V*255;
+      $G = $t*255;
+      $B = $p*255;
+      break;
+
+    case 1:
+      $R = $q*255;
+      $G = $V*255;
+      $B = $p*255;
+      break;
+
+    case 2:
+      $R = $p*255;
+      $G = $V*255;
+      $B = $t*255;
+      break;
+
+    case 3:
+      $R = $p*255;
+      $G = $q*255;
+      $B = $V*255;
+      break;
+
+    case 4:
+      $R = $t*255;
+      $G = $p*255;
+      $B = $V*255;
+      break;
+
+    case 5:
+      $R = $V*255;
+      $G = $p*255;
+      $B = $q*255;
+      break;
+    default:
+      return NULL;
+    }
+
+  return array($R, $G, $B);
+}
+function color2hex($color) {
+  $hsv[0] = ($color >> 16) / 360;
+  $hsv[1] = ($color >> 8 & 255) / 255;
+  $hsv[2] = ($color & 255) / 255;
+  return rgb2hex(hsv2rgb($hsv));
+}

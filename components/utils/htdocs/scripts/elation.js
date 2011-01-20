@@ -1361,7 +1361,7 @@ tr_size = elation.log_size;
 /**
  * Google analytics tracking class and object
  */
-function TFHtmlUtilsGoogleAnalytics(args) {
+elation.extend('googleanalytics', function(args) {
   this.GAalerts = Number(args.GAalerts);
   this.trackingcode = args.trackingcode;
   this.cobrand = args.cobrand;
@@ -1445,7 +1445,7 @@ function TFHtmlUtilsGoogleAnalytics(args) {
   };
 
   this.updatePageParameters = function(args) {
-    this.pagenum = any(args['filter[pagenum]'], args['page'], "1");
+    this.pagenum = (args['filter[pagenum]'] || args['page'] || "1");
     this.filters = args['brand']?'1':'0';
     this.filters += args['color']?'1':'0';
     this.filters += Number(args['coupons'])?'1':'0';
@@ -1623,7 +1623,9 @@ function TFHtmlUtilsGoogleAnalytics(args) {
       this.trackEvent(['permissions', 'shoplikeme', permTxt]);
     }
   };
-}
+});
+
+TFHtmlUtilsGoogleAnalytics = elation.googleanalytics;
 
 /**
  * This is used for something apparently

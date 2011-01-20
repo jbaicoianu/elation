@@ -47,8 +47,8 @@ class ComponentManager extends Component {
 
     $tplmgr = TemplateManager::singleton();
 
-    $pagecfg = array();
-    $this->pagecfg =& $pagecfg;
+    $this->pagecfg = array();
+    $pagecfg =& $this->pagecfg;
 
     $smarty = TemplateManager::singleton();
     $smarty->assign_by_ref("pagecfg", $pagecfg);

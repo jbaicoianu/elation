@@ -277,7 +277,7 @@
 // sanity checks
 			if( $refresh ) {
 				if(( $this->data = ob_get_contents()) === FALSE ) return $this->_trigger_error( 'Conteg::compress(): No ob_contents to compress.', E_USER_ERROR );
-			} else if( empty( $this->data )) return $this->_trigger_error( 'Conteg::compress(): No $data contents to compress.', E_USER_NOTICE );
+			} //else if( empty( $this->data )) return $this->_trigger_error( 'Conteg::compress(): No $data contents to compress.', E_USER_NOTICE );
 
 			$encoding	= ( empty( $this->encoding ))
 				? 'identity'

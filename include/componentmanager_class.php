@@ -47,7 +47,9 @@ class ComponentManager extends Component {
 
     $tplmgr = TemplateManager::singleton();
 
-    $pagecfg = array();
+    $this->pagecfg = array();
+    $pagecfg =& $this->pagecfg;
+
     $smarty = TemplateManager::singleton();
     $smarty->assign_by_ref("pagecfg", $pagecfg);
     $ret["type"] = $pagecfg["type"] = $outputtype;
@@ -121,8 +123,6 @@ class ComponentManager extends Component {
         $pandora->setPageType($pagecfg["pagename"]);
       }
     }
-
-    $this->pagecfg = $pagecfg;
 
     // TODO - handle redirects and postprocessing for different output types here
     return $ret;

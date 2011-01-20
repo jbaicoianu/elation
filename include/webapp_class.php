@@ -45,8 +45,15 @@ class WebApp extends App {
       }
       $page = preg_replace("/" . preg_quote($webroot, "/") . "(.*?)(\?.*)?$/", "$1", $_SERVER["REQUEST_URI"]);
     }
-    if ($post === NULL)
-      $post = &$_REQUEST;
+    if ($post === NULL) {
+      $post = array();
+    }
+    if (!empty($_GET)) {
+      $post = array_merge($post, $_GET);
+    }
+    if (!empty($_POST)) {
+      $post = array_merge($post, $_POST);
+    }
 
     $req = @parse_url($page); // FIXME - PHP sucks and throws a warning here on malformed URLs, with no way to catch as an exception
 

@@ -167,8 +167,44 @@ class TemplateManager extends Smarty {
   }
   function ConvertOutputAjaxlib($responses) {
     //$depmgr = DependencyManager::singleton();
-    $dependencies = DependencyManager::get();
     $ret = array();
+    if (!empty($responses)) {
+      foreach ($responses as $name=>$response) {
+        if (is_array($response)) {
+          foreach ($response as $respname=>$respval) {
+            $responseobj = array("type" => "$name",
+                                 "name" => $respname);
+            switch ($name) {
+            case "data":
+              $responseobj["_content"] = json_encode($respval);
+              break;
+            default:
+              if ($respval instanceOf ComponentResponse) {
+                $responseobj["_content"]->output("snip");
+              } else {
+                $responseobj["_content"] = $respval;
+              }
+            }
+            $ret[] = $responseobj;
+          }
+        } else {
+          if ($response instanceOf AjaxlibResponse) {
+            $responseobj = $response->flatten(array("target" => $name));
+          } else {
+            $responseobj = array("type" => "xhtml",
+                                 "target" => $name);
+            if ($response instanceOf ComponentResponse) {
+              $routput = $response->getOutput("snip");
+              $responseobj["_content"] = $routput[1];
+            } else {
+              $responseobj["_content"] = $response;
+            }
+          }
+          $ret[] = $responseobj;
+        }
+      }
+    }
+    $dependencies = DependencyManager::get();
     foreach ($dependencies as $prio=>$browsers) {
       foreach ($browsers as $browser=>$deptypes) {
         foreach ($deptypes as $deptype=>$deps) {
@@ -182,34 +218,6 @@ class TemplateManager extends Smarty {
       }
     }
     
-    if (!empty($responses)) {
-      foreach ($responses as $name=>$response) {
-        if (is_array($response)) {
-          foreach ($response as $respname=>$respval) {
-            $responseobj = array("type" => "$name",
-                                 "name" => $respname);
-            switch ($name) {
-            case "data":
-              $responseobj["_content"] = json_encode($respval);
-              break;
-            default:
-              $responseobj["_content"] = $respval;
-            }
-            $ret[] = $responseobj;
-          }
-        } else {
-          if ($response instanceOf AjaxlibResponse) {
-            $responseobj = $response->flatten(array("target" => $name));
-          } else {
-            $responseobj = array("type" => "xhtml",
-                                 "target" => $name,
-                                 //"append" => false,
-                                 "_content" => $response);
-          }
-          $ret[] = $responseobj;
-        }
-      }
-    }
 
     $user = User::singleton();
     global $webapp;

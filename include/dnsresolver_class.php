@@ -40,7 +40,7 @@ class DNSResolver {
     $data = DataManager::singleton();
     $records = $apc = NULL;
     $cachekey = "dnsresolver.lookup.{$hostname}";
-    if (self::$cache && !empty($data->caches["apc"])) {
+    if (self::$cache && !empty($data->caches["apc"]) && $data->caches["apc"]->enabled) {
       $apc = $data->caches["apc"]["default"];
       $cached = $apc->get($cachekey);
       if ($cached !== false) {
@@ -57,7 +57,7 @@ class DNSResolver {
         if (!empty($records))
           break;
       }
-      if (self::$cache && !empty($records) && $apc !== NULL) {
+      if (self::$cache && !empty($records) && $apc !== NULL && $apc->enabled) {
         $ttl = any(self::$ttl, $records[0]["ttl"]);
         $apc->set($cachekey, serialize($records), array("lifetime" => $ttl));
       }

@@ -53,14 +53,10 @@ class App {
     $this->locations["csswww"] = $this->request["basedir"] . "/css";
     $this->locations["imageswww"] = $this->request["basedir"] . "/images";
 
-    $this->cobrand = $this->GetRequestedConfigName($this->request);
     $this->InitProfiler();
 
     $this->cfg = ConfigManager::singleton($rootdir);
     $this->data = DataManager::singleton($this->cfg);
-
-    $this->cfg->GetConfig($this->cobrand, true, $this->cfg->servers["role"]);
-    $this->ApplyConfigOverrides();
 
     set_error_handler(array($this, "HandleError"), E_ALL);
 
@@ -75,6 +71,10 @@ class App {
         } else if (!empty($_SESSION["debug"])) {
           $this->debug = $_SESSION["debug"];
         }
+        $this->cobrand = $this->GetRequestedConfigName($this->request);
+        $this->cfg->GetConfig($this->cobrand, true, $this->cfg->servers["role"]);
+        $this->ApplyConfigOverrides();
+
 
         // And the google analytics flag
         if (isset($this->request["args"]["GAalerts"])) {

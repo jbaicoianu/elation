@@ -17,6 +17,24 @@ var elation = new function() {
 
 $TF = $ = jQuery.noConflict();
 
+elation.extend("checkhash", new function() {
+  this.timer = setInterval(function() { 
+    if (typeof elation.search.backbutton == 'object') {
+      try { elation.search.backbutton.check(); } catch(e) { console.log('notice:' + e.message); }
+    }
+  },500);
+  
+  this.fetch = function(url, callback) {
+    elation.ajax.Queue({
+      url: url, 
+      callback: [ 
+        this, 
+        callback
+      ]
+    });
+  }
+});
+
 elation.extend("component", new function() {
   this.namespace = "elation";
   this.registry = [];

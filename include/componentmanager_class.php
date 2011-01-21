@@ -107,10 +107,16 @@ class ComponentManager extends Component {
       }
     }
 
+    if (is_array($ret['content'])) {
+      $ret['content'] = new ComponentResponse(NULL, $ret['content']);
+      $outputtype = "ajax";
+    }
     if ($ret['content'] instanceOf ComponentResponse) {
       $output = $ret['content']->getOutput($outputtype);
       $ret['responsetype'] = $output[0];
       $ret['content'] = $output[1];
+    } else if ($outputtype == "ajax") {
+      $ret['responsetype'] = "application/xml";
     }
 
     // Pandora page log

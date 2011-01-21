@@ -94,7 +94,9 @@ class ComponentManager extends Component {
     } else if (preg_match("|^/((?:[^./]+/?)*)(?:\.(.*))?$|", $page, $m)) {
       // Dispatch directly to a component.  File extension determines output type
       $componentname = str_replace("/", ".", $m[1]);
-      $outputtype = any($args["_output"], $m[2], $outputtype);
+      if ($outputtype !== "ajax") { // AJAX output overrides others
+        $outputtype = any($args["_output"], $m[2], $outputtype);
+      }
 
       $ret["component"] = $componentname;
       $ret["type"] = $outputtype;

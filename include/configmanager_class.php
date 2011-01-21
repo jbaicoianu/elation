@@ -513,7 +513,7 @@ class ConfigManager extends Base {
     $data = DataManager::singleton();
     $cachewrapper =& $data->caches["apc"]["default"];
     $allversions = $this->GetAllRevisions($role);
-    if (!$skipcache && !empty($cachewrapper)) {
+    if (!$skipcache && !empty($cachewrapper) && $cachewrapper->enabled) {
       if (($cachedresult = $cachewrapper->get($cachekey)) !== false ) {
         /*
         Logger::Info("Found '$cachekey' in apc cache (revision=" . $ret["revision"] . ")");
@@ -604,7 +604,7 @@ class ConfigManager extends Base {
         }
       }
 
-      if (!empty($ret) && !empty($cachewrapper)) {
+      if (!empty($ret) && !empty($cachewrapper) && $cachewrapper->enabled) {
         // Store merged config result in APC
         $configheirarchy = $this->GetConfigHeirarchy($name, $role, true);
         foreach ($configheirarchy as $inc) {
@@ -655,7 +655,7 @@ class ConfigManager extends Base {
       $cachekey = "config.$role.$name";
 
       $data = DataManager::singleton();
-      if (!empty($data->caches["apc"]["default"])) {
+      if (!empty($data->caches["apc"]["default"]) && $data->caches["apc"]["default"]->enabled) {
         $cachewrapper =& $data->caches["apc"]["default"];
 
         if (($cachedresult = $cachewrapper->get($cachekey)) !== false) {

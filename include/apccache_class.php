@@ -37,7 +37,7 @@ class APCCache extends Cache {
 
   protected function init($cfg) {
     //Profiler::StartTimer("APCCache::init()");
-    $this->enabled = (ini_get("apc.enabled") == 1);
+    $this->enabled = (ini_get("apc.enabled") == 1) && $cfg["enabled"];
     $this->cfg = $cfg;
     $this->setLifeTime($this->cfg["timeout"]);
     //Profiler::StopTimer("APCCache::init()");

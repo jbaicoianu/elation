@@ -65,6 +65,15 @@ class ComponentManager extends Component {
       if(!empty($pagevars["options"])) {
         $cfg->ConfigMerge($cfg->current, $pagevars["options"]);
       }
+      if (!empty($pagevars["layout"])) {
+        $layoutcfg = ConfigManager::get("page.layout." . $pagevars["layout"]);
+        if (!empty($layoutcfg)) {
+          $pagecfg["layout"] = $layoutcfg;
+        }
+      }
+      if (!empty($pagevars["ads"])) {
+        $pagecfg["ads"] = $pagevars["ads"];
+      }
       $args = $this->ApplyOverrides($args, $applysettings);
 
       if (!empty($pagevars["component"]) && self::has($pagevars["component"])) {

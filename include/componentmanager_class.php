@@ -55,6 +55,7 @@ class ComponentManager extends Component {
     $ret["type"] = $pagecfg["type"] = $outputtype;
     $ret["page"] = $pagecfg["page"] = $page;
     $ret["pagename"] = $pagecfg["pagename"] = str_replace("/", "_", substr($page, 1));
+    $this->pagecfg["args"] = $args;
 
     if(!empty($contenturls[$page])) {
       // Check for config-mapped URL first

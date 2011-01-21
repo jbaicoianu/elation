@@ -9,7 +9,17 @@ include_once("include/webapp_class.php");
 include_once("lib/profiler.php");
 
 Profiler::StartTimer("Total");
-$webapp = new WebApp($root, $_REQUEST);
+$req = array();
+if (!empty($_GET)) {
+  if (isset($_GET["path"])) {
+    unset($_GET["path"]);
+  }
+  $req = array_merge($req, $_GET);
+}
+if (!empty($_POST)) {
+  $req = array_merge($req, $_POST);
+}
+$webapp = new WebApp($root, $req);
 $webapp->Display();
 Profiler::StopTimer("Total");
 
@@ -33,7 +43,6 @@ function elation_addroot($roots) {
   if ($path[0] == ".") { // . should always be first
     array_shift($path);
   }
-  
   $path = array_merge($roots, $path);
   array_unshift($path, ".");
 

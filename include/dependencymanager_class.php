@@ -49,6 +49,47 @@ class DependencyManager {
     }
     return $ret;
   }
+  static function contents($type, $args, $extra=NULL) {
+    $ret = array("content" => "",
+                 "lastmodified" => 0,
+                 "loaded" => array());
+    $url = '';
+    $argsep = '/';
+    $valsep = '-';
+    $cfg = ConfigManager::singleton();
+    $typemap = array("javascript" => array("dir" => $cfg->locations["scripts"], "extension" => "js"),
+                     "css" => array("dir" => $cfg->locations["css"], "extension" => "css"));
+    
+    $extension = $typemap[$type]["extension"];
+    $extensionlen = strlen($extension);
+    foreach ($args as $k=>$v) {
+      if ($k[0] != '_') {
+        $componentdir = $typemap[$type]["dir"] . "/$k";
+        $files = explode(" ", $v);
+        foreach ($files as $file) {
+          if (substr($file, -($extensionlen+1), $extensionlen+1) == ".$extension") {
+            $file = substr($file, 0, -($extensionlen+1));
+          }
+          $fname = $componentdir . "/" . $file . "." . $extension;
+          if (file_exists($fname)) {
+            $modtime = filemtime($fname);
+            if ($modtime > $ret["lastmodified"])
+              $ret["lastmodified"] = $modtime;
+
+            //$ret["content"] .= "\n/* ### File: " . $fname . " ### */\n";
+            $ret["content"] .= file_get_contents($fname);
+
+            $ret["loaded"][$k][] = $file;
+
+            //$ret["content"] .= "\n/* ### This code has been appended via DependencyCombiner ### */\n";
+            if (!empty($extra))
+              $ret["content"] .= $extra;
+          }
+        }
+      }
+    }
+    return $ret;
+  }
 }
 /**
  * class Dependency
@@ -200,7 +241,7 @@ class DependencyJavascript extends Dependency {
 class DependencyComponent extends Dependency {
   public $name;
   public $subtypes;
-  private $subdeps;
+  protected $subdeps;
  
   function Init($args, $locations=NULL) {
     $this->name = $args["name"];

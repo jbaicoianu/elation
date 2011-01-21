@@ -19,9 +19,11 @@ $TF = $ = jQuery.noConflict();
 
 elation.extend("checkhash", new function() {
   this.timer = setInterval(function() { 
-    if (typeof elation.search.backbutton == 'object') {
-      try { elation.search.backbutton.check(); } catch(e) { console.log('notice:' + e.message); }
-    }
+    try { 
+      if (typeof elation.search.backbutton == 'object') {
+        elation.search.backbutton.check();
+      }
+    } catch(e) { console.log('notice:' + e.message); }
   },500);
   
   this.fetch = function(url, callback) {
@@ -1269,6 +1271,133 @@ elation.extend('ui.combobox', function(parent, callback) {
 	}
 	
 	this.init();
+});
+
+elation.extend('ui.infoboxes.infobox_stores', function() {
+  $TF.get("/facebook/stores_match.html", function(html){
+    elation.ui.lightbox.show(html);
+  });
+});
+
+elation.extend('ui.infoboxes.tell_more_friends', function() {
+	var callback = window.location.href;
+	
+	return elation.ui.lightbox.get("/facebook/tell_more_friends.html","callback="+encodeURIComponent(callback));
+});
+elation.extend('ui.infoboxes.infobox_privacy_settings', function() {
+	return elation.ui.lightbox.get("/user/privacy_settings.html");
+});
+
+elation.extend('ui.infoboxes.twitter_form', function() {
+  var form = document.getElementById('tf_share_twitter'),
+			item = elation.results.activeitem(),
+			infobox = elation.ui.infobox.get('product_infocard'),
+			href = window.location.href.split('#')[0],
+			query = elation.searches.tf_search_examplesearch.args.query,
+			shortHREF = '';
+  
+  if (query) {
+  	var message = "\n\nI've searched for " + query + " on @TheFind. Look at these great products I found!";
+  } else {
+  	var message = "\n\nTake a look at these great results at TheFind.com";
+  }
+  
+  if (item && infobox && infobox.visible) {
+  	href += '&ddkey=' + item.ddkey;
+  }
+
+  function setMessage(args) {
+    if(shortHREF) {
+      href = shortHREF;
+    }
+    
+    if (item && infobox && infobox.visible) {
+      message = "I'm looking at " + item.title + ", " + href + " on @TheFind.";
+      form.msg.innerHTML = message;
+    }
+    else {
+      form.msg.innerHTML = href + message;
+    }               
+  }
+  
+  $TF.ajax({
+    url: '/utils/shorturl.js',
+    data: 'url=' + encodeURIComponent(href),
+    dataType: 'json',
+    type: 'GET',
+    timeout: 5000,
+    success: function(data, textStatus) {
+      shortHREF = data.data.shorturl;
+      setMessage();
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      setMessage();
+    }
+  });
+  
+  /*
+  ajaxlib.Queue({
+  	method: 'GET',
+  	url: '/utils/shorturl.js',
+  	args: 'url=' + encodeURIComponent(href),
+  	callback: [this, function(args) {
+  		//try {
+  		var response = thefind.JSON.parse(args);
+  		shortHREF = href = response.data.shorturl;
+  		//}
+  		//catch(e) {}
+  		setMessage();
+  	}
+  ]	,
+  	failurecallback: [this, function() {
+  		setMessage();
+  	}
+  ]	,
+  	timeoutcallback: [this, function() {
+  		setMessage();
+  	}
+  ]
+  });
+  
+  ajaxlib.Get('utils/shorturl.js?url=' + encodeURIComponent(href), null, {
+  	callback: function(args) {
+  		var response = thefind.JSON.parse(args);
+  		shortHREF = href = response.data.shorturl;
+  		setMessage();
+  	},
+  	failurecallback: setMessage,
+  	timeout: 5000,
+  	timeoutcallback: setMessage
+  });
+  */
+});
+
+elation.extend('ui.infoboxes.email_form', function(args) {
+	var	args = args || {},
+      data = elation.user.user,
+			to = document.getElementById('myfindsSendEmailToEmail'),
+			from = document.getElementById('myfindsSendEmailFromEmail'),
+			name = document.getElementById('myfindsSendEmailFromName'),
+			msg = document.getElementById('myfindsSendEmailMessage'),
+      url = window.location.href.split('#')[0]
+      sep = url.split('?').length > 1 ? '&' : '?';
+	
+	if (from && data.email)
+		from.value = data.email;
+	
+	if (name && data.nickname)
+		name.value = data.nickname;
+	
+	if (msg) 
+  	if (elation.utils.arrayget(args, "isproduct")) {
+  		msg.value  = "I just discovered this product on TheFind and wanted to share it with you.\n\n" + url + sep + "ddkey=" + elation.utils.arrayget(args, 'ddkey') + "\n\n";
+  	}
+  	else {
+  		msg.value = "I just discovered these products on TheFind and wanted to share them with you.\n\n" + url + "\n\nCheck them out!";
+  	}
+	
+	if (to)
+		to.focus();
 });
 
 elation.extend('data', new function() {

@@ -518,7 +518,7 @@ elation.extend("utils.fixPNG", function() {
     for (var i = 0; i < imglist.length; i++) {
       if(imglist[i].src.substr(imglist[i].src.length - 3, 3) == "png" && !imglist[i].style.filter) {
         var origsrc = imglist[i].src;
-        imglist[i].src = '/images/misc/nothing.gif';
+        imglist[i].src = '/images/utils/nothing.gif';
         imglist[i].style.filter = "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='" + origsrc + "', sizingMethod='image')";
       }
     }

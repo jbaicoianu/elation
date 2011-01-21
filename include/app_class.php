@@ -60,6 +60,7 @@ class App {
     $this->data = DataManager::singleton($this->cfg);
 
     $this->cfg->GetConfig($this->cobrand, true, $this->cfg->servers["role"]);
+    $this->ApplyConfigOverrides();
 
     set_error_handler(array($this, "HandleError"), E_ALL);
 
@@ -304,4 +305,44 @@ class App {
     return $ret;
   }
 
+
+  function ApplyConfigOverrides() {
+    if(!empty($this->request["args"]["sitecfg"])) {
+      $tmpcfg = array();
+      array_set_multi($tmpcfg, $this->request["args"]["sitecfg"]); // FIXME - can't we just array_set_multi() on $this->sitecfg directly?
+      ConfigManager::merge($tmpcfg);
+    }
+
+    if(!empty($this->request["args"]["cobrandoverride"])) {
+      $included_config =& $this->cfg->GetConfig($this->request["args"]["cobrandoverride"], false, $this->cfg->servers["role"]);
+      if (!empty($included_config))
+        ConfigManager::merge($included_config);
+    }
+    $rolename = any($this->request["args"]["_role"], $this->cfg->servers['role']);
+    $rolecfg = ConfigManager::get("roles.{$rolename}.options");
+    if (!empty($rolecfg)) {
+      Logger::Info("Using overridden role cfg 'roles.{$rolename}'");
+      ConfigManager::merge($rolecfg);
+    }
+
+    $browseroverride = any($this->request["args"]["sess"]["browser.override"], $_SESSION["temporary"]["user"]["preferences"]["browser"]["override"], NULL);
+    if ($browseroverride !== NULL)
+      $this->request["browser"] = $browseroverride;
+
+    if(!empty($this->request["browser"])) {
+      $included_config =& ConfigManager::get("browsers.{$this->request['browser']}.options");
+      if (!empty($included_config["include"])) { // These includes sure do get hairy.  This allows for browsers.*.options.include to call in different classes
+        $includes = explode(",", $included_config["include"]);
+        foreach ($includes as $include) {
+          $subincluded_config =& $this->cfg->GetConfig($include, false, $this->cfg->servers["role"]);
+          if (!empty($subincluded_config))
+            ConfigManager::merge($subincluded_config);
+        }
+        unset($included_config["include"]);
+      }
+
+      if (!empty($included_config))
+        ConfigManager::merge($included_config);
+    }
+  }
 }

@@ -911,6 +911,9 @@ class ConfigManager extends Base {
   public static function get($key) {
     return self::$instance->GetSetting($key);
   }
+  public static function merge(&$newcfg) {
+    return self::$instance->ConfigMerge(self::$instance->current, $newcfg);
+  }
 }
 
 /**

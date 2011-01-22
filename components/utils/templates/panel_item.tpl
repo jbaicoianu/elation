@@ -21,5 +21,3 @@
 {if !empty($panelitem.cfg.inline)}
   {component name=$panelitem.contentcomponent componentargs=$panelitem.contentcomponentargs}
 {/if}
-
-<script>console.log({jsonencode var=$panelitem});</script>

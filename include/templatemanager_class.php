@@ -179,11 +179,7 @@ class TemplateManager extends Smarty {
               $responseobj["_content"] = json_encode($respval);
               break;
             default:
-              if ($respval instanceOf ComponentResponse) {
-                $responseobj["_content"]->output("snip");
-              } else {
-                $responseobj["_content"] = $respval;
-              }
+              $responseobj["_content"] = (string) $respval;
             }
             $ret[] = $responseobj;
           }
@@ -193,12 +189,7 @@ class TemplateManager extends Smarty {
           } else {
             $responseobj = array("type" => "xhtml",
                                  "target" => $name);
-            if ($response instanceOf ComponentResponse) {
-              $routput = $response->getOutput("snip");
-              $responseobj["_content"] = $routput[1];
-            } else {
-              $responseobj["_content"] = $response;
-            }
+            $responseobj["_content"] = (string) $response;
           }
           $ret[] = $responseobj;
         }
@@ -208,11 +199,13 @@ class TemplateManager extends Smarty {
     foreach ($dependencies as $prio=>$browsers) {
       foreach ($browsers as $browser=>$deptypes) {
         foreach ($deptypes as $deptype=>$deps) {
-          foreach ($deps as $depid=>$dep) { // jesus
-            $depobj = object_to_array($dep);
-            $depobj["deptype"] = $depobj["type"];
-            $depobj["type"] = "dependency";
-            $ret[] = $depobj;
+          if ($deptype != "jstemplate") { // FIXME - for some reason jstemplate dependencies in AJAX responses cause all hell to break loose...they're not used yet anyway
+            foreach ($deps as $depid=>$dep) { // jesus
+              $depobj = object_to_array($dep);
+              $depobj["deptype"] = $depobj["type"];
+              $depobj["type"] = "dependency";
+              $ret[] = $depobj;
+            }
           }
         }
       }

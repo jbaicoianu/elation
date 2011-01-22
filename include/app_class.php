@@ -75,7 +75,6 @@ class App {
         $this->cfg->GetConfig($this->cobrand, true, $this->cfg->servers["role"]);
         $this->ApplyConfigOverrides();
 
-
         // And the google analytics flag
         if (isset($this->request["args"]["GAalerts"])) {
           $this->GAalerts = $this->session->temporary["GAalerts"] = ($this->request["args"]["GAalerts"] == 1) ? 1 : 0;
@@ -84,6 +83,8 @@ class App {
         } else {
           $this->GAalerts = 0;
         }
+
+        $this->apiversion = any($this->request["args"]["apiversion"], ConfigManager::get("api.version.default"), 0);
 
         $this->tplmgr = TemplateManager::singleton($this->rootdir);
         $this->tplmgr->assign_by_ref("webapp", $this);

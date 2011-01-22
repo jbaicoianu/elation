@@ -23,8 +23,8 @@ elation.extend("checkhash", new function() {
       if (typeof elation.search.backbutton == 'object') {
         elation.search.backbutton.check();
       }
-    } catch(e) { console.log('notice:' + e.message); }
-  },500);
+    } catch(e) { }
+  }, 500);
   
   this.fetch = function(url, callback) {
     elation.ajax.Queue({
@@ -132,6 +132,7 @@ elation.extend("component", new function() {
     elation.extend(name, el); // inject the newly-created component wrapper into the main elation object
   }
 });
+
 elation.extend('onloads',new function() {
   this.done = false;
   this.onloads = [];
@@ -234,9 +235,11 @@ elation.extend("html.dimensions", function(element, ignore_size) {
 		h : height 
 	};
 });
+
 elation.extend("html.size", function(obj) {
   return [obj.offsetWidth, obj.offsetHeight];
 });
+
 elation.extend("html.position", function(obj) {
   var curleft = curtop = 0;
   if (obj.offsetParent) {
@@ -255,17 +258,20 @@ elation.extend("html.hasclass", function(element, className) {
   var re = new RegExp("(^| )" + className + "( |$)", "g");
   return element.className.match(re);
 });
+
 elation.extend("html.addclass", function(element, className) {
   if (!elation.html.hasclass(element, className)) {
     element.className += " " + className;
   }
 });
+
 elation.extend("html.removeclass", function(element, className) {
   var re = new RegExp("(^| )" + className + "( |$)", "g");
   if (element.className.match(re)) {
     element.className = element.className.replace(re, " ");
   }
 });
+
 elation.extend("html.toggleclass", function(element, className) {
   if (this.hasclass(element, className))
     this.removeclass(element, className)
@@ -849,6 +855,7 @@ elation.extend("find", function(selectors, parent, first) {
 
 // grabs a js or css file and adds to document
 elation.extend('file.get', function(type, file, func) {
+	console.log(type, file, func);
   if (!type || !file)
     return false;
   

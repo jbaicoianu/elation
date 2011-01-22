@@ -91,6 +91,10 @@ class ComponentManager extends Component {
       // Handle the homepage
       $ret["component"] = "index";
       $ret["content"] = self::fetch("index", $args, $outputtype);
+    } else if (strpos($page, "/../") === false && file_exists("./htdocs" . $page)) {
+      $outputtype = any(mime_content_type("./htdocs" . $page), "text/plain");
+      $ret["type"] = $ret["responsetype"] = $outputtype;
+      $ret["content"] = file_get_contents("./htdocs" . $page);
     } else if (preg_match("|^/((?:[^./]+/?)*)(?:\.(.*))?$|", $page, $m)) {
       // Dispatch directly to a component.  File extension determines output type
       $componentname = str_replace("/", ".", $m[1]);
@@ -99,7 +103,7 @@ class ComponentManager extends Component {
       }
 
       $ret["component"] = $componentname;
-      $ret["type"] = $outputtype;
+      $ret["type"] = $ret["responsetype"] = $outputtype;
 
       $args = $this->ApplyOverrides($args, $applysettings);
 

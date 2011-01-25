@@ -9,6 +9,13 @@ class DependencyManager {
   static private $dependencies = array();
   static public $locations = array();
 
+  static private $formats = array("browsers" => array("ie6" => "\n<!--[if IE 6]>\n%s\n<![endif]-->\n",
+                                                      "ie7" => "\n<!--[if IE 7]>\n%s\n<![endif]-->\n",
+                                                      "ie8" => "\n<!--[if IE 8]>\n%s\n<![endif]-->\n",
+                                                      ),
+                                  "types" => array("placemark" => "<!--\n%s-->\n"),
+                                 );
+
   static function init($locations) {
     self::$locations = $locations;
   }
@@ -39,11 +46,20 @@ class DependencyManager {
     ksort(self::$dependencies);
     foreach (self::$dependencies as $priority=>$browsers) {
       foreach ($browsers as $browser=>$types) { 
-        // FIXME - we're not actually wrapping the per-browser dependencies in their proper conditional comments yet
+        $bret = "";
         foreach ($types as $type=>$deps) {
+          $tret = "";
           foreach ($deps as $dep) {
-            $ret .= $dep->display(self::$locations);
+            $tret .= $dep->display(self::$locations);
           }
+          if (!empty($tret)) { // type wrapper
+            $wrapstr = any(self::$formats["types"][$type], "%s");
+            $bret .= sprintf($wrapstr, $tret);
+          }
+        }
+        if (!empty($bret)) { // browser wrapper
+          $wrapstr = any(self::$formats["browsers"][$browser], "%s");
+          $ret .= sprintf($wrapstr, $bret);
         }
       }
     }
@@ -299,7 +315,7 @@ class DependencyOnload extends Dependency {
  */
 class DependencyPlacemark extends Dependency {
   function Display($locations, $extras=NULL) {
-    return sprintf("<!-- %s: %s -->\n", $this->name, $this->value);
+    return sprintf("%s: %s\n", $this->name, $this->value);
   }
 }
 

@@ -176,8 +176,8 @@ class DependencyCSS extends Dependency {
   public $url;
 
   private $format = '<link rel="stylesheet" type="text/css" href="%s" media="%s" />';
-  //private $extraformat = '<script type="text/javascript">elation.dependencies.register("css", %s)</script>';
-  private $extraformat = '';
+  private $extraformat = '<script type="text/javascript">if (typeof elation != "undefined") { elation.file.dependencies.register("css", %s); }</script>';
+  //private $extraformat = '';
 
 
   function Display($locations, $extras=NULL) {
@@ -209,8 +209,7 @@ class DependencyJavascript extends Dependency {
   public $code;
 
   private $format = '<script type="text/javascript" src="%s"></script>';
-  //private $extraformat = '<script type="text/javascript">elation.dependencies.register("javascript", %s)</script>';
-  private $extraformat = '';
+  private $extraformat = '<script type="text/javascript">if (typeof elation != "undefined") { elation.file.dependencies.register("javascript", %s); }</script>';
 
   function Display($locations, $extras=NULL) {
     if (empty($this->media)) $this->media = "all";

@@ -660,6 +660,11 @@ function ucwordssmart($str) {
   return str_replace(array("And ", "To ", "Or "), array("and ", "to ", "or "), $str);
 }
 
+function obfuscateString($str) {
+  $ret = "$$" . base64_encode(gzdeflate($str));
+  return $ret;
+}
+
 function unobfuscateString($str) {
   if (substr($str, 0, 2) == '$$') {
     if (strpos($str, ' ')) {

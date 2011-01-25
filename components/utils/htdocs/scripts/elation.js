@@ -908,11 +908,11 @@ elation.extend('file.batch', function() {
 		
 		for (var i=0; i<this.callbacks.length; i++) 
 			switch (typeof this.callbacks[i]) {
-				case "string": 
+				case "string":
 					eval(this.callbacks[i]); 
 					break;
 				
-				case "function": 
+				case "function":
 					this.callbacks[i](); 
 					break;
 			}
@@ -1242,8 +1242,8 @@ elation.extend('ui.combobox', function(parent, callback) {
 		elation.html.addclass(this.button, 'selected');
 		
 		$(this.ul)
-			.css({ display: 'block', height: 0 })
-			.animate({ height: this.height + 'px' }, 150, "easein");
+			.css({display: 'block', height: 0})
+			.animate({height: this.height + 'px'}, 150, "easein");
 	}
 	
 	this.hide = function() {
@@ -1253,7 +1253,7 @@ elation.extend('ui.combobox', function(parent, callback) {
 		
 		(function(self) {
 			$(self.ul)
-				.animate({ height: 0 }, 200, "easeout", function() { self.ul.style.display = 'none'; });
+				.animate({height: 0}, 200, "easeout", function() {self.ul.style.display = 'none';});
 		})(this);
 	}
 	
@@ -1271,9 +1271,9 @@ elation.extend('ui.combobox', function(parent, callback) {
 				target = event.target || event.srcElement;
 		
 		switch (type) {
-			case 'click': this.toggle(target); break;
-			case 'mouseover': break;
-			case 'mouseout': break;
+			case 'click':this.toggle(target);break;
+			case 'mouseover':break;
+			case 'mouseout':break;
 		}
 	}
 	
@@ -1596,6 +1596,24 @@ elation.extend('googleanalytics', function(args) {
   $("#tf_shoplikefriends_tellmorefriends").click(function() {self.trackEvent(['facebook', 'invite_friends'])});
   $("#tf_shoplikefriends_becomefeaturedshopper").click(function() {self.trackEvent(['shoplike', 'become_featured_shopper'])});
 
+  //Merchantcenter footer link tracking
+  $('#tf_footer_merchantcenter').click(function() {
+    self.trackEvent(['merchant_center', self.cobrand, self.pagetype]);
+    if (self.query != 'none') {
+      self.trackEvent(['merchant_center', 'serp_footer', self.cobrand]);
+    }
+    else {
+      self.trackEvent(['merchant_center', 'home_footer', self.cobrand]);
+    }
+  });
+
+  //Don't know if the below ever gets fired ... 
+  $('#tf_middle_bottom_merchantcenter').click(function() {
+    self.trackEvent(['merchant_center', self.cobrand, self.pagetype]);
+    self.trackEvent(['merchant_center', 'home_retailer', self.cobrand]);
+  });
+
+
 	delete self;
 
 	if (this.GAalerts) {
@@ -1654,7 +1672,7 @@ elation.extend('googleanalytics', function(args) {
       'B4':'noresultscurrentmall',
       'B5':'partialresults',
       'S1':'serverexception',
-      '404':'error_404' };
+      '404':'error_404'};
 
     //console.log(this.pagetype);
     //special cases for myfinds and shoplikeme / shoplikefriends

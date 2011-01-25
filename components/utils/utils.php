@@ -58,10 +58,11 @@ class Component_utils extends Component {
   function controller_panel_item($args) {
     $vars["panelitem"] = $args["panelitem"];
     if (!empty($args["panelargs"])) {
-      if (!empty($vars["panelitem"]["componentargs"]))
+      if (!empty($vars["panelitem"]["componentargs"])) {
         $vars["panelitem"]["componentargs"] = array_merge($args["panelargs"], $vars["panelitem"]["componentargs"]);
-      else
+      } else {
         $vars["panelitem"]["componentargs"] = $vars["panelargs"];
+      }
     }
     return $this->GetTemplate("./panel_item.tpl", $vars);
   }

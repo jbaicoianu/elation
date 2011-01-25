@@ -13,7 +13,11 @@ class Component_elation extends Component {
     return $this->GetComponentResponse("./elation.tpl", $vars);
   }
   function controller_debug($args) {
-    return $this->GetComponentResponse("./debug.tpl", $vars);
+    $user = User::singleton();
+    if ($user->isLoggedIn() && ($user->HasRole("ADMIN") || $user->HasRole("QA"))) {
+      return $this->GetComponentResponse("./debug.tpl", $vars);
+    }
+    return "";
   }
   function controller_logger($args) {
     return Logger::Display(E_ALL);

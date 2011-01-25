@@ -11,7 +11,11 @@ var elation = new function() {
 			ptr = ptr[parts[i]];
 		}
 		
-		ptr[parts[i]] = func;
+		if (typeof ptr[parts[i]] == 'undefined') {
+			ptr[parts[i]] = func;
+		} else {
+			console.log("elation: tried to clobber existing component '" + name + "'");
+		}
   }
 }
 

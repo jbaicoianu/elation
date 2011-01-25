@@ -1,0 +1,1 @@
+   {component name="page.cobrandad"}

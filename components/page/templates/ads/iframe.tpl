@@ -1,1 +1,0 @@
-  <iframe frameborder="0" id="tf_cpmad_{$ad.type}_frame" src="/ad.fhtml?ad[method]=inline&amp;ad[placement]={$ad.placement}&amp;ad[source]={$ad.source}&amp;ad[type]={$ad.type}&amp;ad[clientid]={$ad.clientid}&amp;ad[channelid]={$ad.channelid}&amp;ad[width]={$ad.width}&amp;ad[height]={$ad.height}"></iframe>

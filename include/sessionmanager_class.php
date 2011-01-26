@@ -126,6 +126,12 @@ class SessionManager
     $has_flsid = (isset($_COOKIE['flsid']) || isset($_REQUEST['flsid']));
     $this->is_new_session = ($has_flsid == 1) ? 0 : 1;
 
+    // if flsid was passed via the URL, set it as a cookie
+    if (!empty($_GET['flsid'])) {
+      setcookie("flsid", $_GET['flsid'], 0, '/');
+      $this->flsid = $_COOKIE['flsid'] = $_GET['flsid'];
+    }
+
     session_set_save_handler(
       array(&$this, 'open'),
       array(&$this, 'close'),

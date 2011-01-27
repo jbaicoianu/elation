@@ -241,8 +241,16 @@ elation.extend("ajax", new function() {
   }
 
   this.responsehandlers = {
+    'infobox': function(response, common) {
+      if (response['name'] && response['_content']) {
+        var infobox = elation.ui.infobox.get(response['name']);
+        
+        if (infobox) {
+          infobox.ajax_continue(response['_content']);
+        }
+      }
+    },
     'xhtml': function(response, common) {
-      //console.log('process xhtml', response);
       if (response['target'] && response['_content']) {
         var targetel = document.getElementById(response['target']);
         if (targetel) {
@@ -604,9 +612,9 @@ function ajaxChild(url) {
     }
   }
 }
+*/
 
 // Convenience functions to use within webpages
-
 function ajaxLink(ajaxlib, link, history) {
   ajaxlib.Get(link, history);
   return false;
@@ -616,5 +624,5 @@ function ajaxForm(ajaxlib, form, history) {
   ajaxlib.Post(form, history);
   return false;
 }
-*/
+
 ajaxlib = elation.ajax;

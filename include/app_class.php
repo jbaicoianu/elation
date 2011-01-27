@@ -102,6 +102,20 @@ class App {
     }
     $this->user = User::singleton();
     $this->user->InitActiveUser($this->request);
+
+    // Merge permanent user settings from the URL
+    if (!empty($this->request["args"]["settings"])) {
+      foreach ($this->request["args"]["settings"] as $k=>$v) {
+        $this->user->SetPreference($k, $v, "user");
+      }
+    }
+    // ...and then do the same for session settings
+    if (!empty($this->request["args"]["sess"])) {
+      foreach ($this->request["args"]["sess"] as $k=>$v) {
+        $this->user->SetPreference($k, $v, "temporary");
+      }
+    }
+
     Profiler::StopTimer("WebApp::Init");
   }
 

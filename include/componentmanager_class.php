@@ -40,9 +40,11 @@ class ComponentManager extends Component {
     // Load all content URLs from the config, and build a lookup table based on URL
     $cfg = ConfigManager::singleton();
     $contentpages = $cfg->getSetting("page.content");
-    foreach($contentpages as $pagename=>$pagevalues) {
-      $contenturls[$pagevalues["url"]] = $pagevalues;
-      $contenturls[$pagevalues["url"]]["name"] = $pagename;
+    if (!empty($contentpages)) {
+      foreach($contentpages as $pagename=>$pagevalues) {
+        $contenturls[$pagevalues["url"]] = $pagevalues;
+        $contenturls[$pagevalues["url"]]["name"] = $pagename;
+      }
     }
 
     $tplmgr = TemplateManager::singleton();

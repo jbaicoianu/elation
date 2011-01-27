@@ -1600,6 +1600,12 @@ elation.extend('googleanalytics', function(args) {
   $("#tf_shoplikefriends_tellmorefriends").click(function() {self.trackEvent(['facebook', 'invite_friends'])});
   $("#tf_shoplikefriends_becomefeaturedshopper").click(function() {self.trackEvent(['shoplike', 'become_featured_shopper'])});
 
+  //Links above first searchbox for products, coupons, reviews
+  $("#tf_search_links_products").click(function() {self.trackEvent(['links', 'theWeb', 'products'])});
+  $("#tf_search_links_coupons").click(function() {self.trackEvent(['links', 'theWeb', 'coupons'])});
+  $("#tf_search_links_reviews").click(function() {self.trackEvent(['links', 'theWeb', 'reviews'])});
+
+
   //Merchantcenter footer link tracking
   $('#tf_footer_merchantcenter').click(function() {
     self.trackEvent(['merchant_center', self.cobrand, self.pagetype]);
@@ -1774,8 +1780,7 @@ elation.extend('googleanalytics', function(args) {
   };
 
   this.trackClickout = function(args) {
-    //this.trackEvent([args.event[0], args.event[1], args.event[2], (args.event[3] ? args.event[3] : this.clickoutsource)]);
-    this.trackEvent([args.event[0], args.event[1], args.event[2]]);
+    this.trackEvent([args.event[0], args.event[1], args.event[2] + args.event[3]]);
     this.clickoutsource=0;
     this.myfindspanel='';
     var orderID = Math.floor(Math.random()*1000000000000);

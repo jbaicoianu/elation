@@ -1293,7 +1293,7 @@ elation.extend('ui.infoboxes.infobox_stores', function() {
 elation.extend('ui.infoboxes.tell_more_friends', function() {
 	var callback = window.location.href;
 	
-	return elation.ui.lightbox.get("/facebook/tell_more_friends.html","callback="+encodeURIComponent(callback));
+	return elation.ui.lightbox.get("/facebook/tell_more_friends.snip","callback="+encodeURIComponent(callback));
 });
 elation.extend('ui.infoboxes.infobox_privacy_settings', function() {
 	return elation.ui.lightbox.get("/user/privacy_settings.html");

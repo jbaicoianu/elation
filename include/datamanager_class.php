@@ -340,7 +340,7 @@ class DataManager {
     return $count;
   }
   
-  function CacheClear($id) {
+  static function CacheClear($id) {
     $queryid = new DatamanagerQueryID($id);
     if ($source =& DataManager::PickSource($queryid)) {
       $source->CacheClear($queryid);

@@ -239,20 +239,40 @@ elation.extend("ajax", new function() {
       }
     }
   }
-
+  
+  var register_inline_scripts = function(common, element) {
+    var scripts = element.getElementsByTagName("SCRIPT");
+    
+    if (scripts.length > 0) {
+      for (var i = 0; i < scripts.length; i++) {
+        if (typeof scripts[i].text == 'string') {
+          common.inlinescripts.push(scripts[i].text);
+        } else if (scripts[i].src) {
+          console.log('elation.ajax: found inline script with src parameter');
+        }
+      }
+    }
+  }
+  
   this.responsehandlers = {
     'infobox': function(response, common) {
-      if (response['name'] && response['_content']) {
-        var infobox = elation.ui.infobox.get(response['name']);
+      var content = response['_content'],
+          name = response['name'],
+          infobox;
+      
+      if (name && content) {
+        infobox = elation.ui.infobox.get(name);
         
-        if (infobox) {
-          infobox.ajax_continue(response['_content']);
+        if (infobox) { 
+          infobox.ajax_continue(content);
+          register_inline_scripts(common, infobox.elements.container);
         }
       }
     },
     'xhtml': function(response, common) {
       if (response['target'] && response['_content']) {
         var targetel = document.getElementById(response['target']);
+        
         if (targetel) {
           if (response['append'] == 1 || response['append'] == 'true') {
             targetel.innerHTML += response['_content'];
@@ -260,18 +280,12 @@ elation.extend("ajax", new function() {
             //thefind.func.ie6_purge(targetel);
 						targetel.innerHTML = response['_content'];
           }
-          var scripts = targetel.getElementsByTagName("SCRIPT");
-          if (scripts.length > 0) {
-            for (var j = 0; j < scripts.length; j++) {
-              if (typeof scripts[j].text == 'string') {
-                common.inlinescripts.push(scripts[j].text);
-              } else if (scripts[j].src) {
-                console.log('elation.ajax: found inline script with src parameter');
-              }
-            }
-          }
-          /* FIXME - this seems like an odd place to have this... */
+          
+          register_inline_scripts(common, targetel);
+
+          /* repositions infobox after ajax injection, use responsetype ["infobox"] if applicable */
           var infobox = elation.ui.infobox.target(targetel);
+          
           if (infobox && infobox.args.reposition) {
             common.inlinescripts.push("elation.ui.infobox.position('"+infobox.name+"', true);");
           }
@@ -296,18 +310,11 @@ elation.extend("ajax", new function() {
           //thefind.func.ie6_purge(div);
           div.innerHTML = text;
           
-          var scripts = div.getElementsByTagName("SCRIPT");
-          if (scripts.length > 0) {
-            for (var j = 0; j < scripts.length; j++) {
-              if (typeof scripts[j].text == 'string') {
-                common.inlinescripts.push(scripts[j].text);
-              } else if (scripts[j].src) {
-                console.log('elation.ajax: found inline script with src parameter');
-              }
-            }
-          }
-          /* FIXME - this seems like an odd place to have this... */
-          var infobox = elation.ui.infobox.current;
+          register_inline_scripts(common, div);
+
+          /* repositions infobox after ajax injection, use responsetype ["infobox"] if applicable */
+          var infobox = elation.ui.infobox.getCurrent();
+          
           if (infobox && infobox.args.reposition)
             common.inlinescripts.push("elation.ui.infobox.position('"+infobox.name+"', true);");
         }

@@ -115,7 +115,7 @@ class App {
       }
     }
 
-    // And finially, initialize abtests
+    // And finally, initialize abtests
     if (class_exists(ABTestManager)) {
       Profiler::StartTimer("WebApp::Init - abtests", 2);
       $this->abtests = ABTestmanager::singleton(array("cobrand" => $this->cobrand, "v" => $this->request["args"]["v"]));

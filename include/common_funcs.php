@@ -817,3 +817,47 @@ if (!function_exists('gzdecode')) {
     return $unpacked;
   }
 }
+/**
+ * This function determines if the user agent is a bot or not.
+ */
+function isBot() {
+  /**
+   * @todo - update the list of bots here
+   * (last updated on 7/23/07)
+   */
+  $bot_user_agents = array("im2-",
+                           "googlebot",
+                           "adsbot-google",
+                           "mediapartners-google",
+                           "slurp",
+                           "yahoo-mmcrawler",
+                           "msnbot",
+                           "quibot",
+                           "becomebot",
+                           "jeeves /teoma",
+                           "jeeves",
+                           "teoma",
+                           "pingdom",
+                           "gigabot",
+                           "mj12bot",
+                           "shopwiki",
+                           "lmqueuebot",
+                           "irlbot",
+                           "geniebot",
+                           "iaarchive",
+                           "ia_archiver",
+                           "openwebspider",
+                           "w3c-checklink",
+                           "jakarta commons",
+                           "python-urllib",
+                           "voyager /1.0",
+                           "libwww-perl",
+                           "RPT-HTTPClient");
+  for ($i=0; $i<count($bot_user_agents); $i++) {
+    if ( (stripos($_SERVER['HTTP_USER_AGENT'], $bot_user_agents[$i]) !== false) ) {
+      return true;
+    }
+  }
+  return false;
+}
+

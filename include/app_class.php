@@ -85,7 +85,6 @@ class App {
         }
 
         $this->apiversion = any($this->request["args"]["apiversion"], ConfigManager::get("api.version.default"), 0);
-
         $this->tplmgr = TemplateManager::singleton($this->rootdir);
         $this->tplmgr->assign_by_ref("webapp", $this);
         $this->components = ComponentManager::singleton($this);
@@ -114,6 +113,13 @@ class App {
       foreach ($this->request["args"]["sess"] as $k=>$v) {
         $this->user->SetPreference($k, $v, "temporary");
       }
+    }
+
+    // And finially, initialize abtests
+    if (class_exists(ABTestManager)) {
+      Profiler::StartTimer("WebApp::Init - abtests", 2);
+      $this->abtests = ABTestmanager::singleton(array("cobrand" => $this->cobrand, "v" => $this->request["args"]["v"]));
+      Profiler::StopTimer("WebApp::Init - abtests");
     }
 
     Profiler::StopTimer("WebApp::Init");

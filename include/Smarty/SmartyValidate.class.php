@@ -292,6 +292,18 @@ class SmartyValidate {
         
         return $_ret;
     }
+
+    function get_errors(&$formvars, $form = SMARTY_VALIDATE_DEFAULT_FORM) {
+      $_ret = NULL;
+      $_failed_fields = SmartyValidate::_failed_fields($formvars, $form);
+
+      if (!empty($_failed_fields)) {
+        foreach ($_failed_fields as $failed) {
+          $_ret[$failed] = true;
+        }
+      }
+      return $_ret;
+    }
     
     /**
      * register a callable function for form verification

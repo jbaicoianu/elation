@@ -293,12 +293,10 @@ elation.extend("ajax", new function() {
       }
     },
     'javascript': function(response, common) {
-      //console.log('process javascript', response);
       if (response['_content'])
         common.inlinescripts.push(response['_content']);
     },
     'data': function(response, common) {
-      //console.log('process data', response);
       if (response['name'] && response['_content']) {
         common.data[response['name']] = elation.JSON.parse(response['_content']);
 

@@ -77,7 +77,12 @@ class Logger {
       $ret .= '<ul id="tf_debug_log">';
       foreach (self::$msgs as $msg) {
         if ($msg['lvl'] & $lvl)
-          $ret .= '<li class="' . $debugClasses[$msg['lvl']] . '"><address>' . $msg["class"] . "</address><code>" . htmlspecialchars($msg['txt']) . '</code></li>';
+          $msgtxt = $msg["txt"];
+          if ($msg["txt"] instanceOf Exception)
+            $msgtxt = $msg["txt"]->getMessage();
+          else if (!is_string($msg["txt"]))
+            $msgtxt = print_r($msg["txt"], true);
+          $ret .= '<li class="' . $debugClasses[$msg['lvl']] . '"><address>' . $msg["class"] . "</address><code>" . htmlspecialchars($msgtxt) . '</code></li>';
       }
       $ret .= '</ul>';
     }

@@ -44,7 +44,7 @@ class Component extends Base {
         $componentclassname = "Component_" . str_replace(".", "_", $componentname);
 
         if (method_exists($this, "controller_" . $name)) {
-          $ret = $this->CreateComponent($name, "ComponentFunction", array(&$this, "controller_" . $name), $path, &$args);
+          $ret = $this->CreateComponent($name, "ComponentFunction", array(&$this, "controller_" . $name), $this->path, &$args);
         } else {
           $componentdir = $this->GetComponentDirectory();
           if (!empty($componentdir))

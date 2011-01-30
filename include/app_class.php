@@ -38,9 +38,11 @@ class App {
     Logger::Info("Path: " . get_include_path());
     $this->initAutoLoaders();
 
-    Logger::Info("Turning Pandora flag on");
-    $pandora = PandoraLog::singleton();
-    $pandora->setFlag(true);
+    if (class_exists("PandoraLog")) {
+      Logger::Info("Turning Pandora flag on");
+      $pandora = PandoraLog::singleton();
+      $pandora->setFlag(true);
+    }
 
 
     $this->locations = array("scripts" => "htdocs/scripts",
@@ -72,7 +74,14 @@ class App {
           $this->debug = $_SESSION["debug"];
         }
         $this->cobrand = $this->GetRequestedConfigName($this->request);
-        $this->cfg->GetConfig($this->cobrand, true, $this->cfg->servers["role"]);
+        if (isset($this->request["args"]["_role"])) {
+          $this->role = $this->request["args"]["_role"];
+        } else if (isset($this->cfg->servers["role"])) {
+          $this->role = $this->cfg->servers["role"];
+        } else {
+          $this->role = "dev";
+        }
+        $this->cfg->GetConfig($this->cobrand, true, $this->role);
         $this->ApplyConfigOverrides();
 
         // And the google analytics flag
@@ -84,7 +93,7 @@ class App {
           $this->GAalerts = 0;
         }
 
-        $this->apiversion = any($this->request["args"]["apiversion"], ConfigManager::get("api.version.default"), 0);
+        $this->apiversion = (isset($this->request["args"]["apiversion"]) ? $this->request["args"]["apiversion"] : ConfigManager::get("api.version.default", 0));
         $this->tplmgr = TemplateManager::singleton($this->rootdir);
         $this->tplmgr->assign_by_ref("webapp", $this);
         $this->components = ComponentManager::singleton($this);
@@ -116,7 +125,7 @@ class App {
     }
 
     // And finally, initialize abtests
-    if (class_exists(ABTestManager)) {
+    if (class_exists("ABTestManager")) {
       Profiler::StartTimer("WebApp::Init - abtests", 2);
       $this->abtests = ABTestmanager::singleton(array("cobrand" => $this->cobrand, "v" => $this->request["args"]["v"]));
       Profiler::StopTimer("WebApp::Init - abtests");
@@ -139,26 +148,34 @@ class App {
 
       $this->session->quit();
 
-      $contegargs = any($this->cfg->servers["conteg"], array());
-      if (is_array($this->cfg->servers["conteg"]["policy"][$output["responsetype"]]))
-        $contegargs = array_merge($contegargs, $this->cfg->servers["conteg"]["policy"][$output["responsetype"]]);
-      if (is_array($this->sitecfg["conteg"]))
-        $contegargs = array_merge($contegargs, $this->sitecfg["conteg"]);
-      if (is_array($this->sitecfg["conteg"]["policy"][$output["responsetype"]]))
-        $contegargs = array_merge($contegargs, $this->sitecfg["conteg"]["policy"][$output["responsetype"]]);
-      if (empty($contegargs["type"]))
-        $contegargs["type"] = $output["responsetype"];
+      // Load settings from servers.ini
+      $contegargs = (isset($this->cfg->servers["conteg"]) ? $this->cfg->servers["conteg"] : array());
+      // And also from site config
+      $contegcfg = ConfigManager::get("conteg");
+      if (is_array($contegcfg)) {
+        $contegargs = array_merge($contegargs, $conteg);
+      }
 
-      if (empty($contegargs["modified"])) // Set modified time to mtime of base directory if not set
+      // Merge type-specific policy settings from config if applicable
+      if (isset($contegargs["policy"]) && is_array($contegargs["policy"][$output["responsetype"]])) {
+        $contegargs = array_merge($contegargs, $contegargs["policy"][$output["responsetype"]]);
+      }
+      if (empty($contegargs["type"])) {
+        $contegargs["type"] = $output["responsetype"];
+      }
+
+      if (empty($contegargs["modified"])) { // Set modified time to mtime of base directory if not set
         $contegargs["modified"] = filemtime($this->rootdir);
+      }
 
       //header('Content-type: ' . any($output["type"], "text/html"));
       if ($output["type"] == "ajax" || $output["type"] == "jsonp") {
         print $this->tplmgr->PostProcess($output["content"], true);
       } else {
         print $this->tplmgr->PostProcess($output["content"]);
-        if (!empty($this->request["args"]["timing"]))
+        if (!empty($this->request["args"]["timing"])) {
           print Profiler::Display();
+        }
       }
       Profiler::StopTimer("WebApp::TimeToDisplay");
       new Conteg($contegargs);
@@ -258,7 +275,7 @@ class App {
       if (isset($this->tplmgr) && ($path = file_exists_in_path("templates/exception.tpl", true)) !== false) {
         print $this->tplmgr->GetTemplate($path . "/templates/exception.tpl", $this, $vars);
       } else {
-        print "<blockquote><strong>" . $type . ":</strong> " . $errstr . "</blockquote>";
+        print "<blockquote><strong>" . $type . ":</strong> " . $errstr . "</blockquote> <address>" . $vars["exception"]["file"] . ":" . $vars["exception"]["line"] . "</address>";
       }
     }
   }
@@ -336,18 +353,22 @@ class App {
     }
 
     if(!empty($this->request["args"]["cobrandoverride"])) {
-      $included_config =& $this->cfg->GetConfig($this->request["args"]["cobrandoverride"], false, $this->cfg->servers["role"]);
+      $included_config =& $this->cfg->GetConfig($this->request["args"]["cobrandoverride"], false, $this->role);
       if (!empty($included_config))
         ConfigManager::merge($included_config);
     }
-    $rolename = any($this->request["args"]["_role"], $this->cfg->servers['role']);
-    $rolecfg = ConfigManager::get("roles.{$rolename}.options");
+    $rolecfg = ConfigManager::get("roles.{$this->role}.options");
     if (!empty($rolecfg)) {
-      Logger::Info("Using overridden role cfg 'roles.{$rolename}'");
+      Logger::Info("Using overridden role cfg 'roles.{$this->role}'");
       ConfigManager::merge($rolecfg);
     }
 
-    $browseroverride = any($this->request["args"]["sess"]["browser.override"], $_SESSION["temporary"]["user"]["preferences"]["browser"]["override"], NULL);
+    $browseroverride = NULL;
+    if (isset($this->request["args"]["sess"]["browser.override"])) {
+      $browseroverride = $this->request["args"]["sess"]["browser.override"];
+    } else if (isset($_SESSION["temporary"]["user"]["preferences"]["browser"]["override"])) {
+      $browseroverride = $_SESSION["temporary"]["user"]["preferences"]["browser"]["override"];
+    }
     if ($browseroverride !== NULL)
       $this->request["browser"] = $browseroverride;
 

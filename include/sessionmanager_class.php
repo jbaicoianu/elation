@@ -51,34 +51,9 @@ class SessionManager
 
   protected static $instance;
 
-  protected function __construct()
+  protected function __construct($request)
   {
-    global $webapp;
-    /**
-     * If this page is one of the pages to serve the widgets, do not start
-     * a session.  Log the impression to the widget
-      log.
-     */
-    $widget_pages = array("widget_findit.fhtml", "widget_marketplace.fhtml", "widget_search.fhtml", "widget_tickets.fhtml");
-    $is_widget = false;
-
-    for ($i=0; $i<count($widget_pages); $i++) {
-      if ( (strpos($webapp->request["path"], $widget_pages[$i]) !== false) ) {
-        /**
-         * @todo:
-         * Not an elegant solution, but it's the easier to implement for now.
-         * For the widget preview mode, the information is passed in the session.
-         * So, we must init the session if mode=preview.
-         */
-        if ($webapp->request["args"]["preview_mode"] != "yes") {
-          $is_widget = true;
-        }
-        continue;
-      }
-    }
-    if ($is_widget == false) {
-      $this->init();
-    }
+    $this->init();
   }
 
   /**
@@ -87,10 +62,10 @@ class SessionManager
    *
    * @return SessionManager
    */
-  public static function singleton()
+  public static function singleton($args=NULL)
   {
     if (!self::$instance) {
-      self::$instance = new SessionManager();
+      self::$instance = new SessionManager($args);
     }
     return self::$instance;
   }
@@ -101,9 +76,6 @@ class SessionManager
    */
   protected function init()
   {
-    //some al-qada shit here... 
-    global $webapp;
-
     $this->data = DataManager::singleton();
     //Profiler::StartTimer("SessionManager::Init()");
 
@@ -119,8 +91,10 @@ class SessionManager
       $this->cache_obj =& NoCache::singleton();
     }
 
-    // instantiate the pandora object
-    $pandora = PandoraLog::singleton();
+    if (class_exists("PandoraLog")) {
+      // instantiate the pandora object (analytics collection)
+      $pandora = PandoraLog::singleton();
+    }
 
     // check to see if there is an existing cookie for flsid
     $has_flsid = (isset($_COOKIE['flsid']) || isset($_REQUEST['flsid']));
@@ -176,6 +150,7 @@ class SessionManager
      */
 
     // read the permanent cookie
+    $fluid_str = "";
     if (isset($_REQUEST['fluid']))
       $fluid_str = $_REQUEST['fluid'];
     else if (isset($_COOKIE['fl-uid']))
@@ -185,8 +160,8 @@ class SessionManager
 
     $fluid_data = explode(",", $fluid_str);
     $this->fluid = $fluid_data[0];
-    $this->session_count = $fluid_data[1]?$fluid_data[1]:0;
-    $this->last_access = $fluid_data[2]?$fluid_data[2]:0;
+    $this->session_count = (isset($fluid_data[1]) ? $fluid_data[1] : 0);
+    $this->last_access = (isset($fluid_data[2]) ? $fluid_data[2] : 0);
     $this->first_session_for_day = 0;
     $this->days_since_last_session = 0;
     $this->is_new_user = 0;
@@ -200,7 +175,8 @@ class SessionManager
       $this->days_since_last_session = 0;
       $fluid_data = $this->fluid.','.$this->session_count.','.$this->last_access;
       //setcookie('fl-uid', $fluid_data, time()+31536000, "/", $domain); // (1 year)
-      $pdata_serialize = serialize($_SESSION["persist"]);
+      
+      $pdata_serialize = (isset($_SESSION["persist"]) ? serialize($_SESSION["persist"]) : "");
       $this->crc = strlen($pdata_serialize) . crc32($pdata_serialize);
     }
     if (!$has_flsid) {
@@ -274,45 +250,47 @@ class SessionManager
     $usertype = $_SESSION["persist"]["user"]["usertype"];
 
     $userTypeArray = User::$usertypes;
-    $pandoraUserTypeNum = any($userTypeArray[$usertype], 0);
+    if (class_exists("PandoraLog")) {
+      $pandoraUserTypeNum = any($userTypeArray[$usertype], 0);
 
-    // log this into Pandora
-    $pandora_session = array(
-      "timestamp"           => time(),
-      "session_id"          => $this->flsid,
-      "fluid"               => $this->fluid,
-      "is_new_user"         => $this->is_new_user,
-      "is_registered_user"  => ($userid) ? 1 : 0,
-      "ip_addr"             => $_SERVER['REMOTE_ADDR'],
-      "user_agent"          => $_SERVER['HTTP_USER_AGENT'],
-      "referrer_url"        => $_SERVER['HTTP_REFERER'],
-      "landing_page_url"    => "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
-      "referrer_id"         => $webapp->request["args"]["rid"],
-      "widget_id"           => $webapp->request["args"]["wid"],
-      "user_registration_id"=> "$pandoraUserTypeNum.$userid",
-      "version"             => $webapp->version,
-      "cobrand"             => $this->root->cobrand,
-      "first_session_for_day" => $this->first_session_for_day,
-      "session_count"       => $this->session_count,
-      "days_since_last_session" => $this->days_since_last_session
-    );
+      // log this into Pandora
+      $pandora_session = array(
+        "timestamp"           => time(),
+        "session_id"          => $this->flsid,
+        "fluid"               => $this->fluid,
+        "is_new_user"         => $this->is_new_user,
+        "is_registered_user"  => ($userid) ? 1 : 0,
+        "ip_addr"             => $_SERVER['REMOTE_ADDR'],
+        "user_agent"          => $_SERVER['HTTP_USER_AGENT'],
+        "referrer_url"        => $_SERVER['HTTP_REFERER'],
+        "landing_page_url"    => "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
+        "referrer_id"         => $webapp->request["args"]["rid"],
+        "widget_id"           => $webapp->request["args"]["wid"],
+        "user_registration_id"=> "$pandoraUserTypeNum.$userid",
+        "version"             => $webapp->version,
+        "cobrand"             => $this->root->cobrand,
+        "first_session_for_day" => $this->first_session_for_day,
+        "session_count"       => $this->session_count,
+        "days_since_last_session" => $this->days_since_last_session
+      );
 
-    // log this session for data warehouse (once per session)
-    if (!$has_flsid) {
-      //store the session start time in session
-      $_SESSION['session_start_time'] = time();
-
-      $pandora->addData("session", $pandora_session);
-    }
-    else {
-      Logger::Notice("Pandora: Session already has an flsid. Current start time from session is: " . var_export($_SESSION['session_start_time'], true));
-
-      if(!array_key_exists('session_start_time', $_SESSION)) {
+      // log this session for data warehouse (once per session)
+      if (!$has_flsid) {
+        //store the session start time in session
         $_SESSION['session_start_time'] = time();
-        Logger::Warn("Pandora: Set or reset the session start time as one did not exist before. Time is: " . var_export($_SESSION['session_start_time'], true));
+
+        $pandora->addData("session", $pandora_session);
       }
       else {
-        Logger::Notice("Pandora: Session start time was not reset. Time is: " . var_export($_SESSION['session_start_time'], true));
+        Logger::Notice("Pandora: Session already has an flsid. Current start time from session is: " . var_export($_SESSION['session_start_time'], true));
+
+        if(!array_key_exists('session_start_time', $_SESSION)) {
+          $_SESSION['session_start_time'] = time();
+          Logger::Warn("Pandora: Set or reset the session start time as one did not exist before. Time is: " . var_export($_SESSION['session_start_time'], true));
+        }
+        else {
+          Logger::Notice("Pandora: Session start time was not reset. Time is: " . var_export($_SESSION['session_start_time'], true));
+        }
       }
     }
 
@@ -379,23 +357,25 @@ class SessionManager
   {
     //$this->data->Quit();
 
-    Profiler::StartTimer("Pandora", 1);
-    $pandora = PandoraLog::singleton();
-    if ($pandora->getFlag() == false) {
-      // if pandora logging is not turned on, return
-      return;
-    }
-    // exclude the internal server crawls and testings
-    $exclude_user_agents = array("im2-");
-    for ($i=0; $i<count($exclude_user_agents); $i++) {
-      if ( (strpos($_SERVER['HTTP_USER_AGENT'], $exclude_user_agents[$i]) !== false) ) {
-      	return;
+    if (class_exists("PandoraLog")) {
+      Profiler::StartTimer("Pandora", 1);
+      $pandora = PandoraLog::singleton();
+      if ($pandora->getFlag() == false) {
+        // if pandora logging is not turned on, return
+        return;
       }
+      // exclude the internal server crawls and testings
+      $exclude_user_agents = array("im2-");
+      for ($i=0; $i<count($exclude_user_agents); $i++) {
+        if ( (strpos($_SERVER['HTTP_USER_AGENT'], $exclude_user_agents[$i]) !== false) ) {
+          return;
+        }
+      }
+      // process the pandora logging
+      $pandora = PandoraLog::singleton();
+      $pandora->writeLog();
+      Profiler::StopTimer("Pandora");
     }
-    // process the pandora logging
-    $pandora = PandoraLog::singleton();
-    $pandora->writeLog();
-    Profiler::StopTimer("Pandora");
   }
 
   /**

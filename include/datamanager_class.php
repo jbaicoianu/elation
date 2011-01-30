@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * class DataManager
  * Abstraction object for any type of queryable data source.  
@@ -12,8 +12,9 @@ include_once("include/ormmanager_class.php");
 
 class DataManager {
 
-  var $cfg;
-  var $sources;
+  public $cfg;
+  public $sources;
+  public $caches;
 
   function DataManager($cfg=NULL) {
     $this->Init($cfg);
@@ -129,8 +130,9 @@ class DataManager {
     $queryid = new DatamanagerQueryID($id);
 
     $source = DataManager::PickSource($queryid);
-    if (!$source) {
+    if (empty($source)) {
       Logger::Error("Unable to determine source to serve request: %s", $queryid->name);
+      return $result;
     }
 
     // Pull default caching policy from connection object, then force enabled/disable as requested

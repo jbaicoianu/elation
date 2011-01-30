@@ -31,7 +31,10 @@ class ComponentManager extends Component {
 
   function Dispatch($page=NULL, $args=NULL) {
     $alternateret = $this->HandleDispatchArgs($args);
-    $outputtype = any($args["_output"], (!empty($_SERVER["HTTP_X_AJAX"]) ? "ajax" : "html"));
+    $outputtype = (!empty($_SERVER["HTTP_X_AJAX"]) ? "ajax" : "html");
+    if (isset($args["_output"])) {
+      $outputtype = $args["_output"];
+    }
 
     if ($args === NULL) {
       $args = $_REQUEST;
@@ -58,6 +61,8 @@ class ComponentManager extends Component {
     $ret["page"] = $pagecfg["page"] = $page;
     $ret["pagename"] = $pagecfg["pagename"] = str_replace("/", "_", substr($page, 1));
     $this->pagecfg["args"] = $args;
+
+    $applysettings = empty($args["xmlapi"]);
 
     if(!empty($contenturls[$page])) {
       // Check for config-mapped URL first
@@ -100,8 +105,8 @@ class ComponentManager extends Component {
     } else if (preg_match("|^/((?:[^./]+/?)*)(?:\.(.*))?$|", $page, $m)) {
       // Dispatch directly to a component.  File extension determines output type
       $componentname = str_replace("/", ".", $m[1]);
-      if ($outputtype !== "ajax") { // AJAX output overrides others
-        $outputtype = any($args["_output"], $m[2], $outputtype);
+      if ($outputtype !== "ajax" && empty($args["output"]) && isset($m[2])) { // AJAX output overrides others
+        $outputtype = $m[2];
       }
 
       $ret["component"] = $componentname;
@@ -125,26 +130,30 @@ class ComponentManager extends Component {
       $ret['content'] = $output[1];
     } else if ($outputtype == "ajax") {
       $ret['responsetype'] = "application/xml";
+    } else {
+      $ret['responsetype'] = "text/html";
     }
 
     // Pandora page log
-    $pandora = PandoraLog::singleton();
-    $session = SessionManager::singleton();
+    if (class_exists("PandoraLog")) {
+      $pandora = PandoraLog::singleton();
+      $session = SessionManager::singleton();
 
-    $pandora_pages = array(
-      "timestamp"     => time(),
-      "session_id"    => $session->flsid,
-      "fluid"         => $session->fluid,
-      "referrer_url"  => $_SERVER['HTTP_REFERER'],
-      "page_url"      => "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
-      "page_type"     => $pagecfg["pagename"],
-    );
+      $pandora_pages = array(
+        "timestamp"     => time(),
+        "session_id"    => $session->flsid,
+        "fluid"         => $session->fluid,
+        "referrer_url"  => $_SERVER['HTTP_REFERER'],
+        "page_url"      => "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
+        "page_type"     => $pagecfg["pagename"],
+      );
 
-    if ($pandora instanceof PandoraLog) {
-      $pandora->addData("pages", $pandora_pages);
-      // if $pagecfg["pagename"] known, update the session
-      if (!empty($pagecfg["type"])) {
-        $pandora->setPageType($pagecfg["pagename"]);
+      if ($pandora instanceof PandoraLog) {
+        $pandora->addData("pages", $pandora_pages);
+        // if $pagecfg["pagename"] known, update the session
+        if (!empty($pagecfg["type"])) {
+          $pandora->setPageType($pagecfg["pagename"]);
+        }
       }
     }
 

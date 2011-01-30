@@ -53,12 +53,12 @@ class DependencyManager {
             $tret .= $dep->display(self::$locations);
           }
           if (!empty($tret)) { // type wrapper
-            $wrapstr = any(self::$formats["types"][$type], "%s");
+            $wrapstr = (isset(self::$formats["types"][$type]) ? self::$formats["types"][$type] : "%s");
             $bret .= sprintf($wrapstr, $tret);
           }
         }
         if (!empty($bret)) { // browser wrapper
-          $wrapstr = any(self::$formats["browsers"][$browser], "%s");
+          $wrapstr = (isset(self::$formats["browsers"][$browser]) ? self::$formats["browsers"][$browser] : "%s");
           $ret .= sprintf($wrapstr, $bret);
         }
       }
@@ -117,6 +117,7 @@ abstract class Dependency {
   public $type;
   public $name;
   public $version;
+  public $accept;
 
   function Dependency($args, $silent=false) {
     $this->browser = any($args["browser"], "all");
@@ -281,7 +282,7 @@ class DependencyComponent extends Dependency {
   function Display($locations, $extras=NULL) {
     $ret = "";
     $tmp = explode(".", $this->name);
-    $extras[$tmp[0]][] = any($tmp[1], $tmp[0]);
+    $extras[$tmp[0]][] = (!empty($tmp[1]) ? $tmp[1] : $tmp[0]);
     if (!empty($this->subdeps)) {
       foreach ($this->subdeps as $dep) {
         $ret .= $dep->Display($locations, $extras);

@@ -28,7 +28,7 @@ class NoCache extends Cache {
    *** Implement the abstract classes of parent      ***
    *****************************************************/
 
-  protected function initCache() {
+  public function initCache($cfg) {
     // do nothing
   }
 
@@ -41,6 +41,14 @@ class NoCache extends Cache {
   }
 
   protected function deleteData($key) {
+    // do nothing
+  }
+
+  protected function setLifetime($lifetime) {
+    // do nothing
+  }
+
+  protected function setCompressed($compressed) {
     // do nothing
   }
 

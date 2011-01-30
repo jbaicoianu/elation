@@ -66,7 +66,7 @@ class ConfigManager extends Base {
                        "tmp"        => "$rootdir/tmp",
                        "templates"  => "$rootdir/templates");
 
-    if ($this->servers["dependencies"]["cdn"]["enabled"] == 1 && $this->current["dependencies"]["cdn"]["enabled"] == 1) {
+    if (isset($this->servers["dependencies"]) && $this->servers["dependencies"]["cdn"]["enabled"] == 1 && $this->current["dependencies"]["cdn"]["enabled"] == 1) {
       $cdn_ini = $this->servers["dependencies"]["cdn"];
       $cdn_cobrand = $this->current["dependencies"]["cdn"];
 
@@ -813,12 +813,14 @@ class ConfigManager extends Base {
    * @return $revision
    */
   function GetAllRevisions($role, $nocache=false) {
+    $ret = NULL;
     if (empty($this->allrevisions) || $nocache) {
       $data = DataManager::singleton();
       $query = DataManager::Query("db.config.version.ALL.$role" . ($nocache ? ":nocache" : ""),
                                   "SELECT cobrand.cobrandid,name,revision FROM config.cobrand LEFT JOIN config.version USING(cobrandid) WHERE role=:role",
                                   array(":role" => $role));
       if (!empty($query->rows)) {
+        $ret = array();
         foreach ($query->rows as $row) {
           $ret[$row->name] = $row->revision;
         }
@@ -908,8 +910,12 @@ class ConfigManager extends Base {
      return $ret;
    }
 
-  public static function get($key) {
-    return self::$instance->GetSetting($key);
+  public static function get($key, $default=NULL) {
+    $ret = self::$instance->GetSetting($key);
+    if ($ret === NULL && $default !== NULL) {
+      $ret = $default;
+    }
+    return $ret;
   }
   public static function merge(&$newcfg) {
     return self::$instance->ConfigMerge(self::$instance->current, $newcfg);
@@ -934,7 +940,7 @@ class Config {
   public function __construct($name=NULL, $role=NULL) {
     if ($role === NULL) {
       $cfg = ConfigManager::singleton();
-      $role = $cfg->servers["role"];
+      $role = (isset($cfg->servers["role"]) ? $cfg->servers["role"] : "dev");
     }
     if ($name !== NULL) {
       $this->Load($name, $role);

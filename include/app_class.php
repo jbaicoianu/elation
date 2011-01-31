@@ -56,6 +56,7 @@ class App {
     $this->InitProfiler();
 
     $this->cfg = ConfigManager::singleton($rootdir);
+    $this->locations = array_merge($this->locations, $this->cfg->locations);
     $this->data = DataManager::singleton($this->cfg);
 
     set_error_handler(array($this, "HandleError"), E_ALL);

@@ -174,7 +174,8 @@ elation.extend("ajax", new function() {
 			thefind.ajax_back_button.add(dom, docroot, obj);
 		}
     */
-    var common = { // Used to keep track of registered dependencies, etc. while all responses are processed
+		// Used to keep track of registered dependencies, etc. while all responses are processed
+    var common = { 
       inlinescripts: [],
       data: {},
       dependencies: {}
@@ -193,14 +194,16 @@ elation.extend("ajax", new function() {
     var cssparms = '', javascriptparms = '';
     for (var key in common.dependencies.css) {
       if (common.dependencies.css.hasOwnProperty(key)) {
-        if (common.dependencies.css[key].length > 0)
+        if (common.dependencies.css[key].length > 0) {
           cssparms += key + '=' + common.dependencies.css[key].join('+') + '&';
+				}
       }
     }
     for (var key in common.dependencies.javascript) {
       if (common.dependencies.javascript.hasOwnProperty(key)) {
-        if (common.dependencies.javascript[key].length > 0) 
+        if (common.dependencies.javascript[key].length > 0) {
           javascriptparms += key + '=' + common.dependencies.javascript[key].join('+') + '&';
+				}
       }
     }
     var batch = new elation.file.batch();
@@ -212,7 +215,7 @@ elation.extend("ajax", new function() {
     // Execute all inline scripts
     var execute_scripts = function() {
       if (common.inlinescripts.length > 0) {
-        var  script_text = '';
+        var script_text = '';
         for (var i = 0; i < common.inlinescripts.length; i++) {
           if (!common.inlinescripts[i] || typeof common.inlinescripts[i] == 'undefined') 
             continue;
@@ -253,7 +256,6 @@ elation.extend("ajax", new function() {
       }
     }
   }
-  
   this.responsehandlers = {
     'infobox': function(response, common) {
       var content = response['_content'],
@@ -282,7 +284,7 @@ elation.extend("ajax", new function() {
           }
           
           register_inline_scripts(common, targetel);
-
+					
           /* repositions infobox after ajax injection, use responsetype ["infobox"] if applicable */
           var infobox = elation.ui.infobox.target(targetel);
           
@@ -293,13 +295,15 @@ elation.extend("ajax", new function() {
       }
     },
     'javascript': function(response, common) {
-      if (response['_content'])
+      if (response['_content']) {
+        console.log(response['_content']);
         common.inlinescripts.push(response['_content']);
+			}
     },
     'data': function(response, common) {
       if (response['name'] && response['_content']) {
         common.data[response['name']] = elation.JSON.parse(response['_content']);
-
+				
         /* FIXME - this also seems like an odd place for infobox-related code (see above) */
         if (response['name'] == 'infobox.content') {
           var	text = elation.JSON.parse(response['_content']),
@@ -309,7 +313,7 @@ elation.extend("ajax", new function() {
           div.innerHTML = text;
           
           register_inline_scripts(common, div);
-
+					
           /* repositions infobox after ajax injection, use responsetype ["infobox"] if applicable */
           var infobox = elation.ui.infobox.getCurrent();
           
@@ -399,11 +403,15 @@ elation.extend("ajax", new function() {
           window.clearTimeout(timeouttimer);
 
         if (xmlhttp.status == 200) {
-          if (xmlhttp.responseXML) {
+         if (xmlhttp.responseXML) {
             var dom = xmlhttp.responseXML.firstChild;
             var results = [];
-            //processResponse(dom, docroot, obj);
+            
             processResponse.call(elation.ajax, elation.ajax.translateXML(dom));
+            
+            if (obj.callback) {
+              elation.ajax.executeCallback(obj.callback, xmlhttp.responseText);
+            }
           } else if (xmlhttp.responseText) {
             if (obj.callback) {
               elation.ajax.executeCallback(obj.callback, xmlhttp.responseText);

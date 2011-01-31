@@ -158,7 +158,7 @@ class TemplateManager extends Smarty {
     $output .= "</responses>";
     return $output;
   }
-  function GenerateJavascript($responses, $jsonp="ajaxlib.blah") {
+  function GenerateJavascript($responses, $jsonp="elation.ajax.processResponse") {
     if (is_string($responses))
       $responses = array("data" => array("content" => $responses));
     $real = $this->ConvertOutputAjaxlib($responses);

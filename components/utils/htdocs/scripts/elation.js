@@ -744,17 +744,15 @@ JSON=function(){function f(n){return n<10?'0'+n:n;}Date.prototype.toJSON=functio
 
 elation.extend('JSON', new function() {
   this.parse = function(text) {
-    return this.JSON(['decode','parse'],text);
-  },
+    return this.JSON(['decode', 'parse'], text);
+  }
   
   this.stringify = function(text) {
-    return this.JSON(['encode','stringify'],text);
-  },
+    return this.JSON(['encode', 'stringify'], text);
+  }
   
-  this.JSON = function(parms,text) {
-		var key = typeof JSON[parms[0]] == 'function' 
-			? parms[0]
-			: parms[1];
+  this.JSON = function(parms, text) {
+		var key = (typeof JSON[parms[0]] == 'function' ? parms[0] : parms[1]);
     
 		return (key == 'parse' ? JSON.parse(text) : JSON.stringify(text));
   }
@@ -861,7 +859,6 @@ elation.extend("find", function(selectors, parent, first) {
 
 // grabs a js or css file and adds to document
 elation.extend('file.get', function(type, file, func) {
-	//console.log(type, file, func);
   if (!type || !file)
     return false;
   

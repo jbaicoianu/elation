@@ -42,15 +42,48 @@ class DependencyManager {
   }
   static function display() {
     $ret = "";
-    //print_pre(self::$dependencies);
+    $cfg = ConfigManager::singleton();
+    $combine = $cfg->servers["dependencies"]["combine"];
+
     ksort(self::$dependencies);
     foreach (self::$dependencies as $priority=>$browsers) {
       foreach ($browsers as $browser=>$types) { 
         $bret = "";
         foreach ($types as $type=>$deps) {
           $tret = "";
-          foreach ($deps as $dep) {
-            $tret .= $dep->display(self::$locations);
+          if ($type == "component" && $combine) {
+            $combined = array();
+            foreach ($deps as $dep) {
+              if (!empty($dep->subtypes)) {
+                $subtypes = explode(",", $dep->subtypes);
+                $nameparts = explode(".", $dep->name);
+                if (empty($nameparts[1])) {
+                  $nameparts[1] = $nameparts[0];
+                }
+                foreach ($subtypes as $subtype) {
+                  $combined[$subtype][$nameparts[0]][] = $nameparts[1];
+                }
+              }
+            }
+            if (!empty($combined)) {
+              foreach ($combined as $type=>$deps) {
+                if ($type == "javascript") {
+                  $url = $cfg->locations["scriptswww"] . "/main";
+                } else if ($type == "css") {
+                  $url = $cfg->locations["csswww"] . "/main";
+                }
+                $sep = "/";
+                foreach ($deps as $comp=>$subcomp) {
+                  $url .= $sep . $comp . "-" . implode("-", $subcomp);
+                }
+                $depobj = Dependency::create($type, array("url" => $url));
+                $tret .= $depobj->display(self::$locations, $combined[$type]);
+              }
+            }
+          } else {
+            foreach ($deps as $dep) {
+              $tret .= $dep->display(self::$locations);
+            }
           }
           if (!empty($tret)) { // type wrapper
             $wrapstr = any(self::$formats["types"][$type], "%s");

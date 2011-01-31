@@ -19,7 +19,9 @@ var elation = new function() {
   }
 }
 
-$TF = $ = jQuery.noConflict();
+if (typeof jQuery != 'undefined') {
+  $TF = $ = jQuery.noConflict();
+}
 
 elation.extend("checkhash", new function() {
   this.timer = setInterval(function() { 
@@ -859,7 +861,7 @@ elation.extend("find", function(selectors, parent, first) {
 
 // grabs a js or css file and adds to document
 elation.extend('file.get', function(type, file, func) {
-	console.log(type, file, func);
+	//console.log(type, file, func);
   if (!type || !file)
     return false;
   

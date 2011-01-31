@@ -74,7 +74,7 @@ class DependencyManager {
                 }
                 $sep = "/";
                 foreach ($deps as $comp=>$subcomp) {
-                  $url .= $sep . $comp . "-" . implode("-", $subcomp);
+                  $url .= $sep . $comp . "-" . implode("-", array_map(encode_friendly, $subcomp));
                 }
                 $depobj = Dependency::create($type, array("url" => $url));
                 $tret .= $depobj->display(self::$locations, $combined[$type]);

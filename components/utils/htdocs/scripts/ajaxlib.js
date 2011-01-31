@@ -434,9 +434,12 @@ elation.extend("ajax", new function() {
       } else if (obj.method == "SCRIPT") {
         var url = this.host + obj.url;
         if (obj.args) url += '?' + elation.utils.encodeURLParams(obj.args);
-        elation.file_utils.get('javascript', url);
+        elation.file.get('javascript', url);
       }
     } catch (e) {
+      if (typeof console != 'undefined') {
+        console.log(e);
+      }
       if (obj.failurecallback) {
         elation.ajax.executeCallback(obj.failurecallback, e);
       }

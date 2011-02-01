@@ -49,7 +49,7 @@ class DNSResolver {
       }
     }
     if ($records === NULL) {
-      Logger::Warn("DNSResolver: Looking up '$hostname'");
+      Logger::Info("DNSResolver: Looking up '$hostname'");
       
       foreach (self::$search as $suffix) {
         $fqdn = $hostname . (!empty($suffix) ? "." . $suffix : "");

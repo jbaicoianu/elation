@@ -49,6 +49,10 @@ component_exists() {
 }
 component_create() {
   export COMPONENTNAME=$1
+  if [ -z $COMPONENTNAME ]; then
+    error "Must provide name of component to create"
+    return
+  fi
   export COMPONENTDIR=$(component_get_dir $COMPONENTNAME)
   export COMPONENTCLASSNAME=$(echo $COMPONENTNAME |tr '.' '_')
   export COMPONENTPARTS=($(echo ${COMPONENTNAME//./ }))
@@ -152,6 +156,18 @@ web_init() {
     component_enable $I
   done
 }
+web_compact() {
+	echo -n "Minifying Javascript: "
+	find htdocs/scripts/ -name "*.js" -follow -exec sh -c 'FILE={}; FNAME=`basename $FILE`; DESTDIR=tmp/minified/`dirname $FILE |sed s/htdocs\//`; (([ ! -d "$DESTDIR" ] && mkdir -p $DESTDIR); cat {} |./util/jsmin.py >$DESTDIR/$FNAME && echo -n ".")  || echo -n "!" ' \;
+
+  echo done
+	echo -n "Minifying CSS: "
+	find htdocs/css/ -name "*.css" -follow -exec sh -c 'FILE={}; FNAME=`basename $FILE`; DESTDIR=tmp/minified/`dirname $FILE |sed s/htdocs\//`; (([ ! -d "$DESTDIR" ] && mkdir -p $DESTDIR); cat {} |./util/cssmin.py >$DESTDIR/$FNAME && echo -n ".")  || echo -n "!" ' \;
+  echo done
+}
+
+# Begin main execution
+
 case "$ACTION" in
   db)
     case "$SUBACTION" in
@@ -164,6 +180,9 @@ case "$ACTION" in
     case "$SUBACTION" in
       init)
         web_init
+        ;;
+      compact)
+        web_compact
         ;;
     esac
     ;;

@@ -286,10 +286,12 @@ elation.extend("ajax", new function() {
           register_inline_scripts(common, targetel);
 					
           /* repositions infobox after ajax injection, use responsetype ["infobox"] if applicable */
-          var infobox = elation.ui.infobox.target(targetel);
-          
-          if (infobox && infobox.args.reposition) {
-            common.inlinescripts.push("elation.ui.infobox.position('"+infobox.name+"', true);");
+          if (elation.ui && elation.ui.infobox) {
+            var infobox = elation.ui.infobox.target(targetel);
+            
+            if (infobox && infobox.args.reposition) {
+              common.inlinescripts.push("elation.ui.infobox.position('"+infobox.name+"', true);");
+            }
           }
         }
       }

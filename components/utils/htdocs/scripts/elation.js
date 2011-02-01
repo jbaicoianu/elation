@@ -1352,7 +1352,7 @@ elation.extend('ui.infoboxes.twitter_form', function() {
   	args: 'url=' + encodeURIComponent(href),
   	callback: [this, function(args) {
   		//try {
-  		var response = thefind.JSON.parse(args);
+  		var response = elation.JSON.parse(args);
   		shortHREF = href = response.data.shorturl;
   		//}
   		//catch(e) {}
@@ -1371,7 +1371,7 @@ elation.extend('ui.infoboxes.twitter_form', function() {
   
   ajaxlib.Get('utils/shorturl.js?url=' + encodeURIComponent(href), null, {
   	callback: function(args) {
-  		var response = thefind.JSON.parse(args);
+  		var response = elation.JSON.parse(args);
   		shortHREF = href = response.data.shorturl;
   		setMessage();
   	},

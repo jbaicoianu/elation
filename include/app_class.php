@@ -148,7 +148,7 @@ class App {
       if (is_array($this->sitecfg["conteg"]["policy"][$output["responsetype"]]))
         $contegargs = array_merge($contegargs, $this->sitecfg["conteg"]["policy"][$output["responsetype"]]);
       if (empty($contegargs["type"]))
-        $contegargs["type"] = $output["responsetype"];
+        $contegargs["type"] = any($this->request["contenttype"], $output["responsetype"]);
 
       if (empty($contegargs["modified"])) // Set modified time to mtime of base directory if not set
         $contegargs["modified"] = filemtime($this->rootdir);

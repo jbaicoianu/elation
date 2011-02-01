@@ -168,7 +168,7 @@ abstract class Dependency {
     return md5($this->type . ":" . $this->content());
   }
   function content() {
-    return any($this->name, $this->property, $this->code, $this->file, $this->url, "(unknown)");
+    return any($this->name, $this->property, $this->code, $this->file, $this->url, $this->meta["name"], $this->meta["property"], $this->meta["httpequiv"], "(unknown)");
   }
   function GetFilename($path, $fname) {
     $ret = NULL;
@@ -362,7 +362,7 @@ class DependencyMeta extends Dependency {
   public $meta;
 
   function Init($args, $locations) {
-    $this->meta = array("property"=>$args["property"], "name"=>$args["name"], "content"=>$args["content"]);
+    $this->meta = array("property"=>$args["property"], "name"=>$args["name"], "content"=>$args["content"], "httpequiv" => $args["httpequiv"]);
   }
 
   function Display($locations, $extras=NULL) {
@@ -370,6 +370,8 @@ class DependencyMeta extends Dependency {
       $ret .= sprintf('<meta name="%s" content="%s" />'."\n", $this->meta["name"], $this->meta["content"]);
     else if (!empty($this->meta["property"]) && !empty($this->meta["content"]))
       $ret .= sprintf('<meta property="%s" content="%s" />'."\n", $this->meta["property"], $this->meta["content"]);
+    else if (!empty($this->meta["httpequiv"]) && !empty($this->meta["content"]))
+      $ret .= sprintf('<meta http-equiv="%s" content="%s" />'."\n", $this->meta["httpequiv"], $this->meta["content"]);
     return $ret;
   }
 }

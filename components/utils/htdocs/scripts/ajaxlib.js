@@ -296,7 +296,6 @@ elation.extend("ajax", new function() {
     },
     'javascript': function(response, common) {
       if (response['_content']) {
-        console.log(response['_content']);
         common.inlinescripts.push(response['_content']);
 			}
     },

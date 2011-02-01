@@ -26,7 +26,7 @@ function smarty_function_img($args, &$smarty) {
   $heirarchy = $cfgmgr->GetConfigHeirarchy("cobrand.".$webapp->cobrand);
 
   $imagedir = any($webapp->locations["images"], "htdocs/images");
-  $imagedirwww = any($webapp->locations["imageswww"], "/images");
+  $imagedirwww = any($webapp->locations["imageswww"], "images");
   if (!empty($args["src"]) && !preg_match("/http:/",$args["src"])) {
     if(!empty($webapp->sitecfg["page"]["imagedir"]) && file_exists($imagedir . "/" . $webapp->sitecfg["page"]["imagedir"] . "/" . $args["src"])) {
       $args["src"] = $imagedirwww . "/" . $webapp->sitecfg["page"]["imagedir"] . "/" . $args["src"];

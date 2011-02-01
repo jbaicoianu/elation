@@ -153,10 +153,8 @@ class Logger {
   public static function processShutdown() {
     global $webapp;
     // settings
-    $sitecfg = $webapp->sitecfg;
+    $sitecfg = array("logger" => Configmanager::get("logger"));
     $sitecfg = ($sitecfg["logger"]["email"] && $sitecfg["logger"]["file"]) ? $sitecfg : self::getDefaultLoggerConfig();
-    if ($webapp->data)
-      $webapp->data->Quit();
     
     // email section
     $level_setting = self::convertLevelToNumeric($sitecfg["logger"]["email"]["level"]);
@@ -221,6 +219,21 @@ class Logger {
         file_put_contents($fname, $file_msg, FILE_APPEND);
       }
     }
+
+    $timestats = array("page" => any($webapp->components->pagecfg["pagename"], $webapp->request["path"]), 
+                   "total" => Profiler::GetTime("WebApp"));
+    if (($time = Profiler::GetTime("QPMWrapper:Query()")) != NULL) $timestats["qpm"] = $time;
+    if (($time = Profiler::GetTime("QPMWrapper:Query() - first byte")) != NULL) $timestats["qpmfirstbyte"] = $time;
+    if (($time = Profiler::GetTime("DBWrapper:Query()")) != NULL) $timestats["db"] = $time;
+    if (($time = Profiler::GetTime("WebApp::TimeToDisplay")) != NULL) $timestats["firstbyte"] = $time;
+    if (($time = Profiler::GetTime("WebApp::Display() - Conteg")) != NULL) $timestats["output"] = $time;
+    if (($time = Profiler::GetTime("Conteg::compress")) != NULL) $timestats["compress"] = $time;
+    if (($time = Profiler::GetTime("Postprocessing")) != NULL) $timestats["postprocessing"] = $time;
+
+    DataManager::Query("stats.default.blah:nocache", "www.timing.total", $timestats);
+    $data = DataManager::singleton();
+    $data->Quit(); // shutdown to make sure sockets are flushed
+
   }
   
   public static function Error() { 

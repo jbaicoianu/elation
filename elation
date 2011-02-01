@@ -4,7 +4,7 @@ ACTION=$1
 SUBACTION=$2
 RETVAL=
 
-export COMPONENTPATHS=$(pwd && cat config/elation.path)
+export COMPONENTPATHS=$(pwd && [ -f config/elation.path ] && cat config/elation.path)
 export COMPONENTMEDIATYPES="css scripts images media"
 
 expand_path() {
@@ -152,11 +152,62 @@ web_init() {
     component_enable $I
   done
 }
+
+system_package() {
+  VERSION=$1
+  INSTALLDIR=debian/package/elation-$VERSION
+  
+  if [ -z "$VERSION" ]; then
+    echo "Usage: $0 system package <version>"
+  else
+    echo Installing in $INSTALLDIR
+    [ ! -d "$INSTALLDIR/DEBIAN" ] && mkdir -p "$INSTALLDIR/DEBIAN" 
+    [ ! -d "$INSTALLDIR/etc/elation" ] && mkdir -p "$INSTALLDIR/etc/elation" 
+    [ ! -d "$INSTALLDIR/usr/bin" ] && mkdir -p "$INSTALLDIR/usr/bin" 
+    [ ! -d "$INSTALLDIR/usr/share/elation" ] && mkdir -p "$INSTALLDIR/usr/share/elation" 
+    [ ! -d "$INSTALLDIR/var/lib/elation" ] && mkdir -p "$INSTALLDIR/var/lib/elation" 
+
+    cp elation $INSTALLDIR/usr/bin
+    cp -r components config htdocs include lib README templates tests util $INSTALLDIR/usr/share/elation
+    cp -r config/* $INSTALLDIR/etc/elation
+    CONTROLFILE="echo \"$(cat debian/control)\""
+    eval "$CONTROLFILE" |tee $INSTALLDIR/DEBIAN/control
+    #echo $(cat debian/control) |tee $INSTALLDIR/DEBIAN/control
+
+    cd debian/package/
+    dpkg-deb --build elation-$VERSION
+    if [ -e elation-$VERSION.deb ]; then
+      mv elation-$VERSION.deb ../..
+      echo done
+    else
+      error "Failed to create file: elation-$VERSION.deb"
+    fi
+    cd ../..
+    if [ -d $INSTALLDIR ]; then
+      echo .
+      #rm -r $INSTALLDIR
+    fi
+  fi
+}
+
 case "$ACTION" in
+  system)
+    case "$SUBACTION" in
+      package)
+        system_package $3
+        ;;
+      *)
+        echo "Usage: $0 $ACTION [package]"
+        ;;
+    esac
+    ;;
   db)
     case "$SUBACTION" in
       init)
         db_init
+        ;;
+      *)
+        echo "Usage: $0 $ACTION [init]"
         ;;
     esac
     ;;
@@ -164,6 +215,9 @@ case "$ACTION" in
     case "$SUBACTION" in
       init)
         web_init
+        ;;
+      *)
+        echo "Usage: $0 $ACTION [init]"
         ;;
     esac
     ;;
@@ -179,7 +233,13 @@ case "$ACTION" in
       disable)
         component_disable $3
         ;;
+      *)
+        echo "Usage: $0 $ACTION [create|enable|disable]"
+        ;;
     esac
+    ;;
+  *)
+    echo "Usage: $0 [system|db|web|component] help"
     ;;
 esac
 

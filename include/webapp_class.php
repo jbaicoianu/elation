@@ -106,7 +106,7 @@ class WebApp extends App {
 
     $req["basedir"] = $webroot;
     $req["baseurl"] = $req["scheme"] . "://" . $req["host"] . $req["basedir"];
-    $req["url"] = $req["baseurl"] . $req["path"];
+    $req["url"] = $req["baseurl"] . $page;
 
     if ($req["basedir"] == '/') {
       $req["basedir"] = '';

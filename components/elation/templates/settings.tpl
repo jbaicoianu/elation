@@ -1,8 +1,9 @@
+{if $container}<div id="tf_debug_tab_settings">{/if}
 <h2>Settings</h2>
 
-<a href="/debug/settings?clear=1" onclick="return ajaxLink(ajaxlib, this);">Clear Debug Settings</a>
+<a href="/elation/settings?clear=1" onclick="return elation.ajax.link(this);">Clear Debug Settings</a>
 
-<form action="/debug/settings" method="post" onsubmit="return ajaxForm(ajaxlib, this);">
+<form action="/elation/settings" method="post" onsubmit="return elation.ajax.form(this);">
   <input type="hidden" name="adminaction" value="settings.edit" />
   <ul id="tf_debug_settings">
   {foreach name=admin_settings from=$settings key=k item=setting}
@@ -14,3 +15,5 @@
   </ul>
   <input type="submit" />
 </form>
+{if $container}</div>{/if}
+{dependency type="component" name="elation.debug"}

@@ -77,6 +77,7 @@ class App {
         $this->cobrand = $this->GetRequestedConfigName($this->request);
         $this->cfg->GetConfig($this->cobrand, true, $this->cfg->servers["role"]);
         $this->ApplyConfigOverrides();
+        $this->locations = DependencyManager::$locations = $this->cfg->locations;
 
         // And the google analytics flag
         if (isset($this->request["args"]["GAalerts"])) {

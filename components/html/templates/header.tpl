@@ -28,7 +28,13 @@
   {/config}
   
   [[dependencies]]
-  <meta name="viewport" content="initial-scale=1.0, user-scalable=no, maximum-scale=1.0" />
+
+  {dependency type="meta" httpequiv="Content-Type" content="text/html; charset=utf-8"}
+  {dependency type="meta" name="viewport" content="initial-scale=1.0, user-scalable=no, maximum-scale=1.0"}
+
+  {* FIXME - these should be dependencies *}
+  <meta name="description" content="[[page.meta.description:TheFind.com - shopping search reinvented. What can we find for you?]]" />
+  <meta name="keywords" content="[[page.meta.keywords]]" />
   
   {*
   <!--[if lt IE 8]>

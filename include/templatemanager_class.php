@@ -40,11 +40,14 @@ class TemplateManager extends Smarty {
       $this->Init($root);
   }
 
-  function Init($root) {
+  function Init($locations) {
     // Set up all Smarty default settings
+    $root = any($locations["root"], ".");
+    $tmpdir = any($locations["tmp"], "./tmp");
+
     $this->template_dir = $root . '/templates';
-    $this->compile_dir  = $root . '/tmp/compiled';
-    $this->cache_dir    = $root . '/tmp/cache';
+    $this->compile_dir  = $tmpdir . '/compiled';
+    $this->cache_dir    = $tmpdir . '/cache';
     //$this->config_dir   = $root . '/text/'.LANGUAGE;
     $this->_file_perms  = 0664;
 

@@ -232,7 +232,8 @@ class App {
   }
 
   function HandleError($errno, $errstr, $errfile, $errline, $errcontext) {
-    if ($errno & error_reporting()) {
+    $visible = (!isset($this->cfg->servers["logger"]["visible"]) || $this->cfg->servers["logger"]["visible"] == true);
+    if ($visible && ($errno & error_reporting())) {
       if ($errno & E_ERROR || $errno & E_USER_ERROR)
         $type = "error";
       else if ($errno & E_WARNING || $errno & E_USER_WARNING)

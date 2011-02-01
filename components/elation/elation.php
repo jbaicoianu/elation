@@ -25,7 +25,7 @@ class Component_elation extends Component {
   function controller_profiler($args) {
     return Profiler::Display(E_ALL);
   }
-  function controller_settings(&$args) {
+  function controller_settings(&$args, $output="inline") {
     $cfg = $this->root->cfg->FlattenConfig($this->root->cfg->LoadServers($this->root->locations["config"] . "/servers.ini", false));
     
     $vars["tfdev"] = (!empty($_COOKIE["tf-dev"]) ? json_decode($_COOKIE["tf-dev"], true) : array());
@@ -56,13 +56,12 @@ class Component_elation extends Component {
     }
 
     $vars["settings"] = $this->root->cfg->FlattenConfig($this->root->cfg->servers);
+    $vars["container"] = ($output == "html");
     $ret = $this->GetComponentResponse("./settings.tpl", $vars);
 
-    //if ($this->root->request["ajax"]) {
-    //  $ret = $responses;
-    //} else {
-    //  $ret = $responses["tf_debug_tab_settings"];
-    //}
+    if ($output == "ajax") {
+      $ret = array("tf_debug_tab_settings" => $ret);
+    }
     return $ret;
   }
   function controller_inspect($args, $output="inline") {
@@ -199,5 +198,9 @@ class Component_elation extends Component {
       $vars = array("tf_debug_tab_apc" => $this->GetTemplate("./apc.tpl", $vars));
     }
     return $this->GetComponentResponse("./apc.tpl", $vars);
+  }
+
+  public function controller_ping($args) {
+    return $this->GetComponentResponse("./ping.tpl");
   }
 }  

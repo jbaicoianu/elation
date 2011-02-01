@@ -46,7 +46,7 @@ class MemcacheWrapper extends ConnectionWrapper {
     return ($this->conn[$servernum] !== NULL && $this->conn[$servernum]->isConnected());
   }
   function &Query($queryid, $query, $args=NULL) {
-    return $this->fetch($queryid, $query, $args);
+    return $this->QueryFetch($queryid, $query, $args);
   }
   function &QueryInsert($queryid, $table, $values, $extra=NULL) {
     $lifetime = any($args["lifetime"], $this->lifetime, 0);

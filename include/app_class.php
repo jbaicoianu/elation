@@ -164,7 +164,9 @@ class App {
           print Profiler::Display();
       }
       Profiler::StopTimer("WebApp::TimeToDisplay");
+      Profiler::StartTimer("WebApp::Display() - Conteg", 1);
       new Conteg($contegargs);
+      Profiler::StopTimer("WebApp::Display() - Conteg");
     }
   }
 

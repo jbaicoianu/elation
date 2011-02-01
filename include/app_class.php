@@ -45,19 +45,13 @@ class App {
     }
 
 
-    $this->locations = array("scripts" => "htdocs/scripts",
-        "css" => "htdocs/css",
-        "tmp" => "tmp",
-        "config" => "config");
-    $this->request = $this->ParseRequest(NULL, $args);
-    $this->locations["basedir"] = $this->request["basedir"];
-    $this->locations["scriptswww"] = $this->request["basedir"] . "/scripts";
-    $this->locations["csswww"] = $this->request["basedir"] . "/css";
-    $this->locations["imageswww"] = $this->request["basedir"] . "/images";
-
     $this->InitProfiler();
-
-    $this->cfg = ConfigManager::singleton($rootdir);
+    $this->request = $this->ParseRequest(NULL, $args);
+    $this->cfg = ConfigManager::singleton(array("rootdir" => $rootdir, "basedir" => $this->request["basedir"]));
+    $this->locations = ConfigManager::getLocations();
+    Profiler::StartTimer("WebApp::Init - handleredirects", 1);
+    $this->request = $this->ApplyRedirects($this->request);
+    Profiler::StopTimer("WebApp::Init - handleredirects");
     $this->data = DataManager::singleton($this->cfg);
 
     set_error_handler(array($this, "HandleError"), E_ALL);
@@ -94,10 +88,10 @@ class App {
         }
 
         $this->apiversion = (isset($this->request["args"]["apiversion"]) ? $this->request["args"]["apiversion"] : ConfigManager::get("api.version.default", 0));
-        $this->tplmgr = TemplateManager::singleton($this->rootdir);
+        $this->tplmgr = TemplateManager::singleton($this->locations);
         $this->tplmgr->assign_by_ref("webapp", $this);
         $this->components = ComponentManager::singleton($this);
-        $this->orm = OrmManager::singleton();
+        $this->orm = OrmManager::singleton($this->locations);
         //$this->tplmgr->SetComponents($this->components);
       } catch (Exception $e) {
         print $this->HandleException($e);
@@ -312,7 +306,7 @@ class App {
 
   public function InitProfiler() {
     // If timing parameter is set, force the profiler to be on
-    $timing = any($this->request["args"]["timing"], $this->cfg->servers["profiler"]["level"], 0);
+    $timing = any($_REQUEST["timing"], $this->cfg->servers["profiler"]["level"], 0);
 
     if (!empty($this->cfg->servers["profiler"]["percent"])) {
       if (rand() % 100 < $this->cfg->servers["profiler"]["percent"]) {
@@ -387,5 +381,145 @@ class App {
       if (!empty($included_config))
         ConfigManager::merge($included_config);
     }
+  }
+
+  function ApplyRedirects($req, $rules=NULL) {
+    $doRedirect = false;
+
+    if ($rules === NULL) {
+      $rewritefile = $this->locations["config"] . "/redirects.xml";
+      if (file_exists($rewritefile)) {
+        $rewrites = new SimpleXMLElement(file_get_contents($rewritefile));
+        $rules = $rewrites->rule;
+      }
+    }
+
+    if (!empty($rules)) {
+      foreach ($rules as $rule) {
+        //if (!empty($rule->match)) { // FIXME - Never ever upgrade to PHP 5.2.6.  It breaks empty() on SimpleXML objects.
+        if ($rule->match) {
+          $ismatch = true;
+          $isexcept = false;
+          $matchvars = array(NULL); // Force first element to NULL to start array indexing at 1 (regex-style)
+
+          foreach ($rule->match->attributes() as $matchkey => $matchstr) {
+            $checkstr = array_get($req, $matchkey);
+            if ($checkstr !== NULL) {
+              $m = NULL;
+              if (substr($matchstr, 0, 1) == "!") {
+                $ismatch &= ! preg_match("#" . substr($matchstr, 1) . "#", $checkstr, $m);
+              } else {
+                $ismatch &= preg_match("#" . $matchstr . "#", $checkstr, $m);
+              }
+
+              //Logger::Debug("Check rewrite (%s): '%s' =~ '%s' ? %s", $matchkey, $checkstr, $matchstr, ($ismatch ? "YES" : "NO"));
+              if (is_array($m) && count($m) > 0) {
+                if (count($m) > 1) {
+                  for ($i = 1; $i < count($m); $i++) {
+                    $matchvars[] = $m[$i];
+                  }
+                }
+              }
+            } else {
+              if (substr($matchstr, 0, 1) != "!")
+                $ismatch = false;
+            }
+          }
+          if ($ismatch && !empty($rule->except)) {
+            $exceptflag = true;
+            foreach ($rule->except->attributes() as $exceptkey => $exceptstr) {
+              $checkstr = array_get($req, $exceptkey);
+              if ($checkstr !== NULL) {
+                $m = NULL;
+                if (substr($exceptstr, 0, 1) == "!") {
+                  $exceptflag &= ! preg_match("#" . substr($exceptstr, 1) . "#", $checkstr, $m);
+                } else {
+                  $exceptflag &= preg_match("#" . $exceptstr . "#", $checkstr, $m);
+                }
+              }
+            }
+            if ($exceptflag)
+              $isexcept = true;
+          }
+          if ($ismatch && !$isexcept) {
+            // Apply nested rules first...
+            if (!empty($rule->rule)) {
+              $req = $this->ApplyRedirects($req, $rule->rule);
+            }
+            // Then process "set" command
+            if (!empty($rule->set)) {
+              Logger::Info("Applying redirect:\n   " . $rule->asXML());
+              if (!empty($req["args"]["testredir"]))
+                print "<pre>" . htmlspecialchars($rule->asXML()) . "</pre><hr />";
+
+              foreach ($rule->set->attributes() as $rewritekey => $rewritestr) {
+                if (count($matchvars) > 1 && strpos($rewritestr, "%") !== false) {
+                  $find = array(NULL);
+                  for ($i = 1; $i < count($matchvars); $i++)
+                    $find[] = "%$i";
+
+                  $rewritestr = str_replace($find, $matchvars, $rewritestr);
+                }
+                array_set($req, (string) $rewritekey, (string) $rewritestr);
+              }
+              if ($rule["type"] == "redirect") {
+                $doRedirect = 301;
+              } else if ($rule["type"] == "bounce") {
+                $doRedirect = 302;
+              }
+            }
+            // And finally process "unset"
+            if (!empty($rule->unset)) {
+              $unset = false;
+              foreach ($rule->unset->attributes() as $unsetkey => $unsetval) {
+                if ($unsetkey == "_ALL_" && $unsetval == "ALL") {
+                  $req["args"] = array();
+                } else if (!empty($unsetval)) {
+                  $reqval = array_get($req, $unsetkey);
+                  if ($reqval !== NULL) {
+                    array_unset($req, $unsetkey);
+                    $unset = true;
+                  }
+                }
+              }
+              if ($unset) {
+                if ($rule["type"] == "redirect") {
+                  $doRedirect = 301;
+                } else if ($rule["type"] == "bounce") {
+                  $doRedirect = 302;
+                }
+              }
+            }
+            if ($doRedirect !== false)
+              break;
+          }
+        }
+      }
+
+      if ($doRedirect !== false) {
+        $origscheme = "http" . ($req["ssl"] ? "s" : "");
+        if ($req["host"] != $_SERVER["HTTP_HOST"] || $req["scheme"] != $origscheme) {
+          $newurl = sprintf("%s://%s%s", $req["scheme"], $req["host"], $req["path"]);
+        } else {
+          $newurl = $req["path"];
+        }
+        if (empty($req["args"]["testredir"])) {
+          if (empty($req["friendly"])) {
+            $querystr = makeQueryString($req["args"]);
+            $newurl = http_build_url($newurl, array("query" => $querystr));
+          } else {
+            $newurl = makeFriendlyURL($newurl, $req["args"]);
+          }
+
+          if ($newurl != $req["url"]) {
+            http_redirect($newurl, NULL, true, $doRedirect);
+          }
+        } else {
+          print_pre($req);
+        }
+      }
+    }
+
+    return $req;
   }
 }

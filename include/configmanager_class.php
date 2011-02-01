@@ -12,16 +12,15 @@ class ConfigManager extends Base {
   public $servers;
   public $configs;
 
-  public $rootdir;
-  public $locations;
+  public static $rootdir;
+  public static $locations;
 
   /**
    * constructor
    */
-  public function __construct($rootdir=null, $autoload=true) {
-    $this->rootdir = $rootdir;
+  public function __construct($args=null, $autoload=true) {
     // init the locations
-    $this->locations = $this->getLocations();
+    self::getLocations($args["rootdir"], $args["basedir"]);
     // load servers
     if ($autoload && $this->locations !== NULL && !empty($this->locations["config"])) {
       $this->servers = $this->LoadServers($this->locations["config"] . "/servers.ini");
@@ -44,29 +43,66 @@ class ConfigManager extends Base {
   /**
    * Get the locations for the rest of the site to use.
    */
-  public function getLocations($rootdir=NULL) {
+  public static function getLocations($rootdir=NULL, $basedir=NULL) {
     Profiler::StartTimer("ConfigManager::getLocations()", 3);
     if ($rootdir === NULL)
-      $rootdir = $this->rootdir;
+      $rootdir = self::$rootdir;
+    else
+      self::$rootdir = $rootdir;
     if (empty($rootdir)) {
       return null;
     }
 
-    $locations = array("root"       => $rootdir,
-                       "htdocs"     => "$rootdir/htdocs",
-                       "htdocswww"  => "",
-                       "images"     => "$rootdir/htdocs/images",
-                       "imageswww"  => "/images",
-                       "scripts"    => "$rootdir/htdocs/scripts",
-                       "scriptswww" => "/scripts",
-                       "css"        => "$rootdir/htdocs/css",
-                       "csswww"     => "/css",
-                       "resources"  => "$rootdir/resources",
-                       "config"     => "$rootdir/config",
-                       "tmp"        => "$rootdir/tmp",
-                       "templates"  => "$rootdir/templates");
+    if (!empty(self::$locations)) {
+      $locations = self::$locations;
+    } else {
+      $cfgfile = NULL;
+      if (file_exists("config/locations.cfg")) {
+        $cfgfile = "config/locations.cfg";
+      } else if (file_exists("/etc/elation/locations.cfg")) {
+        $cfgfile = "/etc/elation/locations.cfg";
+      }
+      if ($cfgfile !== NULL) {
+        $mtime = filemtime($cfgfile);
+        $fileid = md5($cfgfile);
+        if (!empty($mtime)) {
+          $apcenabled = ini_get("apc.enabled");
+          $apckey = "config.locations.$fileid.$mtime";
+          if ($apcenabled && ($apccontents = apc_fetch($apckey)) != false) {
+            //print "found in apc, unserialize ($apccontents)<br />";
+            $locations = json_decode($apccontents, true);
+          } else {
+            //print "not found in apc, parse it<br />";
 
-    if (isset($this->servers["dependencies"]) && $this->servers["dependencies"]["cdn"]["enabled"] == 1 && $this->current["dependencies"]["cdn"]["enabled"] == 1) {
+            $locations = parse_ini_file($cfgfile, true);
+            $locations["root"] = $rootdir;
+
+            if ($apcenabled) {
+              apc_store($apckey, json_encode($locations));
+            }
+          }
+        }
+      } 
+
+      if (empty($locations)) {
+        // If we couldn't load anything from APC or any of the config files, use some hardcoded defaults
+        $locations = array("root"       => $rootdir,
+                           "htdocs"     => "$rootdir/htdocs",
+                           "images"     => "$rootdir/htdocs/images",
+                           "scripts"    => "$rootdir/htdocs/scripts",
+                           "css"        => "$rootdir/htdocs/css",
+                           "resources"  => "$rootdir/resources",
+                           "config"     => "$rootdir/config",
+                           "tmp"        => "$rootdir/tmp",
+                           "templates"  => "$rootdir/templates",
+                           "htdocswww"  => "$basedir",
+                           "imageswww"  => "$basedir/images",
+                           "scriptswww" => "$basedir/scripts",
+                           "csswww"     => "$basedir/css");
+      }
+    }
+
+    if (isset($this) && isset($this->servers["dependencies"]) && $this->servers["dependencies"]["cdn"]["enabled"] == 1 && $this->current["dependencies"]["cdn"]["enabled"] == 1) {
       $cdn_ini = $this->servers["dependencies"]["cdn"];
       $cdn_cobrand = $this->current["dependencies"]["cdn"];
 
@@ -84,6 +120,7 @@ class ConfigManager extends Base {
         $locations["scriptswww"] = $cdnprefix . $locations["scriptswww"];
     }
 
+    self::$locations = $locations;
     Profiler::StopTimer("ConfigManager::getLocations()");
     return $locations;
   }

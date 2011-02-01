@@ -200,4 +200,8 @@ class Component_elation extends Component {
     }
     return $this->GetComponentResponse("./apc.tpl", $vars);
   }
+  function controller_locations(&$args) {
+    $vars["locations"] = ConfigManager::getLocations();
+    return $this->GetComponentResponse("./locations.tpl", $vars);
+  }
 }  

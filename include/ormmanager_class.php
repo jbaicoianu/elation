@@ -11,10 +11,11 @@ class OrmManager {
   public static function singleton($args=NULL) { $name = __CLASS__; if (!self::$instance) { self::$instance = new $name($args); } return self::$instance; }
   public $outlet;
 
-  function __construct() {
+  function __construct($locations=NULL) {
+    $dbdir = any($locations['tmp'], 'tmp');
     Outlet::init(array(
       'connection' => array(
-        'dsn' => 'sqlite:tmp/elation.sqlite',
+        'dsn' => 'sqlite:' . $dbdir . '/elation.sqlite',
         'dialect' => 'sqlite'
 /*
         'dsn' => 'mysql:host=localhost',

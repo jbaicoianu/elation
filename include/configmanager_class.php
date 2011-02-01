@@ -164,6 +164,13 @@ class ConfigManager extends Base {
       }
     }
 
+    if (!empty($_COOKIE["tf-dev"])) {
+      $tfdev = json_decode($_COOKIE["tf-dev"], true);
+
+      if (!empty($tfdev["serveroverrides"])) {
+        $this->SetServerOverride($tfdev["serveroverrides"]);
+      }
+    }
     return $servers;
   }
 

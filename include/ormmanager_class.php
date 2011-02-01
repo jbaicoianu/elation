@@ -145,7 +145,7 @@ class OrmModel extends OrmMaster {
       if (!empty($modelcfg->classes))
         $this->classes = $modelcfg->classes;
     } else {
-      Logger::Error("OrmModel: Couldn't find model config '$fname'");
+      Logger::Notice("OrmModel: Couldn't find model config '$fname'");
     }
   }
 

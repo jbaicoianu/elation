@@ -143,14 +143,13 @@ class App {
       $this->session->quit();
 
       $contegargs = any($this->cfg->servers["conteg"], array());
-      if (is_array($this->cfg->servers["conteg"]["policy"][$output["responsetype"]]))
-        $contegargs = array_merge($contegargs, $this->cfg->servers["conteg"]["policy"][$output["responsetype"]]);
       if (is_array($this->sitecfg["conteg"]))
         $contegargs = array_merge($contegargs, $this->sitecfg["conteg"]);
-      if (is_array($this->sitecfg["conteg"]["policy"][$output["responsetype"]]))
-        $contegargs = array_merge($contegargs, $this->sitecfg["conteg"]["policy"][$output["responsetype"]]);
       if (empty($contegargs["type"]))
         $contegargs["type"] = any($this->request["contenttype"], $output["responsetype"]);
+      if (is_array($contegargs["policy"][$contegargs["type"]])) {
+        $contegargs = array_merge($contegargs, $contegargs["policy"][$contegargs["type"]]);
+      }
 
       if (empty($contegargs["modified"])) // Set modified time to mtime of base directory if not set
         $contegargs["modified"] = filemtime($this->rootdir);

@@ -67,7 +67,7 @@ class Component_html extends Component {
     }
 
     $args['pagenum'] = any($analytics->pandora_result['page_num'], 1);
-    $args['version'] = $webapp->getAppVersion();
+    $args['version'] = (!empty($webapp) ? $webapp->getAppVersion() : "unknown");
     $args['filters'] = $analytics->qpmreq->filter['brand'] ? '1' : '0';
     $args['filters'] .= $analytics->qpmreq->filter['color'] ? '1' : '0';
     $args['filters'] .= $analytics->qpmreq->filter['storeswithdeals'] ? '1' : '0'; //(coupons)

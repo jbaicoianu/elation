@@ -166,7 +166,7 @@ class Logger {
       $email_msg = "";
       foreach(self::$log_emails as $email) {
         if ($email["level"] <= $level_setting) {
-          $cache_val = ($data_mgr) ? $data_mgr->sources["memcache"]["data"]->get($email["cache_key"]) : array();
+          $cache_val = DataManager::Query("memcache.data", $email["cache_key"]);
           if ( (time() - $cache_val["sent_timestamp"]) >= ($interval * 60) ) {
             $num_times = $cache_val["count"] + 1;
             $header = "From: " . $_SERVER["SERVER_ADMIN"] . "\n";
@@ -179,12 +179,12 @@ class Logger {
             if ($data_mgr) {
               $cache_val["count"] = 0;
               $cache_val["sent_timestamp"] = time();
-              $data_mgr->sources["memcache"]["data"]->set($email["cache_key"], $cache_val);
+              DataManager::QueryInsert("memcache.data", $email["cache_key"], $cache_val);
             }
           } else {
             if ($data_mgr) {
               $cache_val["count"] += 1;
-              $data_mgr->sources["memcache"]["data"]->set($email["cache_key"], $cache_val);
+              DataManager::QueryInsert("memcache.data", $email["cache_key"], $cache_val);
             }
           }
         }

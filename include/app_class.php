@@ -147,7 +147,7 @@ class App {
       // And also from site config
       $contegcfg = ConfigManager::get("conteg");
       if (is_array($contegcfg)) {
-        $contegargs = array_merge($contegargs, $conteg);
+        $contegargs = array_merge($contegargs, $contegcfg);
       }
 
       // Merge type-specific policy settings from config if applicable

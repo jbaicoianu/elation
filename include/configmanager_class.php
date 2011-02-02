@@ -20,7 +20,7 @@ class ConfigManager extends Base {
    */
   public function __construct($args=null, $autoload=true) {
     // init the locations
-    self::getLocations($args["rootdir"], $args["basedir"]);
+    $this->locations = self::getLocations($args["rootdir"], $args["basedir"]);
     // load servers
     if ($autoload && $this->locations !== NULL && !empty($this->locations["config"])) {
       $this->servers = $this->LoadServers($this->locations["config"] . "/servers.ini");

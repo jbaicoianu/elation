@@ -17,3 +17,4 @@
 </form>
 {if $container}</div>{/if}
 {dependency type="component" name="elation.debug"}
+{dependency type="component" name="admin"}

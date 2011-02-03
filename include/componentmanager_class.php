@@ -100,7 +100,11 @@ class ComponentManager extends Component {
     } else if (preg_match("|^/((?:[^./]+/?)*)(?:\.(.*))?$|", $page, $m)) {
       // Dispatch directly to a component.  File extension determines output type
       $componentname = str_replace("/", ".", $m[1]);
-      if (empty($args["_output"]) && !empty($m[2])) { 
+      // FIXME - this is ugly.  Basically:
+      //   - If we passed an output in via the &_output= URL param, it takes precedence
+      //   - If the request has a file extension, use that... 
+      //   - UNLESS the extension is .fhtml and we've already determined this is an AjaxLib response (LEGACY CODE)
+      if (empty($args["_output"]) && !empty($m[2]) && !($m[2] == "fhtml" && $outputtype == "ajax")) { 
         $outputtype = $m[2];
       }
 

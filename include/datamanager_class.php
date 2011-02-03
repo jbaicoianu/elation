@@ -389,6 +389,13 @@ class DataManager {
     $ret = NULL;
     if (!empty($this->cfg->servers["groups"][$groupname])) {
       $ret = $this->cfg->servers["groups"][$groupname];
+      if (is_string($ret["servers"])) { // If 'servers' is a string, assume it's a space-separated list
+        $servers = explode(" ", $ret["servers"]);
+        $ret["servers"] = array();
+        for ($i = 0; $i < count($servers); $i++) {
+          $ret["servers"][$i] = array("host" => $servers[$i]);
+        }
+      }
       if (!empty($ret["bucketcfg"])) {
         $fname = $this->cfg->locations["config"] . '/' . $ret["bucketcfg"];
         if (file_exists($fname)) {

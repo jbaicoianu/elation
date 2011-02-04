@@ -8,7 +8,7 @@
 
 <h2>ABTests</h2>
   <b style="color:red">{$err_msg}</b>
-  <form name="abtest" id="abtest" action ="/debug/abtests" method="post" onsubmit="if(abtests.ab_validate()) return ajaxForm(ajaxlib, this)" >
+  <form name="abtest" id="abtest" action ="/elation/abtests" method="post" onsubmit="if(abtests.ab_validate()) return ajaxForm(ajaxlib, this)" >
     <input type="hidden" id="save_scope" name="save_scope" value="unpatched" />
     <b>&emsp;Mode </b>
       <select id="ab_inspect_mode">

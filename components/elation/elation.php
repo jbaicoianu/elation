@@ -199,7 +199,103 @@ class Component_elation extends Component {
     }
     return $this->GetComponentResponse("./apc.tpl", $vars);
   }
-
+  function controller_abtests($args) {
+    $data = DataManager::singleton();
+    $req = $this->root->request['args'];
+    $vars['err_msg'] = "";
+    if ($req['save_scope']) {
+      // prepare to save new abtest - make sure we are not creating an active collision
+      if ($req['status'] == 'active') {
+        $sql = "SELECT * FROM userdata.abtest
+          WHERE status='active'
+          AND cobrand=:cobrand
+          AND effective_dt != :effective_dt";
+        if ($req['save_scope'] != 'all') $sql .= " AND role = :role";
+        $query = DataManager::Query("db.userdata.abtest:nocache",
+                              $sql,
+                              array(
+                                ":cobrand"=>$req['cobrand'],
+                                ":effective_dt"=>$req['effective_dt'],
+                                ":role"=>$req['role'])
+                             );
+        if ($query->results) $vars['err_msg'] = "***Save Aborted -- Active Status Collision -- ".$req['cobrand']." ".$query->results[0]->effective_dt;
+      }
+      if (!$vars['err_msg']) {
+      // write new abtest group to database
+        $roles=array($req['role']);
+        if ($req['save_scope'] == 'all') $roles=array('dev', 'test', 'live');
+        foreach ($roles as $role) {
+          DataManager::Query("db.userdata.abtest:nocache",
+                        "DELETE FROM userdata.abtest
+                          WHERE effective_dt=:effective_dt
+                          AND cobrand=:cobrand
+                          AND role=:role",
+                        array(
+                            ":effective_dt"=>$req["effective_dt"],
+                            ":cobrand"=>$req["cobrand"],
+                            ":role"=>$role)
+                       );
+          foreach ($req['version'] as $k=>$v) {
+            DataManager::Query("db.userdata.abtest:nocache",
+                         "INSERT INTO userdata.abtest
+                            SET version=:version,
+                               percent=:percent,
+                                effective_dt=:effective_dt,
+                                duration_days=:duration_days,
+                                status=:status,
+                                cobrand=:cobrand,
+                                config=:config,
+                                role=:role,
+                                is_base=:is_base",
+                          array(
+                              ":version"=>$v,
+                              ":percent"=>$req['percent'][$k],
+                              ":effective_dt"=>$req['effective_dt'],
+                              ":duration_days"=>$req['duration'],
+                              ":status"=>$req['status'],
+                              ":cobrand"=>$req['cobrand'],
+                              ":config"=>$req['config'][$k],
+                              ":role"=>$role,
+                              ":is_base"=>($req['isbase_position']==$k?'1':'0'))
+                          );
+          }
+        }
+      }
+      //fall into new lookup---
+    }
+    $query = DataManager::Query("db.userdata.abtest:nocache",
+                          "SELECT * FROM userdata.abtest ORDER BY status, role, cobrand, effective_dt",
+                          array()
+                         );
+    $vars['last_version'] = 0;
+    foreach($query->results as $res) {
+      $vars['abtest'][$res->status][$res->role][$res->cobrand][$res->effective_dt][]
+        = array('Version'=>$res->version,
+                'Percent'=>$res->percent,
+                'Duration'=>$res->duration_days,
+                'Config'=>$res->config,
+                'IsBase'=>$res->is_base);
+      if($vars['last_version'] < $res->version) $vars['last_version'] = $res->version;
+    }
+    $config = ConfigManager::singleton();
+    $cobrands=$config->GetCobrandList('name');
+    $cobrand_test="";
+    foreach($cobrands['cobrand'] as $k=>$v) {
+      preg_match('#\.([^.]+)#', $v->name, $matches);
+      if ($cobrand_test!=$matches[1]) $vars['cobrands'][] = $matches[1];
+      $cobrand_test=$matches[1];
+    }
+    for ($i=0; $i<40; $i++) {
+      $vars['dates'][]=date("Y-m-d", 86400*$i + time());
+    }
+    $content = $this->GetTemplate("./abtests.tpl", $vars);
+    if (!empty($this->root->request["ajax"])) {
+      $ret["tf_debug_tab_abtests"] = $content;
+    } else {
+      $ret = $content;
+    }
+    return $ret;
+  }
   public function controller_ping($args) {
     return $this->GetComponentResponse("./ping.tpl");
   }

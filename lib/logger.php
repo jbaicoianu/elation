@@ -36,7 +36,7 @@ class Logger {
    */
   protected function getDefaultLoggerConfig() {
     // email settings
-    $sitecfg["logger"]["email"]["level"] = "E_WARNING";
+    $sitecfg["logger"]["email"]["level"] = "";
     $sitecfg["logger"]["email"]["interval"] = 10;
     $sitecfg["logger"]["email"]["email_to"] = "ui@thefind.com";
     // log file settings

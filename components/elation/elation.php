@@ -199,7 +199,7 @@ class Component_elation extends Component {
     }
     return $this->GetComponentResponse("./apc.tpl", $vars);
   }
-  function controller_abtests($args) {
+  function controller_abtests($args, $output="inline") {
     $data = DataManager::singleton();
     $req = $this->root->request['args'];
     $vars['err_msg'] = "";
@@ -289,7 +289,7 @@ class Component_elation extends Component {
       $vars['dates'][]=date("Y-m-d", 86400*$i + time());
     }
     $content = $this->GetTemplate("./abtests.tpl", $vars);
-    if (!empty($this->root->request["ajax"])) {
+    if ($output == "ajax") {
       $ret["tf_debug_tab_abtests"] = $content;
     } else {
       $ret = $content;

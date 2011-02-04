@@ -36,8 +36,6 @@
     &emsp;<input type="button" id="ab_role_save" value="Save in Selected Role" />
     &emsp;<input type="button" id="ab_all_save" value="Save in All Roles" />
 </form>
-
-
 <script type="text/javascript">
   var args = 
   {ldelim}
@@ -49,5 +47,4 @@
   {rdelim}
     abtests.init(args);
 </script>
-
-
+{dependency type="component" name="utils.abtests"}

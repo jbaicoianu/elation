@@ -1524,19 +1524,3 @@ function any() {
 	return null;
 }
 
-/*
- * This function will checkall / uncheckall the checkboxes in a form.
- * state: true (check), false (uncheck)
- */
-function checkall(link, state) {
-  while (link.tagName != 'FORM')
-    link = link.parentNode;
-
-  var	form = link,
-			inputs = form.getElementsByTagName('input'),
-			checkboxes = new Array();
-
-	for (i=0; i<inputs.length; i++)
-		if (inputs[i].type == 'checkbox')
-			inputs[i].checked = state;
-}

@@ -44,5 +44,6 @@
   <![endif]-->
   *}
   
+  <script type="text/javascript">if (elation.onloads) elation.onloads.init();</script>
 </head>
 <body{if !empty($pagecfg.pagename)} class="tf_page_{$pagecfg.pagename}"{/if}>

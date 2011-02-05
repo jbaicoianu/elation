@@ -56,7 +56,7 @@ class ComponentManager extends Component {
     $smarty->assign_by_ref("pagecfg", $pagecfg);
     $ret["type"] = $pagecfg["type"] = $outputtype;
     $ret["page"] = $pagecfg["page"] = $page;
-    $ret["pagename"] = $pagecfg["pagename"] = str_replace("/", "_", substr($page, 1));
+    $ret["pagename"] = $pagecfg["pagename"] = ''; //str_replace("/", "_", substr($page, 1));
     $this->pagecfg["args"] = $args;
 
     if(!empty($contenturls[$page])) {
@@ -144,7 +144,7 @@ class ComponentManager extends Component {
       "page_type"     => $pagecfg["pagename"],
     );
 
-    if ($pandora instanceof PandoraLog) {
+    if ($pagecfg['pagename'] && $pandora instanceof PandoraLog) {
       $pandora->addData("pages", $pandora_pages);
       // if $pagecfg["pagename"] known, update the session
       if (!empty($pagecfg["pagename"])) {

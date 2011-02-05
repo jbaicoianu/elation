@@ -147,7 +147,7 @@ class ComponentManager extends Component {
     if ($pandora instanceof PandoraLog) {
       $pandora->addData("pages", $pandora_pages);
       // if $pagecfg["pagename"] known, update the session
-      if (!empty($pagecfg["type"])) {
+      if (!empty($pagecfg["pagename"])) {
         $pandora->setPageType($pagecfg["pagename"]);
       }
     }

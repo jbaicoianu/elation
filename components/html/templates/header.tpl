@@ -45,10 +45,7 @@
   <?import namespace="elation" implementation="#elation"?>
   <![endif]-->
   *}
-<<<<<<< HEAD/components/html/templates/header.tpl
-=======
-  
+
   <script type="text/javascript">if (elation.onloads) elation.onloads.init();</script>
->>>>>>> 261217af37a31df2066fecc7d3738a0d936e0cad/components/html/templates/header.tpl
 </head>
 <body{if !empty($pagecfg.pagename)} class="tf_page_{$pagecfg.pagename}"{/if}>

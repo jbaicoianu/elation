@@ -19,6 +19,22 @@ var elation = new function() {
   }
 }
 
+if (!window.console) { // if no console, use tfconsole if available
+	window.console = {};
+	
+	window.console.log = function(txt) {
+		elation.debug.log(txt);
+	}
+} else { // output to both firebug console and tfconsole
+	window.console.log = function(txt) {
+		if (typeof(elation.debug) != 'undefined') 
+			elation.debug.log(txt);
+		
+		if (console && typeof console.debug != 'undefined') 
+			console.debug.apply(this, arguments);
+	}
+}
+
 elation.extend("checkhash", new function() {
   this.timer = setInterval(function() { 
     try { 
@@ -1566,18 +1582,23 @@ elation.extend('timing', new function() {
 	
   // log will perform a set()
   // use_alert will use alert instead of console.log
-	this.print = function(log, use_alert) {
+	this.print = function(name, log, use_alert) {
 		if (log)
 			this.set();
 		
 		var	l = this.l,
-				debug = 'timing: ';
+				prefix = name ? name : 'timing',
+        times = '',
+        debug = '';
 		
 		for (var i = 0; i < this.i; i++)
 			if (i > 0) 
-				debug += (l[i] - l[(i-1)]) + 'ms, ';
+				times += (l[i] - l[(i-1)]) + 'ms, ';
 		
-		debug += 'total(' + (l[l.length-1] - l[0]) + 'ms)';
+		if (i == 2)
+      debug = (l[l.length-1] - l[0]) + 'ms: ' + prefix;
+    else
+      debug = prefix + ': ' + times + 'total(' + (l[l.length-1] - l[0]) + 'ms)';
 		
 		if (use_alert)
 			alert(debug);

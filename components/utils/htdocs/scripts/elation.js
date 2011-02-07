@@ -47,7 +47,7 @@ elation.extend("component", new function() {
     var argsattr = this.namespace+':args';
     // Find all elements which have a namespace:componentattr attribute
 
-    //var elements = $("["+this.namespace+"\\:"+componentattr+"]"); 
+    //var elements = $TF("["+this.namespace+"\\:"+componentattr+"]"); 
 		/*
     function nsresolver(prefix) {  
       var ns = {  
@@ -1242,7 +1242,7 @@ elation.extend('ui.combobox', function(parent, callback) {
 		
 		elation.html.addclass(this.button, 'selected');
 		
-		$(this.ul)
+		$TF(this.ul)
 			.css({display: 'block', height: 0})
 			.animate({height: this.height + 'px'}, 150, "easein");
 	}
@@ -1253,7 +1253,7 @@ elation.extend('ui.combobox', function(parent, callback) {
 		elation.html.removeclass(this.button, 'selected');
 		
 		(function(self) {
-			$(self.ul)
+			$TF(self.ul)
 				.animate({height: 0}, 200, "easeout", function() {self.ul.style.display = 'none';});
 		})(this);
 	}
@@ -1524,3 +1524,64 @@ function any() {
 	return null;
 }
 
+/* JavaScript timing - Displays execution time of code blocks
+* usage:
+*   elation.timing.log();
+*   elation.timing.log();
+*   elation.timing.log();
+*   elation.timing.print();
+*/
+elation.extend('timing', new function() {
+	this.log = this.set;
+
+	this.init = function() {
+		this.l = [];
+		this.i = 0;
+	}
+	
+  // reset will reset timing from this point
+	this.set = function(reset) {
+		if (reset)
+			this.init();
+		
+		var	i = this.i,
+				l = this.l;
+		
+		l[i] = new Date();
+		l[i].ms = (l[i].getSeconds() * 1000) + l[i].getMilliseconds();
+		
+		this.i++;
+	}
+	
+  // log will perform a set()
+	this.get = function(log) {
+		if (log)
+			this.set();	
+		
+		var l = this.l,
+				diff = l[l.length-1] - l[0];
+		
+		return diff;
+	}
+	
+  // log will perform a set()
+  // use_alert will use alert instead of console.log
+	this.print = function(log, use_alert) {
+		if (log)
+			this.set();
+		
+		var	l = this.l,
+				debug = 'timing: ';
+		
+		for (var i = 0; i < this.i; i++)
+			if (i > 0) 
+				debug += (l[i] - l[(i-1)]) + 'ms, ';
+		
+		debug += 'total(' + (l[l.length-1] - l[0]) + 'ms)';
+		
+		if (use_alert)
+			alert(debug);
+		else
+			console.log(debug);
+  }
+});

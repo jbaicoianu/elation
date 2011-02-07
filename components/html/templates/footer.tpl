@@ -9,7 +9,7 @@
     </script>
 
     <script type="text/javascript">
-      $(document).ready(function() {ldelim}
+      $TF(document).ready(function() {ldelim}
         googleAnalytics = new TFHtmlUtilsGoogleAnalytics({ldelim}
           'trackingcode':	'{$trackingcode}',
           'GAalerts':			'{$GAalerts}',

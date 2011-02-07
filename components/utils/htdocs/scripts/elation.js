@@ -196,7 +196,7 @@ elation.extend('onloads',new function() {
     eval(script);
   }
 });
-elation.onloads.init();
+//elation.onloads.init();
 
 elation.extend("html.dimensions", function(element, ignore_size) {
 	if (typeof element != 'object' || element === window) {

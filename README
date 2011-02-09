@@ -45,25 +45,28 @@ Editing a component:
 --------------------
     Components are organized in the ./components directory, and can have any number
     of subcomponents.  Every component consists of a PHP file containing the
-    component class, a templates directory, an htdocs directory which can contain
-    any scripts, CSS, or images belonging to this component, and optionally a
-    "components" directory of its own to contain any subcomponents.  For example,
-    the component "foo":
+    component class and directories for any templates, scripts, CSS, images, or other media
+    belonging to this component.  Optionally, there may be a "components" subdirectory which
+    can contain any number and depth of subcomponents.  
+
+    For example:
 
     - elation/
       '- components/
          '- foo/
             |- foo.php
-            |- htdocs/
-            |  |- css/
-            |  |  |- bar.css
-            |  |  |- common.css
-            |  |  |- foo.css
-            |  |  '- things.css
-            |  '- scripts/
-            |     |- bar.js
-            |     |- common.js
-            |     '- things.js
+            |- css/
+            |  |- bar.css
+            |  |- common.css
+            |  |- foo.css
+            |  '- things.css
+            '- images/
+            |  |- bar.png
+            |  `- whatever.png
+            '- scripts/
+            |  |- bar.js
+            |  |- common.js
+            |  '- things.js
             '- templates/
                |- bar.tpl
                |- foo.tpl

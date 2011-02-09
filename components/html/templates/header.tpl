@@ -1,10 +1,18 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:elation="http://www.ajaxelation.com/xmlns">
+{*
+<html xmlns="http://www.w3.org/1999/xhtml"
+  {if !empty($webapp->cobrand)} id="tf_cobrand_{$webapp->cobrand}"{/if} 
+  {if $webapp->sitecfg.page.facebook.enabled} xmlns:fb="http://www.facebook.com/2008/fbml"{/if}
+  {if $webapp->sitecfg.page.manifest.enabled} manifest="/offline.manifest"{/if}
+>
+*}
 <head>
   <title>[[page.pretitle]][[page.title:{$pageTitle|default:"Untitled Page"}]][[page.appendtitle]]</title>
   
   {config}
     {dependency type="javascript" url="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"}
+    
     {dependency type="component" name="utils.initjquery"}
     {dependency type="component" name="utils.elation"}
     {dependency type="component" name="utils.browser"}
@@ -17,15 +25,9 @@
     {dependency type="component" name="utils.ui"}
     {dependency type="component" name="utils.msie-xpath"}
     
-    {*
-    DependencyManager::add("jstemplate", array("name" => "tplmgr.tflightbox", "component" => "tplmgr/tflightbox.tpl"));
-    DependencyManager::add("jstemplate", array("name" => "tplmgr.tfinfobox.closebutton", "component" => "/tplmgr/tfinfobox_closebutton.tpl"));
-    *}
-    
     {dependency type="jstemplate" name="ui.infobox" component="ui.infobox"}
     {dependency type="jstemplate" name="ui.lightbox" component="ui.lightbox"}
     {dependency type="jstemplate" name="ui.infobox_titlebar" component="ui.infobox_titlebar"}
-
   {/config}
   
   [[dependencies]]
@@ -43,7 +45,7 @@
   <?import namespace="elation" implementation="#elation"?>
   <![endif]-->
   *}
-  
+
   <script type="text/javascript">if (elation.onloads) elation.onloads.init();</script>
 </head>
 <body{if !empty($pagecfg.pagename)} class="tf_page_{$pagecfg.pagename}"{/if}>

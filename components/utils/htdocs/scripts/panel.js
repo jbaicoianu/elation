@@ -20,15 +20,16 @@ elation.extend('panel', new function(options) {
   }
 
   this.Init = function(name, args) {
+    elation.timing.set(true);
     var panel = this.panels[this.panelmap[name]] || null;
 		
     if (args) {
 			if (args.id)
-				panel.element = $("#"+args.id);
+				panel.element = $TF("#"+args.id);
 			
 			panel.items = {};
 			if (args.cfg && args.cfg.items) {
-				$.each(args.cfg.items, function(k, v) {
+				$TF.each(args.cfg.items, function(k, v) {
 					panel.items[k] = new elation.panel.add_item(k, v, panel);
 				});
 			}
@@ -47,7 +48,7 @@ elation.extend('panel', new function(options) {
 
 			if (panel.cfg.navigation == "true") {
 				panel.container = document.getElementById(panel.cfg.targetid);
-				this.lis = $('div.tf_utils_panel_' + name + ' ul li');;
+				this.lis = $TF('div.tf_utils_panel_' + name + ' ul li');;
         
         for (var i=0; i<this.lis.length; i++)
           if (elation.html.hasclass(this.lis[i], 'selected'))
@@ -62,11 +63,12 @@ elation.extend('panel', new function(options) {
 					}
 				}
 				
-				panel.item = this.get_item(panel, $('div.tf_utils_panel_' + name + ' ul li.selected')[0]);
+				panel.item = this.get_item(panel, $TF('div.tf_utils_panel_' + name + ' ul li.selected')[0]);
 			}
 			
 			panel.content = {};
 		}
+    elation.timing.print(name + ' panel', true);
 	}
 	
 	this.handleEvent = function(event) {
@@ -186,7 +188,7 @@ elation.extend('panel', new function(options) {
 		
 		// cache content of tab for later retrieval
 		if (!panel.cfg.nocache) {
-			if ($('img.tf_results_ajax_spinner',panel.container).length == 0) // kludgy - dont save content if content still loading
+			if ($TF('img.tf_results_ajax_spinner',panel.container).length == 0) // kludgy - dont save content if content still loading
 				panel.content[panel.item.name] = panel.container.innerHTML;
 			}
 			panel.item = item;
@@ -198,7 +200,7 @@ elation.extend('panel', new function(options) {
 		} else {
 			// tab fade-in effect
 			if (elation.browser && elation.browser.type != 'msie')
-				$(panel.container).animate({ opacity: 0 }, 'fast');
+				$TF(panel.container).animate({ opacity: 0 }, 'fast');
 		}
 		if (!panel.container.style.minHeight)
 			panel.container.style.minHeight = panel.container.offsetHeight + 'px';
@@ -244,7 +246,7 @@ elation.extend('panel', new function(options) {
 				function(response) {
 					// tab fade-in effect
 					if (elation.browser && elation.browser.type != 'msie')
-						$(panel.container).css({ opacity: 0 })
+						$TF(panel.container).css({ opacity: 0 })
 							.animate({ opacity: 1 }, 'fast')
 							.animate({ opacity: 'auto' }, 0);
 					
@@ -311,7 +313,7 @@ elation.extend('panel', new function(options) {
       if (!this.panel) 
 				return;
 			
-			this.element = $("ul.tf_utils_panel_content li#" + this.panel.id + "_" + this.name);
+			this.element = $TF("ul.tf_utils_panel_content li#" + this.panel.id + "_" + this.name);
 			
 			if (this.args.contentcomponent && !this.args.nopopup && this.element.length > 0) {
 				var panelname = this.panel.name.replace(/\./g, "_") + "_" + this.name;

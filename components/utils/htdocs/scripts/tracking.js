@@ -29,7 +29,7 @@ elation.extend('googleanalytics', function(args) {
 
   var self = this;
   var ignoredOrganics=['www.thefind.com', 'thefind', 'thefind.com', 'the find', 'glimpse', 'glimpse.com', 'www.glimpse.com', 'local.thefind.com', 'green.thefind.com', 'ww1.glimpse.com', 'shoptrue.com', 'shoptrue', 'coupons.thefind.com', 'shop.glimpse.com', 'ww1.thefind.com', 'www.shoptrue.com', 'reviews.thefind.com', 'visual.thefind.com', 'prices.thefind.com'];
-  $.each(ignoredOrganics, function() {self.pageTracker._addIgnoredOrganic(this)});
+  $TF.each(ignoredOrganics, function() {self.pageTracker._addIgnoredOrganic(this)});
 
   var domainName = document.domain.match(/(\.(.+)\.com$)/gi);
   if(domainName == null) {
@@ -56,29 +56,29 @@ elation.extend('googleanalytics', function(args) {
   }
 
   // attach event handlers to various static links
-  $("a.tf_search_item_link.tf_search_item_productimage_link").click(function () {if (!self.clickoutsource) self.clickoutsource = 1}); // product image
-  $("a.tf_search_item_link.tf_seeit strong img").click(function () {if (!self.clickoutsource) self.clickoutsource = 2}); // merchant logo
-  $("a.tf_search_item_link.tf_seeit").click(function () {if (!self.clickoutsource) self.clickoutsource = 3}); // VisitSite button
-  $("a.tf_search_item_link.tf_seeit strong").click(function () {if (!self.clickoutsource) self.clickoutsource = 4}); // intervening blankspace
-  $(".search_anchor_relatedqueries").each(function(n) {$(this).click(function() {self.trackEvent(['search', 'related_search', n+1])})});
-  $(".search_anchor_hotsearches").each(function(n) {$(this).click(function() {self.trackEvent(['links', self.pagetype, 'hot_searches', n+1])})});
-  $(".tf_info_iphonedownload").click(function() {self.trackEvent(['promo', 'bottom', 'iPhoneApp'])});
-  $(".tf_user_feedback_link").each(function(n) {$(this).click(function() {self.trackEvent(['links', self.pagetype, 'user_feedback', n+1])})});
-  $(".tf_about_results_link").each(function(n) {$(this).click(function() {self.trackEvent(['links', self.pagetype, 'about_these_search_results', n+1])})});
-  $(".link_icon_discover_same_product").each(function(n) {$(this).click(function() {self.trackEvent(['discover', 'same_product', self.category])})});
-  $(".link_icon_discover_similar_product").each(function(n) {$(this).click(function() {self.trackEvent(['discover', 'similar_product', self.category])})});
-  $(".search_anchor_suggestqueries").each(function(n) {$(this).click(function() {self.trackEvent(['links', 'recommendedSearches', this.innerHTML])})});
-  $("#tf_shoplikefriends_tellmorefriends").click(function() {self.trackEvent(['facebook', 'invite_friends'])});
-  $("#tf_shoplikefriends_becomefeaturedshopper").click(function() {self.trackEvent(['shoplike', 'become_featured_shopper'])});
+  $TF("a.tf_search_item_link.tf_search_item_productimage_link").click(function () {if (!self.clickoutsource) self.clickoutsource = 1}); // product image
+  $TF("a.tf_search_item_link.tf_seeit strong img").click(function () {if (!self.clickoutsource) self.clickoutsource = 2}); // merchant logo
+  $TF("a.tf_search_item_link.tf_seeit").click(function () {if (!self.clickoutsource) self.clickoutsource = 3}); // VisitSite button
+  $TF("a.tf_search_item_link.tf_seeit strong").click(function () {if (!self.clickoutsource) self.clickoutsource = 4}); // intervening blankspace
+  $TF(".search_anchor_relatedqueries").each(function(n) {$TF(this).click(function() {self.trackEvent(['search', 'related_search', n+1])})});
+  $TF(".search_anchor_hotsearches").each(function(n) {$TF(this).click(function() {self.trackEvent(['links', self.pagetype, 'hot_searches', n+1])})});
+  $TF(".tf_info_iphonedownload").click(function() {self.trackEvent(['promo', 'bottom', 'iPhoneApp'])});
+  $TF(".tf_user_feedback_link").each(function(n) {$TF(this).click(function() {self.trackEvent(['links', self.pagetype, 'user_feedback', n+1])})});
+  $TF(".tf_about_results_link").each(function(n) {$TF(this).click(function() {self.trackEvent(['links', self.pagetype, 'about_these_search_results', n+1])})});
+  $TF(".link_icon_discover_same_product").each(function(n) {$TF(this).click(function() {self.trackEvent(['discover', 'same_product', self.category])})});
+  $TF(".link_icon_discover_similar_product").each(function(n) {$TF(this).click(function() {self.trackEvent(['discover', 'similar_product', self.category])})});
+  $TF(".search_anchor_suggestqueries").each(function(n) {$TF(this).click(function() {self.trackEvent(['links', 'recommendedSearches', this.innerHTML])})});
+  $TF("#tf_shoplikefriends_tellmorefriends").click(function() {self.trackEvent(['facebook', 'invite_friends'])});
+  $TF("#tf_shoplikefriends_becomefeaturedshopper").click(function() {self.trackEvent(['shoplike', 'become_featured_shopper'])});
 
   //Links above first searchbox for products, coupons, reviews
-  $("#tf_search_links_products").click(function() {self.trackEvent(['links', 'theWeb', 'products'])});
-  $("#tf_search_links_coupons").click(function() {self.trackEvent(['links', 'theWeb', 'coupons'])});
-  $("#tf_search_links_reviews").click(function() {self.trackEvent(['links', 'theWeb', 'reviews'])});
+  $TF("#tf_search_links_products").click(function() {self.trackEvent(['links', 'theWeb', 'products'])});
+  $TF("#tf_search_links_coupons").click(function() {self.trackEvent(['links', 'theWeb', 'coupons'])});
+  $TF("#tf_search_links_reviews").click(function() {self.trackEvent(['links', 'theWeb', 'reviews'])});
 
 
   //Merchantcenter footer link tracking
-  $('#tf_footer_merchantcenter').click(function() {
+  $TF('#tf_footer_merchantcenter').click(function() {
     self.trackEvent(['merchant_center', self.cobrand, self.pagetype]);
     if (self.query != 'none') {
       self.trackEvent(['merchant_center', 'serp_footer', self.cobrand]);
@@ -89,7 +89,7 @@ elation.extend('googleanalytics', function(args) {
   });
 
   //Don't know if the below ever gets fired ... 
-  $('#tf_middle_bottom_merchantcenter').click(function() {
+  $TF('#tf_middle_bottom_merchantcenter').click(function() {
     self.trackEvent(['merchant_center', self.cobrand, self.pagetype]);
     self.trackEvent(['merchant_center', 'home_retailer', self.cobrand]);
   });
@@ -98,14 +98,14 @@ elation.extend('googleanalytics', function(args) {
 	delete self;
 
 	if (this.GAalerts) {
-    $('body').append(
+    $TF('body').append(
       '<div id="ga_tagbox" style="position:fixed;left:0;top:0;border:1px dotted black;padding:5px;background-color:#eef;text-align:left;display:none"></div>'
     );
-    $('#ga_tagbox').css('opacity', 0.9).click(function() {$(this).css('display', 'none')});
+    $TF('#ga_tagbox').css('opacity', 0.9).click(function() {$TF(this).css('display', 'none')});
   }
 
   this.displayTag = function(content) {
-    $('#ga_tagbox').append(content+'<br \/>').css('display', 'block');
+    $TF('#ga_tagbox').append(content+'<br \/>').css('display', 'block');
   };
 
   this.updatePageParameters = function(args) {
@@ -161,7 +161,7 @@ elation.extend('googleanalytics', function(args) {
       return;
     }
 
-    $.each(errorPages, function(k,v) {
+    $TF.each(errorPages, function(k,v) {
       if (k==status && (status!='B3' || total=='0')) {
         query = pagetype+"-"+query;
         pagegroup = "error";
@@ -267,7 +267,7 @@ elation.extend('googleanalytics', function(args) {
   };
 
   this.trackPrivacySettings = function() {
-    var perm = $('#user_privacy').val();
+    var perm = $TF('#user_privacy').val();
     var permTxt = '';
 
     switch (perm) {

@@ -14,6 +14,8 @@ class DataManager {
 
   var $cfg;
   var $sources;
+  public static $querylog = array();
+  protected static $querylog_page;
 
   function DataManager($cfg=NULL) {
     $this->Init($cfg);
@@ -125,6 +127,7 @@ class DataManager {
     
     Profiler::StartTimer("DataManager::Query()");
     $result = NULL;
+    $qstart = microtime(true);
 
     $queryid = new DatamanagerQueryID($id);
 
@@ -189,6 +192,8 @@ class DataManager {
     }
 
     Profiler::StopTimer("DataManager::Query()");
+    self::log("query", $id, $query, $qstart, microtime(true), $foundincache);
+
     return $result;
   }
 
@@ -202,6 +207,7 @@ class DataManager {
    */
   static function &QueryInsert($id, $table, $values, $extra=NULL) {
     Profiler::StartTimer("DataManager::QueryInsert()");
+    $qstart = microtime(true);
     $insert_id = NULL;
     $queryid = new DatamanagerQueryID($id);
     if ($source =& DataManager::PickSource($queryid)) {
@@ -211,6 +217,7 @@ class DataManager {
       }
     }
     Profiler::StopTimer("DataManager::QueryInsert()");
+    self::log("insert", $id, $table, $qstart, microtime(true));
     return $insert_id;
   }
 
@@ -225,6 +232,7 @@ class DataManager {
    */
   static function &QueryUpdate($id, $table, $values, $where_condition=NULL, $bind_vars=array()) {
     Profiler::StartTimer("DataManager::QueryUpdate()");
+    $qstart = microtime(true);
     $rows_affected = NULL;
     $queryid = new DatamanagerQueryID($id);
     if ($source =& DataManager::PickSource($queryid)) {
@@ -234,6 +242,7 @@ class DataManager {
       }
     }
     Profiler::StopTimer("DataManager::QueryUpdate()");
+    self::log("update", $id, $table, $qstart, microtime(true));
     return $rows_affected;
   }
 
@@ -247,13 +256,15 @@ class DataManager {
    * @return int (last insert id)
    */
   static function &QueryDelete($id, $table, $where_condition=NULL, $bind_vars=array()) {
-    Profiler::StartTimer("DataManager::QueryUpdate()");
+    Profiler::StartTimer("DataManager::QueryDelete()");
+    $qstart = microtime(true);
     $rows_affected = NULL;
     $queryid = new DatamanagerQueryID($id);
     if ($source =& DataManager::PickSource($queryid)) {
       $rows_affected = $source->QueryDelete($queryid, $table, $where_condition, $bind_vars);
     }
-    Profiler::StopTimer("DataManager::QueryUpdate()");
+    Profiler::StopTimer("DataManager::QueryDelete()");
+    self::log("delete", $id, $table, $qstart, microtime(true));
     return $rows_affected;
   }
 
@@ -268,12 +279,14 @@ class DataManager {
    */
   static function &QueryCreate($id, $table, $columns) {
     Profiler::StartTimer("DataManager::QueryCreate()", 1);
+    $qstart = microtime(true);
     $rows_affected = NULL;
     $queryid = new DatamanagerQueryID($id);
     if ($source =& DataManager::PickSource($queryid)) {
       $rows_affected = $source->QueryCreate($queryid, $table, $columns);
     }
     Profiler::StopTimer("DataManager::QueryCreate()");
+    self::log("create", $id, $table, $qstart, microtime(true));
     return $rows_affected;
   }
 
@@ -286,7 +299,8 @@ class DataManager {
    * @return object $result
    */
   static function &QueryFetch($id, $table, $where=NULL, $extra=NULL) {
-    //Profiler::StartTimer("DataManager::QueryFetch()");
+    Profiler::StartTimer("DataManager::QueryFetch()");
+    $qstart = microtime(true);
     $result = NULL;
     $queryid = new DatamanagerQueryID($id);
     if ($source =& DataManager::PickSource($queryid)) {
@@ -318,7 +332,8 @@ class DataManager {
         }
       }
     }
-    //Profiler::StopTimer("DataManager::QueryFetch()");
+    Profiler::StopTimer("DataManager::QueryFetch()");
+    self::log("fetch", $id, $table, $qstart, microtime(true));
     return $result;
   }
   /**
@@ -330,13 +345,15 @@ class DataManager {
    * @return integer $count
    */
   static function &QueryCount($id, $table, $where, $extra=NULL) {
-    //Profiler::StartTimer("DataManager::QueryCount()");
+    Profiler::StartTimer("DataManager::QueryCount()");
+    $qstart = microtime(true);
     $count = 0;
     $queryid = new DatamanagerQueryID($id);
     if ($source =& DataManager::PickSource($queryid)) {
       $count = $source->QueryCount($queryid, $table, $where, $extra);
     }
-    //Profiler::StopTimer("DataManager::QueryCount()");
+    Profiler::StopTimer("DataManager::QueryCount()");
+    self::log("count", $id, $table, $qstart, microtime(true));
     return $count;
   }
   
@@ -422,6 +439,14 @@ class DataManager {
   }
 
   function Quit() {
+    if (!empty(self::$querylog)) {
+      foreach (self::$querylog as $q) {
+        $id = explode(".", $q["id"]);
+        if ($id[0] != "stats") {
+          self::Query("stats.default.querylog", "www.querylog.{$q["type"]}", json_encode($q));
+        }
+      }
+    }
     $this->CloseAll($this->sources);
   }
   function CloseAll(&$sources) {
@@ -458,6 +483,10 @@ class DataManager {
   }
   static function &count($id, $table, $where, $extra=NULL) {
     return self::QueryCount($id, $table, $where, $extra);
+  }
+
+  static private function log($type, $id, $table, $start, $end, $cached=false) {
+    self::$querylog[] = array("reqid" => SessionManager::singleton()->flssid, "id" => $id, "type" => $type, "time" => ($end - $start), "cached" => $cached); 
   }
 }
 

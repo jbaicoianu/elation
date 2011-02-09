@@ -164,6 +164,7 @@ elation.extend("ajax", new function() {
   }
 
   this.processResponse = function(responses) {
+    elation.timing.set(true);
     /* DISABLED - back button code (still seems to be working...)
 		if (
 			(typeof thefind != 'undefined' && typeof thefind.ajax_back_button != 'undefined') && 
@@ -241,6 +242,7 @@ elation.extend("ajax", new function() {
         batch.callback(function() { elation.ajax.executeCallback(obj.callback, common.data); });
       }
     }
+    elation.timing.print('ajaxlib response', true);
   }
   
   var register_inline_scripts = function(common, element) {
@@ -351,6 +353,9 @@ elation.extend("ajax", new function() {
 				if (typeof tf_debugconsole != 'undefined')
           tf_debugconsole.scrollToBottom();
       }
+    },
+    'args': function(response, common) {
+      // FIXME: need to ask James what is being sent as responsetype == args
     }
   }
 

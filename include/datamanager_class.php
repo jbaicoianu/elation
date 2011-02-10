@@ -16,6 +16,7 @@ class DataManager {
   var $sources;
   public static $querylog = array();
   protected static $querylog_page;
+  protected static $querylog_reqid;
 
   function DataManager($cfg=NULL) {
     $this->Init($cfg);
@@ -486,7 +487,10 @@ class DataManager {
   }
 
   static private function log($type, $id, $table, $start, $end, $cached=false) {
-    self::$querylog[] = array("reqid" => SessionManager::singleton()->flssid, "id" => $id, "type" => $type, "time" => ($end - $start), "cached" => $cached); 
+    if (empty(self::$querylog_reqid)) {
+      self::$querylog_reqid = rand();
+    }
+    self::$querylog[] = array("reqid" => self::$querylog_reqid, "id" => $id, "type" => $type, "time" => ($end - $start), "cached" => $cached); 
   }
 }
 

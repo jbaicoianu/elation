@@ -223,7 +223,7 @@ class Component_elation extends Component {
       if (!$vars['err_msg']) {
       // write new abtest group to database
         $roles=array($req['role']);
-        if ($req['save_scope'] == 'all') $roles=array('dev', 'test', 'live');
+        if ($req['save_scope'] == 'all') $roles=array('dev', 'test', 'live', 'elation');
         foreach ($roles as $role) {
           DataManager::Query("db.userdata.abtest:nocache",
                         "DELETE FROM userdata.abtest

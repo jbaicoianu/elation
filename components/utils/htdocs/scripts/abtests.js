@@ -1,7 +1,7 @@
 function TFAdminABTests (name, args) {
   var sourceData;
   var mode = "";
-  var roles = ['dev', 'test', 'live'];
+  var roles = ['dev', 'test', 'live', 'elation'];
   var role = "";
   var cobrands;
   var cobrand = "";

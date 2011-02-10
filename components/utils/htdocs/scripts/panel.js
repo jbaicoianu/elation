@@ -21,6 +21,7 @@ elation.extend('panel', new function(options) {
 
   this.Init = function(name, args) {
     elation.timing.set(true);
+    console.log('panel',name,args);
     var panel = this.panels[this.panelmap[name]] || null;
 		
     if (args) {

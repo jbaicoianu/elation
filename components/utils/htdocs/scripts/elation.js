@@ -23,17 +23,29 @@ if (!window.console) { // if no console, use tfconsole if available
 	window.console = {};
 	
 	window.console.log = function(txt) {
-		elation.debug.log(txt);
+ 		if (elation.utils.logging) 
+      elation.utils.logging(txt);
 	}
 } else { // output to both firebug console and tfconsole
 	window.console.log = function(txt) {
-		if (typeof(elation.debug) != 'undefined') 
-			elation.debug.log(txt);
+		if (elation.utils.logging) 
+			elation.utils.logging(txt);
 		
 		if (console && typeof console.debug != 'undefined') 
 			console.debug.apply(this, arguments);
 	}
 }
+
+elation.extend('utils.logging', function(txt) {
+	if (elation.debug && typeof elation.debug.log != 'undefined') 
+		elation.debug.log(txt);
+	else {
+		if (!elation.utils.logging.prelog)
+			elation.utils.logging.prelog = [];
+		
+		elation.utils.logging.prelog.push(txt);
+	}
+});
 
 elation.extend("checkhash", new function() {
   this.timer = setInterval(function() { 

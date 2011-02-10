@@ -84,7 +84,7 @@ class DBWrapper extends ConnectionWrapper {
         // Double check that conn exists before using it (FIXME - could be smarter here)
         $resource = null;
         $realsql = ($server[1] != NULL && !empty($sqlinfo["table"]) ? str_replace($sqlinfo["table"], $sqlinfo["table"] . "_" . $server[1], $query) : $query);
-        Logger::Warn("Execute query: '" . $realsql . "' " . (!empty($args) ? "Args: " . print_ln($args, true, true) : "") . "\n");
+        Logger::Notice("Execute query: '" . $realsql . "' " . (!empty($args) ? "Args: " . print_ln($args, true, true) : "") . "\n");
         if ($this->conn[$servernum]) {
           // execute the SQL and return the result
           try {
@@ -148,7 +148,7 @@ class DBWrapper extends ConnectionWrapper {
           try {
             $last_insert_id = $this->conn[$servernum]->insert($realtable, $values, $extra);
             if ($last_insert_id !== false) {
-              Logger::Info("Insert into table $realtable succeeded: $last_insert_id");
+              Logger::Notice("Insert into table $realtable succeeded: $last_insert_id");
             } else {
               Logger::Error("Mysql error: error inserting into $realtable with data " . print_ln($values,true)); 
               $failed = true;
@@ -220,7 +220,7 @@ class DBWrapper extends ConnectionWrapper {
             if ($rows_affected > 0) {
               $this->CacheClear($queryid);
             }
-            //Logger::Warn("Execute update query into table $table (Using " . $this->dsn . ")");
+            Logger::Notice("Execute update query into table $table (Using " . $this->dsn . ")");
           } catch (Exception $e) {
             Logger::Error("Failed to update '{$queryid->id}' in '$realtable': " . $e->getMessage());
             $last_insert_id = NULL;
@@ -275,7 +275,7 @@ class DBWrapper extends ConnectionWrapper {
           */
           try {
             $rows_affected = $this->conn[$servernum]->delete($realtable, $where_condition, $bind_vars);
-            //Logger::Warn("Execute delete query on table $table (Using " . $this->dsn . ")");
+            Logger::Notice("Execute delete query on table $table (Using " . $this->dsn . ")");
           } catch (Exception $e) {
             Logger::Error("Failed to delete '{$queryid->id}' from '$realtable': " . $e->getMessage());
           }
@@ -829,7 +829,7 @@ class DataBase {
     if ($extra["extrasql"] !== null)
       $sql .= " " . $extra["extrasql"];
 
-    Logger::Warn("Execute query: '" . $sql . "' " . print_ln($bind_vars, true));
+    Logger::Notice("Execute query: '" . $sql . "' " . print_ln($bind_vars, true));
     /**
      * Prepare the SQL, bind it, and execute it.
      */
@@ -898,7 +898,7 @@ class DataBase {
     /**
      * Prepare the SQL, bind it, and execute it.
      */
-    //Logger::Warn("Execute query: '" . $sql . "' " . print_ln($bind_vars, true));
+    Logger::Notice("Execute query: '" . $sql . "' " . print_ln($bind_vars, true));
     try {
       $stmt = $this->db->prepare($sql);
     } catch (PDOException $e) {
@@ -947,7 +947,7 @@ class DataBase {
       $sql .= ' WHERE '.$where_condition;
 
 
-      Logger::Warn("Execute query: '" . $sql . "' " . print_ln($bind_vars, true));
+      Logger::Notice("Execute query: '" . $sql . "' " . print_ln($bind_vars, true));
       //we now have to prepare the query
       //and bind all of the values.
       try {

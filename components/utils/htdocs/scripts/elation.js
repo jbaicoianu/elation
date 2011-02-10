@@ -1,5 +1,5 @@
 var elation = new function() {
-  this.extend = function(name, func) {
+  this.extend = function(name, func, clobber) {
 		var ptr = this,
 				parts = name.split("."),
 				i;
@@ -11,7 +11,7 @@ var elation = new function() {
 			ptr = ptr[parts[i]];
 		}
 		
-		if (typeof ptr[parts[i]] == 'undefined') {
+		if (typeof ptr[parts[i]] == 'undefined' || clobber == true) {
 			ptr[parts[i]] = func;
 		} else {
 			console.log("elation: tried to clobber existing component '" + name + "'");

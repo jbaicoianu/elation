@@ -302,23 +302,22 @@ class ConfigManager extends Base {
 
     //remove revision key / value pair. It should be auto incremented
     unset($oldcfg["revision"]);
-    //print_pre($newcfg);
     //unset($newcfg["revision"]);
 
+    /*
     $diff = array_diff_assoc_recursive($newcfg, $oldcfg);
     
     $configupdates = $this->FlattenConfig($diff);
+    */
     $configdeletes = $this->FlattenConfig($deletecfg);
-    
-    //print_pre($configupdates);
-
-    if (count($configupdates) > 0) {
-      foreach ($configupdates as $k=>$v) {
+    if (count($newcfg) > 0) {
+      foreach ($newcfg as $k=>$v) {
+        Logger::Debug('ConfigManager Update: [' . $name . ' ' . $cobrandid . ' ' . $role . '] ' . $k . ' = ' . $v["value"] . ' : ' . $v["type"]);
         $response = DataManager::Query("db.config.cobrand_config.{$name}-{$k}:nocache",
-                                       "UPDATE config.cobrand_config SET value=:value WHERE name=:name AND cobrandid=:cobrandid and role=:role",
-                                       array(":value" => $v, ":name" => $k, ":cobrandid" => $cobrandid, ":role" => $role));
+                                       "UPDATE config.cobrand_config SET value=:value, type=:type WHERE name=:name AND cobrandid=:cobrandid AND role=:role",
+                                       array(":value" => $v["value"], ":type" => $v["type"], ":name" => $k, ":cobrandid" => $cobrandid, ":role" => $role));
         if (!empty($response) && $response->numrows > 0) {
-          $ret |= true;
+          $ret = true;
         }
       }
       $updaterevision = true;
@@ -355,14 +354,12 @@ class ConfigManager extends Base {
 
     if ($updaterevision) {
       $this->UpdateRevision($cobrandid, $role);
-      if ($this->data->caches["memcache"]) {
-      $this->data->caches["memcache"]["data"]->delete("db.config.cobrand_config.{$name}.{$role}");
-      $this->data->caches["memcache"]["data"]->delete("db.config.version.$name.$role");
+      DataManager::CacheClear("db.config.cobrand_config.{$name}.{$role}");
+      DataManager::CacheClear("db.config.version.{$name}.{$role}");
     }
-   }
 
     if ($ret)
-      $this->data->CacheClear("db.config.cobrand_config.{$name}.{$role}");
+      DataManager::CacheClear("db.config.cobrand_config.{$name}.{$role}");
 
     return $ret;
   }
@@ -416,7 +413,8 @@ class ConfigManager extends Base {
           //$this->data->caches["memcache"]["data"]->delete("db.config.cobrand_config.{$name}.{$role}");
           //$this->data->caches["memcache"]["data"]->delete("db.config.version.$name.$role");
           $ret = true;
-          $this->data->CacheClear("db.config.cobrand_config.{$name}.{$role}");
+          DataManager::CacheClear("db.config.cobrand_config.{$name}.{$role}");
+          DataManager::CacheClear("db.config.version.$name.$role");
         }
       }
     }
@@ -438,7 +436,7 @@ class ConfigManager extends Base {
                                        array(":key" => $oldcfg['key'], ":config_name" => $config_name, ":role" => $role));
             if (!empty($response)) {
                 $ret = true;
-                $this->data->CacheClear("db.config.cobrand_config.{$config_name}.{$role}");
+                DataManager::CacheClear("db.config.cobrand_config.{$config_name}.{$role}");
             }
         }
         return $ret;
@@ -780,11 +778,12 @@ class ConfigManager extends Base {
         }
      }
 
-     if ($ret)
-       $this->data->caches["memcache"]["data"]->delete("db.config.version.{$name}.{$role}");
-
-       return $ret;
+     if ($ret) {
+       DataManager::CacheClear("db.config.version.{$name}.{$role}");
      }
+
+     return $ret;
+   }
 
 
   /**

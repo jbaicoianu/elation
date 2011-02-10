@@ -299,4 +299,7 @@ class Component_elation extends Component {
   public function controller_ping($args) {
     return $this->GetComponentResponse("./ping.tpl");
   }
+  public function controller_accessviolation($args) {
+    return $this->GetComponentResponse("./accessviolation.tpl");
+  }
 }  

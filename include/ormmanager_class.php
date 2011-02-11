@@ -65,17 +65,17 @@ class OrmManager {
     $me->outlet->createClasses();
     $me->outlet->createProxies();
   }
-  function Select($type, $where=NULL) {
+  function Select($type, $where=NULL, $params=array()) {
     if ($this instanceOf OrmManager)
-      return $this->outlet->select($type, $where);
+      return $this->outlet->select($type, $where, $params);
     else
-      return self::singleton()->select($type, $where);
+      return self::singleton()->select($type, $where, $params);
   }
-  function SelectOne($type, $where=NULL) {
+  function SelectOne($type, $where=NULL, $params=array()) {
     if ($this instanceOf OrmManager)
-      return $this->outlet->selectOne($type, $where);
+      return $this->outlet->selectOne($type, $where, $params);
     else
-      return self::singleton()->selectOne($type, $where);
+      return self::singleton()->selectOne($type, $where, $params);
   }
   function Load($type, $id) {
     if ($this instanceOf OrmManager)

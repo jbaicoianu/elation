@@ -282,6 +282,11 @@ elation.extend("ajax", new function() {
             targetel.innerHTML += response['_content'];
           } else {
             //thefind.func.ie6_purge(targetel);
+            
+            if (response['target'] == 'tf_search_results_main') {
+              response['_content'] += "<div style='position:absolute;background:red;width:100%;height:100%;'></div>"
+            }
+            
 						targetel.innerHTML = response['_content'];
           }
           

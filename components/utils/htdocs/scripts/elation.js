@@ -1561,6 +1561,7 @@ function any() {
 */
 elation.extend('timing', new function() {
 	this.log = this.set;
+  this.enabled = false;
 
 	this.init = function() {
 		this.l = [];
@@ -1569,6 +1570,9 @@ elation.extend('timing', new function() {
 	
   // reset will reset timing from this point
 	this.set = function(reset) {
+    if (!this.enabled)
+      return;
+    
 		if (reset)
 			this.init();
 		
@@ -1595,6 +1599,9 @@ elation.extend('timing', new function() {
   // log will perform a set()
   // use_alert will use alert instead of console.log
 	this.print = function(name, log, use_alert) {
+    if (!this.enabled)
+      return;
+    
 		if (log)
 			this.set();
 		

@@ -14,9 +14,10 @@ class OrmManager {
   function __construct() {
     Outlet::init(array(
       'connection' => array(
+        'type' => 'datamanager',
+/*
         'dsn' => 'sqlite:tmp/elation.sqlite',
         'dialect' => 'sqlite'
-/*
         'dsn' => 'mysql:host=localhost',
         'dialect' => 'mysql',
         'username' => 'elation',

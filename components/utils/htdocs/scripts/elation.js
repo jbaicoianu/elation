@@ -285,21 +285,23 @@ elation.extend("html.position", function(obj) {
 
 // methods for css classname information and manipulation
 elation.extend("html.hasclass", function(element, className) {
-  var re = new RegExp("(^| )" + className + "( |$)", "g");
-  return element.className.match(re);
+  if(element && element.className) {
+    var re = new RegExp("(^| )" + className + "( |$)", "g");
+    return element.className.match(re);
+  }
 });
 
 elation.extend("html.addclass", function(element, className) {
-  if (!elation.html.hasclass(element, className)) {
+  if (element && element.className && !elation.html.hasclass(element, className)) {
     element.className += " " + className;
   }
-});
+}); 
 
 elation.extend("html.removeclass", function(element, className) {
   var re = new RegExp("(^| )" + className + "( |$)", "g");
-  if (element.className.match(re)) {
+  if (element && element.className && element.className.match(re)) {
     element.className = element.className.replace(re, " ");
-  }
+  } 
 });
 
 elation.extend("html.toggleclass", function(element, className) {

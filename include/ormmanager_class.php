@@ -78,6 +78,12 @@ class OrmManager {
     else
       return self::singleton()->selectOne($type, $where, $params);
   }
+  function Delete($type, $id) {
+    if ($this instanceOf OrmManager)
+      return $this->outlet->Delete($type, $id);
+    else
+      return self::singleton()->Delete($type, $id);
+  }
   function Load($type, $id) {
     if ($this instanceOf OrmManager)
       return $this->outlet->load($type, $id);

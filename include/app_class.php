@@ -56,8 +56,8 @@ class App {
     $this->locations["imageswww"] = $this->request["basedir"] . "/images";
 
     $this->InitProfiler();
-
     $this->cfg = ConfigManager::singleton($rootdir);
+    $this->InitProfiler(); // reinitialize after loading the config
     $this->locations = array_merge($this->locations, $this->cfg->locations);
     $this->data = DataManager::singleton($this->cfg);
 
@@ -167,6 +167,9 @@ class App {
       Profiler::StartTimer("WebApp::Display() - Conteg", 1);
       new Conteg($contegargs);
       Profiler::StopTimer("WebApp::Display() - Conteg");
+      if (Profiler::$log) {
+        Profiler::Log($this->cfg->locations["tmp"], $this->components->pagecfg["pagename"]);
+      }
     }
   }
 

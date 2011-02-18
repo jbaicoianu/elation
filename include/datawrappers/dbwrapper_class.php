@@ -9,6 +9,7 @@ include_once("include/datawrappers/connectionwrapper_class.php");
  * @subpackage Datasources
  */
 class DBWrapper extends ConnectionWrapper {
+  protected $transactionLevel = 0;
   function DBWrapper($name, $cfg, $lazy=false) {
     $this->ConnectionWrapper($name, $cfg, $lazy);
     if (!empty($this->cfg["buckets"])) {
@@ -540,6 +541,54 @@ class DBWrapper extends ConnectionWrapper {
     }
     return $ret;
   }
+  function BeginTransaction($queryid) {
+    $ret = true;
+    if (!$this->transactionLevel++) {
+      $servers = $this->HashToServer($queryid);
+      foreach ($servers as $server) {
+        if (!$this->LazyOpen($server[0])) {
+          Logger::Info("Database connection '{$this->name}:{$servernum}' marked as failed, skipping BeginTransaction");
+        } else {
+          if ($this->conn[$server[0]]) {
+            $ret &= $this->conn[$server[0]]->beginTransaction();
+          }
+        }
+      }
+    }
+    return $ret;
+  }
+  function Commit($queryid) {
+    $ret = true;
+    if (!--$this->transactionLevel) {
+      $servers = $this->HashToServer($queryid);
+      foreach ($servers as $server) {
+        if (!$this->LazyOpen($server[0])) {
+          Logger::Info("Database connection '{$this->name}:{$servernum}' marked as failed, skipping Commit");
+        } else {
+          if ($this->conn[$server[0]]) {
+            $ret &= $this->conn[$server[0]]->commit();
+          }
+        }
+      }
+    }
+    return $ret;
+  }
+  function Rollback($queryid) {
+    $ret = true;
+    if (!--$this->transactionLevel) {
+      $servers = $this->HashToServer($queryid);
+      foreach ($servers as $server) {
+        if (!$this->LazyOpen($server[0])) {
+          Logger::Info("Database connection '{$this->name}:{$servernum}' marked as failed, skipping rollback");
+        } else {
+          if ($this->conn[$server[0]]) {
+            $ret &= $this->conn[$server[0]]->rollBack();
+          }
+        }
+      }
+    }
+    return $ret;
+  }
 }
 
 /**
@@ -1046,7 +1095,7 @@ class DataBase {
       } catch (PDOException $e) {
         //throw new DataBaseException($e->getMessage(), $e->getCode(), $sql, $bind_vars=array());
         Logger::Error($e->getMessage());
-        raise;
+        throw $e;
       }
 
       // bind the parameters
@@ -1067,7 +1116,7 @@ class DataBase {
         }  catch (PDOException $e) {
           // must have been something wrong in the constructed SQL
           //throw new DataBaseException($e->getMessage(), DataBaseException::QUERY_EXECUTE_FAILED, $sql, $bind_vars);
-          raise;
+          throw $e;
         }
       }
     }
@@ -1325,8 +1374,14 @@ class DataBase {
     return $this->db->lastInsertId();
   }
   
-  public function quote($str) {
-    return $this->db->quote($str);
+  public function beginTransaction() {
+    return $this->db->beginTransaction();
+  }
+  public function commit() {
+    return $this->db->commit($str);
+  }
+  public function rollBack() {
+    return $this->db->rollBack();
   }
 }
 ?>

@@ -406,6 +406,51 @@ elation.extend("utils.encodeURLParams", function(obj) {
   
   return ret;
 });
+elation.extend("utils.parseURL", function(str) {
+  var ret = {uri: str, args: {}};
+  var hashparts = str.split('#');
+  var parts = hashparts[0].split("?");
+  if (parts[0]) {
+    var fileparts = parts[0].split(/:\/\//, 2);
+    if (fileparts[1]) {
+      ret.scheme = fileparts[0];
+      if (fileparts[1][0] == '/') {
+        ret.host = document.location.host;
+        ret.path = fileparts[1];
+      } else {
+        var pathparts = fileparts[1].split("/");
+        ret.host = pathparts.shift();
+        ret.path = '/' + pathparts.join("/");
+      }
+    } else {
+      ret.scheme = document.location.protocol.slice(0, -1);
+      ret.host = document.location.host;
+      ret.path = fileparts[0];
+    }
+  }
+  if (parts[1]) {
+    var args = parts[1].split("&");
+    ret.args = {};
+    for (var i = 0; i < args.length; i++) {
+      var argparts = args[i].split("=", 2);
+      ret.args[argparts[0]] = decodeURIComponent(argparts[1]);
+    }
+  }
+  if (hashparts[1]) {
+    var hashargs = hashparts[1].split("&");
+    ret.hashargs = {};
+    for (var i = 0; i < hashargs.length; i++) {
+      var hashargparts = hashargs[i].split("=", 2);
+      ret.hashargs[hashargparts[0]] = decodeURIComponent(hashargparts[1]);
+    }
+  }
+  return ret;
+});
+elation.extend("utils.makeURL", function(obj) {
+  var argstr = elation.utils.encodeURLParams(obj.args);
+  return obj.scheme + "://" + obj.host + obj.path + (argstr ? '?' + argstr : '');
+});
+
 
 /* Sets value in a multilevel object element 
 * args:

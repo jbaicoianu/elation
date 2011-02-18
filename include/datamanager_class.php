@@ -91,6 +91,7 @@ class DataManager {
       if (file_exists_in_path($includefile)) {
         include_once($includefile);
         foreach ($cfg as $sourcename=>$sourcecfg) {
+          Profiler::StartTimer(" - $sourcetype($sourcename)", 3);
           // Server groups get special handling at this level so they can be applied to all types
           if (!empty($sourcecfg["group"]) && ($group = $this->GetGroup($sourcecfg["group"])) !== NULL) {
             Logger::Notice("Merged source group '{$sourcecfg['group']}' into $sourcename");
@@ -105,6 +106,7 @@ class DataManager {
           }
           array_set($this->sources, $sourcetype.".".$sourcename, $sourcewrapper);
           Logger::Notice("Added source '$sourcetype.$sourcename': " . $sourcecfg["host"]);
+          Profiler::StopTimer(" - $sourcetype($sourcename)");
         }
       } else {
         Logger::Debug("Tried to instantiate source '$sourcetype', but couldn't find class");
@@ -404,6 +406,7 @@ class DataManager {
   }
 
   function GetGroup($groupname) {
+    //Profiler::StartTimer("GetGroup($groupname)");
     $ret = NULL;
     if (!empty($this->cfg->servers["groups"][$groupname])) {
       $ret = $this->cfg->servers["groups"][$groupname];
@@ -419,22 +422,29 @@ class DataManager {
         if (file_exists($fname)) {
           $lines = file($fname);
           $bucketnum = 0;
+          $filever = (strpos($lines[0], "bucket:") ? 1 : 2);
           foreach ($lines as $line) {
-            $parts = explode(": ", trim($line));
-            if ($parts[0] == "servers") {
-              $servers = explode(", ", $parts[1]);
-              for ($i = 0; $i < count($servers); $i++) {
-                $ret["servers"][$i]["host"] = $servers[$i];
+            if ($filever == 1) {
+              $parts = explode(": ", trim($line));
+              if ($parts[0] == "servers") {
+                $servers = explode(", ", $parts[1]);
+                for ($i = 0; $i < count($servers); $i++) {
+                  $ret["servers"][$i]["host"] = $servers[$i];
+                }
+              } else if ($parts[0] == "bucket") {
+                $bucketinfo = explode(", ", $parts[1]);
+                $bucketname = array_shift($bucketinfo);
+                $ret["buckets"][$bucketnum++] = array("name" => $bucketname, "servers" => $bucketinfo);
               }
-            } else if ($parts[0] == "bucket") {
-              $bucketinfo = explode(", ", $parts[1]);
-              $bucketname = array_shift($bucketinfo);
-              $ret["buckets"][$bucketnum++] = array("name" => $bucketname, "servers" => $bucketinfo);
+            } else {
+              $foo = sscanf($line, "%s %d %d\n");
+              $ret["buckets"][$bucketnum++] = array("name" => $foo[0], "servers" => array($foo[1], $foo[2]));
             }
           }
         }
       }
     }
+    //Profiler::StopTimer("GetGroup($groupname)");
     //print_pre($ret);
     return $ret;
   }
@@ -465,6 +475,40 @@ class DataManager {
     $ormmgr = OrmManager::singleton();
     $ormmgr->LoadModel($model);
   }
+
+  static function BeginTransaction($id) {
+    Profiler::StartTimer("DataManager::BeginTransaction()");
+    $queryid = new DatamanagerQueryID($id);
+    if ($source =& DataManager::PickSource($queryid)) {
+      $ret = $source->BeginTransaction($queryid);
+    }
+    Profiler::StopTimer("DataManager::BeginTransaction()");
+    Logger::Notice("Beginning transaction for queryid {$queryid->id}");
+    return $ret;
+  }
+
+  static function Commit($id) {
+    Profiler::StartTimer("DataManager::Commit()");
+    $queryid = new DatamanagerQueryID($id);
+    if ($source =& DataManager::PickSource($queryid)) {
+      $ret = $source->Commit($queryid);
+    }
+    Profiler::StopTimer("DataManager::Commit()");
+    Logger::Notice("Committed transaction for queryid {$queryid->id}");
+    return $ret;
+  }
+
+  static function Rollback($id) {
+    Profiler::StartTimer("DataManager::Rollback()");
+    $queryid = new DatamanagerQueryID($id);
+    if ($source =& DataManager::PickSource($queryid)) {
+      $ret = $source->Rollback($queryid);
+    }
+    Profiler::StopTimer("DataManager::Rollback()");
+    Logger::Notice("Rolled back transaction for queryid {$queryid->id}");
+    return $ret;
+  }
+
 
   // Simple remappings
   static function &insert($id, $table, $values, $extra=NULL) {

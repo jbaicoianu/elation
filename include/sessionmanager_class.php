@@ -245,12 +245,17 @@ class SessionManager
       $this->fluid = $session_memcache["fluid"];
 
     if (empty($session_memcache) && !$this->is_new_user) {
+      /*
       $result = $this->data->Query("db.userdata.usersession.{$this->flsid}:nocache",
                                    "SELECT data FROM usersession.usersession WHERE fl_uid=:fl_uid LIMIT 1",
                                    array(":fl_uid" => $this->fluid));
-      if ($result && $result->NumResults() == 1) {
-        $data = $result->GetResult(0);
-        $_SESSION["persist"] = unserialize($data->data);
+      */
+      $result = DataManager::QueryFetch("db.userdata.usersession#{$this->flsid}",
+                                   "usersession.usersession",
+                                   array("fl_uid" => $this->fluid));
+      if ($result && count($result) == 1) {
+        $data = $result[0];
+        $_SESSION["persist"] = unserialize($data["data"]);
         $this->has_db_record = true;
         if (! $_SESSION["persist"]["has_db_record"]) {
           $_SESSION["persist"]["has_db_record"] = true;
@@ -353,10 +358,9 @@ class SessionManager
       $pdata_serialize = serialize($_SESSION["persist"]);
       $ip = $_SERVER['REMOTE_ADDR'];
       Logger::Warn("Creating session in database");
-      $result = $this->data->Query("db.userdata.usersession.{$this->flsid}:nocache",
-                                   "INSERT INTO usersession.usersession (fl_uid, data, ip_addr, create_time) "
-                                   . " VALUES (:fluid, :data, INET_ATON(:ip_addr), UNIX_TIMESTAMP(NOW()))",
-                                   array(":fluid"=>$this->fluid, ":data"=>$pdata_serialize, ":ip_addr"=>$ip));
+      $result = DataManager::QueryInsert("db.userdata.usersession#{$this->flsid}",
+                                   "usersession.usersession",
+                                   array("fl_uid"=>$this->fluid, "data"=>$pdata_serialize, "ip_addr"=>$ip));
       // set the $_SESSION
       $this->has_db_record = true;
     }
@@ -466,9 +470,16 @@ class SessionManager
         //$session_serialize = serialize($_SESSION);
         $this->cache_obj->set($id, $_SESSION, 0, $this->session_cache_expire);
       } else {
+        /*
         $result = $this->data->Query("db.userdata.usersession.{$id}:nocache",
                                      "UPDATE usersession.usersession SET data=:data WHERE fl_uid=:fl_uid",
                                      array(":data" => $pdata_serialize, ":fl_uid"  => $this->fluid)
+                                     );
+        */
+        $result = $this->data->QueryUpdate("db.userdata.usersession#{$id}",
+                                     "usersession.usersession",
+                                     array("data" => $pdata_serialize), 
+                                     array("fl_uid"  => $this->fluid)
                                      );
         Logger::Info("Updating userdata.usersession record for $this->fluid");
       }

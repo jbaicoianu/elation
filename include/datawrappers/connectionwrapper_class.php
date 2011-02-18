@@ -34,6 +34,9 @@ class ConnectionWrapper {
   function &QueryCreate($queryid, $table, $values) { return false; }
   function &QueryFetch($queryid, $table, $where=NULL, $extras=NULL) { return false; }
   function &QueryCount($queryid, $table, $where=NULL, $extras=NULL) { return false; }
+  function BeginTransaction($queryid) { return false; }
+  function Commit($queryid) { return false; }
+  function Rollback($queryid) { return false; }
   function GenerateIndex($indexby, $item, $separator=".") {
    $idxby = explode(",", $indexby);
     foreach ($idxby as $k) {

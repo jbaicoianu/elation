@@ -295,7 +295,7 @@ class SessionManager
       "referrer_id"         => $webapp->request["args"]["rid"],
       "widget_id"           => $webapp->request["args"]["wid"],
       "user_registration_id"=> "$pandoraUserTypeNum.$userid",
-      "version"             => $webapp->version,
+      "version"             => ABTestManager::getVersion(),
       "cobrand"             => $this->root->cobrand,
       "first_session_for_day" => $this->first_session_for_day,
       "session_count"       => $this->session_count,

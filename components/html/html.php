@@ -65,9 +65,8 @@ class Component_html extends Component {
       $args['state'] = 'unknown';
       $args['country'] = $args['cobrand'] == 'paypalcanada' ? "Canada" : "UK";
     }
-    $abtest = ABTestManager::singleton();
     $args['pagenum'] = any($analytics->pandora_result['page_num'], 1);
-    $args['version'] = (!empty($abtest) ? $abtest->version : "unknown"); //(!empty($webapp) ? $webapp->getAppVersion() : "unknown");
+    $args['version'] = any(ABTestManager::getVersion(), "unknown");
     $args['filters'] = $analytics->qpmreq->filter['brand'] ? '1' : '0';
     $args['filters'] .= $analytics->qpmreq->filter['color'] ? '1' : '0';
     $args['filters'] .= $analytics->qpmreq->filter['storeswithdeals'] ? '1' : '0'; //(coupons)

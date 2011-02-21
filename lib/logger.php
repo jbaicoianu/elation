@@ -215,7 +215,7 @@ class Logger {
       } else {
         $file_exist = true;
       }
-      if ($file_exist) {
+      if ($file_exist && is_writable($fname)) {
         file_put_contents($fname, $file_msg, FILE_APPEND);
       }
     }

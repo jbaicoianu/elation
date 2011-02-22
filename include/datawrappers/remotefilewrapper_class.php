@@ -18,7 +18,7 @@ class RemotefileWrapper extends ConnectionWrapper {
   }
   
   function Query($querid, $query, $postfields=NULL, $extras=NULL) {
-    if(!empty($query) && preg_match("/^http:\/\//",$query)) {
+    if(!empty($query) && preg_match("/^https?:\/\//",$query)) {
       $ch = curl_init();
       curl_setopt($ch, CURLOPT_URL, $query);
       curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);

@@ -320,7 +320,7 @@ class App {
   }
 
   function GetRequestedConfigName($req=NULL) {
-    $ret = "thefind";
+    $ret = any($this->cfg->servers["cobrand"], "thefind");
 
     if (empty($req))
       $req = $this->request;

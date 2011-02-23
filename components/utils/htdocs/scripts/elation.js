@@ -482,6 +482,36 @@ elation.extend("utils.arrayget", function(obj, name) {
   }
   return (typeof ptr == "undefined" ? null : ptr);
 });
+elation.extend("utils.arraymin", function(array) {
+	var value=ret=0;
+	
+	for (var i=total=0; i<array.length; i++) {
+		value = array[i];
+		if (ret == 0 || value < ret) 
+			ret = value;
+	}
+	
+	return ret; 
+});
+elation.extend("utils.arraymax", function(array) {
+	var value=ret=0;
+	
+	for (var i=total=0; i<array.length; i++) {
+		value = array[i];
+		if (value > ret) ret = value;
+	}
+	
+	return ret; 
+});
+elation.extend("utils.arrayavg", function(array) {
+	return (arraySum(array) / array.length); 
+});
+elation.extend("utils.arraysum", function(array) {
+	for (var i=total=0; i<array.length; i++) 
+    total += array[i];
+	
+  return total;
+});
 
 //Returns true if it is a DOM node
 elation.extend("utils.isnode", function(obj) {

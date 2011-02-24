@@ -108,14 +108,12 @@ class Component_utils extends Component {
     if (!empty($panel["items"])) {
       foreach ($panel["items"] as $name=>$item) {
         $realname = ($nameprefix !== NULL ? $nameprefix . "_" : "") . $name . $item["enabled"];
-          if (($item["ajax"] || $item["component"] == "utils.panel")) {
-            $ret[$realname] = $item;
-          } else if (!empty($item["items"])) {
-            $ret = array_merge($ret, self::PanelFilterAjax($item, $realname));
-          }
+        if (($item["ajax"] || $item["component"] == "utils.panel")) {
+          $ret[$realname] = $item;
+        } else if (!empty($item["items"])) {
+          $ret = array_merge($ret, self::PanelFilterAjax($item, $realname));
         }
       }
-    }
     }
     return $ret;
   }

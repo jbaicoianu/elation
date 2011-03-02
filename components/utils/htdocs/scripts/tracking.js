@@ -76,24 +76,11 @@ elation.extend('googleanalytics', function(args) {
   $TF("#tf_search_links_coupons").click(function() {self.trackEvent(['links', 'theWeb', 'coupons'])});
   $TF("#tf_search_links_reviews").click(function() {self.trackEvent(['links', 'theWeb', 'reviews'])});
 
-
-  //Merchantcenter footer link tracking
-  $TF('#tf_footer_merchantcenter').click(function() {
-    self.trackEvent(['merchant_center', self.cobrand, self.pagetype]);
-    if (self.query != 'none') {
-      self.trackEvent(['merchant_center', 'serp_footer', self.cobrand]);
-    }
-    else {
-      self.trackEvent(['merchant_center', 'home_footer', self.cobrand]);
-    }
-  });
-
   //Don't know if the below ever gets fired ... 
   $TF('#tf_middle_bottom_merchantcenter').click(function() {
     self.trackEvent(['merchant_center', self.cobrand, self.pagetype]);
     self.trackEvent(['merchant_center', 'home_retailer', self.cobrand]);
   });
-
 
 	delete self;
 

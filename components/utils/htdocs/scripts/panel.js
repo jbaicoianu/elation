@@ -114,15 +114,15 @@ elation.extend('panel', new function(options) {
     if (typeof googleAnalytics == 'object') {
       googleAnalytics.mouseovertype = item.name;
       if (item.name == "shoplikeme")
-        googleAnalytics.trackEvent(['tab', 'shoplikeme']);
+        googleAnalytics.trackEvent(['tab', 'shoplikeme', googleAnalytics.pagetype]);
       else if (item.name == "theweb")
-        googleAnalytics.trackEvent(['tab', 'theWeb']);
+        googleAnalytics.trackEvent(['tab', 'theWeb', googleAnalytics.pagetype]);
 			else if (item.name == "nearby")
-        googleAnalytics.trackEvent(['tab', 'nearby']);
+        googleAnalytics.trackEvent(['tab', 'nearby', googleAnalytics.pagetype]);
       else if (item.name == "shoplikefriends")
-        googleAnalytics.trackEvent(['tab', 'shoplikefriends']);
+        googleAnalytics.trackEvent(['tab', 'shoplikefriends', googleAnalytics.pagetype]);
 			else if (item.name == "myfinds")
-        googleAnalytics.trackEvent(['tab', 'myfinds']);
+        googleAnalytics.trackEvent(['tab', 'myfinds', googleAnalytics.pagetype]);
       else
         googleAnalytics.trackEvent(['popup_tab', googleAnalytics.mouseovertype]);
     }

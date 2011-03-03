@@ -576,9 +576,15 @@ function makeRequestURL($page, $args=NULL, $ignore=NULL) {
 }
 function object_to_xml($obj, $container="", $level=0) {
   $tabs = str_repeat("\t",$level);
+  if (is_array($container)) {
+    $properties = $container[1];
+    $container = $container[0];
+  } else {
+    $properties = array();
+  }
   if (is_object($obj)) {
     $xml = $tabs . "<$container";
-    $properties = get_object_vars($obj);
+    $properties = array_merge($properties, get_object_vars($obj));
     $attributes = $children = array();
     foreach ($properties as $k=>$v) {
       if (is_object($v) || is_array($v))
@@ -600,12 +606,29 @@ function object_to_xml($obj, $container="", $level=0) {
       $xml .= " />\n";
     }
   } else if (is_array($obj)) {
-    $xml = $tabs . "<$container>\n";
+    $subxml = "";
+    $allnumeric = true;
     foreach ($obj as $k=>$v) {
-      $subcontainer = (is_object($v) ? get_class($v) : $k);
-      $xml .= object_to_xml($v, $subcontainer, $level+1);
+      $subcontainer = $k;
+      if (is_object($v)) {
+        $allnumeric = false;
+        $subcontainer = get_class($v);
+      } else if (is_numeric($k)) {
+        $subcontainer = array($container, array("id" => $k));
+      }
+      $subxml .= object_to_xml($v, $subcontainer, $level+1);
     }
-    $xml .= $tabs . "</" . $container . ">\n";
+    if (!$allnumeric) {
+      $xml = $tabs . "<$container";
+      foreach ($properties as $k=>$v) {
+        $xml .= sprintf(' %s="%s"', htmlspecialchars($k), htmlspecialchars($v));
+      }
+      $xml .= ">\n";
+    }
+    $xml .= $subxml;
+    if (!$allnumeric) {
+      $xml .= $tabs . "</" . $container . ">\n";
+    }
   } else {
     if ($obj !== NULL)
       $xml .= sprintf("%s<%s>%s</%s>\n", $tabs, $container, $obj, $container);

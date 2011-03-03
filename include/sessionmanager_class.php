@@ -38,6 +38,9 @@ class SessionManager
   public $is_new_user;                  // flag to indicate if this is a new user (no fl-uid)
   public $is_new_session = 0;           // determine if it is a new session
 
+  public $sessionsource = "cassandra.userdata.usersession";
+  public $sessiontable = "userdata.session";
+
   /**
    * List of domains for which we want to serve cookies at the top level for (ie, thefind.com)
    * Everything else uses the FQDN (ie, www.glimpse.com, shop.glimpse.com, etc)
@@ -250,11 +253,11 @@ class SessionManager
                                    "SELECT data FROM usersession.usersession WHERE fl_uid=:fl_uid LIMIT 1",
                                    array(":fl_uid" => $this->fluid));
       */
-      $result = DataManager::QueryFetch("db.userdata.usersession#{$this->flsid}",
-                                   "usersession.usersession",
+      $result = DataManager::QueryFetch($this->sessionsource . "#{$this->fluid}",
+                                   $this->sessiontable,
                                    array("fl_uid" => $this->fluid));
       if ($result && count($result) == 1) {
-        $data = $result[0];
+        $data = current($result);
         $_SESSION["persist"] = unserialize($data["data"]);
         $this->has_db_record = true;
         if (! $_SESSION["persist"]["has_db_record"]) {
@@ -358,9 +361,9 @@ class SessionManager
       $pdata_serialize = serialize($_SESSION["persist"]);
       $ip = $_SERVER['REMOTE_ADDR'];
       Logger::Warn("Creating session in database");
-      $result = DataManager::QueryInsert("db.userdata.usersession#{$this->flsid}",
-                                   "usersession.usersession",
-                                   array("fl_uid"=>$this->fluid, "data"=>$pdata_serialize, "ip_addr"=>$ip));
+      $result = DataManager::QueryInsert($this->sessionsource . "#{$this->fluid}",
+                                   $this->sessiontable,
+                                   array($this->fluid => array("fl_uid"=>$this->fluid, "data"=>$pdata_serialize, "ip_addr"=>$ip)));
       // set the $_SESSION
       $this->has_db_record = true;
     }
@@ -476,9 +479,9 @@ class SessionManager
                                      array(":data" => $pdata_serialize, ":fl_uid"  => $this->fluid)
                                      );
         */
-        $result = $this->data->QueryUpdate("db.userdata.usersession#{$id}",
-                                     "usersession.usersession",
-                                     array("data" => $pdata_serialize), 
+        $result = $this->data->QueryUpdate($this->sessionsource . "#{$this->fluid}",
+                                     $this->sessiontable,
+                                     array($this->fluid => array("data" => $pdata_serialize)), 
                                      array("fl_uid"  => $this->fluid)
                                      );
         Logger::Info("Updating userdata.usersession record for $this->fluid");
@@ -506,7 +509,7 @@ class SessionManager
   public function gc($maxlifetime)
   {
     $touched_limit = time() - $maxlifetime;
-    $result = $this->data->Query("db.userdata.usersession:nocache",
+    $result = $this->data->Query($this->sessionsource . ".userdata.usersession:nocache",
                                  "DELETE FROM usersession.usersession WHERE touched < :touched",
                                  array(":touched" => $touched_limit));
   }

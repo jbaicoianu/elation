@@ -482,7 +482,8 @@ elation.extend("ajax", new function() {
 
   this.processHash = function(hash) {
     return false;
-    url = String(document.location);
+    var url = String(document.location);
+    /*
     if (hash.length > 0)
       if (url.indexOf("#") > 0)
         this.Get(url.substr(0, url.indexOf("#")) + "?" + hash.substr(1));
@@ -490,6 +491,17 @@ elation.extend("ajax", new function() {
         this.Get(url + "?" + hash.substr(1));
     else
       this.Get(url.replace("#", "?"));
+    */
+    var url = elation.utils.parseURL(document.location.href);
+    console.log(document.location.href, url);
+    url.hash = "";
+    var hashparts = hash.split("&");
+    for (var i = 0; i < hashparts.length; i++) {
+      var argparts = hashparts[i].split("=");
+      url.args[argparts[0]] = url.args[argparts[1]];
+    }
+    console.log(elation.utils.makeURL(url));
+
   }
 
   this.setLoader = function(target, img, text) {
@@ -604,11 +616,11 @@ iframe = new Object();
     }
   }
   this.link = function(link, history) {
-    this.Get(link, history);
+    this.Get(link, null, {history: history});
     return false;
   }
   this.form = function(form, history) {
-    this.Post(form, history);
+    this.Post(form, null, {history: history});
     return false;
   }
 
@@ -640,15 +652,16 @@ function ajaxChild(url) {
   }
 }
 */
+//setTimeout(function() { setInterval(function() { elation.ajax.checkHistory(); }, 100); }, 1000);
 
 // Convenience functions to use within webpages
 function ajaxLink(ajaxlib, link, history) {
-  ajaxlib.Get(link, history);
+  elation.ajax.link(link, history);
   return false;
 }
 
 function ajaxForm(ajaxlib, form, history) {
-  ajaxlib.Post(form, history);
+  elation.ajax.form(form, history);
   return false;
 }
 

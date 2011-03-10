@@ -57,7 +57,7 @@ class Component extends Base {
               $ret = $this->CreateComponent($name, $componentclassname, NULL, $path, &$args);
             } catch (Exception $e) {
               //print_pre($e);
-              print "[Could not load component: $name]";
+              print "[Could not load component: " . htmlspecialchars($name) . "]";
             }
           } else if ($this->HasTemplate("./" . $name . ".tpl", $path)) {
             $ret = $this->CreateComponent($name, "ComponentTemplate", $this->path . "/" . $componentdir . "/templates/" . $name . ".tpl", $path, &$args);
@@ -255,10 +255,13 @@ class ComponentMissing extends Component {
   }
   
   function HandlePayload(&$args, $output="inline") {
+    /*
     if (($path = file_exists_in_path("templates/404.tpl", true)) !== false) {
       return $this->GetTemplate($path . "/templates/404.tpl", $this);
     }
     return $this->GetTemplate("404.tpl", $this);
+    */
+    return ComponentManager::fetch("elation.404", array("name" => $this->name), $output);
   }
 }
 

@@ -630,6 +630,16 @@ elation.extend("utils.getParent", function(element, tag, all_occurrences) {
   return (ret.length == 0 ? false : ret);
 });
 
+elation.extend("utils.isin", function(parent, element) {
+  if (!parent || !element)
+    return false;
+  
+ 	while (!elation.utils.isNull(element) && element != parent && element != document.body)
+    element = element.offsetParent;
+  
+  return (parent == element);
+});
+
 elation.extend("utils.indexOf", function(array, object) {
 	if (typeof array == 'string')
 		array = array.split("");
@@ -912,10 +922,17 @@ elation.extend("find", function(selectors, parent, first) {
       for (var p=0; parent = parents[p]; p++) {
         for (var q=0; q<section.length; q++) {
           isParent = (q = section.length - 1);
+          id = section[q].split('#');
           selector = section[q].split('.');
           tag = selector[0] || '*';
           tags = parent.getElementsByTagName(tag);
           classname = selector.length > 1 ? selector[1] : false;
+          
+          if (id.length > 1) {
+            elements.push(document.getElementById(id[1]));
+            
+            continue;
+          }
           
           for (var i=0; i<tags.length; i++) {
             if (classname) {

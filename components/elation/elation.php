@@ -302,4 +302,11 @@ class Component_elation extends Component {
   public function controller_accessviolation($args) {
     return $this->GetComponentResponse("./accessviolation.tpl");
   }
+  public function controller_404($args, $output="inline") {
+    $componentname = any(ConfigManager::get("page.404"), NULL);
+    if (!empty($componentname)) {
+      return ComponentManager::fetch($componentname, $args, $output);
+    }
+    return $this->GetComponentResponse("./404.tpl", $args);
+}
 }  

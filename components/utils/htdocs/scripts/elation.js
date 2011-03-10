@@ -75,49 +75,54 @@ elation.extend("component", new function() {
     var argsattr = this.namespace+':args';
     // Find all elements which have a namespace:componentattr attribute
 
-    //var elements = $TF("["+this.namespace+"\\:"+componentattr+"]"); 
-		/*
-    function nsresolver(prefix) {  
-      var ns = {  
-        'xhtml' : 'http://www.w3.org/1999/xhtml',  
-        'elation': 'http://www.ajaxelation.com/xmlns'  
-      };  
-			alert(ns[prefix]);
-      return ns[prefix] || null;  
-    }  
-		*/
-		
-    var nsresolver = document.createNSResolver(document.documentElement);
-		
-		// FIXME - I've started work to switch this over to use xpath selectors instead of jquery but namespaces make it a pain
-		//         Right now this is just selecting all elements, very inefficient...
-		//var selector = '//*['+this.namespace+':'+componentattr+']';
-		//var selector = "//*[@*["+this.namespace+":"+componentattr+"]]";
-		//var selector = "//*[@*[namespace-uri()='http://www.ajaxelation.com/xmlns']]";
-		//var selector = "//*[local-name()='component']";
-		var selector = "//*";
-		
-    var result = document.evaluate(selector, document, nsresolver, XPathResult.ANY_TYPE, null);
-    var elements = [];
-    while (element = result.iterateNext()) {
-      elements.push(element);
+    if (document.evaluate) {
+      if (document.createNSResolver) {
+        var nsresolver = document.createNSResolver(document.documentElement);
+      } else {
+        var nsresolver = function(prefix) {  
+          var ns = {  
+            'xhtml' : 'http://www.w3.org/1999/xhtml',  
+            'elation': 'http://www.ajaxelation.com/xmlns'  
+          };  
+          return ns[prefix] || null;  
+        }  
+      }
+      
+      // FIXME - I've started work to switch this over to use xpath selectors instead of jquery but namespaces make it a pain
+      //         Right now this is just selecting all elements, very inefficient...
+      //var selector = '//*['+this.namespace+':'+componentattr+']';
+      //var selector = "//*[@*["+this.namespace+":"+componentattr+"]]";
+      //var selector = "//*[@*[namespace-uri()='http://www.ajaxelation.com/xmlns']]";
+      //var selector = "//*[local-name()='component']";
+      var selector = "//*";
+      
+      var result = document.evaluate(selector, document, nsresolver, XPathResult.ANY_TYPE, null);
+      var elements = [];
+      while (element = result.iterateNext()) {
+        elements.push(element);
+      }
+    } else {
+      var elements = $TF("["+this.namespace+"\\:"+componentattr+"]"); 
     }
-		console.log('i init now');
     for (var i = 0; i < elements.length; i++) {
       var element = elements[i];
+      // Parse out the elation:component and elation:name attributes, if set.  Fall back on HTML id if no name specified
       var componenttype = element.getAttribute(this.namespace+':'+componentattr);
       var componentname = element.getAttribute(this.namespace+':name') || element.id;
       if (componenttype) {
         var componentargs = {}, j;
-        // First look for a JSON-encoded args array in the element's direct children
-        for (j = 0; j < element.children.length; j++) {
-          if (element.children[j].nodeName == argsattr.toUpperCase()) {
-            try {
-              componentargs = JSON.parse(element.children[j].innerHTML);
-              break; // only one args array per block, bail out when we find one so we don't waste time with the rest
-            } catch(e) {
-              // Probably JSON syntax error
-              console.log("Could not parse " + argsattr + ": " + element.children[j].innerHTML);
+        // First look for a JSON-encoded args array in the element's direct children (elation:args)
+        if (element.children) {
+          for (j = 0; j < element.children.length; j++) {
+            if (element.children[j].nodeName == argsattr.toUpperCase()) {
+              try {
+                componentargs = JSON.parse(element.children[j].innerHTML);
+                element.removeChild(element.children[j]);
+                break; // only one args array per block, bail out when we find one so we don't waste time with the rest
+              } catch(e) {
+                // Probably JSON syntax error
+                console.log("Could not parse " + argsattr + ": " + element.children[j].innerHTML);
+              }
             }
           }
         }
@@ -128,11 +133,7 @@ elation.extend("component", new function() {
           }
         }
         // Instantiate the new component with all parsed arguments
-        //elation.component.create(componenttype, element, componentargs);
-        var componentclass = elation.utils.arrayget(elation, componenttype);
-        if (typeof componentclass == 'function') {
-          componentclass(componentname, element, componentargs);
-        } 
+        elation.component.create(componentname, componenttype, element, componentargs);
       }
     }
   }
@@ -160,6 +161,13 @@ elation.extend("component", new function() {
     }
     el.fn.init.prototype = el.fn; // The functions which were passed in are attached to the insantiable component objects
     elation.extend(name, el); // inject the newly-created component wrapper into the main elation object
+  }
+  this.create = function(name, type, container, args) {
+    var componentclass = elation.utils.arrayget(elation, type);
+    if (typeof componentclass == 'function') {
+      return componentclass(name, container, args);
+    } 
+    console.log("elation: tried to instantiate unknown component type '" + type + "' named '" + name + "'", componentclass);
   }
 });
 

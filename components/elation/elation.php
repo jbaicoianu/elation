@@ -200,6 +200,10 @@ class Component_elation extends Component {
     return $this->GetComponentResponse("./apc.tpl", $vars);
   }
   function controller_abtests($args, $output="inline") {
+    $user = User::Singleton();
+    if (!($user->isLoggedIn() && ($user->HasRole("ADMIN")))) {
+      return ComponentManager::fetch("elation.accessviolation", NULL, "componentresponse");
+    }
     $data = DataManager::singleton();
     $req = $this->root->request['args'];
     $vars['err_msg'] = "";

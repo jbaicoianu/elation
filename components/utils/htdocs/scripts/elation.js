@@ -70,10 +70,14 @@ elation.extend("checkhash", new function() {
 elation.extend("component", new function() {
   this.namespace = "elation";
   this.registry = [];
-  this.init = function() {
+  this.init = function(root) {
     var componentattr = "component";
     var argsattr = this.namespace+':args';
     // Find all elements which have a namespace:componentattr attribute
+
+    if (root == undefined) {
+      root = document;
+    }
 
     if (document.evaluate) {
       if (document.createNSResolver) {
@@ -96,7 +100,7 @@ elation.extend("component", new function() {
       //var selector = "//*[local-name()='component']";
       var selector = "//*";
       
-      var result = document.evaluate(selector, document, nsresolver, XPathResult.ANY_TYPE, null);
+      var result = document.evaluate(selector, root, nsresolver, XPathResult.ANY_TYPE, null);
       var elements = [];
       while (element = result.iterateNext()) {
         elements.push(element);
@@ -110,30 +114,37 @@ elation.extend("component", new function() {
       var componenttype = element.getAttribute(this.namespace+':'+componentattr);
       var componentname = element.getAttribute(this.namespace+':name') || element.id;
       if (componenttype) {
-        var componentargs = {}, j;
-        // First look for a JSON-encoded args array in the element's direct children (elation:args)
-        if (element.children) {
-          for (j = 0; j < element.children.length; j++) {
-            if (element.children[j].nodeName == argsattr.toUpperCase()) {
-              try {
-                componentargs = JSON.parse(element.children[j].innerHTML);
-                element.removeChild(element.children[j]);
-                break; // only one args array per block, bail out when we find one so we don't waste time with the rest
-              } catch(e) {
-                // Probably JSON syntax error
-                console.log("Could not parse " + argsattr + ": " + element.children[j].innerHTML);
+        var componentinitialized = element.getAttribute(this.namespace+':componentinitialized') || false;
+        if (!componentinitialized) {
+          element.setAttribute(this.namespace+':componentinitialized', 1);
+          var componentargs = {}, j;
+          // First look for a JSON-encoded args array in the element's direct children (elation:args)
+          if (element.children) {
+            for (j = 0; j < element.children.length; j++) {
+              if (element.children[j].nodeName == argsattr.toUpperCase()) {
+                try {
+                  componentargs = JSON.parse(element.children[j].innerHTML);
+                  element.removeChild(element.children[j]);
+                  if (componentargs == null) { // empty JSON could cause errors later, so reset null to an empty hash
+                    componentargs = {};
+                  }
+                  break; // only one args array per block, bail out when we find one so we don't waste time with the rest
+                } catch(e) {
+                  // Probably JSON syntax error
+                  console.log("Could not parse " + argsattr + ": " + element.children[j].innerHTML);
+                }
               }
             }
           }
-        }
-        // Then, loop through the attributes and parse out any individual arguments which can be specified as attributes
-        for (j = 0; j < element.attributes.length; j++) {
-          if (element.attributes[j].nodeName.substring(0, argsattr.length+1) == argsattr+'.') {
-            componentargs[element.attributes[j].nodeName.substring(argsattr.length+1)] = element.attributes[j].nodeValue;
+          // Then, loop through the attributes and parse out any individual arguments which can be specified as attributes
+          for (j = 0; j < element.attributes.length; j++) {
+            if (element.attributes[j].nodeName.substring(0, argsattr.length+1) == argsattr+'.') {
+              componentargs[element.attributes[j].nodeName.substring(argsattr.length+1)] = element.attributes[j].nodeValue;
+            }
           }
+          // Instantiate the new component with all parsed arguments
+          elation.component.create(componentname, componenttype, element, componentargs);
         }
-        // Instantiate the new component with all parsed arguments
-        elation.component.create(componentname, componenttype, element, componentargs);
       }
     }
   }

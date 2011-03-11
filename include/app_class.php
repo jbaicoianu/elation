@@ -135,7 +135,7 @@ class App {
 
     if (!empty($this->components)) {
       try {
-        $output = $this->components->Dispatch($path, $args);
+        $output = $this->components->Dispatch($path, $args, $this->request["type"]);
       } catch (Exception $e) {
         //print_pre($e);
         $output["content"] = $this->HandleException($e);

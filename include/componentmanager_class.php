@@ -29,9 +29,9 @@ class ComponentManager extends Component {
     $this->Component("", $parent);
   }
 
-  function Dispatch($page=NULL, $args=NULL) {
+  function Dispatch($page=NULL, $args=NULL, $output="html") {
     $alternateret = $this->HandleDispatchArgs($args);
-    $outputtype = any($args["_output"], (!empty($_SERVER["HTTP_X_AJAX"]) ? "ajax" : "html"));
+    $outputtype = any($args["_output"], (!empty($_SERVER["HTTP_X_AJAX"]) ? "ajax" : $output), "html");
 
     if ($args === NULL) {
       $args = $_REQUEST;

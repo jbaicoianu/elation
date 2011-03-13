@@ -923,8 +923,8 @@ elation.extend('cookie', {
 });
 elation.extend("find", function(selectors, parent, first) {
   /*
-    selector engine can use commas, spaces, and find classnames via period.
-    need to add id support and multiple classname on single tag support
+    selector engine can use commas, spaces, and find classnames via period or id's via hash.
+    need to add multiple classname on single tag support
     this code is used for browsers which dont have their own selector engines
     this could be made a lot better.
   */
@@ -972,14 +972,17 @@ elation.extend("find", function(selectors, parent, first) {
     
     return elements;
   }
-
+  
   var result;
   
+  // first returns the first element only.
+  // the parent parm can also act as first parm if boolean true
   if (elation.utils.isTrue(parent)) {
     first = true;
     parent = null;
   }
   
+  // use browsers native selector engine if available
   if (document.querySelectorAll) 
     result = (parent) 
       ? parent.querySelectorAll(selectors) 

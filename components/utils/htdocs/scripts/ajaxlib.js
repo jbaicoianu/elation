@@ -164,16 +164,16 @@ elation.extend("ajax", new function() {
   }
 
   this.processResponse = function(responses) {
-    /* DISABLED - back button code (still seems to be working...)
+    // DISABLED - back button code (still seems to be working...)
 		if (
-			(typeof thefind != 'undefined' && typeof thefind.ajax_back_button != 'undefined') && 
+			(typeof elation.search != 'undefined' && typeof elation.search.backbutton != 'undefined') && 
 			(typeof search != 'undefined' && search.urlhash) && 
 			(typeof obj != 'undefined' && obj.url == '') && 
 			(!ignore)
 		) {
-			thefind.ajax_back_button.add(dom, docroot, obj);
+			elation.search.backbutton.add(dom, docroot, obj);
 		}
-    */
+    
 		// Used to keep track of registered dependencies, etc. while all responses are processed
     var common = { 
       inlinescripts: [],

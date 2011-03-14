@@ -51,6 +51,16 @@ class Component_utils extends Component {
     $vars["panel"]["enabled"] = any($args["enabled"], (isset($vars["panel"]["cfg"]["enabled"]) ? $vars["panel"]["cfg"]["enabled"] : true));
     $vars["panel"]["args"] = any($args["panelargs"], array());
 
+    // If the apicomponent option is set for this panel, execute the specified component
+    if (!empty($vars["panel"]["cfg"]["apicomponent"])) {
+      $apicomponentargs = array_merge_recursive(any($vars["panel"]["cfg"]["apicomponentargs"], array()), $args);
+      if ($output != "html" && $output != "inline" && $output != "popup" && $output != "snip") {
+        $ret = ComponentManager::fetch($vars["panel"]["cfg"]["apicomponent"], $apicomponentargs, $output);
+      } else {
+        $vars["apicomponentoutput"] = ComponentManager::fetch($vars["panel"]["cfg"]["apicomponent"], $apicomponentargs, "data");
+      }
+    }
+
     if ($output == "ajax") {
       $ret = array();
       $ajaxpanels = self::PanelFilterAjax($vars["panel"]["cfg"]);
@@ -62,7 +72,7 @@ class Component_utils extends Component {
           $ret[$vars["panel"]["id"] . "_" . $k] = ComponentManager::fetch($p["component"], $p["componentargs"]);
         }
       }
-    } else {
+    } else if (empty($ret)) {
       if (!empty($vars["panel"]["enabled"]))
         $ret = $this->GetTemplate("./panel.tpl", $vars);
     }
@@ -74,7 +84,7 @@ class Component_utils extends Component {
       if (!empty($vars["panelitem"]["componentargs"])) {
         $vars["panelitem"]["componentargs"] = array_merge($args["panelargs"], $vars["panelitem"]["componentargs"]);
       } else {
-        $vars["panelitem"]["componentargs"] = $vars["panelargs"];
+        $vars["panelitem"]["componentargs"] = $args["panelargs"];
       }
     }
     return $this->GetTemplate("./panel_item.tpl", $vars);

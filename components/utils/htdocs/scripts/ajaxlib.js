@@ -163,7 +163,7 @@ elation.extend("ajax", new function() {
     return true;
   }
 
-  this.processResponse = function(responses) {
+  this.processResponse = function(responses, ignore) {
     // DISABLED - back button code (still seems to be working...)
 		if (
 			(typeof elation.search != 'undefined' && typeof elation.search.backbutton != 'undefined') && 
@@ -224,6 +224,7 @@ elation.extend("ajax", new function() {
             script_text += common.inlinescripts[i] + '\n';
         }
         try {
+          alert(script_text);
           eval(script_text);
         } catch(e) {
           batch.callback(script_text);

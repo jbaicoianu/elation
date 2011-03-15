@@ -167,9 +167,9 @@ elation.extend("ajax", new function() {
 		if (
 			(typeof elation.search != 'undefined' && typeof elation.search.backbutton != 'undefined') && 
 			(typeof search != 'undefined' && search.urlhash) && 
-			(typeof obj != 'undefined' && obj.url == '')
+			(typeof obj != 'undefined' && obj.url == '' && !obj.ignore)
 		) {
-			elation.search.backbutton.add(responses, document.body, obj);
+			elation.search.backbutton.add(responses, obj);
 		}
     
 		// Used to keep track of registered dependencies, etc. while all responses are processed

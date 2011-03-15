@@ -311,8 +311,8 @@ elation.extend("html.hasclass", function(element, className) {
 });
 
 elation.extend("html.addclass", function(element, className) {
-  if (element && element.className && !elation.html.hasclass(element, className)) {
-    element.className += " " + className;
+  if (element && !elation.html.hasclass(element, className)) {
+    element.className += (element.className ? " " : "") + className;
   }
 }); 
 

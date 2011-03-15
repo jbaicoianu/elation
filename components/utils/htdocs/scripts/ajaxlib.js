@@ -163,15 +163,13 @@ elation.extend("ajax", new function() {
     return true;
   }
 
-  this.processResponse = function(responses, ignore) {
-    // DISABLED - back button code (still seems to be working...)
+  this.processResponse = function(responses, obj) {
 		if (
 			(typeof elation.search != 'undefined' && typeof elation.search.backbutton != 'undefined') && 
 			(typeof search != 'undefined' && search.urlhash) && 
-			(typeof obj != 'undefined' && obj.url == '') && 
-			(!ignore)
+			(typeof obj != 'undefined' && obj.url == '')
 		) {
-			elation.search.backbutton.add(dom, docroot, obj);
+			elation.search.backbutton.add(responses, document.body, obj);
 		}
     
 		// Used to keep track of registered dependencies, etc. while all responses are processed
@@ -417,7 +415,7 @@ elation.extend("ajax", new function() {
             var dom = xmlhttp.responseXML.firstChild;
             var results = [];
             
-            processResponse.call(elation.ajax, elation.ajax.translateXML(dom));
+            processResponse.call(elation.ajax, elation.ajax.translateXML(dom), obj);
             
             if (obj.callback) {
               elation.ajax.executeCallback(obj.callback, xmlhttp.responseText);

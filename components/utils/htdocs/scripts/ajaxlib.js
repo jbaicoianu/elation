@@ -167,7 +167,7 @@ elation.extend("ajax", new function() {
 		if (
 			(typeof elation.search != 'undefined' && typeof elation.search.backbutton != 'undefined') && 
 			(typeof search != 'undefined' && search.urlhash) && 
-			(typeof obj != 'undefined' && obj.url == '' && !obj.ignore)
+			(typeof obj != 'undefined' && obj.url == '' && !elation.utils.isTrue(obj.ignore))
 		) {
 			elation.search.backbutton.add(responses, obj);
 		}

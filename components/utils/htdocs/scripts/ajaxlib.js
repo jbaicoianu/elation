@@ -224,7 +224,6 @@ elation.extend("ajax", new function() {
             script_text += common.inlinescripts[i] + '\n';
         }
         try {
-          alert(script_text);
           eval(script_text);
         } catch(e) {
           batch.callback(script_text);

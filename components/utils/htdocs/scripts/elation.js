@@ -1,4 +1,7 @@
-var elation = new function() {
+var elation = new function(selector, parent, first) {
+  if (typeof selector == 'string' && typeof elation.find == 'function')
+    elation.find(selector, parent, first);
+  
   this.extend = function(name, func, clobber) {
 		var ptr = this,
 				parts = name.split("."),
@@ -50,7 +53,7 @@ elation.extend('utils.logging', function(txt) {
 elation.extend("checkhash", new function() {
   this.timer = setInterval(function() { 
     try { 
-      if (typeof elation.search.backbutton == 'object') {
+      if (elation.search && elation.search.backbutton) {
         elation.search.backbutton.check();
       }
     } catch(e) { }
@@ -921,6 +924,24 @@ elation.extend('cookie', {
     }
 	}
 });
+elation.extend("url", function() {
+  this.hash = {};
+  var hash = window.location.hash;
+  
+  if (hash)
+    hash = hash.split('#')[1].split('&');
+  
+  for (var i=0; i<hash.length; i++) {
+    var parm = hash[i].split('=');
+    
+    this.hash[parm[0]] = parm[1];
+  }
+  
+  return this.hash;
+});
+elation.extend("id", function(id) {
+  return elation.find(id, true);
+});
 elation.extend("find", function(selectors, parent, first) {
   /*
     selector engine can use commas, spaces, and find classnames via period or id's via hash.
@@ -1561,19 +1582,21 @@ elation.extend('data', new function() {
 			this[name].push(data[i]);
 	}
 	
-	this.find = function(name, path, value) {
+	this.find = function(name, path, value, get_all) {
 		if (elation.utils.isNull(this[name]))
 			return false;
 		
+    var ret = [];
+    
 		for (var i=0; i<this[name].length; i++) {
 			var item = this[name][i],
 					property = elation.utils.arrayget(item, path);
 			
 			if (property == value)
-				return item;
+				ret.push(item);
 		}
-		
-		return false;
+    
+		return (ret.length == 0 ? false : get_all ? ret : ret[0]);
 	}
 });
 

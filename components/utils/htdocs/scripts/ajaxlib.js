@@ -163,16 +163,20 @@ elation.extend("ajax", new function() {
     return true;
   }
 
-  this.processResponse = function(responses, obj) {
-		if (
-			(typeof elation.search != 'undefined' && typeof elation.search.backbutton != 'undefined') && 
-			(typeof search != 'undefined' && search.urlhash) && 
-			(typeof obj != 'undefined' && obj.url == '' && !elation.utils.isTrue(obj.ignore))
-		) {
-			elation.search.backbutton.add(responses, obj);
-		}
+  this.processResponse = function(responses, nobj) {
+    // If there's no obj variable, this isn't being called from a closure so use the function argument instead
+    if (typeof obj == 'undefined') { 
+      obj = nobj;
+    }
+    if (
+      (typeof elation.search != 'undefined' && typeof elation.search.backbutton != 'undefined') && 
+      (typeof search != 'undefined' && search.urlhash) && 
+      (typeof obj != 'undefined' && obj.url == '' && !elation.utils.isTrue(obj.ignore))
+    ) {
+      elation.search.backbutton.add(responses, obj);
+    }
     
-		// Used to keep track of registered dependencies, etc. while all responses are processed
+    // Used to keep track of registered dependencies, etc. while all responses are processed
     var common = { 
       inlinescripts: [],
       data: {},
@@ -194,7 +198,7 @@ elation.extend("ajax", new function() {
       if (common.dependencies.css.hasOwnProperty(key)) {
         if (common.dependencies.css[key].length > 0) {
           cssparms += key + '=' + common.dependencies.css[key].join('+') + '&';
-				}
+        }
       }
     }
     for (var key in common.dependencies.javascript) {

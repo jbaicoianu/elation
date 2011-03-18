@@ -51,6 +51,7 @@ elation.extend('utils.logging', function(txt) {
 });
 
 elation.extend("checkhash", new function() {
+  console.log('checkhash instantiate');
   this.timer = setInterval(function() { 
     try { 
       if (elation.search && elation.search.backbutton) {

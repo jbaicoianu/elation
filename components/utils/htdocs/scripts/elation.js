@@ -83,7 +83,7 @@ elation.extend("component", new function() {
       root = document;
     }
 
-    if (document.evaluate) {
+    if (false && document.evaluate) { // FIXME - using jQuery to query namespace elements for now, the custom method below throws errors in IE
       if (document.createNSResolver) {
         var nsresolver = document.createNSResolver(document.documentElement);
       } else {
@@ -106,6 +106,7 @@ elation.extend("component", new function() {
       
       var result = document.evaluate(selector, root, nsresolver, XPathResult.ANY_TYPE, null);
       var elements = [];
+      var element;
       while (element = result.iterateNext()) {
         elements.push(element);
       }
@@ -119,13 +120,14 @@ elation.extend("component", new function() {
       var componentname = element.getAttribute(this.namespace+':name') || element.id;
       if (componenttype) {
         var componentinitialized = element.getAttribute(this.namespace+':componentinitialized') || false;
-        if (!componentinitialized) {
+        if (!componentinitialized) { // FIXME - this isn't working in IE, so components are getting reinitialized with each AJAX request
           element.setAttribute(this.namespace+':componentinitialized', 1);
           var componentargs = {}, j;
           // First look for a JSON-encoded args array in the element's direct children (elation:args)
           if (element.children) {
             for (j = 0; j < element.children.length; j++) {
-              if (element.children[j].nodeName == argsattr.toUpperCase()) {
+              // FIXME - IE seems to drop the namespace, might be related to above FIXME, so look for a child named "args"
+              if (element.children[j].nodeName == argsattr.toUpperCase() || element.children[j].nodeName == "args") { 
                 try {
                   componentargs = JSON.parse(element.children[j].innerHTML);
                   element.removeChild(element.children[j]);
@@ -180,7 +182,7 @@ elation.extend("component", new function() {
   this.create = function(name, type, container, args) {
     var componentclass = elation.utils.arrayget(elation, type);
     if (typeof componentclass == 'function') {
-      return componentclass(name, container, args);
+      return componentclass.call(componentclass, name, container, args);
     } 
     console.log("elation: tried to instantiate unknown component type '" + type + "' named '" + name + "'", componentclass);
   }

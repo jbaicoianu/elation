@@ -1013,7 +1013,7 @@ elation.extend("find", function(selectors, parent, first) {
   else
     result = this.findCore(selectors, parent);
   
-  if (first && typeof result == 'object')
+  if (first && (typeof result == 'object' || typeof result == 'function'))
     if (result.length > 0)
       result = result[0];
     else

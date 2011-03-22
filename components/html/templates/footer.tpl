@@ -55,6 +55,7 @@
            {/if}
         {/if}
         googleAnalytics.trackPageview();
+        googleAnalytics.trackEvent(["AB Test", "version", "{$version}"]) 
         pandoraLog = new TFHtmlUtilsPandoraLog();
       {rdelim});
     </script>

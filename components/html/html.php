@@ -33,7 +33,7 @@ class Component_html extends Component {
     if ($webapp->request['referer']['host'] && !stristr($webapp->request['referer']['host'], $webapp->request['host'])) {
       $args['query'] = $this->getQueryFromURL($webapp->request['referrer'], $args['store_name']);
     } else {
-      $args['query'] = $this->sanitizeStrForGA(any($analytics->search["input"]["query"], 'none'));
+      $args['query'] = $this->sanitizeStrForGA(any($analytics->search["input"]["query"], $analytics->qpmreq->query, 'none'));
     }
 
     $args['bs'] = $componentmgr->pagecfg; //testing

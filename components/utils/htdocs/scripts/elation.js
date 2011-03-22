@@ -51,14 +51,15 @@ elation.extend('utils.logging', function(txt) {
 });
 
 elation.extend("checkhash", new function() {
-  this.timer = setInterval(function() { 
-    try { 
-      if (elation.search && elation.search.backbutton) {
-        elation.search.backbutton.check();
-      }
-    } catch(e) { }
-  }, 500);
-  
+  var init = function() {
+    this.timer = setInterval(function() { 
+      try { 
+        if (elation.search && elation.search.backbutton) {
+          elation.search.backbutton.check();
+        }
+      } catch(e) { }
+    }, 500);
+  }
   this.fetch = function(url, callback) {
     elation.ajax.Queue({
       url: url, 
@@ -68,6 +69,14 @@ elation.extend("checkhash", new function() {
       ]
     });
   }
+  
+  //(function(self) {
+    $TF(document).ready(function() {
+      setTimeout(function() {
+        init();
+      },1);
+    });
+  //})(this);
 });
 
 elation.extend("component", new function() {
@@ -272,11 +281,13 @@ elation.extend("html.dimensions", function(element, ignore_size) {
 			top = element.offsetTop,
       id = element.id || '';
 	
+  try {
 	while (element = element.offsetParent) {
-		top += element.offsetTop - element.scrollTop;
-		left += element.offsetLeft - element.scrollLeft;
+    top += element.offsetTop - element.scrollTop;
+    left += element.offsetLeft - element.scrollLeft;
 	}
-	
+  } catch(e) { console.log(e.message); }
+  
 	if (elation.browser.type == 'safari')
 		top += elation.html.getscroll(1);
 	
@@ -416,6 +427,21 @@ elation.extend('html.getscroll', function(shpadoinkle) {
 });
 elation.extend("html.get_scroll", elation.html.getscroll);
 elation.extend("html.getScroll", elation.html.getscroll);
+
+elation.extend("utils.isElement", function(obj) {
+  try {
+    //Using W3 DOM2 (works for FF, Opera and Chrome)
+    return obj instanceof HTMLElement;
+  }
+  catch(e){
+    //Browsers not supporting W3 DOM2 don't have HTMLElement and
+    //an exception is thrown and we end up here. Testing some
+    //properties that all elements have. (works on IE7)
+    return (typeof obj==="object") &&
+      (obj.nodeType===1) && (typeof obj.style === "object") &&
+      (typeof obj.ownerDocument ==="object");
+  }
+});
 
 elation.extend("utils.encodeURLParams", function(obj) {
   var value,ret = '';

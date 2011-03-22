@@ -170,14 +170,10 @@ elation.extend("events", {
   // returns mouse or all finger touch coords
 	coords: function(event) {
 		if (typeof event.touches != 'undefined' && event.touches.length > 0) {
-			var c = [];
-      
-      for (var i=0; i<events.touches.length; i++) {
-        c.push({
-          x: event.touches[i].pageX, 
-          y: event.touches[i].pageY
-        });
-      }
+			var c = {
+        x: event.touches[0].pageX, 
+        y: event.touches[0].pageY
+      };
 		} else {
 			var	c = {
         x: (event.pageX || (event.clientX + document.body.scrollLeft)),

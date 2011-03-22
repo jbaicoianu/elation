@@ -86,7 +86,7 @@ elation.extend('googleanalytics', function(args) {
 
 	if (this.GAalerts) {
     $TF('body').append(
-      '<div id="ga_tagbox" style="position:fixed;left:0;top:0;border:1px dotted black;padding:5px;background-color:#eef;text-align:left;display:none"></div>'
+      '<div id="ga_tagbox" style="position:fixed;left:0;top:0;border:1px dotted black;padding:5px;background-color:#eef;text-align:left;display:none;z-index:10000"></div>'
     );
     $TF('#ga_tagbox').css('opacity', 0.9).click(function() {$TF(this).css('display', 'none')});
   }

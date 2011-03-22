@@ -44,7 +44,7 @@ class Component_html extends Component {
     $args['status'] = any($analytics->status, $webapp->response['http_status']);
     $args['total'] = $analytics->total;
 
-    $args['GAenabled'] = $args['pagegroup'] ? $webapp->cfg->servers['tracking']['googleanalytics']['enabled'] : 0;
+    $args['GAenabled'] = $args['pagegroup'] ? any(ConfigManager::get("tracking.googleanalytics.enabled"),$webapp->cfg->servers['tracking']['googleanalytics']['enabled']) : 0;
     $args['GAalerts'] = $webapp->GAalerts;
 
     $args['trackingcode'] = $webapp->cfg->servers['tracking']['googleanalytics']['trackingcode'];

@@ -282,10 +282,10 @@ elation.extend("html.dimensions", function(element, ignore_size) {
       id = element.id || '';
 	
   try {
-	while (element = element.offsetParent) {
-    top += element.offsetTop - element.scrollTop;
-    left += element.offsetLeft - element.scrollLeft;
-	}
+    while (element = element.offsetParent) {
+      top += element.offsetTop - element.scrollTop;
+      left += element.offsetLeft - element.scrollLeft;
+    }
   } catch(e) { console.log(e.message); }
   
 	if (elation.browser.type == 'safari')

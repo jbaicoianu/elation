@@ -223,7 +223,7 @@ class ConfigManager extends Base {
         $cfg1[$k] = $cfg2[$k];
       }
     }
-    //$this->locations = $this->getLocations();
+    $this->locations = $this->getLocations();
     Profiler::StopTimer("ConfigManager::ConfigMerge()");
   }
   /**
@@ -461,7 +461,9 @@ class ConfigManager extends Base {
         $query = DataManager::Query("db.config.cobrand.{$cobrandname}.version:nocache",
                               "INSERT INTO config.version (cobrandid, role, revision, added, updated) VALUES(:cobrandid, :role, 1, now(), now())",
                               array(":cobrandid" => $query->id,
-                                    ":role" => "dev")); // FIXME - should this add to all versions or just let the migrate script handle this?
+                                    ":role" => $this->role)); // FIXME - should this add to all versions or just let the migrate script handle this?
+        DataManager::CacheClear("db.config.version.ALL.{$this->role}");
+        DataManager::CacheClear("db.config.version.$cobrandname.{$this->role}");
       }
     }
     return $ret;

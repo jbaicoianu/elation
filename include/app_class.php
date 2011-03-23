@@ -356,6 +356,13 @@ class App {
       ConfigManager::merge($rolecfg);
     }
 
+    if ($this->request["ssl"]) {
+      $included_config = $this->cfg->GetConfig("classes.secure", false, $this->cfg->servers["role"]);
+      if (!empty($included_config))
+        ConfigManager::merge($included_config);
+    }
+
+
     $browseroverride = any($this->request["args"]["sess"]["browser.override"], $_SESSION["temporary"]["user"]["preferences"]["browser"]["override"], NULL);
     if ($browseroverride !== NULL)
       $this->request["browser"] = $browseroverride;

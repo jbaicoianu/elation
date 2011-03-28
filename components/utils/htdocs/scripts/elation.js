@@ -1295,6 +1295,23 @@ elation.extend('file.dependencies', new function() {
 	}
 });
 
+elation.extend('ui.gradient', function(element, first, last) {
+	switch (elation.browser.type) {
+		case "msie": 
+			element.style.filter = "progid:DXImageTransform.Microsoft.gradient(startColorstr='"+first+"', endColorstr='"+last+"')"; 
+			break;
+		
+		case "safari": 
+			element.style.cssText = "background:-webkit-gradient(linear, left top, left bottom, from("+first+"), to("+last+"));"; 
+			break;
+		
+		case "firefox": 
+			//console.log('firefox', element, first, last);
+			element.style.cssText = "background:-moz-linear-gradient(top, "+first+", "+last+");"; 
+			break;
+	}
+});
+
 elation.extend('ui.getCaretPosition', function(oField) {
 	// Initialize
 	var iCaretPos = 0;

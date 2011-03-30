@@ -53,7 +53,7 @@
            {else}
               googleAnalytics.setCustomVar(4, "UserID", "notLoggedin", 2);
            {/if}
-           googleAnalytics.trackEvent(["AB Test", "version", "{$version}"]) 
+           //googleAnalytics.trackEvent(["AB Test", "version", "{$version}"]) 
         {/if}
         googleAnalytics.trackPageview();
         pandoraLog = new TFHtmlUtilsPandoraLog();

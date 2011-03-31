@@ -144,6 +144,10 @@ class ComponentManager extends Component {
       "page_type"     => $pagecfg["pagename"],
     );
 
+    if (!ConfigManager::get("tracking.pandora", true)) {
+      $pandora->setFlag(false);
+    }
+
     if ($pagecfg['pagename'] && $pandora instanceof PandoraLog) {
       $pandora->addData("pages", $pandora_pages);
       // if $pagecfg["pagename"] known, update the session

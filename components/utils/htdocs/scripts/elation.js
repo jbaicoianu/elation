@@ -60,6 +60,7 @@ elation.extend("checkhash", new function() {
       } catch(e) { }
     }, 500);
   }
+  
   this.fetch = function(url, callback) {
     elation.ajax.Queue({
       url: url, 
@@ -75,7 +76,7 @@ elation.extend("checkhash", new function() {
     $TF(document).ready(function() {
       setTimeout(function() {
         init();
-      },1);
+      }, 100);
     });
   }
   //})(this);
@@ -1308,7 +1309,6 @@ elation.extend('ui.gradient', function(element, first, last) {
 			break;
 		
 		case "firefox": 
-			//console.log('firefox', element, first, last);
 			element.style.cssText = "background:-moz-linear-gradient(top, "+first+", "+last+");"; 
 			break;
 	}

@@ -170,12 +170,13 @@ system_package() {
     cp elation $INSTALLDIR/usr/bin
     cp -r components config htdocs include lib README templates tests util $INSTALLDIR/usr/share/elation
     cp -r config/* $INSTALLDIR/etc/elation
+    echo
+    # Evaluate shell variables in control file
     CONTROLFILE="echo \"$(cat debian/control)\""
     eval "$CONTROLFILE" |tee $INSTALLDIR/DEBIAN/control
-    #echo $(cat debian/control) |tee $INSTALLDIR/DEBIAN/control
 
     cd debian/package/
-    dpkg-deb --build elation-$VERSION
+    fakeroot dpkg-deb --build elation-$VERSION
     if [ -e elation-$VERSION.deb ]; then
       mv elation-$VERSION.deb ../..
       echo done

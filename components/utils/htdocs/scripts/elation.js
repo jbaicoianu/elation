@@ -60,7 +60,6 @@ elation.extend("checkhash", new function() {
       } catch(e) { }
     }, 500);
   }
-  
   this.fetch = function(url, callback) {
     elation.ajax.Queue({
       url: url, 
@@ -75,7 +74,7 @@ elation.extend("checkhash", new function() {
     $TF(document).ready(function() {
       setTimeout(function() {
         init();
-      }, 100);
+      }, 500);
     });
   //})(this);
 });
@@ -287,7 +286,7 @@ elation.extend("html.dimensions", function(element, ignore_size) {
       top += element.offsetTop - element.scrollTop;
       left += element.offsetLeft - element.scrollLeft;
     }
-  } catch(e) { console.log(e.message); }
+  } catch(e) { console.log('html.dimensions: '+e.message); }
   
 	if (elation.browser.type == 'safari')
 		top += elation.html.getscroll(1);

@@ -71,11 +71,13 @@ elation.extend("checkhash", new function() {
   }
   
   //(function(self) {
+  if (typeof $TF != 'undefined') {
     $TF(document).ready(function() {
       setTimeout(function() {
         init();
       }, 500);
     });
+  }
   //})(this);
 });
 

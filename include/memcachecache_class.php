@@ -87,20 +87,21 @@ class MemcacheCache extends Cache {
     $persist = ($this->cfg["persist"]) ? true : false;
 
     // add to the list
-    foreach ($this->cfg["servers"] as $server) {
-      list($host, $port) = explode(":", $server);
-      if (empty($port)) 
-        $port = 11211; // default memcache port
+    if (!empty($this->cfg["servers"])) {
+      foreach ($this->cfg["servers"] as $server) {
+        list($host, $port) = explode(":", $server);
+        if (empty($port)) 
+          $port = 11211; // default memcache port
 
-      //Profiler::StartTimer("MemcacheCache::addServers()");
-      $this->servers[$host] = $params = array("port"    => $port,
-                                              "timeout" => $timeout,
-                                              "persist" => $persist);
-      //Logger::Info("Added memcache server - %s:%s (persist=%d)", $host, $params["port"], $params["persist"]);
+        //Profiler::StartTimer("MemcacheCache::addServers()");
+        $this->servers[$host] = $params = array("port"    => $port,
+                                                "timeout" => $timeout,
+                                                "persist" => $persist);
+        //Logger::Info("Added memcache server - %s:%s (persist=%d)", $host, $params["port"], $params["persist"]);
 
-      $this->cache_obj->addServer($host, $params["port"], $params["persist"]);
-      //Profiler::StopTimer("MemcacheCache::addServers()");
-
+        $this->cache_obj->addServer($host, $params["port"], $params["persist"]);
+        //Profiler::StopTimer("MemcacheCache::addServers()");
+      }
     }
   }
 
@@ -183,17 +184,19 @@ class MemcacheCache extends Cache {
 
     Profiler::StartTimer("MemcacheCache::getData()");
     Profiler::StartTimer("MemcacheCache::getData($key)", 4);
-    $cachedresult = $this->cache_obj->get($key);
-    if ($cachedresult) {
-      if (is_string($cachedresult))
-        $ret = unserialize($cachedresult);
-      else if (is_array($cachedresult)) {
-        foreach ($cachedresult as $k=>$v) {
-          $ret[$k] = unserialize($v);
+    if (!empty($this->cache_obj)) {
+      $cachedresult = $this->cache_obj->get($key);
+      if ($cachedresult) {
+        if (is_string($cachedresult))
+          $ret = unserialize($cachedresult);
+        else if (is_array($cachedresult)) {
+          foreach ($cachedresult as $k=>$v) {
+            $ret[$k] = unserialize($v);
+          }
         }
+        else
+          Logger::Error("Invalid datatype for '%s' in memcache - expected serialized string, found %s", $key, gettype($cachedresult));
       }
-      else
-        Logger::Error("Invalid datatype for '%s' in memcache - expected serialized string, found %s", $key, gettype($cachedresult));
     }
     Profiler::StopTimer("MemcacheCache::getData()");
     Profiler::StopTimer("MemcacheCache::getData($key)");

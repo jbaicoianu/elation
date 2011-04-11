@@ -2,7 +2,17 @@
 elation.extend("events", {
   events: {},
   
-  fire: function(element, type, fn) {
+  fire: function(type, fn, element, data) {
+    if (typeof type == 'object') {
+      fn = elation.utils.arrayget(type, 'fn') || fn;
+      element = elation.utils.arrayget(type, 'element') || element;
+      data = elation.utils.arrayget(type, 'data') || data;
+      type = elation.utils.arrayget(type, 'type');
+    }
+
+    if (!type)
+      return false;
+    
     var list = this.events[type],
         events = [],
         event;
@@ -14,7 +24,7 @@ elation.extend("events", {
       event = list[i];
       
       if (fn || element) {
-        if ((fn && event.data !== fn) || (element && event.target !== element))
+        if ((fn && event.origin !== fn) || (element && event.target !== element))
           continue;
         else
           events.push(event);
@@ -26,11 +36,11 @@ elation.extend("events", {
     for (var i=0; i<events.length; i++) {
       var event = events[i];
       
-      if (event.data) {
-        if (typeof event.data == 'function')
-          event.data(event);
-        else if (typeof event.data.handleEvent != 'undefined')
-          event.data.handleEvent(event);
+      if (event.origin) {
+        if (typeof event.origin == 'function')
+          event.origin(event);
+        else if (typeof event.origin.handleEvent != 'undefined')
+          event.origin.handleEvent(event);
       }
     }
     
@@ -41,7 +51,7 @@ elation.extend("events", {
     var event = { 
       type: type, 
       target: element, 
-      data: fn,
+      origin: fn,
       preventDefault: function() { return; },
       cancelBubble: function() { return; },
       stopPropogation: function() { return; }

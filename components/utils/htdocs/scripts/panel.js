@@ -33,39 +33,39 @@ elation.extend('panel', new function(options) {
 					panel.items[k] = new elation.panel.add_item(k, v, panel);
 				});
 			}
+      if (panel.cfg) {
+        if (panel.cfg.jsobject && panel.cfg.jsobject != "false") {
+          var obj = eval(panel.cfg.jsobject);
+          
+          if (typeof obj == 'function') {
+            panel.jsobj = new obj(this, panel);
+            elation[panel.name] = panel.jsobj;
 
-			if (panel.cfg.jsobject && panel.cfg.jsobject != "false") {
-				var obj = eval(panel.cfg.jsobject);
-				
-				if (typeof obj == 'function') {
-					panel.jsobj = new obj(this, panel);
-					elation[panel.name] = panel.jsobj;
+            if (typeof panel.jsobj.init == 'function')
+              panel.jsobj.init();
+          }
+        }
 
-          if (typeof panel.jsobj.init == 'function')
-            panel.jsobj.init();
-				}
-			}
-
-			if (panel.cfg.navigation == "true") {
-				panel.container = document.getElementById(panel.cfg.targetid);
-				this.lis = $TF('div.tf_utils_panel_' + name + ' ul li');;
-        
-        for (var i=0; i<this.lis.length; i++)
-          if (elation.html.hasclass(this.lis[i], 'selected'))
-            panel.li = this.lis[i];
-				
-				for (var item in panel.items) {
-					var	element = panel.items[item].element;
-					
-					if (typeof element == 'object' && element.length > 0) {
-						elation.events.add(element[0], 'click', this);
-						element[0].onselectstart = function() { return(false); };
-					}
-				}
-				
-				panel.item = this.get_item(panel, $TF('div.tf_utils_panel_' + name + ' ul li.selected')[0]);
-			}
-			
+        if (panel.cfg.navigation == "true") {
+          panel.container = document.getElementById(panel.cfg.targetid);
+          this.lis = $TF('div.tf_utils_panel_' + name + ' ul li');;
+          
+          for (var i=0; i<this.lis.length; i++)
+            if (elation.html.hasclass(this.lis[i], 'selected'))
+              panel.li = this.lis[i];
+          
+          for (var item in panel.items) {
+            var	element = panel.items[item].element;
+            
+            if (typeof element == 'object' && element.length > 0) {
+              elation.events.add(element[0], 'click', this);
+              element[0].onselectstart = function() { return(false); };
+            }
+          }
+          
+          panel.item = this.get_item(panel, $TF('div.tf_utils_panel_' + name + ' ul li.selected')[0]);
+        }
+      }
 			panel.content = {};
 		}
     elation.timing.print(name + ' panel', true);

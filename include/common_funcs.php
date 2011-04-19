@@ -884,3 +884,7 @@ function isBot() {
   return false;
 }
 
+function is_json($str) {
+  $str = trim($str);
+  return (($str[0] == '{' && $str[-1] == '}') || ($str[0] == '[' && $str[-1] == ']') || ($str[0] == '"' && $str[-1] == '"'));
+}

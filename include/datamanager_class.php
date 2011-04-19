@@ -508,6 +508,15 @@ class DataManager {
     Logger::Notice("Rolled back transaction for queryid {$queryid->id}");
     return $ret;
   }
+  static function Quote($id, $str) {
+    Profiler::StartTimer("DataManager::Quote()");
+    $queryid = new DatamanagerQueryID($id);
+    if ($source =& DataManager::PickSource($queryid)) {
+      $ret = $source->Quote($queryid, $str);
+    }
+    Profiler::StopTimer("DataManager::Quote()");
+    return $ret;
+  }
 
 
   // Simple remappings

@@ -37,6 +37,7 @@ class ConnectionWrapper {
   function BeginTransaction($queryid) { return false; }
   function Commit($queryid) { return false; }
   function Rollback($queryid) { return false; }
+  function Quote($queryid, $str) { return $str; }
   function GenerateIndex($indexby, $item, $separator=".") {
    $idxby = explode(",", $indexby);
     foreach ($idxby as $k) {

@@ -589,6 +589,18 @@ class DBWrapper extends ConnectionWrapper {
     }
     return $ret;
   }
+  function Quote($queryid, $str) {
+    $servers = $this->HashToServer($queryid);
+    foreach ($servers as $server) {
+      $servernum = $server[0];
+      if (!$this->LazyOpen($servernum)) {
+        Logger::Info("Database connection '{$this->name}:{$servernum}' marked as failed, can't quote");
+      } else {
+        return $this->conn[$servernum]->quote($str);
+      }
+    }
+    return mysql_escape_string($str); // Deprecated function call used as a last-ditch fallback
+  }
 }
 
 /**
@@ -1382,6 +1394,9 @@ class DataBase {
   }
   public function rollBack() {
     return $this->db->rollBack();
+  }
+  public function quote($str) {
+    return $this->db->quote($str);
   }
 }
 ?>

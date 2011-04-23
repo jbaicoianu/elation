@@ -236,7 +236,7 @@ elation.extend('panel', new function(options) {
 		}
     
 		var componentname = item.args.contentcomponent || panel.cfg.contentcomponent;
-		
+
 		// ajax-fetch tab content
 		ajaxlib.Queue({
 			url: componentname, 

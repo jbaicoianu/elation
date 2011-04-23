@@ -127,7 +127,7 @@ class Component_elation extends Component {
     if ($user->isLoggedIn() && ($user->HasRole("ADMIN"))) {
       if (!empty($args["memcacheaction"])) {
         if ($args["memcacheaction"] == "delete" && !empty($args["memcachekey"])) {
-          $this->data->caches["memcache"]["data"]->delete($args["memcachekey"]);
+          DataManager::CacheClear($args["memcachekey"]);
           $vars["tf_debug_memcache_status"] = "Deleted key '{$args['memcachekey']}'";
         } else if ($args["memcacheaction"] == "flush" && !empty($args["memcachetype"])) {
           if (!empty($this->data->caches["memcache"][$args["memcachetype"]])) {

@@ -147,6 +147,8 @@ class App {
       $sitecfg = ConfigManager::get("conteg");
       if (is_array($sitecfg))
         $contegargs = array_merge($contegargs, $sitecfg);
+      if (is_array($this->sitecfg["conteg"]))
+        $contegargs = array_merge($contegargs, $this->sitecfg["conteg"]);
       if (empty($contegargs["type"]))
         $contegargs["type"] = any($this->request["contenttype"], $output["responsetype"]);
       if (is_array($contegargs["policy"][$contegargs["type"]])) {

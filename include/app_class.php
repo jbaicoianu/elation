@@ -144,8 +144,9 @@ class App {
       $this->session->quit();
 
       $contegargs = any($this->cfg->servers["conteg"], array());
-      if (is_array($this->sitecfg["conteg"]))
-        $contegargs = array_merge($contegargs, $this->sitecfg["conteg"]);
+      $sitecfg = ConfigManager::get("conteg");
+      if (is_array($sitecfg))
+        $contegargs = array_merge($contegargs, $sitecfg);
       if (empty($contegargs["type"]))
         $contegargs["type"] = any($this->request["contenttype"], $output["responsetype"]);
       if (is_array($contegargs["policy"][$contegargs["type"]])) {

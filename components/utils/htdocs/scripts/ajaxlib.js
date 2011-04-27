@@ -438,7 +438,7 @@ elation.extend("ajax", new function() {
       }
     }
 
-     //alert('trying '+obj.method+' '+obj.url);
+    //alert('trying '+obj.method+' '+obj.url);
     try {
       if (obj.method == "POST") {
         xmlhttp.open(obj.method, obj.url, true);
@@ -452,7 +452,7 @@ elation.extend("ajax", new function() {
         xmlhttp.onreadystatechange = readystatechange;
         xmlhttp.send(null);
       } else if (obj.method == "SCRIPT") {
-        var url = this.host + obj.url;
+        var url = (obj.url.match(/^https?:/) ? obj.url : this.host + obj.url);
         if (obj.args) url += '?' + elation.utils.encodeURLParams(obj.args);
         elation.file.get('javascript', url);
       }

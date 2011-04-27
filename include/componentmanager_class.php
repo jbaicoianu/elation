@@ -355,8 +355,8 @@ class ComponentResponse implements ArrayAccess {
       case 'html':
       case 'fhtml':
         $framecomponent = any(ConfigManager::get("page.frame"), "html.page");
-        $vars["content"] = $this;
-        $ret = array("text/html", ComponentManager::fetch($framecomponent, $vars, "inline"));
+        // If framecomponent is false/0, just return the raw content
+        $ret = array("text/html", (empty($framecomponent) ? $this->data["content"] : ComponentManager::fetch($framecomponent, array("content" => $this), "inline")));
         break;
       case 'popup': // Popup is same as HTML, but we only use the bare-minimum html.page frame
         $vars["content"] = $this;

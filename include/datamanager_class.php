@@ -129,6 +129,7 @@ class DataManager {
     global $webapp;
     
     Profiler::StartTimer("DataManager::Query()");
+    Profiler::StartTimer("DataManager::Query($id)", 3);
     $result = NULL;
     $qstart = microtime(true);
 
@@ -195,6 +196,7 @@ class DataManager {
     }
 
     Profiler::StopTimer("DataManager::Query()");
+    Profiler::StopTimer("DataManager::Query($id)");
     self::log("query", $id, $query, $qstart, microtime(true), $foundincache);
 
     return $result;
@@ -210,6 +212,7 @@ class DataManager {
    */
   static function &QueryInsert($id, $table, $values, $extra=NULL) {
     Profiler::StartTimer("DataManager::QueryInsert()");
+    Profiler::StartTimer("DataManager::QueryInsert($id)", 3);
     $qstart = microtime(true);
     $insert_id = NULL;
     $queryid = new DatamanagerQueryID($id);
@@ -220,6 +223,7 @@ class DataManager {
       }
     }
     Profiler::StopTimer("DataManager::QueryInsert()");
+    Profiler::StopTimer("DataManager::QueryInsert($id)");
     self::log("insert", $id, $table, $qstart, microtime(true));
     return $insert_id;
   }
@@ -235,6 +239,7 @@ class DataManager {
    */
   static function &QueryUpdate($id, $table, $values, $where_condition=NULL, $bind_vars=array()) {
     Profiler::StartTimer("DataManager::QueryUpdate()");
+    Profiler::StartTimer("DataManager::QueryUpdate($id)", 3);
     $qstart = microtime(true);
     $rows_affected = NULL;
     $queryid = new DatamanagerQueryID($id);
@@ -245,6 +250,7 @@ class DataManager {
       }
     }
     Profiler::StopTimer("DataManager::QueryUpdate()");
+    Profiler::StopTimer("DataManager::QueryUpdate($id)");
     self::log("update", $id, $table, $qstart, microtime(true));
     return $rows_affected;
   }
@@ -260,6 +266,7 @@ class DataManager {
    */
   static function &QueryDelete($id, $table, $where_condition=NULL, $bind_vars=array()) {
     Profiler::StartTimer("DataManager::QueryDelete()");
+    Profiler::StartTimer("DataManager::QueryDelete($id)", 3);
     $qstart = microtime(true);
     $rows_affected = NULL;
     $queryid = new DatamanagerQueryID($id);
@@ -267,6 +274,7 @@ class DataManager {
       $rows_affected = $source->QueryDelete($queryid, $table, $where_condition, $bind_vars);
     }
     Profiler::StopTimer("DataManager::QueryDelete()");
+    Profiler::StopTimer("DataManager::QueryDelete($id)");
     self::log("delete", $id, $table, $qstart, microtime(true));
     return $rows_affected;
   }
@@ -282,6 +290,7 @@ class DataManager {
    */
   static function &QueryCreate($id, $table, $columns) {
     Profiler::StartTimer("DataManager::QueryCreate()", 1);
+    Profiler::StartTimer("DataManager::QueryCreate($id)", 3);
     $qstart = microtime(true);
     $rows_affected = NULL;
     $queryid = new DatamanagerQueryID($id);
@@ -289,6 +298,7 @@ class DataManager {
       $rows_affected = $source->QueryCreate($queryid, $table, $columns);
     }
     Profiler::StopTimer("DataManager::QueryCreate()");
+    Profiler::StopTimer("DataManager::QueryCreate($id)");
     self::log("create", $id, $table, $qstart, microtime(true));
     return $rows_affected;
   }
@@ -303,6 +313,7 @@ class DataManager {
    */
   static function &QueryFetch($id, $table, $where=NULL, $extra=NULL) {
     Profiler::StartTimer("DataManager::QueryFetch()");
+    Profiler::StartTimer("DataManager::QueryFetch($id)", 3);
     $qstart = microtime(true);
     $result = NULL;
     $queryid = new DatamanagerQueryID($id);
@@ -336,6 +347,7 @@ class DataManager {
       }
     }
     Profiler::StopTimer("DataManager::QueryFetch()");
+    Profiler::StopTimer("DataManager::QueryFetch($id)");
     self::log("fetch", $id, $table, $qstart, microtime(true));
     return $result;
   }
@@ -349,6 +361,7 @@ class DataManager {
    */
   static function &QueryCount($id, $table, $where, $extra=NULL) {
     Profiler::StartTimer("DataManager::QueryCount()");
+    Profiler::StartTimer("DataManager::QueryCount($id)", 3);
     $qstart = microtime(true);
     $count = 0;
     $queryid = new DatamanagerQueryID($id);
@@ -356,6 +369,7 @@ class DataManager {
       $count = $source->QueryCount($queryid, $table, $where, $extra);
     }
     Profiler::StopTimer("DataManager::QueryCount()");
+    Profiler::StopTimer("DataManager::QueryCount($id)");
     self::log("count", $id, $table, $qstart, microtime(true));
     return $count;
   }

@@ -25,6 +25,8 @@ class Component extends Base {
   var $components;
   var $payload;
 
+  private $tplpathcache = array();
+
   function Component($name, &$parent, $payload=NULL, $path=".") {
     $this->Base($parent);
     $this->name = $name;
@@ -207,8 +209,12 @@ class Component extends Base {
   function ExpandTemplatePath($name) {
     $ret = $name;
     if ($name[0] == "." && $name[1] == "/") {
-      $dir = $this->GetComponentDirectory($this->path);
-      $ret = $dir . "/templates/" . substr($name, 2);
+      if (isset($this->tplpathcache[$name])) {
+        $ret = $this->tplpathcache[$name];
+      } else {
+        $dir = $this->GetComponentDirectory($this->path);
+        $ret = $this->tplpathcache[$name] = $dir . "/templates/" . substr($name, 2);
+      }
     }
     return $ret;
   }

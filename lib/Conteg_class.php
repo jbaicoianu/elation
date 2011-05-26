@@ -1246,7 +1246,7 @@
 				);
 			}
 			if( isset( $param[ 'search' ])) {
-				if( $param[ 'search' ] === FALSE ) {
+				if( $param[ 'search' ] === FALSE || !is_array($param['search'])) {
 					$this->_noSearch	= TRUE;
 				} else {
 					$this->_noSearch	= FALSE;
@@ -1328,7 +1328,7 @@
 					}
 				}	// end search + replace
 
-				if( $this->compress( $refresh ) == FALSE ) return FALSE;	// error triggered
+				if( $this->compress() == FALSE ) return FALSE;	// error triggered
 				ob_end_clean();
 // note: prog errors below this point cannot be seen
 				if( $this->encoding == 'identity' ) {

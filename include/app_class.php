@@ -61,7 +61,7 @@ class App {
     $this->locations = array_merge($this->locations, $this->cfg->locations);
     $this->data = DataManager::singleton($this->cfg);
 
-    set_error_handler(array($this, "HandleError"), E_ALL);
+    set_error_handler(array($this, "HandleError"), error_reporting());
 
     DependencyManager::init($this->locations);
 
@@ -171,7 +171,7 @@ class App {
       new Conteg($contegargs);
       Profiler::StopTimer("WebApp::Display() - Conteg");
       if (Profiler::$log) {
-        Profiler::Log($this->cfg->locations["tmp"], $this->components->pagecfg["pagename"]);
+        Profiler::Log(DependencyManager::$locations["tmp"], $this->components->pagecfg["pagename"]);
       }
     }
   }
@@ -243,7 +243,7 @@ class App {
 
   function HandleError($errno, $errstr, $errfile, $errline, $errcontext) {
     $visible = (!isset($this->cfg->servers["logger"]["visible"]) || $this->cfg->servers["logger"]["visible"] == true);
-    if ($visible && ($errno & error_reporting())) {
+    if ($visible) {
       if ($errno & E_ERROR || $errno & E_USER_ERROR)
         $type = "error";
       else if ($errno & E_WARNING || $errno & E_USER_WARNING)

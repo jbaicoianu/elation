@@ -164,7 +164,7 @@ class WebApp extends App {
               $ismatch = false;
           }
         }
-        if ($ismatch && !empty($rule->except)) {
+        if ($ismatch && $rule->except) {
           $exceptflag = true;
           foreach ($rule->except->attributes() as $exceptkey => $exceptstr) {
             $checkstr = array_get($req, $exceptkey);
@@ -182,11 +182,11 @@ class WebApp extends App {
         }
         if ($ismatch && !$isexcept) {
           // Apply nested rules first...
-          if (!empty($rule->rule)) {
+          if ($rule->rule) {
             $req = $this->ApplyRedirects($req, $rule->rule);
           }
           // Then process "set" command
-          if (!empty($rule->set)) {
+          if ($rule->set) {
             Logger::Info("Applying redirect:\n   " . $rule->asXML());
             if (!empty($req["args"]["testredir"]))
               print "<pre>" . htmlspecialchars($rule->asXML()) . "</pre><hr />";
@@ -208,7 +208,7 @@ class WebApp extends App {
             }
           }
           // And finally process "unset"
-          if (!empty($rule->unset)) {
+          if ($rule->unset) {
             $unset = false;
             foreach ($rule->unset->attributes() as $unsetkey => $unsetval) {
               if ($unsetkey == "_ALL_" && $unsetval == "ALL") {

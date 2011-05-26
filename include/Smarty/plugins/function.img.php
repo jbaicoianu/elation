@@ -20,17 +20,23 @@
  */
 function smarty_function_img($args, &$smarty) {
   global $webapp;
+  static $heirarchy;
+  static $imgcache;
 
   Profiler::StartTimer("smarty_function_img", 2);
-  $cfgmgr = ConfigManager::singleton();
-  $heirarchy = $cfgmgr->GetConfigHeirarchy("cobrand.".$webapp->cobrand);
+  
+  if ($heirarchy === null) {
+    $cfgmgr = ConfigManager::singleton();
+    $heirarchy = $cfgmgr->GetConfigHeirarchy("cobrand.".$webapp->cobrand);
+  }
 
   $imagedir = any(DependencyManager::$locations["images"], "htdocs/images");
   $imagedirwww = any(DependencyManager::$locations["imageswww"], "/images");
-  if (!empty($args["src"]) && !preg_match("/http:/",$args["src"])) {
-    if(!empty($webapp->sitecfg["page"]["imagedir"]) && file_exists($imagedir . "/" . $webapp->sitecfg["page"]["imagedir"] . "/" . $args["src"])) {
-      $args["src"] = $imagedirwww . "/" . $webapp->sitecfg["page"]["imagedir"] . "/" . $args["src"];
+  if (!empty($args["src"]) && !preg_match("/^https?:/",$args["src"])) {
+    if (isset($imgcache[$args["src"]])) {
+      $args["src"] = $imgcache[$args["src"]];
     } else {
+      $origsrc = $args["src"];
       $found = false;
       foreach ($heirarchy as $cfgname) {
         if (preg_match("/^cobrand\.(.*)$/", $cfgname, $m)) { // FIXME - most general-purpose would be to use the cobrand key as imagedir (s/\./\//g?)
@@ -44,6 +50,7 @@ function smarty_function_img($args, &$smarty) {
 
       if (!$found)
         $args["src"] = $imagedirwww . "/" . $args["src"];
+      $imgcache[$origsrc] = $args["src"]; 
     }
   }
   
@@ -52,6 +59,7 @@ function smarty_function_img($args, &$smarty) {
       $ret .= "$k=\"$v\" ";
   }
   $ret .= "/>";
+
   Profiler::StopTimer("smarty_function_img");
   if(!empty($args["src"]))
     return $ret;

@@ -8,6 +8,7 @@ class DNSResolver {
 
   public static function init() {
     if (!self::$initialized) {
+      Profiler::StartTimer("DNSResolver::Init()", 3);
       $cfg = ConfigManager::singleton();
       if (isset($cfg->servers["dnsresolver"]["ttl"]))
         self::$ttl = $cfg->servers["dnsresolver"]["ttl"];
@@ -33,14 +34,16 @@ class DNSResolver {
         self::$search[] = "";
       }
       self::$initialized = true;
+      Profiler::StopTimer("DNSResolver::Init()");
     }
   }
   public static function lookup($hostname) {
     self::init();
+    Profiler::StartTimer("DNSResolver::lookup()", 2);
     $data = DataManager::singleton();
     $records = $apc = NULL;
     $cachekey = "dnsresolver.lookup.{$hostname}";
-    if (self::$cache && !empty($data->caches["apc"]) && $data->caches["apc"]->enabled) {
+    if (self::$cache && !empty($data->caches["apc"]) && $data->caches["apc"]["default"]->enabled) {
       $apc = $data->caches["apc"]["default"];
       $cached = $apc->get($cachekey);
       if ($cached !== false) {
@@ -62,6 +65,7 @@ class DNSResolver {
         $apc->set($cachekey, serialize($records), array("lifetime" => $ttl));
       }
     }
+    Profiler::StopTimer("DNSResolver::lookup()");
     return $records;
   }
   public static function first($hostname) {

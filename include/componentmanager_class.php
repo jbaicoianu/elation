@@ -24,6 +24,7 @@ class ComponentManager extends Component {
 
   protected static $instance;
   public static function singleton($args=NULL) { $name = __CLASS__; if (!self::$instance) { self::$instance = new $name($args); } return self::$instance; }
+  private static $lookupcache = array();
 
   function ComponentManager(&$parent) {
     $this->Component("", $parent);
@@ -270,6 +271,33 @@ class ComponentManager extends Component {
         $logmsg .= " (SETTINGS: $settingslog)";
     }
     Logger::Info($logmsg);
+  }
+  function &Get($name, $args=NULL) {
+    $ret = NULL;
+    if (isset(self::$lookupcache[$name])) { // Keep a cache of lookup names so we can return commonly-referenced components instantly
+      $ret =& self::$lookupcache[$name];
+    } else {
+      if (strpos($name, ".") !== false)
+        list($componentname, $subcomponentname) = explode(".", $name, 2);
+      else
+        $componentname = $name;
+
+      if ($this->HasComponent($componentname, &$args)) {
+        $component =& $this->GetComponent($componentname);
+        if ($component !== NULL) {
+          if (!empty($subcomponentname)) {
+            $ret =& $component->Get($subcomponentname);
+          } else {
+            $ret =& $component;
+          }
+        }
+      }
+      if ($ret instanceOf Component) {
+        self::$lookupcache[$name] =& $ret;
+      }
+    }
+
+    return $ret;
   }
   static public function fetch($componentname, $args=array(), $output="inline") {
     $ret = NULL;

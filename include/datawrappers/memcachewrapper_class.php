@@ -55,10 +55,13 @@ class MemcacheWrapper extends ConnectionWrapper {
     if ($this->cache) {
       if (!$this->cache->set($table, $sdata, $compressed, $lifetime)) {
         Logger::Error('Failed to set (' . $key . ') in Memcache::setdata');
+      } else {
+        return true;
       }
     } else {
       Logger::Error("Could not access memcache object for '$key'");
     }
+    return false;
   }
   function &QueryUpdate($queryid, $table, $values, $where_condition, $bind_vars=array()) {
     return $this->QueryInsert($queryid, $table, $values, $where_condition, $bind_vars);

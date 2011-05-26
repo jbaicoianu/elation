@@ -214,16 +214,18 @@ class ConfigManager extends Base {
    *
    * @return array
    */
-  function ConfigMerge(&$cfg1, &$cfg2) {
+  function ConfigMerge(&$cfg1, &$cfg2, $updatelocations=true) {
     Profiler::StartTimer("ConfigManager::ConfigMerge()");
     foreach ($cfg2 as $k=>$v) {
       if (is_array($v)) {
-        $this->ConfigMerge($cfg1[$k], $cfg2[$k]);
+        $this->ConfigMerge($cfg1[$k], $cfg2[$k], false);
       } else {
         $cfg1[$k] = $cfg2[$k];
       }
     }
-    $this->locations = $this->getLocations();
+    if ($updatelocations) {
+      $this->locations = $this->getLocations();
+    }
     Profiler::StopTimer("ConfigManager::ConfigMerge()");
   }
   /**
@@ -509,6 +511,7 @@ class ConfigManager extends Base {
    * @return array
    */
   function &GetConfig($name, $setcurrent=true, $role="", $skipcache=false) {
+    Profiler::StartTimer("ConfigManager::GetConfig()", 2);
     $ret = array();
 
     if ( ($name != "base") && (strpos($name, ".") === false) && (strpos($name, "abtest") === false)  ) {
@@ -639,6 +642,7 @@ class ConfigManager extends Base {
       // Update locations to reflect any new settings we got from the cobrand config
       $this->locations = $this->getLocations();
     }
+    Profiler::StopTimer("ConfigManager::GetConfig()");
     return $ret;
   }
 

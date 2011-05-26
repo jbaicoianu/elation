@@ -1,5 +1,5 @@
 <?
-include_once("include/outlet/Outlet.php");
+include_once("outlet/Outlet.php");
 /**
  * class OrmManager
  * Singleton object for fetching ORM model information

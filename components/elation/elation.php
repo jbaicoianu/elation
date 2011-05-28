@@ -130,8 +130,9 @@ class Component_elation extends Component {
           DataManager::CacheClear($args["memcachekey"]);
           $vars["tf_debug_memcache_status"] = "Deleted key '{$args['memcachekey']}'";
         } else if ($args["memcacheaction"] == "flush" && !empty($args["memcachetype"])) {
-          if (!empty($this->data->caches["memcache"][$args["memcachetype"]])) {
-            if ($this->data->caches["memcache"][$args["memcachetype"]]->flush()) {
+          $data = DataManager::singleton();
+          if (!empty($data->caches["memcache"][$args["memcachetype"]])) {
+            if ($data->caches["memcache"][$args["memcachetype"]]->flush()) {
               $vars["tf_debug_memcache_status"] = "Cache flushed successfully (" . $args["memcachetype"] . ")";
             } else {
               $vars["tf_debug_memcache_status"] = "FAILED TO FLUSH CACHE: " . $args["memcachetype"];

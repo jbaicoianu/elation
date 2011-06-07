@@ -210,8 +210,8 @@ class Logger {
         mkdir($folder, 0777);
       }
       $file_exist = false;
-      if (file_exists($fname) == false && is_writable($fname)) {
-        $file_exist = touch($fname);
+      if (file_exists($fname) == false) {
+        $file_exist = is_writable($folder) && touch($fname);
       } else {
         $file_exist = true;
       }

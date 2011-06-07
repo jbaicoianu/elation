@@ -52,8 +52,12 @@ class MemcacheWrapper extends ConnectionWrapper {
     $lifetime = any($args["lifetime"], $this->lifetime, 0);
     $compressed = any($this->compressed, MEMCACHE_COMPRESSED);
     $sdata = serialize($values);
+    $key = $table;
+    if ($queryid->hash !== NULL && $queryid->hash != $table) {
+      $key .= "." . $queryid->hash;
+    }
     if ($this->cache) {
-      if (!$this->cache->set($table, $sdata, $compressed, $lifetime)) {
+      if (!$this->cache->set($key, $sdata, $compressed, $lifetime)) {
         Logger::Error('Failed to set (' . $key . ') in Memcache::setdata');
       } else {
         return true;
@@ -67,10 +71,18 @@ class MemcacheWrapper extends ConnectionWrapper {
     return $this->QueryInsert($queryid, $table, $values, $where_condition, $bind_vars);
   }
   function &QueryDelete($queryid, $table, $where_condition, $bind_vars=array()) {
-    return $this->cache->delete($table);
+    $key = $table;
+    if ($where_condition !== NULL) {
+      $key .= "." . $where_condition;
+    }
+    return $this->cache->delete($key);
   }
   function &QueryFetch($queryid, $table, $where=NULL, $extra=NULL) {
-    $cachedresult = $this->cache->get($table);
+    $key = $table;
+    if ($where !== NULL) {
+      $key .= "." . $where;
+    }
+    $cachedresult = $this->cache->get($key);
     if ($cachedresult) {
       if (is_string($cachedresult))
         $ret = unserialize($cachedresult);

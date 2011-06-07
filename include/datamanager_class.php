@@ -325,7 +325,7 @@ class DataManager {
       if (!empty($queryid->args["cache"])) {
         $cache = any($source->cachepolicy, true);
       }
-      $query = "SELECT *"; // FIXME - quick hack to truck CacheSet into thinking I'm a simple select
+      $query = "SELECT *"; // FIXME - quick hack to trick CacheSet into thinking this is a simple select
 
       $foundincache = false;
       if ($cache) {

@@ -145,11 +145,11 @@ class Component_elation extends Component {
       $vars["admin"] = true;
     }
 
-    if (!empty($this->data->caches["memcache"]["session"])) {
-      $vars["stats"]["session"] = $this->data->caches["memcache"]["session"]->getExtendedStats();
+    if (!empty($data->caches["memcache"]["session"])) {
+      $vars["stats"]["session"] = $data->caches["memcache"]["session"]->getExtendedStats();
     }
-    if (!empty($this->data->caches["memcache"]["data"])) {
-      $vars["stats"]["data"] = $this->data->caches["memcache"]["data"]->getExtendedStats();
+    if (!empty($data->caches["memcache"]["data"])) {
+      $vars["stats"]["data"] = $data->caches["memcache"]["data"]->getExtendedStats();
     }
 
     if ($output == "ajax") {

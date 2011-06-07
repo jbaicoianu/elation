@@ -210,7 +210,7 @@ class Logger {
         mkdir($folder, 0777);
       }
       $file_exist = false;
-      if (file_exists($fname) == false) {
+      if (file_exists($fname) == false && is_writable($fname)) {
         $file_exist = touch($fname);
       } else {
         $file_exist = true;
@@ -231,7 +231,9 @@ class Logger {
 
     DataManager::Query("stats.default.blah:nocache", "www.timing.total", $timestats);
     $data = DataManager::singleton();
-    $data->Quit(); // shutdown to make sure sockets are flushed
+    if ($data) {
+      $data->Quit(); // shutdown to make sure sockets are flushed
+    }
 
   }
   

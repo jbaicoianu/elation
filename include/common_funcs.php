@@ -566,11 +566,15 @@ function md5int16($data) { return md5unpack($data, 16); }
 function md5int24($data) { return md5unpack($data, 24); }
 function md5int32($data) { return md5unpack($data, 32); }
 function md5int64($data) {
+  // FIXME - native base_convert with 64-bit numbers returns a different number even on 64-bit systems...
+  /*
   if (is_64bit()) {
     return base_convert(substr(md5($data), 0, 16), 16, 10);
   } else {
     return unfucked_base_convert(substr(md5($data), 0, 16), 16, 10);
   }
+  */
+  return unfucked_base_convert(substr(md5($data), 0, 16), 16, 10);
 }
 function md5int128($data) {
   return unfucked_base_convert(md5($data), 16, 10);

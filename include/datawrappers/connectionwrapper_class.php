@@ -39,11 +39,15 @@ class ConnectionWrapper {
   function Rollback($queryid) { return false; }
   function Quote($queryid, $str) { return '"' . addslashes($str) . '"'; } // default fallback string quoting
   function GenerateIndex($indexby, $item, $separator=".") {
-   $idxby = explode(",", $indexby);
-    foreach ($idxby as $k) {
-      $key[] = $item[$k];
+    if (is_array($item)) {
+      $idxby = explode(",", $indexby);
+      foreach ($idxby as $k) {
+        $key[] = $item[$k];
+      }
+      return implode($separator,$key);
+    } else {
+      return $item;
     }
-    return implode($separator,$key);
   }
   function SetCacheServer($cache, $cacheByDefault=NULL) { 
     $this->cache = $cache;

@@ -23,6 +23,11 @@ include_once("lib/profiler.php");
 include_once("include/common_funcs.php");
 include_once("lib/Conteg_class.php");
 
+if (file_exists_in_path('Zend/Loader/Autoloader.php')) {
+  include_once "Zend/Loader/Autoloader.php";
+}
+
+
 class App {
 
   function App($rootdir, $args) {
@@ -41,8 +46,10 @@ class App {
     $this->initAutoLoaders();
 
     Logger::Info("Turning Pandora flag on");
-    $pandora = PandoraLog::singleton();
-    $pandora->setFlag(true);
+    if (class_exists("PandoraLog")) {
+      $pandora = PandoraLog::singleton();
+      $pandora->setFlag(true);
+    }
 
 
     $this->locations = array("scripts" => "htdocs/scripts",
@@ -235,10 +242,10 @@ class App {
         "trace" => $e->getTrace());
     $user = User::singleton();
     $vars["debug"] = ($this->debug || $user->HasRole("ADMIN"));
-    if (($path = file_exists_in_path("templates/exception.tpl", true)) !== false) {
+    if ($this->tplmgr && ($path = file_exists_in_path("templates/exception.tpl", true)) !== false) {
       return $this->tplmgr->GetTemplate($path . "/templates/exception.tpl", $this, $vars);
     }
-    return "Unhandled Exception (and couldn't find exception template!)";
+    return sprintf("Unhandled Exception: '%s' at %s:%s\n", $vars["exception"]["message"], $vars["exception"]["file"], $vars["exception"]["line"]);
   }
 
   function HandleError($errno, $errstr, $errfile, $errline, $errcontext) {
@@ -270,7 +277,7 @@ class App {
       if (isset($this->tplmgr) && ($path = file_exists_in_path("templates/exception.tpl", true)) !== false) {
         print $this->tplmgr->GetTemplate($path . "/templates/exception.tpl", $this, $vars);
       } else {
-        print "<blockquote><strong>" . $type . ":</strong> " . $errstr . "</blockquote>";
+        print "<blockquote><strong>" . $type . ":</strong> " . $errstr . " at $errfile:$errline</blockquote>";
       }
     }
   }
@@ -278,7 +285,7 @@ class App {
   protected function initAutoLoaders() {
     if (class_exists('Zend_Loader_Autoloader', false)) {
       $zendAutoloader = Zend_Loader_Autoloader::getInstance(); //already registers Zend as an autoloader
-      $zendAutoloader->unshiftAutoloader(array('WebApp', 'autoloadElation')); //add the Elation autoloader
+      $zendAutoloader->unshiftAutoloader(array('App', 'autoloadElation')); //add the Elation autoloader
     } else {
       spl_autoload_register('App::autoloadElation');
     }

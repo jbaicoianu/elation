@@ -23,10 +23,6 @@ include_once("lib/profiler.php");
 include_once("include/common_funcs.php");
 include_once("include/app_class.php");
 
-if (file_exists_in_path('Zend/Loader/Autoloader.php')) {
-  include_once "Zend/Loader/Autoloader.php";
-}
-
 class WebApp extends App {
 
   public $orm;

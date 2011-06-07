@@ -1,15 +1,16 @@
 <?
 include_once("include/datawrappers/connectionwrapper_class.php");
-if (dir_exists_in_path('lib/thrift/')) {
-  require_once 'lib/thrift/Thrift.php';
-  require_once 'lib/thrift/transport/TTransport.php';
-  require_once 'lib/thrift/transport/TSocket.php';
-  require_once 'lib/thrift/protocol/TBinaryProtocol.php';
-  require_once 'lib/thrift/transport/TFramedTransport.php';
-  require_once 'lib/thrift/transport/TBufferedTransport.php';
-  require_once 'lib/thrift/packages/cassandra/Cassandra.php';
-  require_once 'lib/thrift/packages/cassandra/cassandra_types.php';
-  require_once 'lib/thrift/packages/cassandra/cassandra_constants.php';
+if (dir_exists_in_path('thrift/')) {
+  require_once 'thrift/Thrift.php';
+  require_once 'thrift/transport/TTransport.php';
+  require_once 'thrift/transport/TSocket.php';
+  require_once 'thrift/protocol/TBinaryProtocol.php';
+  require_once 'thrift/transport/TFramedTransport.php';
+  require_once 'thrift/transport/TBufferedTransport.php';
+
+  require_once 'thrift/packages/cassandra/Cassandra.php';
+  require_once 'thrift/packages/cassandra/cassandra_types.php';
+  require_once 'thrift/packages/cassandra/cassandra_constants.php';
 
   /**
    * class CassandraWrapper
@@ -19,16 +20,20 @@ if (dir_exists_in_path('lib/thrift/')) {
    * @subpackage Datasources
    */
   class CassandraWrapper extends ConnectionWrapper {
+    public $version = 0;
+
     function CassandraWrapper($name, $cfg, $lazy=false) {
       $this->cfg = $cfg;
       $this->keyspace = $this->cfg["keyspace"];
       $this->consistency = any($this->cfg["consistency"], cassandra_ConsistencyLevel::ONE);
+      $this->version = $this->cfg["version"];
     }
     function Open() {
       try {
         $this->socket = new TSocket($this->cfg["host"], $this->cfg["port"]);
-        $this->transport = new TBufferedTransport($this->socket, 1024, 1024);
-        $this->protocol = new TBinaryProtocolAccelerated($this->transport);
+        //$this->transport = new TBufferedTransport($this->socket, 1024, 1024);
+        $this->transport = new TFramedTransport($this->socket);
+        $this->protocol = new TBinaryProtocol($this->transport);
         $this->client = new CassandraClient($this->protocol);
         $this->transport->open();
         //$this->client->set_keyspace($this->keyspace);
@@ -60,11 +65,11 @@ if (dir_exists_in_path('lib/thrift/')) {
 
           // If we failed init, bail
           if ($this->flag_failed_init) 
-            return array();
+            return null;
       
           $consistency = any($extras["consistency"], $this->consistency, cassandra_ConsistencyLevel::ONE);
           $key = $queryid->hash;
-          Logger::Warn("Cassandra fetch: $table#" . $queryid->hash . " (consistency $consistency)");
+          Logger::Warn("Cassandra fetch: $keyspace.$table#" . $queryid->hash . " (consistency $consistency)");
 
           // Prepare query
           $column_parent = new cassandra_ColumnParent();
@@ -80,9 +85,14 @@ if (dir_exists_in_path('lib/thrift/')) {
           $predicate = new cassandra_SlicePredicate();
           $predicate->slice_range = $slice_range;
      
+          $this->setKeyspace($keyspace);
           if (is_array($key)) {
             $arr_result = array();
-            $resp = $this->client->multiget_slice($keyspace, $key, $column_parent, $predicate, $consistency);
+            if ($this->version <= 0.6) {
+              $resp = $this->client->multiget_slice($keyspace, $key, $column_parent, $predicate, $consistency);
+            } else {
+              $resp = $this->client->multiget_slice($key, $column_parent, $predicate, $consistency);
+            }
 
             if (!empty($resp)) {
               foreach ($resp as $key => $data) {
@@ -91,7 +101,11 @@ if (dir_exists_in_path('lib/thrift/')) {
             }
             return $arr_result;
           } else {
-            $resp = $this->supercolumns_or_columns_to_array($this->client->get_slice($keyspace, $key, $column_parent, $predicate, $consistency));
+            if ($this->version <= 0.6) {
+              $resp = $this->supercolumns_or_columns_to_array($this->client->get_slice($keyspace, $key, $column_parent, $predicate, $consistency));
+            } else {
+              $resp = $this->supercolumns_or_columns_to_array($this->client->get_slice($key, $column_parent, $predicate, $consistency));
+            }
             if (!empty($extras["orderby"])) {
               return $this->SortResults($resp, $extras["orderby"], $extras["reverse"]);
             } else {
@@ -101,7 +115,7 @@ if (dir_exists_in_path('lib/thrift/')) {
           }
         } catch (TException $tx) {
           $this->Debug($tx->why." ".$tx->getMessage());
-          return array();
+          return null;
         }
       }
     }
@@ -120,11 +134,16 @@ if (dir_exists_in_path('lib/thrift/')) {
         if (strpos($table, ".") !== false)
           list($keyspace, $table) = explode(".", $table, 2);
         try {
-          $timestamp = time();
+          $timestamp = $this->getTimestamp();
           $mutations = array($queryid->hash => array($table => $this->array_to_supercolumns_or_columns($values, $timestamp)));
-  //Logger::Error(print_r($mutations, true));
-          $this->client->batch_mutate($keyspace, $mutations, $consistency);
-  //Logger::Error("done");
+          //print_pre($mutations);
+          //Logger::Error(print_r($mutations, true));
+          $this->setKeyspace($keyspace); 
+          if ($this->version <= 0.6) {
+            $this->client->batch_mutate($keyspace, $mutations, $consistency);
+          } else {
+            $this->client->batch_mutate($mutations, $consistency);
+          }
         } catch (TException $e) {
           $this->Debug($e->why . " " . $e->getMessage());
           return false;
@@ -162,13 +181,25 @@ if (dir_exists_in_path('lib/thrift/')) {
           list($keyspace, $table) = explode(".", $table, 2);
         Logger::Warn("Cassandra delete: $table#" . $queryid->hash . " (consistency $consistency)");
         try {
-          $timestamp = time();
-          $deletion = new cassandra_Deletion(array("timestamp" => $timestamp, "predicate" => new cassandra_SlicePredicate(array("column_names" => $this->GenerateIndex($extras["indexby"], $where)))));
+          $timestamp = $this->getTimestamp();
+          $deletion = new cassandra_Deletion(array("timestamp" => $timestamp));
+          if (is_array($where)) {
+            $deletion->predicate = new cassandra_SlicePredicate(array("column_names" => $this->GenerateIndex($extras["indexby"], $where)));
+          } else {
+            $super_column = new cassandra_SuperColumn();
+            $super_column->name = $this->unparse_column_name($where, true);
+            $deletion->supercolumn = $super_column;
+          }
 
           $mutations = array($queryid->hash => array($table => array(new cassandra_Mutation(array("deletion" => $deletion)))));
-  //Logger::Error(print_r($mutations, true));
-          $this->client->batch_mutate($keyspace, $mutations, $consistency);
-  //Logger::Error("done");
+          //print_pre($mutations);
+          //Logger::Error(print_r($mutations, true));
+          $this->setKeyspace($keyspace);
+          if ($this->version <= 0.6) {
+            $this->client->batch_mutate($keyspace, $mutations, $consistency);
+          } else {
+            $this->client->batch_mutate($mutations, $consistency);
+          }
         } catch (TException $e) {
           $this->Debug($e->why . " " . $e->getMessage());
           return false;
@@ -235,7 +266,12 @@ if (dir_exists_in_path('lib/thrift/')) {
           $column_parent = new cassandra_ColumnParent();
           $column_parent->column_family = $table;
 
-          $count = $this->client->get_count($keyspace, $key, $column_parent, $consistency);
+          if ($this.version <= 0.6) {
+            $count = $this->client->get_count($keyspace, $key, $column_parent, $consistency);
+          } else {
+            $this->setKeyspace($keyspace);
+            $count = $this->client->get_count($key, $column_parent, $consistency);
+          }
         } catch (TException $tx) {
           $this->Debug($tx->why." ".$tx->getMessage());
         }
@@ -280,26 +316,26 @@ if (dir_exists_in_path('lib/thrift/')) {
     }
     // Build cf array
     function array_to_supercolumns_or_columns($array, $timestamp=null) {
-      if(empty($timestamp)) $timestamp = time();
+      if(empty($timestamp)) $timestamp = $this->getTimestamp();
 
       foreach($array as $name => $value) {
         if ($value !== NULL) {
-        $c_or_sc = new cassandra_ColumnOrSuperColumn();
-        if(is_array($value)) {
-          $c_or_sc->super_column = new cassandra_SuperColumn();
-          $c_or_sc->super_column->name = $this->unparse_column_name($name, true);
-          $c_or_sc->super_column->columns = $this->array_to_columns($value, $timestamp);
-          $c_or_sc->super_column->timestamp = $timestamp;
-          //$c_or_sc->super_column->clock = new cassandra_Clock( array('timestamp'=>$timestamp) );				
-        } else {
-          $c_or_sc->column = new cassandra_Column();
-          $c_or_sc->column->name = $this->unparse_column_name($name, true);
-          $c_or_sc->column->value = $value;
-          $c_or_sc->column->timestamp = $timestamp;
-          //$c_or_sc->column->clock = new cassandra_Clock( array('timestamp'=>$timestamp) );				
+          $c_or_sc = new cassandra_ColumnOrSuperColumn();
+          if(is_array($value)) {
+            $c_or_sc->super_column = new cassandra_SuperColumn();
+            $c_or_sc->super_column->name = $this->unparse_column_name($name, true);
+            $c_or_sc->super_column->columns = $this->array_to_columns($value, $timestamp);
+            $c_or_sc->super_column->timestamp = $timestamp;
+            //$c_or_sc->super_column->clock = new cassandra_Clock( array('timestamp'=>$timestamp) );				
+          } else {
+            $c_or_sc->column = new cassandra_Column();
+            $c_or_sc->column->name = $this->unparse_column_name($name, true);
+            $c_or_sc->column->value = $value;
+            $c_or_sc->column->timestamp = $timestamp;
+            //$c_or_sc->column->clock = new cassandra_Clock( array('timestamp'=>$timestamp) );				
+          }
+          $ret[] = new cassandra_mutation(array('column_or_supercolumn' => $c_or_sc ));
         }
-        $ret[] = new cassandra_mutation(array('column_or_supercolumn' => $c_or_sc ));
-      }
       }
 
       return $ret;
@@ -339,7 +375,7 @@ if (dir_exists_in_path('lib/thrift/')) {
     } 
     // Convert array to columns
     function array_to_columns($array, $timestamp=null) {
-      if(empty($timestamp)) $timestamp = time();
+      if(empty($timestamp)) $timestamp = $this->getTimestamp();
 
       $ret = null;
       foreach($array as $name => $value) {
@@ -373,6 +409,23 @@ if (dir_exists_in_path('lib/thrift/')) {
           return ($a[$this->_sortby] > $b[$this->_sortby] ? 1 : -1) * $mult;
       }
       return 0;
+    }
+    function getTimestamp() {
+      return (int) (microtime(true) * 1000000); // time in microseconds
+    }
+    function setKeyspace($keyspace) {
+      // FIXME - hardcoded to set keyspace every query since it sometimes seems to not work otherwise
+      if (true || $this->currentkeyspace != $keyspace) {
+        if ($this->version >= 0.7) {
+          Logger::Debug("keyspace set to $keyspace");
+          $this->client->set_keyspace($keyspace);
+          $this->currentkeyspace = $keyspace;
+          return true;
+        }
+      } else {
+        Logger::Error("keyspace already set to " . $this->currentkeyspace);
+      }
+      return false;
     }
   }
 } else {

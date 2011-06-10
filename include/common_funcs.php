@@ -49,7 +49,7 @@ function all() {
   foreach (func_get_args() as $arg) {
     if ($arg !== NULL) {
       if (is_array($arg))
-        $ret = array_merge_recursive($ret, $arg);
+        $ret = array_merge_recursive_distinct($ret, $arg);
       else 
         $ret[] = $arg;
     }
@@ -918,3 +918,14 @@ function is_64bit() {
   $_is64 = (intval($int) == 9223372036854775807);  // If 32-bit, intval() will return 2147483647 instead
   return $_is64;
 }
+
+function array_merge_recursive_distinct($arr1, $arr2) {
+  foreach($arr2 as $key => $value) {
+    if(array_key_exists($key, $arr1) && is_array($value))
+      $arr1[$key] = array_merge_recursive_distinct($arr1[$key], $arr2[$key]);
+    else
+      $arr1[$key] = $value;
+  }
+  return $arr1;
+}
+

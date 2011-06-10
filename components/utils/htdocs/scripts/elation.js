@@ -665,11 +665,14 @@ elation.extend("utils.getOnly", function(obj, tag, className) {
 });
 
 // Navigates up the DOM from a given element looking for match
-elation.extend("utils.getParent", function(element, tag, all_occurrences) {
+elation.extend("utils.getParent", function(element, tag, classname, all_occurrences) {
   var ret = [];
   
+  if (typeof classname != 'string' && elation.utils.isTrue(classname))
+    all_occurances = true;
+  
   while (element && element.nodeName != 'BODY') {
-    if (element.nodeName == tag.toUpperCase()) {
+    if (element.nodeName == tag.toUpperCase() && (!classname || elation.html.hasclass(element, classname))) {
       if (all_occurrences)
         ret.push(element);
       else

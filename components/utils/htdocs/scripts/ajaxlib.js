@@ -185,6 +185,7 @@ elation.extend("ajax", new function() {
 		
     for (var i = 0; i < responses.length; i++) {
       var type = responses[i].type || 'xhtml';
+      
       if (typeof this.responsehandlers[type] == 'function') {
         this.responsehandlers[type](responses[i], common);
       } else {

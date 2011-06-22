@@ -16,6 +16,7 @@ if (dir_exists_in_path('thrift/')) {
    * class CassandraWrapper
    * Connection wrapper for Cassandra.  Based on CassandraDB by Mike Peters:
    * http://www.softwareprojects.com/resources/programming/t-cassandra-php-wrapper-07-1979.html
+   * which bears a striking resemblance to PHPCassa - https://github.com/thobbs/phpcassa/
    * @package Framework
    * @subpackage Datasources
    */
@@ -414,8 +415,9 @@ if (dir_exists_in_path('thrift/')) {
       if (is_64bit()) {
         return (int) (microtime(true) * 1000000); // time in microseconds
       } else {
-        $mt = explode(" ", microtime(false)); // 32-bit systems need to treat the timestamp as a string or they overflow
-        return $mt[1] . ((int) ($mt[0] * 1000000));
+        // 32-bit systems need to treat the timestamp as a string and then convert to float, or they overflow
+        $mt = explode(" ", microtime(false)); 
+        return (float) ($mt[1] . ((int) ($mt[0] * 1000000)));
       }
     }
     function setKeyspace($keyspace) {

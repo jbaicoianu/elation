@@ -411,7 +411,12 @@ if (dir_exists_in_path('thrift/')) {
       return 0;
     }
     function getTimestamp() {
-      return (int) (microtime(true) * 1000000); // time in microseconds
+      if (is_64bit()) {
+        return (int) (microtime(true) * 1000000); // time in microseconds
+      } else {
+        $mt = explode(" ", microtime(false)); // 32-bit systems need to treat the timestamp as a string or they overflow
+        return $mt[1] . ((int) ($mt[0] * 1000000));
+      }
     }
     function setKeyspace($keyspace) {
       // FIXME - hardcoded to set keyspace every query since it sometimes seems to not work otherwise

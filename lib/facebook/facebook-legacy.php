@@ -76,6 +76,8 @@ class FacebookApiException extends Exception
  */
 class Facebook
 {
+  const VERSION = '2.0.1';
+
   /**
    * Default options for curl.
    */

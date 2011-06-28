@@ -20,7 +20,6 @@ elation.extend('panel', new function(options) {
   }
 
   this.Init = function(name, args) {
-    elation.timing.set(true);
     var panel = this.panels[this.panelmap[name]] || null;
 		
     if (args) {
@@ -66,9 +65,9 @@ elation.extend('panel', new function(options) {
           panel.item = this.get_item(panel, $TF('div.tf_utils_panel_' + name + ' ul li.selected')[0]);
         }
       }
+      
 			panel.content = {};
 		}
-    elation.timing.print(name + ' panel', true);
 	}
 	
 	this.handleEvent = function(event) {
@@ -106,27 +105,8 @@ elation.extend('panel', new function(options) {
 		
 		if (item.name == panel.item.name)
 			return;
-		  
-    if (typeof pandoraLog == 'object') {
-			pandoraLog.mouseovertype = item.name;
-    }
-    
-    if (typeof googleAnalytics == 'object') {
-      googleAnalytics.mouseovertype = item.name;
-      if (item.name == "shoplikeme")
-        googleAnalytics.trackEvent(['tab', 'shoplikeme', googleAnalytics.pagetype]);
-      else if (item.name == "theweb")
-        googleAnalytics.trackEvent(['tab', 'theWeb', googleAnalytics.pagetype]);
-			else if (item.name == "nearby")
-        googleAnalytics.trackEvent(['tab', 'nearby', googleAnalytics.pagetype]);
-      else if (item.name == "shoplikefriends")
-        googleAnalytics.trackEvent(['tab', 'shoplikefriends', googleAnalytics.pagetype]);
-			else if (item.name == "myfinds")
-        googleAnalytics.trackEvent(['tab', 'myfinds', googleAnalytics.pagetype]);
-      else
-        googleAnalytics.trackEvent(['popup_tab', googleAnalytics.mouseovertype]);
-    }
 		
+    
 		this.load_tab_content(panel, target, item);
 	}
 	
@@ -139,6 +119,34 @@ elation.extend('panel', new function(options) {
 					: this.panels[this.panelmap[panel]],
 				item = item || this.get_item(panel, target);
 		
+    if (typeof pandoraLog == 'object') {
+			pandoraLog.mouseovertype = item.name;
+    }
+    
+    if (typeof googleAnalytics == 'object') {
+      googleAnalytics.mouseovertype = item.name;
+      pagetype = googleAnalytics.pagetype;
+      //console.log('tracking', panel.name, item.name, pagetype, panel);
+      
+      switch (panel.name) {
+        case 'tabs':
+          googleAnalytics.trackEvent(['tab', item.name, pagetype]);
+          break;
+        
+        case "infocard_popup":
+          googleAnalytics.trackEvent(['popup_tab', item.name, pagetype]);
+          break;
+        
+        default:
+          if (pagetype)
+            googleAnalytics.trackEvent([panel.name, item.name, pagetype]);
+          else
+            googleAnalytics.trackEvent([panel.name, item.name]);
+          
+          break;
+      }
+    }
+    
 		if (!panel.container) {
 			var href = target.getElementsByTagName('a').length > 0
 						? target.getElementsByTagName('a')[0].href

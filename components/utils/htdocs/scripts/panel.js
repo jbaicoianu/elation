@@ -134,7 +134,7 @@ elation.extend('panel', new function(options) {
           break;
         
         case "infocard_popup":
-          googleAnalytics.trackEvent(['popup_tab', item.name, pagetype]);
+          googleAnalytics.trackEvent(['popup_tab', item.name]);
           break;
         
         default:

@@ -102,7 +102,8 @@ class WebApp extends App {
 
     $req["basedir"] = $webroot;
     $req["baseurl"] = $req["scheme"] . "://" . $req["host"] . $req["basedir"];
-    $req["url"] = $req["baseurl"] . $page;
+    //$req["url"] = $req["baseurl"] . $page;
+    $req["url"] = $req["baseurl"] . $_SERVER["REQUEST_URI"]; // FIXME - This probably breaks non-root-level installs...
 
     if ($req["basedir"] == '/') {
       $req["basedir"] = '';

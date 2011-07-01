@@ -957,9 +957,9 @@ elation.extend('cookie', {
     }
 	}
 });
-elation.extend("url", function() {
+elation.extend("url", function(hash) {
   this.hash = {};
-  var hash = window.location.hash;
+  var hash = hash || window.location.hash;
   
   if (hash)
     hash = hash.split('#')[1].split('&');

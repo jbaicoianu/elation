@@ -983,6 +983,9 @@ elation.extend("find", function(selectors, parent, first) {
     this could be made a lot better.
   */
   this.findCore = function(selectors, oparent) {
+    if (!selectors)
+      return;
+    
     var	selectors = selectors.split(','),
         elements = [],
         selector, section, tag, tags, classname, isParent, parent, parents;

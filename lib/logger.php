@@ -36,7 +36,7 @@ class Logger {
    */
   protected function getDefaultLoggerConfig() {
     // email settings
-    $sitecfg["logger"]["email"]["level"] = "E_WARNING";
+    $sitecfg["logger"]["email"]["level"] = "";
     $sitecfg["logger"]["email"]["interval"] = 10;
     $sitecfg["logger"]["email"]["email_to"] = "ui@thefind.com";
     // log file settings
@@ -153,10 +153,8 @@ class Logger {
   public static function processShutdown() {
     global $webapp;
     // settings
-    $sitecfg = $webapp->sitecfg;
+    $sitecfg = array("logger" => Configmanager::get("logger"));
     $sitecfg = ($sitecfg["logger"]["email"] && $sitecfg["logger"]["file"]) ? $sitecfg : self::getDefaultLoggerConfig();
-    if ($webapp->data)
-      $webapp->data->Quit();
     
     // email section
     $level_setting = self::convertLevelToNumeric($sitecfg["logger"]["email"]["level"]);
@@ -168,7 +166,7 @@ class Logger {
       $email_msg = "";
       foreach(self::$log_emails as $email) {
         if ($email["level"] <= $level_setting) {
-          $cache_val = ($data_mgr) ? $data_mgr->sources["memcache"]["data"]->get($email["cache_key"]) : array();
+          $cache_val = DataManager::Query("memcache.data", $email["cache_key"]);
           if ( (time() - $cache_val["sent_timestamp"]) >= ($interval * 60) ) {
             $num_times = $cache_val["count"] + 1;
             $header = "From: " . $_SERVER["SERVER_ADMIN"] . "\n";
@@ -181,12 +179,12 @@ class Logger {
             if ($data_mgr) {
               $cache_val["count"] = 0;
               $cache_val["sent_timestamp"] = time();
-              $data_mgr->sources["memcache"]["data"]->set($email["cache_key"], $cache_val);
+              DataManager::QueryInsert("memcache.data", $email["cache_key"], $cache_val);
             }
           } else {
             if ($data_mgr) {
               $cache_val["count"] += 1;
-              $data_mgr->sources["memcache"]["data"]->set($email["cache_key"], $cache_val);
+              DataManager::QueryInsert("memcache.data", $email["cache_key"], $cache_val);
             }
           }
         }
@@ -213,14 +211,30 @@ class Logger {
       }
       $file_exist = false;
       if (file_exists($fname) == false) {
-        $file_exist = touch($fname);
+        $file_exist = is_writable($folder) && touch($fname);
       } else {
         $file_exist = true;
       }
-      if ($file_exist) {
+      if ($file_exist && is_writable($fname)) {
         file_put_contents($fname, $file_msg, FILE_APPEND);
       }
     }
+
+    $timestats = array("page" => any($webapp->components->pagecfg["pagename"], $webapp->request["path"]), "total" => Profiler::GetTime("WebApp"));
+    if (($time = Profiler::GetTime("QPMWrapper:Query()")) != NULL) $timestats["qpm"] = $time;
+    if (($time = Profiler::GetTime("QPMWrapper:Query() - first byte")) != NULL) $timestats["qpmfirstbyte"] = $time;
+    if (($time = Profiler::GetTime("DBWrapper:Query()")) != NULL) $timestats["db"] = $time;
+    if (($time = Profiler::GetTime("WebApp::TimeToDisplay")) != NULL) $timestats["firstbyte"] = $time;
+    if (($time = Profiler::GetTime("WebApp::Display() - Conteg")) != NULL) $timestats["output"] = $time;
+    if (($time = Profiler::GetTime("Conteg::compress")) != NULL) $timestats["compress"] = $time;
+    if (($time = Profiler::GetTime("Postprocessing")) != NULL) $timestats["postprocessing"] = $time;
+
+    DataManager::Query("stats.default.blah:nocache", "www.timing.total", $timestats);
+    $data = DataManager::singleton();
+    if ($data) {
+      $data->Quit(); // shutdown to make sure sockets are flushed
+    }
+
   }
   
   public static function Error() { 

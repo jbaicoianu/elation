@@ -33,7 +33,7 @@ class Component_html extends Component {
     if ($webapp->request['referer']['host'] && !stristr($webapp->request['referer']['host'], $webapp->request['host'])) {
       $args['query'] = $this->getQueryFromURL($webapp->request['referrer'], $args['store_name']);
     } else {
-      $args['query'] = $this->sanitizeStrForGA(any($analytics->search["input"]["query"], 'none'));
+      $args['query'] = $this->sanitizeStrForGA(any($analytics->search["input"]["query"], $analytics->qpmreq->query, 'none'));
     }
 
     $args['bs'] = $componentmgr->pagecfg; //testing
@@ -44,7 +44,7 @@ class Component_html extends Component {
     $args['status'] = any($analytics->status, $webapp->response['http_status']);
     $args['total'] = $analytics->total;
 
-    $args['GAenabled'] = $args['pagegroup'] ? $webapp->cfg->servers['tracking']['googleanalytics']['enabled'] : 0;
+    $args['GAenabled'] = $args['pagegroup'] ? any(ConfigManager::get("tracking.googleanalytics.enabled"),$webapp->cfg->servers['tracking']['googleanalytics']['enabled']) : 0;
     $args['GAalerts'] = $webapp->GAalerts;
 
     $args['trackingcode'] = $webapp->cfg->servers['tracking']['googleanalytics']['trackingcode'];
@@ -65,9 +65,8 @@ class Component_html extends Component {
       $args['state'] = 'unknown';
       $args['country'] = $args['cobrand'] == 'paypalcanada' ? "Canada" : "UK";
     }
-
     $args['pagenum'] = any($analytics->pandora_result['page_num'], 1);
-    $args['version'] = $webapp->getAppVersion();
+    $args['version'] = any(ABTestManager::getVersion(), "unknown");
     $args['filters'] = $analytics->qpmreq->filter['brand'] ? '1' : '0';
     $args['filters'] .= $analytics->qpmreq->filter['color'] ? '1' : '0';
     $args['filters'] .= $analytics->qpmreq->filter['storeswithdeals'] ? '1' : '0'; //(coupons)

@@ -1,5 +1,5 @@
 <?
-include_once("include/outlet/Outlet.php");
+include_once("outlet/Outlet.php");
 /**
  * class OrmManager
  * Singleton object for fetching ORM model information
@@ -15,14 +15,17 @@ class OrmManager {
     $dbdir = any($locations['tmp'], 'tmp');
     Outlet::init(array(
       'connection' => array(
-        'dsn' => 'sqlite:' . $dbdir . '/elation.sqlite',
+        'type' => 'datamanager',
+        /*
+        'dsn' => 'sqlite:tmp/elation.sqlite',
         'dialect' => 'sqlite'
-/*
+        */
+        /*
         'dsn' => 'mysql:host=localhost',
         'dialect' => 'mysql',
         'username' => 'elation',
         'password' => ''
-*/
+        */
       ),
       'classes' => array(
       ),
@@ -66,11 +69,23 @@ class OrmManager {
     $me->outlet->createClasses();
     $me->outlet->createProxies();
   }
-  function Select($type, $where=NULL) {
+  function Select($type, $where=NULL, $params=array()) {
     if ($this instanceOf OrmManager)
-      return $this->outlet->select($type, $where);
+      return $this->outlet->select($type, $where, $params);
     else
-      return self::singleton()->select($type, $where);
+      return self::singleton()->select($type, $where, $params);
+  }
+  function SelectOne($type, $where=NULL, $params=array()) {
+    if ($this instanceOf OrmManager)
+      return $this->outlet->selectOne($type, $where, $params);
+    else
+      return self::singleton()->selectOne($type, $where, $params);
+  }
+  function Delete($type, $id) {
+    if ($this instanceOf OrmManager)
+      return $this->outlet->Delete($type, $id);
+    else
+      return self::singleton()->Delete($type, $id);
   }
   function Load($type, $id) {
     if ($this instanceOf OrmManager)
@@ -146,7 +161,7 @@ class OrmModel extends OrmMaster {
       if (!empty($modelcfg->classes))
         $this->classes = $modelcfg->classes;
     } else {
-      Logger::Error("OrmModel: Couldn't find model config '$fname'");
+      Logger::Notice("OrmModel: Couldn't find model config '$fname'");
     }
   }
 

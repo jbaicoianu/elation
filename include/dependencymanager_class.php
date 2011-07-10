@@ -42,15 +42,48 @@ class DependencyManager {
   }
   static function display() {
     $ret = "";
-    //print_pre(self::$dependencies);
+    $cfg = ConfigManager::singleton();
+    $combine = $cfg->servers["dependencies"]["combine"];
+
     ksort(self::$dependencies);
     foreach (self::$dependencies as $priority=>$browsers) {
       foreach ($browsers as $browser=>$types) { 
         $bret = "";
         foreach ($types as $type=>$deps) {
           $tret = "";
-          foreach ($deps as $dep) {
-            $tret .= $dep->display(self::$locations);
+          if ($type == "component" && $combine) {
+            $combined = array();
+            foreach ($deps as $dep) {
+              if (!empty($dep->subtypes)) {
+                $subtypes = explode(",", $dep->subtypes);
+                $nameparts = explode(".", $dep->name);
+                if (empty($nameparts[1])) {
+                  $nameparts[1] = $nameparts[0];
+                }
+                foreach ($subtypes as $subtype) {
+                  $combined[$subtype][$nameparts[0]][] = $nameparts[1];
+                }
+              }
+            }
+            if (!empty($combined)) {
+              foreach ($combined as $type=>$deps) {
+                if ($type == "javascript") {
+                  $url = $cfg->locations["scriptswww"] . "/main";
+                } else if ($type == "css") {
+                  $url = $cfg->locations["csswww"] . "/main";
+                }
+                $sep = "/";
+                foreach ($deps as $comp=>$subcomp) {
+                  $url .= $sep . $comp . "-" . implode("-", array_map(encode_friendly, $subcomp));
+                }
+                $depobj = Dependency::create($type, array("url" => $url));
+                $tret .= $depobj->display(self::$locations, $combined[$type]);
+              }
+            }
+          } else {
+            foreach ($deps as $dep) {
+              $tret .= $dep->display(self::$locations);
+            }
           }
           if (!empty($tret)) { // type wrapper
             $wrapstr = (isset(self::$formats["types"][$type]) ? self::$formats["types"][$type] : "%s");
@@ -136,7 +169,7 @@ abstract class Dependency {
     return md5($this->type . ":" . $this->content());
   }
   function content() {
-    return any($this->name, $this->property, $this->code, $this->file, $this->url, "(unknown)");
+    return any($this->name, $this->property, $this->code, $this->file, $this->url, $this->meta["name"], $this->meta["property"], $this->meta["httpequiv"], "(unknown)");
   }
   function GetFilename($path, $fname) {
     $ret = NULL;
@@ -330,7 +363,7 @@ class DependencyMeta extends Dependency {
   public $meta;
 
   function Init($args, $locations) {
-    $this->meta = array("property"=>$args["property"], "name"=>$args["name"], "content"=>$args["content"]);
+    $this->meta = array("property"=>$args["property"], "name"=>$args["name"], "content"=>$args["content"], "httpequiv" => $args["httpequiv"]);
   }
 
   function Display($locations, $extras=NULL) {
@@ -338,6 +371,8 @@ class DependencyMeta extends Dependency {
       $ret .= sprintf('<meta name="%s" content="%s" />'."\n", $this->meta["name"], $this->meta["content"]);
     else if (!empty($this->meta["property"]) && !empty($this->meta["content"]))
       $ret .= sprintf('<meta property="%s" content="%s" />'."\n", $this->meta["property"], $this->meta["content"]);
+    else if (!empty($this->meta["httpequiv"]) && !empty($this->meta["content"]))
+      $ret .= sprintf('<meta http-equiv="%s" content="%s" />'."\n", $this->meta["httpequiv"], $this->meta["content"]);
     return $ret;
   }
 }

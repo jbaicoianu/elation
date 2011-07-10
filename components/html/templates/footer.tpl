@@ -9,7 +9,7 @@
     </script>
 
     <script type="text/javascript">
-      $(document).ready(function() {ldelim}
+      $TF(document).ready(function() {ldelim}
         googleAnalytics = new TFHtmlUtilsGoogleAnalytics({ldelim}
           'trackingcode':	'{$trackingcode}',
           'GAalerts':			'{$GAalerts}',
@@ -53,6 +53,7 @@
            {else}
               googleAnalytics.setCustomVar(4, "UserID", "notLoggedin", 2);
            {/if}
+           //googleAnalytics.trackEvent(["AB Test", "version", "{$version}"]) 
         {/if}
         googleAnalytics.trackPageview();
         pandoraLog = new TFHtmlUtilsPandoraLog();

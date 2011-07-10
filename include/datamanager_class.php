@@ -16,6 +16,10 @@ class DataManager {
   public $sources;
   public $caches;
 
+  public static $querylog = array();
+  protected static $querylog_page;
+  protected static $querylog_reqid;
+
   function DataManager($cfg=NULL) {
     $this->Init($cfg);
   }
@@ -89,6 +93,7 @@ class DataManager {
       if (file_exists_in_path($includefile)) {
         include_once($includefile);
         foreach ($cfg as $sourcename=>$sourcecfg) {
+          Profiler::StartTimer(" - $sourcetype($sourcename)", 3);
           // Server groups get special handling at this level so they can be applied to all types
           if (!empty($sourcecfg["group"]) && ($group = $this->GetGroup($sourcecfg["group"])) !== NULL) {
             Logger::Notice("Merged source group '{$sourcecfg['group']}' into $sourcename");
@@ -103,6 +108,7 @@ class DataManager {
           }
           array_set($this->sources, $sourcetype.".".$sourcename, $sourcewrapper);
           Logger::Notice("Added source '$sourcetype.$sourcename': " . $sourcecfg["host"]);
+          Profiler::StopTimer(" - $sourcetype($sourcename)");
         }
       } else {
         Logger::Debug("Tried to instantiate source '$sourcetype', but couldn't find class");
@@ -125,7 +131,9 @@ class DataManager {
     global $webapp;
     
     Profiler::StartTimer("DataManager::Query()");
+    Profiler::StartTimer("DataManager::Query($id)", 3);
     $result = NULL;
+    $qstart = microtime(true);
 
     $queryid = new DatamanagerQueryID($id);
 
@@ -191,6 +199,9 @@ class DataManager {
     }
 
     Profiler::StopTimer("DataManager::Query()");
+    Profiler::StopTimer("DataManager::Query($id)");
+    self::log("query", $id, $query, $qstart, microtime(true), $foundincache);
+
     return $result;
   }
 
@@ -204,6 +215,8 @@ class DataManager {
    */
   static function &QueryInsert($id, $table, $values, $extra=NULL) {
     Profiler::StartTimer("DataManager::QueryInsert()");
+    Profiler::StartTimer("DataManager::QueryInsert($id)", 3);
+    $qstart = microtime(true);
     $insert_id = NULL;
     $queryid = new DatamanagerQueryID($id);
     if ($source =& DataManager::PickSource($queryid)) {
@@ -213,6 +226,8 @@ class DataManager {
       }
     }
     Profiler::StopTimer("DataManager::QueryInsert()");
+    Profiler::StopTimer("DataManager::QueryInsert($id)");
+    self::log("insert", $id, $table, $qstart, microtime(true));
     return $insert_id;
   }
 
@@ -227,6 +242,8 @@ class DataManager {
    */
   static function &QueryUpdate($id, $table, $values, $where_condition=NULL, $bind_vars=array()) {
     Profiler::StartTimer("DataManager::QueryUpdate()");
+    Profiler::StartTimer("DataManager::QueryUpdate($id)", 3);
+    $qstart = microtime(true);
     $rows_affected = NULL;
     $queryid = new DatamanagerQueryID($id);
     if ($source =& DataManager::PickSource($queryid)) {
@@ -236,6 +253,8 @@ class DataManager {
       }
     }
     Profiler::StopTimer("DataManager::QueryUpdate()");
+    Profiler::StopTimer("DataManager::QueryUpdate($id)");
+    self::log("update", $id, $table, $qstart, microtime(true));
     return $rows_affected;
   }
 
@@ -249,13 +268,17 @@ class DataManager {
    * @return int (last insert id)
    */
   static function &QueryDelete($id, $table, $where_condition=NULL, $bind_vars=array()) {
-    Profiler::StartTimer("DataManager::QueryUpdate()");
+    Profiler::StartTimer("DataManager::QueryDelete()");
+    Profiler::StartTimer("DataManager::QueryDelete($id)", 3);
+    $qstart = microtime(true);
     $rows_affected = NULL;
     $queryid = new DatamanagerQueryID($id);
     if ($source =& DataManager::PickSource($queryid)) {
       $rows_affected = $source->QueryDelete($queryid, $table, $where_condition, $bind_vars);
     }
-    Profiler::StopTimer("DataManager::QueryUpdate()");
+    Profiler::StopTimer("DataManager::QueryDelete()");
+    Profiler::StopTimer("DataManager::QueryDelete($id)");
+    self::log("delete", $id, $table, $qstart, microtime(true));
     return $rows_affected;
   }
 
@@ -270,12 +293,16 @@ class DataManager {
    */
   static function &QueryCreate($id, $table, $columns) {
     Profiler::StartTimer("DataManager::QueryCreate()", 1);
+    Profiler::StartTimer("DataManager::QueryCreate($id)", 3);
+    $qstart = microtime(true);
     $rows_affected = NULL;
     $queryid = new DatamanagerQueryID($id);
     if ($source =& DataManager::PickSource($queryid)) {
       $rows_affected = $source->QueryCreate($queryid, $table, $columns);
     }
     Profiler::StopTimer("DataManager::QueryCreate()");
+    Profiler::StopTimer("DataManager::QueryCreate($id)");
+    self::log("create", $id, $table, $qstart, microtime(true));
     return $rows_affected;
   }
 
@@ -288,7 +315,9 @@ class DataManager {
    * @return object $result
    */
   static function &QueryFetch($id, $table, $where=NULL, $extra=NULL) {
-    //Profiler::StartTimer("DataManager::QueryFetch()");
+    Profiler::StartTimer("DataManager::QueryFetch()");
+    Profiler::StartTimer("DataManager::QueryFetch($id)", 3);
+    $qstart = microtime(true);
     $result = NULL;
     $queryid = new DatamanagerQueryID($id);
     if ($source =& DataManager::PickSource($queryid)) {
@@ -299,7 +328,7 @@ class DataManager {
       if (!empty($queryid->args["cache"])) {
         $cache = any($source->cachepolicy, true);
       }
-      $query = "SELECT *"; // FIXME - quick hack to truck CacheSet into thinking I'm a simple select
+      $query = "SELECT *"; // FIXME - quick hack to trick CacheSet into thinking this is a simple select
 
       $foundincache = false;
       if ($cache) {
@@ -320,7 +349,9 @@ class DataManager {
         }
       }
     }
-    //Profiler::StopTimer("DataManager::QueryFetch()");
+    Profiler::StopTimer("DataManager::QueryFetch()");
+    Profiler::StopTimer("DataManager::QueryFetch($id)");
+    self::log("fetch", $id, $table, $qstart, microtime(true));
     return $result;
   }
   /**
@@ -332,13 +363,17 @@ class DataManager {
    * @return integer $count
    */
   static function &QueryCount($id, $table, $where, $extra=NULL) {
-    //Profiler::StartTimer("DataManager::QueryCount()");
+    Profiler::StartTimer("DataManager::QueryCount()");
+    Profiler::StartTimer("DataManager::QueryCount($id)", 3);
+    $qstart = microtime(true);
     $count = 0;
     $queryid = new DatamanagerQueryID($id);
     if ($source =& DataManager::PickSource($queryid)) {
       $count = $source->QueryCount($queryid, $table, $where, $extra);
     }
-    //Profiler::StopTimer("DataManager::QueryCount()");
+    Profiler::StopTimer("DataManager::QueryCount()");
+    Profiler::StopTimer("DataManager::QueryCount($id)");
+    self::log("count", $id, $table, $qstart, microtime(true));
     return $count;
   }
   
@@ -388,35 +423,58 @@ class DataManager {
   }
 
   function GetGroup($groupname) {
+    //Profiler::StartTimer("GetGroup($groupname)");
     $ret = NULL;
     if (!empty($this->cfg->servers["groups"][$groupname])) {
       $ret = $this->cfg->servers["groups"][$groupname];
+      if (is_string($ret["servers"])) { // If 'servers' is a string, assume it's a space-separated list
+        $servers = explode(" ", $ret["servers"]);
+        $ret["servers"] = array();
+        for ($i = 0; $i < count($servers); $i++) {
+          $ret["servers"][$i] = array("host" => $servers[$i]);
+        }
+      }
       if (!empty($ret["bucketcfg"])) {
         $fname = $this->cfg->locations["config"] . '/' . $ret["bucketcfg"];
         if (file_exists($fname)) {
           $lines = file($fname);
           $bucketnum = 0;
+          $filever = (strpos($lines[0], "bucket:") ? 1 : 2);
           foreach ($lines as $line) {
-            $parts = explode(": ", trim($line));
-            if ($parts[0] == "servers") {
-              $servers = explode(", ", $parts[1]);
-              for ($i = 0; $i < count($servers); $i++) {
-                $ret["servers"][$i]["host"] = $servers[$i];
+            if ($filever == 1) {
+              $parts = explode(": ", trim($line));
+              if ($parts[0] == "servers") {
+                $servers = explode(", ", $parts[1]);
+                for ($i = 0; $i < count($servers); $i++) {
+                  $ret["servers"][$i]["host"] = $servers[$i];
+                }
+              } else if ($parts[0] == "bucket") {
+                $bucketinfo = explode(", ", $parts[1]);
+                $bucketname = array_shift($bucketinfo);
+                $ret["buckets"][$bucketnum++] = array("name" => $bucketname, "servers" => $bucketinfo);
               }
-            } else if ($parts[0] == "bucket") {
-              $bucketinfo = explode(", ", $parts[1]);
-              $bucketname = array_shift($bucketinfo);
-              $ret["buckets"][$bucketnum++] = array("name" => $bucketname, "servers" => $bucketinfo);
+            } else {
+              $foo = sscanf($line, "%s %d %d\n");
+              $ret["buckets"][$bucketnum++] = array("name" => $foo[0], "servers" => array($foo[1], $foo[2]));
             }
           }
         }
       }
     }
+    //Profiler::StopTimer("GetGroup($groupname)");
     //print_pre($ret);
     return $ret;
   }
 
   function Quit() {
+    if (!empty(self::$querylog)) {
+      foreach (self::$querylog as $q) {
+        $id = explode(".", $q["id"]);
+        if ($id[0] != "stats") {
+          self::Query("stats.default.querylog", "www.querylog.{$q["type"]}", json_encode($q));
+        }
+      }
+    }
     $this->CloseAll($this->sources);
   }
   function CloseAll(&$sources) {
@@ -434,6 +492,49 @@ class DataManager {
     $ormmgr = OrmManager::singleton();
     $ormmgr->LoadModel($model);
   }
+
+  static function BeginTransaction($id) {
+    Profiler::StartTimer("DataManager::BeginTransaction()");
+    $queryid = new DatamanagerQueryID($id);
+    if ($source =& DataManager::PickSource($queryid)) {
+      $ret = $source->BeginTransaction($queryid);
+    }
+    Profiler::StopTimer("DataManager::BeginTransaction()");
+    Logger::Notice("Beginning transaction for queryid {$queryid->id}");
+    return $ret;
+  }
+
+  static function Commit($id) {
+    Profiler::StartTimer("DataManager::Commit()");
+    $queryid = new DatamanagerQueryID($id);
+    if ($source =& DataManager::PickSource($queryid)) {
+      $ret = $source->Commit($queryid);
+    }
+    Profiler::StopTimer("DataManager::Commit()");
+    Logger::Notice("Committed transaction for queryid {$queryid->id}");
+    return $ret;
+  }
+
+  static function Rollback($id) {
+    Profiler::StartTimer("DataManager::Rollback()");
+    $queryid = new DatamanagerQueryID($id);
+    if ($source =& DataManager::PickSource($queryid)) {
+      $ret = $source->Rollback($queryid);
+    }
+    Profiler::StopTimer("DataManager::Rollback()");
+    Logger::Notice("Rolled back transaction for queryid {$queryid->id}");
+    return $ret;
+  }
+  static function Quote($id, $str) {
+    Profiler::StartTimer("DataManager::Quote()");
+    $queryid = new DatamanagerQueryID($id);
+    if ($source =& DataManager::PickSource($queryid)) {
+      $ret = $source->Quote($queryid, $str);
+    }
+    Profiler::StopTimer("DataManager::Quote()");
+    return $ret;
+  }
+
 
   // Simple remappings
   static function &insert($id, $table, $values, $extra=NULL) {
@@ -453,6 +554,13 @@ class DataManager {
   }
   static function &count($id, $table, $where, $extra=NULL) {
     return self::QueryCount($id, $table, $where, $extra);
+  }
+
+  static private function log($type, $id, $table, $start, $end, $cached=false) {
+    if (empty(self::$querylog_reqid)) {
+      self::$querylog_reqid = rand();
+    }
+    self::$querylog[] = array("reqid" => self::$querylog_reqid, "id" => $id, "type" => $type, "time" => ($end - $start), "cached" => $cached); 
   }
 }
 

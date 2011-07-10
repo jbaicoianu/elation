@@ -23,12 +23,19 @@ include_once("lib/profiler.php");
 include_once("include/common_funcs.php");
 include_once("lib/Conteg_class.php");
 
+if (file_exists_in_path('Zend/Loader/Autoloader.php')) {
+  include_once "Zend/Loader/Autoloader.php";
+}
+
+
 class App {
 
   function App($rootdir, $args) {
     Profiler::StartTimer("WebApp", 1);
     Profiler::StartTimer("WebApp::Init", 1);
     Profiler::StartTimer("WebApp::TimeToDisplay", 1);
+
+    register_shutdown_function(array('Logger','processShutdown'));
 
     ob_start();
     $this->rootdir = $rootdir;
@@ -44,17 +51,17 @@ class App {
       $pandora->setFlag(true);
     }
 
-
     $this->InitProfiler();
     $this->request = $this->ParseRequest(NULL, $args);
     $this->cfg = ConfigManager::singleton(array("rootdir" => $rootdir, "basedir" => $this->request["basedir"]));
     $this->locations = ConfigManager::getLocations();
+    $this->InitProfiler(); // reinitialize after loading the config
     Profiler::StartTimer("WebApp::Init - handleredirects", 1);
     $this->request = $this->ApplyRedirects($this->request);
     Profiler::StopTimer("WebApp::Init - handleredirects");
     $this->data = DataManager::singleton($this->cfg);
 
-    set_error_handler(array($this, "HandleError"), E_ALL);
+    set_error_handler(array($this, "HandleError"), error_reporting());
 
     DependencyManager::init($this->locations);
 
@@ -77,6 +84,7 @@ class App {
         }
         $this->cfg->GetConfig($this->cobrand, true, $this->role);
         $this->ApplyConfigOverrides();
+        $this->locations = DependencyManager::$locations = $this->cfg->locations;
 
         // And the google analytics flag
         if (isset($this->request["args"]["GAalerts"])) {
@@ -134,7 +142,7 @@ class App {
 
     if (!empty($this->components)) {
       try {
-        $output = $this->components->Dispatch($path, $args);
+        $output = $this->components->Dispatch($path, $args, $this->request["type"]);
       } catch (Exception $e) {
         //print_pre($e);
         $output["content"] = $this->HandleException($e);
@@ -150,12 +158,12 @@ class App {
         $contegargs = array_merge($contegargs, $contegcfg);
       }
 
-      // Merge type-specific policy settings from config if applicable
-      if (isset($contegargs["policy"]) && is_array($contegargs["policy"][$output["responsetype"]])) {
-        $contegargs = array_merge($contegargs, $contegargs["policy"][$output["responsetype"]]);
-      }
       if (empty($contegargs["type"])) {
-        $contegargs["type"] = $output["responsetype"];
+        $contegargs["type"] = any($this->request["contenttype"], $output["responsetype"]);
+      }
+      // Merge type-specific policy settings from config if applicable
+      if (isset($contegargs["policy"]) && is_array($contegargs["policy"][$contegargs["type"]])) {
+        $contegargs = array_merge($contegargs, $contegargs["policy"][$contegargs["type"]]);
       }
 
       if (empty($contegargs["modified"])) { // Set modified time to mtime of base directory if not set
@@ -172,7 +180,12 @@ class App {
         }
       }
       Profiler::StopTimer("WebApp::TimeToDisplay");
+      Profiler::StartTimer("WebApp::Display() - Conteg", 1);
       new Conteg($contegargs);
+      Profiler::StopTimer("WebApp::Display() - Conteg");
+      if (Profiler::$log) {
+        Profiler::Log(DependencyManager::$locations["tmp"], $this->components->pagecfg["pagename"]);
+      }
     }
   }
 
@@ -235,14 +248,15 @@ class App {
         "trace" => $e->getTrace());
     $user = User::singleton();
     $vars["debug"] = ($this->debug || $user->HasRole("ADMIN"));
-    if (($path = file_exists_in_path("templates/exception.tpl", true)) !== false) {
+    if ($this->tplmgr && ($path = file_exists_in_path("templates/exception.tpl", true)) !== false) {
       return $this->tplmgr->GetTemplate($path . "/templates/exception.tpl", $this, $vars);
     }
-    return "Unhandled Exception (and couldn't find exception template!)";
+    return sprintf("Unhandled Exception: '%s' at %s:%s\n", $vars["exception"]["message"], $vars["exception"]["file"], $vars["exception"]["line"]);
   }
 
   function HandleError($errno, $errstr, $errfile, $errline, $errcontext) {
-    if ($errno & error_reporting()) {
+    $visible = (!isset($this->cfg->servers["logger"]["visible"]) || $this->cfg->servers["logger"]["visible"] == true);
+    if ($visible) {
       if ($errno & E_ERROR || $errno & E_USER_ERROR)
         $type = "error";
       else if ($errno & E_WARNING || $errno & E_USER_WARNING)
@@ -269,7 +283,7 @@ class App {
       if (isset($this->tplmgr) && ($path = file_exists_in_path("templates/exception.tpl", true)) !== false) {
         print $this->tplmgr->GetTemplate($path . "/templates/exception.tpl", $this, $vars);
       } else {
-        print "<blockquote><strong>" . $type . ":</strong> " . $errstr . "</blockquote> <address>" . $vars["exception"]["file"] . ":" . $vars["exception"]["line"] . "</address>";
+        print "<blockquote><strong>" . $type . ":</strong> " . $errstr . "</blockquote> at <address>" . $vars["exception"]["file"] . ":" . $vars["exception"]["line"] . "</address>";
       }
     }
   }
@@ -277,7 +291,7 @@ class App {
   protected function initAutoLoaders() {
     if (class_exists('Zend_Loader_Autoloader', false)) {
       $zendAutoloader = Zend_Loader_Autoloader::getInstance(); //already registers Zend as an autoloader
-      $zendAutoloader->unshiftAutoloader(array('WebApp', 'autoloadElation')); //add the Elation autoloader
+      $zendAutoloader->unshiftAutoloader(array('App', 'autoloadElation')); //add the Elation autoloader
     } else {
       spl_autoload_register('App::autoloadElation');
     }
@@ -322,7 +336,7 @@ class App {
   }
 
   function GetRequestedConfigName($req=NULL) {
-    $ret = "thefind";
+    $ret = any($this->cfg->servers["cobrand"], "thefind");
 
     if (empty($req))
       $req = $this->request;
@@ -357,6 +371,11 @@ class App {
       ConfigManager::merge($rolecfg);
     }
 
+    if ($this->request["ssl"]) {
+      $included_config = $this->cfg->GetConfig("classes.secure", false, $this->cfg->servers["role"]);
+      if (!empty($included_config))
+        ConfigManager::merge($included_config);
+    }
     $browseroverride = NULL;
     if (isset($this->request["args"]["sess"]["browser.override"])) {
       $browseroverride = $this->request["args"]["sess"]["browser.override"];

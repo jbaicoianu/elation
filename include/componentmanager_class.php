@@ -24,14 +24,15 @@ class ComponentManager extends Component {
 
   protected static $instance;
   public static function singleton($args=NULL) { $name = __CLASS__; if (!self::$instance) { self::$instance = new $name($args); } return self::$instance; }
+  private static $lookupcache = array();
 
   function ComponentManager(&$parent) {
     $this->Component("", $parent);
   }
 
-  function Dispatch($page=NULL, $args=NULL) {
+  function Dispatch($page=NULL, $args=NULL, $output="html") {
     $alternateret = $this->HandleDispatchArgs($args);
-    $outputtype = (!empty($_SERVER["HTTP_X_AJAX"]) ? "ajax" : "html");
+    $outputtype = (!empty($_SERVER["HTTP_X_AJAX"]) ? "ajax" : $output);
     if (isset($args["_output"])) {
       $outputtype = $args["_output"];
     }
@@ -59,7 +60,7 @@ class ComponentManager extends Component {
     $smarty->assign_by_ref("pagecfg", $pagecfg);
     $ret["type"] = $pagecfg["type"] = $outputtype;
     $ret["page"] = $pagecfg["page"] = $page;
-    $ret["pagename"] = $pagecfg["pagename"] = str_replace("/", "_", substr($page, 1));
+    $ret["pagename"] = $pagecfg["pagename"] = ''; //str_replace("/", "_", substr($page, 1));
     $this->pagecfg["args"] = $args;
 
     $applysettings = empty($args["xmlapi"]);
@@ -105,7 +106,11 @@ class ComponentManager extends Component {
     } else if (preg_match("|^/((?:[^./]+/?)*)(?:\.(.*))?$|", $page, $m)) {
       // Dispatch directly to a component.  File extension determines output type
       $componentname = str_replace("/", ".", $m[1]);
-      if ($outputtype !== "ajax" && empty($args["output"]) && isset($m[2])) { // AJAX output overrides others
+      // FIXME - this is ugly.  Basically:
+      //   - If we passed an output in via the &_output= URL param, it takes precedence
+      //   - If the request has a file extension, use that... 
+      //   - UNLESS the extension is .fhtml and we've already determined this is an AjaxLib response (LEGACY CODE)
+      if (empty($args["_output"]) && !empty($m[2]) && !($m[2] == "fhtml" && $outputtype == "ajax")) { 
         $outputtype = $m[2];
       }
 
@@ -148,10 +153,14 @@ class ComponentManager extends Component {
         "page_type"     => $pagecfg["pagename"],
       );
 
-      if ($pandora instanceof PandoraLog) {
+      if (!ConfigManager::get("tracking.pandora", true)) {
+        $pandora->setFlag(false);
+      }
+
+      if ($pagecfg['pagename'] && $pandora instanceof PandoraLog) {
         $pandora->addData("pages", $pandora_pages);
         // if $pagecfg["pagename"] known, update the session
-        if (!empty($pagecfg["type"])) {
+        if (!empty($pagecfg["pagename"])) {
           $pandora->setPageType($pagecfg["pagename"]);
         }
       }
@@ -272,6 +281,33 @@ class ComponentManager extends Component {
     }
     Logger::Info($logmsg);
   }
+  function &Get($name, $args=NULL) {
+    $ret = NULL;
+    if (isset(self::$lookupcache[$name])) { // Keep a cache of lookup names so we can return commonly-referenced components instantly
+      $ret =& self::$lookupcache[$name];
+    } else {
+      if (strpos($name, ".") !== false)
+        list($componentname, $subcomponentname) = explode(".", $name, 2);
+      else
+        $componentname = $name;
+
+      if ($this->HasComponent($componentname, &$args)) {
+        $component =& $this->GetComponent($componentname);
+        if ($component !== NULL) {
+          if (!empty($subcomponentname)) {
+            $ret =& $component->Get($subcomponentname);
+          } else {
+            $ret =& $component;
+          }
+        }
+      }
+      if ($ret instanceOf Component) {
+        self::$lookupcache[$name] =& $ret;
+      }
+    }
+
+    return $ret;
+  }
   static public function fetch($componentname, $args=array(), $output="inline") {
     $ret = NULL;
     $componentmanager = self::singleton();
@@ -333,7 +369,7 @@ class ComponentResponse implements ArrayAccess {
         break;
       case 'json':
       case 'jsonp':
-        $ret = array("application/javascript", $tplmgr->GenerateJavascript($ret, any($_REQUEST["jsonp"], "ajaxlib.blah")));
+        $ret = array("application/javascript", $tplmgr->GenerateJavascript($this->data, any($_REQUEST["jsonp"], "elation.ajax.processResponse")));
         break;
       case 'js':
         $ret = array("application/javascript", json_encode($this) . "\n");
@@ -356,8 +392,8 @@ class ComponentResponse implements ArrayAccess {
       case 'html':
       case 'fhtml':
         $framecomponent = any(ConfigManager::get("page.frame"), "html.page");
-        $vars["content"] = $this;
-        $ret = array("text/html", ComponentManager::fetch($framecomponent, $vars, "inline"));
+        // If framecomponent is false/0, just return the raw content
+        $ret = array("text/html", (empty($framecomponent) ? $this->data["content"] : ComponentManager::fetch($framecomponent, array("content" => $this), "inline")));
         break;
       case 'popup': // Popup is same as HTML, but we only use the bare-minimum html.page frame
         $vars["content"] = $this;

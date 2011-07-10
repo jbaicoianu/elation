@@ -204,3 +204,6 @@ ul#tf_debug_log li.logDebug {
   height: 100%;
   overflow:hidden;
 }
+#tf_debug_settings input.overridden {
+  background: yellow;
+}

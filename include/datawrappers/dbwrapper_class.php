@@ -9,6 +9,7 @@ include_once("include/datawrappers/connectionwrapper_class.php");
  * @subpackage Datasources
  */
 class DBWrapper extends ConnectionWrapper {
+  protected $transactionLevel = 0;
   function DBWrapper($name, $cfg, $lazy=false) {
     $this->ConnectionWrapper($name, $cfg, $lazy);
     if (!empty($this->cfg["buckets"])) {
@@ -84,7 +85,7 @@ class DBWrapper extends ConnectionWrapper {
         // Double check that conn exists before using it (FIXME - could be smarter here)
         $resource = null;
         $realsql = ($server[1] != NULL && !empty($sqlinfo["table"]) ? str_replace($sqlinfo["table"], $sqlinfo["table"] . "_" . $server[1], $query) : $query);
-        Logger::Warn("Execute query: '" . $realsql . "' " . (!empty($args) ? "Args: " . print_ln($args, true, true) : "") . "\n");
+        Logger::Notice("Execute query: '" . $realsql . "' " . (!empty($args) ? "Args: " . print_ln($args, true, true) : "") . "\n");
         if ($this->conn[$servernum]) {
           // execute the SQL and return the result
           try {
@@ -148,7 +149,7 @@ class DBWrapper extends ConnectionWrapper {
           try {
             $last_insert_id = $this->conn[$servernum]->insert($realtable, $values, $extra);
             if ($last_insert_id !== false) {
-              Logger::Info("Insert into table $realtable succeeded: $last_insert_id");
+              Logger::Notice("Insert into table $realtable succeeded: $last_insert_id");
             } else {
               Logger::Error("Mysql error: error inserting into $realtable with data " . print_ln($values,true)); 
               $failed = true;
@@ -220,7 +221,7 @@ class DBWrapper extends ConnectionWrapper {
             if ($rows_affected > 0) {
               $this->CacheClear($queryid);
             }
-            //Logger::Warn("Execute update query into table $table (Using " . $this->dsn . ")");
+            Logger::Notice("Execute update query into table $table (Using " . $this->dsn . ")");
           } catch (Exception $e) {
             Logger::Error("Failed to update '{$queryid->id}' in '$realtable': " . $e->getMessage());
             $last_insert_id = NULL;
@@ -275,7 +276,7 @@ class DBWrapper extends ConnectionWrapper {
           */
           try {
             $rows_affected = $this->conn[$servernum]->delete($realtable, $where_condition, $bind_vars);
-            //Logger::Warn("Execute delete query on table $table (Using " . $this->dsn . ")");
+            Logger::Notice("Execute delete query on table $table (Using " . $this->dsn . ")");
           } catch (Exception $e) {
             Logger::Error("Failed to delete '{$queryid->id}' from '$realtable': " . $e->getMessage());
           }
@@ -539,6 +540,66 @@ class DBWrapper extends ConnectionWrapper {
       }
     }
     return $ret;
+  }
+  function BeginTransaction($queryid) {
+    $ret = true;
+    if (!$this->transactionLevel++) {
+      $servers = $this->HashToServer($queryid);
+      foreach ($servers as $server) {
+        if (!$this->LazyOpen($server[0])) {
+          Logger::Info("Database connection '{$this->name}:{$servernum}' marked as failed, skipping BeginTransaction");
+        } else {
+          if ($this->conn[$server[0]]) {
+            $ret &= $this->conn[$server[0]]->beginTransaction();
+          }
+        }
+      }
+    }
+    return $ret;
+  }
+  function Commit($queryid) {
+    $ret = true;
+    if (!--$this->transactionLevel) {
+      $servers = $this->HashToServer($queryid);
+      foreach ($servers as $server) {
+        if (!$this->LazyOpen($server[0])) {
+          Logger::Info("Database connection '{$this->name}:{$servernum}' marked as failed, skipping Commit");
+        } else {
+          if ($this->conn[$server[0]]) {
+            $ret &= $this->conn[$server[0]]->commit();
+          }
+        }
+      }
+    }
+    return $ret;
+  }
+  function Rollback($queryid) {
+    $ret = true;
+    if (!--$this->transactionLevel) {
+      $servers = $this->HashToServer($queryid);
+      foreach ($servers as $server) {
+        if (!$this->LazyOpen($server[0])) {
+          Logger::Info("Database connection '{$this->name}:{$servernum}' marked as failed, skipping rollback");
+        } else {
+          if ($this->conn[$server[0]]) {
+            $ret &= $this->conn[$server[0]]->rollBack();
+          }
+        }
+      }
+    }
+    return $ret;
+  }
+  function Quote($queryid, $str) {
+    $servers = $this->HashToServer($queryid);
+    foreach ($servers as $server) {
+      $servernum = $server[0];
+      if (!$this->LazyOpen($servernum)) {
+        Logger::Info("Database connection '{$this->name}:{$servernum}' marked as failed, can't quote");
+      } else {
+        return $this->conn[$servernum]->quote($str);
+      }
+    }
+    return mysql_escape_string($str); // Deprecated function call used as a last-ditch fallback
   }
 }
 
@@ -829,7 +890,7 @@ class DataBase {
     if ($extra["extrasql"] !== null)
       $sql .= " " . $extra["extrasql"];
 
-    Logger::Warn("Execute query: '" . $sql . "' " . print_ln($bind_vars, true));
+    Logger::Notice("Execute query: '" . $sql . "' " . print_ln($bind_vars, true));
     /**
      * Prepare the SQL, bind it, and execute it.
      */
@@ -898,7 +959,7 @@ class DataBase {
     /**
      * Prepare the SQL, bind it, and execute it.
      */
-    //Logger::Warn("Execute query: '" . $sql . "' " . print_ln($bind_vars, true));
+    Logger::Notice("Execute query: '" . $sql . "' " . print_ln($bind_vars, true));
     try {
       $stmt = $this->db->prepare($sql);
     } catch (PDOException $e) {
@@ -947,7 +1008,7 @@ class DataBase {
       $sql .= ' WHERE '.$where_condition;
 
 
-      Logger::Warn("Execute query: '" . $sql . "' " . print_ln($bind_vars, true));
+      Logger::Notice("Execute query: '" . $sql . "' " . print_ln($bind_vars, true));
       //we now have to prepare the query
       //and bind all of the values.
       try {
@@ -1046,7 +1107,7 @@ class DataBase {
       } catch (PDOException $e) {
         //throw new DataBaseException($e->getMessage(), $e->getCode(), $sql, $bind_vars=array());
         Logger::Error($e->getMessage());
-        raise;
+        throw $e;
       }
 
       // bind the parameters
@@ -1067,7 +1128,7 @@ class DataBase {
         }  catch (PDOException $e) {
           // must have been something wrong in the constructed SQL
           //throw new DataBaseException($e->getMessage(), DataBaseException::QUERY_EXECUTE_FAILED, $sql, $bind_vars);
-          raise;
+          throw $e;
         }
       }
     }
@@ -1325,6 +1386,15 @@ class DataBase {
     return $this->db->lastInsertId();
   }
   
+  public function beginTransaction() {
+    return $this->db->beginTransaction();
+  }
+  public function commit() {
+    return $this->db->commit($str);
+  }
+  public function rollBack() {
+    return $this->db->rollBack();
+  }
   public function quote($str) {
     return $this->db->quote($str);
   }

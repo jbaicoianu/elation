@@ -7482,9 +7482,10 @@ var Loader = {
             (function (ans, json) {
                 ans.addNode(json);
                 if(json.children) {
-                  for(var i=0, ch = json.children; i<ch.length; i++) {
-                    ans.addAdjacence(json, ch[i]);
-                    arguments.callee(ans, ch[i]);
+                  //for(var i=0, ch = json.children; i<ch.length; i++) {
+                  for(var i in json.children) {
+                    ans.addAdjacence(json, json.children[i]);
+                    arguments.callee(ans, json.children[i]);
                   }
                 }
             })(ans, json);

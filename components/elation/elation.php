@@ -102,6 +102,126 @@ class Component_elation extends Component {
     }
     return $this->GetComponentResponse("./inspect_file.tpl", $vars);
   }
+
+  function controller_inspect_component($args, $output="inline") {
+    $components = explode(",", $args["components"]);
+    sort($components);
+    $vars["components"] = array();
+    foreach ($components as $component) {
+      $fname = "components/" . implode("/components/", explode(".", $component)) . "/" . str_replace(".", "_", $component) . ".php";
+      if ($path = file_exists_in_path($fname)) {
+        $fcontents = file_get_contents("$path/$fname");
+        $funcs = $this->parseControllerFunctions($fcontents, false);
+        if (!empty($funcs)) {
+          foreach ($funcs as $func) {
+            $vars["components"][] = $this->parseControllerArguments($component, $func);
+          }
+        }
+      }
+    }
+    return $this->GetComponentResponse("./inspect_component.tpl", $vars);
+  }
+  function parseControllerFunctions($fcontents, $debug=false) {
+    $lastpos = 0;
+    $funcs = array();
+    $len = strlen($fcontents);
+    while (($pos = strpos($fcontents, "function"." controller_", $lastpos)) !== false) { 
+      // This should probably use parse_tokens() since we're calling it anyway. 
+      // The weird string-concat bit above is so we don't match ourselves...
+      if ($debug) print "start from $pos\n";
+      $state = array(
+        "{" => false,
+        "(" => false,
+        "\"" => false,
+        "\'" => false,
+        "commentline" => false,
+        "comment" => false,
+        "string" => false,
+      );
+      //$i = strpos($fcontents, "{", $pos); // find opening {
+      $i = $pos;
+      $funcdepth = 0;
+      do {
+//print "funcdepth at $i (" . $fcontents[$i] . ") is $funcdepth\n";
+        $c = $fcontents[$i];
+        $cbefore = $fcontents[$i-1];
+
+        // First handle comment state, if we're not inside of a string
+        if (!$state["string"]) {
+          if ($c == "/") {
+            if ($cbefore == "/" && !$state["comment"]) { 
+              $state["commentline"] = true; // start single-line comment
+            } else if ($cbefore == "*" && $state["comment"]) {
+              $state["comment"] = false; // end multi-line comment
+            }
+          } else if ($c == "*" && $cbefore == "/") {
+            $state["comment"] = true; // start multi-line comment
+          }
+          if ($c == "\n" && $state["commentline"]) {
+            $state["commentline"] = false; // reset single-line comment at end of line
+          }
+        }
+
+        // Now that we know comment state, only process control characters if we're not inside of one
+        if (!($state["comment"] || $state["commentline"])) {
+          if ($c == "{" && !($state["\""] || $state["\'"])) {
+            $state["{"] = $state["{"] + 1;
+            if ($debug) print $c . "[+ " . $state["{"] . "]";
+          } else if ($c == "}" && !($state["\""] || $state["\'"])) {
+            $state["{"]--;
+            if ($debug) print $c . "[- " . $state["{"] . "]";
+          } else if ($c == "(" && !($state["\""] || $state["\'"])) {
+            $state["("] = $state["("] + 1;
+            if ($debug) print $c . "[+ " . $state["("] . "]";
+          } else if ($c == ")" && !($state["\""] || $state["\'"])) {
+            $state["("]--;
+            if ($debug) print $c . "[- " . $state["("] . "]";
+          } else if (($c == "\"" && $cbefore != "\\" && $state["\'"] == 0) || ($c == "\'" && $cbefore != "\\" && $state["\""] == 0)) {
+            if ($debug) print (!$state[$c] ? "^".$c : $c."_");
+            $state[$c] = !$state[$c];
+            $state["string"] = $state["\""] || $state["\'"];
+          } else {
+            if ($debug) print $c;
+          }
+        }
+        $i++;
+      } while (($state["{"] === false || $state["{"] > 0) && $i < $len);
+      if ($debug) print "NEXT FUNC\n";
+      $funcs[] = substr($fcontents, $pos, ($i - $pos));
+      $lastpos = $i;
+    }
+    return $funcs;
+  }
+  function parseControllerArguments($component, $func) {
+    $funcname = "";
+    $tokens = token_get_all('<?' . $func . '?>');
+    $args = array();
+    for ($j = 0; $j < count($tokens); $j++) {
+      if (is_array($tokens[$j])) {
+        //printf("  - %s(%d): %s\n", token_name($tokens[$j][0]), $tokens[$j][0], $tokens[$j][1]);
+        if ($tokens[$j][0] == T_FUNCTION && $tokens[$j+1][0] == T_WHITESPACE && $tokens[$j+2][0] == T_STRING) {
+          $funcname = $tokens[$j+2][1];
+        }
+        if ($tokens[$j][0] == T_VARIABLE && $tokens[$j][1] == "\$args") {
+          if ($tokens[$j+1] == "[" && $tokens[$j+3] == "]") {
+            //print "ARG: " . $tokens[$j+2][1] . "\n";
+            $args[] = substr($tokens[$j+2][1], 1, strlen($tokens[$j+2][1]) - 2);
+          }
+        }
+      } else {
+        //printf("  - %s\n", $tokens[$j]);
+      }
+    }
+    $fullname = $component . "." . str_replace("controller_", "", $funcname);
+    $args = array_unique($args);
+    sort($args);
+    $cdata = array("name" => $fullname);
+    if (!empty($args)) {
+      $cdata["args"] = $args;
+    }
+    return $cdata;
+  }
+
   function getDirContents($dir) {
     $ret = array();
     if (($path = dir_exists_in_path($dir)) !== false) {

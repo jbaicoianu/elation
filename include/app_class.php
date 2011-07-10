@@ -283,7 +283,7 @@ class App {
       if (isset($this->tplmgr) && ($path = file_exists_in_path("templates/exception.tpl", true)) !== false) {
         print $this->tplmgr->GetTemplate($path . "/templates/exception.tpl", $this, $vars);
       } else {
-        print "<blockquote><strong>" . $type . ":</strong> " . $errstr . "</blockquote> at <address>" . $vars["exception"]["file"] . ":" . $vars["exception"]["line"] . "</address>";
+        print "<blockquote><strong>" . $type . ":</strong> " . $errstr . "</blockquote> <address>" . $vars["exception"]["file"] . ":" . $vars["exception"]["line"] . "</address>";
       }
     }
   }

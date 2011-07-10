@@ -478,14 +478,15 @@ class DataManager {
     $this->CloseAll($this->sources);
   }
   function CloseAll(&$sources) {
-    foreach ($sources as $source) {
-      if (is_array($source)) {
-        $this->CloseAll($source);
-      } else if (is_subclass_of($source, "connectionwrapper")) {
-        $source->Close();
+    if (!empty($sources)) {
+      foreach ($sources as $source) {
+        if (is_array($source)) {
+          $this->CloseAll($source);
+        } else if (is_subclass_of($source, "connectionwrapper")) {
+          $source->Close();
+        }
       }
     }
-
   }
 
   function LoadModel($model) {

@@ -49,6 +49,10 @@ component_exists() {
 }
 component_create() {
   export COMPONENTNAME=$1
+  if [ -z $COMPONENTNAME ]; then
+    error "Must provide name of component to create"
+    return
+  fi
   export COMPONENTDIR=$(component_get_dir $COMPONENTNAME)
   export COMPONENTCLASSNAME=$(echo $COMPONENTNAME |tr '.' '_')
   export COMPONENTPARTS=($(echo ${COMPONENTNAME//./ }))
@@ -153,6 +157,16 @@ web_init() {
   done
 }
 
+web_compact() {
+	echo -n "Minifying Javascript: "
+	find htdocs/scripts/ -name "*.js" -follow -exec sh -c 'FILE={}; FNAME=`basename $FILE`; DESTDIR=tmp/minified/`dirname $FILE |sed s/htdocs\//`; (([ ! -d "$DESTDIR" ] && mkdir -p $DESTDIR); cat {} |./util/jsmin.py >$DESTDIR/$FNAME && echo -n ".")  || echo -n "!" ' \;
+
+  echo done
+	echo -n "Minifying CSS: "
+	find htdocs/css/ -name "*.css" -follow -exec sh -c 'FILE={}; FNAME=`basename $FILE`; DESTDIR=tmp/minified/`dirname $FILE |sed s/htdocs\//`; (([ ! -d "$DESTDIR" ] && mkdir -p $DESTDIR); cat {} |./util/cssmin.py >$DESTDIR/$FNAME && echo -n ".")  || echo -n "!" ' \;
+  echo done
+}
+
 system_package() {
   VERSION=$1
   INSTALLDIR=debian/package/elation-$VERSION
@@ -191,6 +205,8 @@ system_package() {
   fi
 }
 
+# Begin main execution
+
 case "$ACTION" in
   system)
     case "$SUBACTION" in
@@ -217,8 +233,11 @@ case "$ACTION" in
       init)
         web_init
         ;;
+      compact)
+        web_compact
+        ;;
       *)
-        echo "Usage: $0 $ACTION [init]"
+        echo "Usage: $0 $ACTION [init|compact]"
         ;;
     esac
     ;;

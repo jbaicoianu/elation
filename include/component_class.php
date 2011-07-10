@@ -25,6 +25,8 @@ class Component extends Base {
   var $components;
   var $payload;
 
+  private $tplpathcache = array();
+
   function Component($name, &$parent, $payload=NULL, $path=".") {
     $this->Base($parent);
     $this->name = $name;
@@ -57,7 +59,7 @@ class Component extends Base {
               $ret = $this->CreateComponent($name, $componentclassname, NULL, $path, &$args);
             } catch (Exception $e) {
               //print_pre($e);
-              print "[Could not load component: $name]";
+              print "[Could not load component: " . htmlspecialchars($name) . "]";
             }
           } else if ($this->HasTemplate("./" . $name . ".tpl", $path)) {
             $ret = $this->CreateComponent($name, "ComponentTemplate", $this->path . "/" . $componentdir . "/templates/" . $name . ".tpl", $path, &$args);
@@ -207,8 +209,12 @@ class Component extends Base {
   function ExpandTemplatePath($name) {
     $ret = $name;
     if ($name[0] == "." && $name[1] == "/") {
-      $dir = $this->GetComponentDirectory($this->path);
-      $ret = $dir . "/templates/" . substr($name, 2);
+      if (isset($this->tplpathcache[$name])) {
+        $ret = $this->tplpathcache[$name];
+      } else {
+        $dir = $this->GetComponentDirectory($this->path);
+        $ret = $this->tplpathcache[$name] = $dir . "/templates/" . substr($name, 2);
+      }
     }
     return $ret;
   }
@@ -255,10 +261,13 @@ class ComponentMissing extends Component {
   }
   
   function HandlePayload(&$args, $output="inline") {
+    /*
     if (($path = file_exists_in_path("templates/404.tpl", true)) !== false) {
       return $this->GetTemplate($path . "/templates/404.tpl", $this);
     }
     return $this->GetTemplate("404.tpl", $this);
+    */
+    return ComponentManager::fetch("elation.404", array("name" => $this->name), $output);
   }
 }
 

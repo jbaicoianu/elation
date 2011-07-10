@@ -23,10 +23,6 @@ include_once("lib/profiler.php");
 include_once("include/common_funcs.php");
 include_once("include/app_class.php");
 
-if (file_exists_in_path('Zend/Loader/Autoloader.php')) {
-  include_once "Zend/Loader/Autoloader.php";
-}
-
 class WebApp extends App {
 
   public $orm;
@@ -106,7 +102,8 @@ class WebApp extends App {
 
     $req["basedir"] = $webroot;
     $req["baseurl"] = $req["scheme"] . "://" . $req["host"] . $req["basedir"];
-    $req["url"] = $req["baseurl"] . $req["path"];
+    //$req["url"] = $req["baseurl"] . $page;
+    $req["url"] = $req["baseurl"] . $_SERVER["REQUEST_URI"]; // FIXME - This probably breaks non-root-level installs...
 
     if ($req["basedir"] == '/') {
       $req["basedir"] = '';
@@ -116,7 +113,6 @@ class WebApp extends App {
       array_set_multi($req, $req["args"]["req"]);
     }
     Profiler::StopTimer("WebApp::Init - parserequest");
-
     return $req;
   }
 }

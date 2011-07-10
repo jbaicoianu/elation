@@ -32,14 +32,16 @@ function print_ln($obj, $buffer=false, $quiet=false) {
  *
  * @return mixed
  */
-function any() {
-  $args = func_get_args();
-  foreach ($args as $arg) {
-    if ( (($last = $arg) !== NULL) && ($arg !== "") ) {
-      return $arg;
+if (!function_exists("any")) {
+  function any() {
+    $args = func_get_args();
+    foreach ($args as $arg) {
+      if ( (($last = $arg) !== NULL) && ($arg !== "") ) {
+        return $arg;
+      }
     }
+    return $last;
   }
-  return $last;
 }
 
 function all() {
@@ -47,7 +49,7 @@ function all() {
   foreach (func_get_args() as $arg) {
     if ($arg !== NULL) {
       if (is_array($arg))
-        $ret = array_merge_recursive($ret, $arg);
+        $ret = array_merge_recursive_distinct($ret, $arg);
       else 
         $ret[] = $arg;
     }
@@ -274,129 +276,137 @@ function object_set(&$obj, $key, $value, $delim=".") {
   //Profiler::StopTimer("array_set");
   return $ret;
 }
-function array_set(&$arr, $key, $value, $delim=".") {
-  //Profiler::StartTimer("array_set");
-  $ret = true;
+if (!function_exists("array_set")) {
+  function array_set(&$arr, $key, $value, $delim=".") {
+    //Profiler::StartTimer("array_set");
+    $ret = true;
 
-  $keyparts = explode($delim, $key);
+    $keyparts = explode($delim, $key);
 
-  $ptr =& $arr;
-  while (($keypart = array_shift($keyparts)) !== NULL) {
-    if ($keypart !== "") {
-      if (!isset($ptr[$keypart])) {
-        $ptr[$keypart] = array();
-        $ptr =& $ptr[$keypart];
-      } else { 
-        if (is_array($ptr)) {
+    $ptr =& $arr;
+    while (($keypart = array_shift($keyparts)) !== NULL) {
+      if ($keypart !== "") {
+        if (!isset($ptr[$keypart])) {
+          $ptr[$keypart] = array();
           $ptr =& $ptr[$keypart];
-        } else {
-          $ret = false;
-          break;
+        } else { 
+          if (is_array($ptr)) {
+            $ptr =& $ptr[$keypart];
+          } else {
+            $ret = false;
+            break;
+          }
         }
       }
     }
-  }
 
-  if ($ret) {
-    if (is_array($ptr) && is_array($value)) // If they're both arrays, merge them
-      $ptr = array_merge($ptr, $value);
-    else
-      $ptr = $value;
-  }
+    if ($ret) {
+      if (is_array($ptr) && is_array($value)) // If they're both arrays, merge them
+        $ptr = array_merge($ptr, $value);
+      else
+        $ptr = $value;
+    }
 
-  //Profiler::StopTimer("array_set");
-  return $ret;
+    //Profiler::StopTimer("array_set");
+    return $ret;
+  }
 }
-function array_set_multi(&$arr, $values, $keys=NULL) {
-  Profiler::StartTimer("array_set_multi");
-  if ($keys === NULL) {
-    $tmp = array_keys($values); 
-    $keys = array_combine($tmp, $tmp);
-  }
-  asort($keys, SORT_STRING);
-  //print_pre($keys);
-  
-  $subelements = array();
-  
-  foreach ($keys as $key=>$fullkey) {
-    list($topkey, $subkey) = explode(".", $key, 2);
+if (!function_exists("array_set_multi")) {
+  function array_set_multi(&$arr, $values, $keys=NULL) {
+    Profiler::StartTimer("array_set_multi");
+    if ($keys === NULL) {
+      $tmp = array_keys($values); 
+      $keys = array_combine($tmp, $tmp);
+    }
+    asort($keys, SORT_STRING);
+    //print_pre($keys);
+    
+    $subelements = array();
+    
+    foreach ($keys as $key=>$fullkey) {
+      list($topkey, $subkey) = explode(".", $key, 2);
 
-    if (empty($subkey)) { // If we're already at a leaf, just set it
-      //print "set $topkey<br />";
-      $arr[$topkey] = $values[$fullkey];
-    } else {
-      if (isset($arr[$topkey]) && !is_array($arr[$topkey])) {
-        //print "skip $topkey<br />";
-        Logger::Error("Failed to set $fullkey: already a node?");
-        continue;
-      } else { 
-        if (!isset($arr[$topkey]))
-          $arr[$topkey] = array();
+      if (empty($subkey)) { // If we're already at a leaf, just set it
+        //print "set $topkey<br />";
+        $arr[$topkey] = $values[$fullkey];
+      } else {
+        if (isset($arr[$topkey]) && !is_array($arr[$topkey])) {
+          //print "skip $topkey<br />";
+          Logger::Error("array_set_multi: Failed to set $fullkey: already a node?");
+          continue;
+        } else { 
+          if (!isset($arr[$topkey]))
+            $arr[$topkey] = array();
 
-        if (strpos($subkey, ".") === FALSE) // Shortcut for leaf nodes to cut down on recursion (same effect as leaf case above)
-          $arr[$topkey][$subkey] = $values[$fullkey];
-        else
-          $subelements[$topkey][$subkey] = $fullkey;
+          if (strpos($subkey, ".") === FALSE) // Shortcut for leaf nodes to cut down on recursion (same effect as leaf case above)
+            $arr[$topkey][$subkey] = $values[$fullkey];
+          else
+            $subelements[$topkey][$subkey] = $fullkey;
 
+        }
       }
     }
-  }
-  foreach ($subelements as $k=>$v) {
-    array_set_multi($arr[$k], $values, $v);
-  }
-  Profiler::StopTimer("array_set_multi");
-}
-function array_unset(&$arr, $key, $delim=".") {
-  $ret = true;
-
-  $keyparts = explode($delim, $key);
-
-  $ptr =& $arr;
-  $keypartlast = $ptrlast = NULL;
-
-  while ($keypart = array_shift($keyparts)) {
-    if (!isset($ptr[$keypart]))
-      $ptr[$keypart] = array();
-
-    if (is_array($ptr)) {
-      $keypartlast = $keypart;
-      $ptrlast =& $ptr;
-      $ptr =& $ptr[$keypart];
-    } else {
-      $ret = false;
-      break;
+    foreach ($subelements as $k=>$v) {
+      array_set_multi($arr[$k], $values, $v);
     }
+    Profiler::StopTimer("array_set_multi");
   }
-
-  if ($ret) {
-    unset($ptrlast[$keypartlast]);
-  }
-
-  return $ret;
 }
-function array_get(&$arr, $key, $delim=".") {
-  //Profiler::StartTimer("array_get");
-  $ret = true;
+if (!function_exists("array_unset")) {
+  function array_unset(&$arr, $key, $delim=".") {
+    $ret = true;
 
-  $keyparts = explode($delim, $key);
+    $keyparts = explode($delim, $key);
 
-  $ptr =& $arr;
-  while ($keypart = array_shift($keyparts)) {
-    if (is_array($ptr)) {
-      if (isset($ptr[$keypart])) {
+    $ptr =& $arr;
+    $keypartlast = $ptrlast = NULL;
+
+    while ($keypart = array_shift($keyparts)) {
+      if (!isset($ptr[$keypart]))
+        $ptr[$keypart] = array();
+
+      if (is_array($ptr)) {
+        $keypartlast = $keypart;
+        $ptrlast =& $ptr;
         $ptr =& $ptr[$keypart];
       } else {
         $ret = false;
         break;
       }
-    } else {
-      $ret = false;
-      break;
     }
-  }
 
-  //Profiler::StopTimer("array_get");
-  return ($ret ? $ptr : NULL);
+    if ($ret) {
+      unset($ptrlast[$keypartlast]);
+    }
+
+    return $ret;
+  }
+}
+if (!function_exists("array_get")) {
+  function array_get(&$arr, $key, $delim=".") {
+    //Profiler::StartTimer("array_get");
+    $ret = true;
+
+    $keyparts = explode($delim, $key);
+
+    $ptr =& $arr;
+    while ($keypart = array_shift($keyparts)) {
+      if (is_array($ptr)) {
+        if (isset($ptr[$keypart])) {
+          $ptr =& $ptr[$keypart];
+        } else {
+          $ret = false;
+          break;
+        }
+      } else {
+        $ret = false;
+        break;
+      }
+    }
+
+    //Profiler::StopTimer("array_get");
+    return ($ret ? $ptr : NULL);
+  }
 }
 
 /**
@@ -410,6 +420,7 @@ function array_get(&$arr, $key, $delim=".") {
  */
 function file_exists_in_path ($file, $realpath=false, $directory=false)
 {
+    Profiler::StartTimer("file_exists_in_path", 3);
     $paths = explode(PATH_SEPARATOR, get_include_path());
  
     foreach ($paths as $path) {
@@ -417,10 +428,12 @@ function file_exists_in_path ($file, $realpath=false, $directory=false)
         $fullpath = $path . DIRECTORY_SEPARATOR . $file;
         // Check it
         if (file_exists($fullpath) || ($directory && is_dir($fullpath))) {
+            Profiler::StopTimer("file_exists_in_path");
             return ($realpath ? realpath($path) : $path);
         }
     }
  
+    Profiler::StopTimer("file_exists_in_path");
     return false;
 }
 
@@ -479,6 +492,7 @@ function str_varreplace($str, $vars) {
  * Copied from comments in http://us.php.net/base_convert and modified to support up to base 64
  */
 function unfucked_base_convert ($numstring, $frombase, $tobase) {
+  Profiler::StartTimer("unfucked_base_convert", 3);
   $chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_^";
   $tostring = substr($chars, 0, $tobase);
 
@@ -503,6 +517,7 @@ function unfucked_base_convert ($numstring, $frombase, $tobase) {
     $result = $tostring{$divide} . $result;
   }
   while ($newlen != 0);
+  Profiler::StopTimer("unfucked_base_convert");
   return $result;
 }
 
@@ -551,6 +566,14 @@ function md5int16($data) { return md5unpack($data, 16); }
 function md5int24($data) { return md5unpack($data, 24); }
 function md5int32($data) { return md5unpack($data, 32); }
 function md5int64($data) {
+  // FIXME - native base_convert with 64-bit numbers returns a different number even on 64-bit systems...
+  /*
+  if (is_64bit()) {
+    return base_convert(substr(md5($data), 0, 16), 16, 10);
+  } else {
+    return unfucked_base_convert(substr(md5($data), 0, 16), 16, 10);
+  }
+  */
   return unfucked_base_convert(substr(md5($data), 0, 16), 16, 10);
 }
 function md5int128($data) {
@@ -576,9 +599,15 @@ function makeRequestURL($page, $args=NULL, $ignore=NULL) {
 }
 function object_to_xml($obj, $container="", $level=0) {
   $tabs = str_repeat("\t",$level);
+  if (is_array($container)) {
+    $properties = $container[1];
+    $container = $container[0];
+  } else {
+    $properties = array();
+  }
   if (is_object($obj)) {
     $xml = $tabs . "<$container";
-    $properties = get_object_vars($obj);
+    $properties = array_merge($properties, get_object_vars($obj));
     $attributes = $children = array();
     foreach ($properties as $k=>$v) {
       if (is_object($v) || is_array($v))
@@ -600,12 +629,29 @@ function object_to_xml($obj, $container="", $level=0) {
       $xml .= " />\n";
     }
   } else if (is_array($obj)) {
-    $xml = $tabs . "<$container>\n";
+    $subxml = "";
+    $allnumeric = true;
     foreach ($obj as $k=>$v) {
-      $subcontainer = (is_object($v) ? get_class($v) : $k);
-      $xml .= object_to_xml($v, $subcontainer, $level+1);
+      $subcontainer = $k;
+      if (is_object($v)) {
+        $allnumeric = false;
+        $subcontainer = get_class($v);
+      } else if (is_numeric($k)) {
+        $subcontainer = array($container, array("id" => $k));
+      }
+      $subxml .= object_to_xml($v, $subcontainer, $level+1);
     }
-    $xml .= $tabs . "</" . $container . ">\n";
+    if (!$allnumeric) {
+      $xml = $tabs . "<$container";
+      foreach ($properties as $k=>$v) {
+        $xml .= sprintf(' %s="%s"', htmlspecialchars($k), htmlspecialchars($v));
+      }
+      $xml .= ">\n";
+    }
+    $xml .= $subxml;
+    if (!$allnumeric) {
+      $xml .= $tabs . "</" . $container . ">\n";
+    }
   } else {
     if ($obj !== NULL)
       $xml .= sprintf("%s<%s>%s</%s>\n", $tabs, $container, $obj, $container);
@@ -859,5 +905,27 @@ function isBot() {
     }
   }
   return false;
+}
+
+function is_json($str) {
+  $str = trim($str);
+  return (($str[0] == '{' && $str[-1] == '}') || ($str[0] == '[' && $str[-1] == ']') || ($str[0] == '"' && $str[-1] == '"'));
+}
+function is_64bit() {
+  static $_is64;
+  if ($_is64 !== null) return $_is64;
+  $int = "9223372036854775807";
+  $_is64 = (intval($int) == 9223372036854775807);  // If 32-bit, intval() will return 2147483647 instead
+  return $_is64;
+}
+
+function array_merge_recursive_distinct($arr1, $arr2) {
+  foreach($arr2 as $key => $value) {
+    if(array_key_exists($key, $arr1) && is_array($value))
+      $arr1[$key] = array_merge_recursive_distinct($arr1[$key], $arr2[$key]);
+    else
+      $arr1[$key] = $value;
+  }
+  return $arr1;
 }
 

@@ -531,6 +531,9 @@ class DataManager {
     Profiler::StopTimer("DataManager::Quote()");
     return $ret;
   }
+  static function sanitize($id) {
+    return preg_replace("/[^a-zA-Z0-9_\-.\/ ]/", "_", $id);
+  }
 
 
   // Simple remappings

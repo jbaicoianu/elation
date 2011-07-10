@@ -1,6 +1,6 @@
 #!/usr/bin/php
 <?php
-
+require_once("include/elation.php");
 $root = getcwd();
 elation_readpaths($root);
 
@@ -18,38 +18,4 @@ if (count($argv) >= 2) {
   }
   $app = new App($root, $componentargs);
   print $app->display("/" . str_replace(".", "/", $component), $componentargs);
-}
-
-function elation_addroot($roots) {
-  $path = explode(PATH_SEPARATOR, get_include_path());
-  if (!is_array($roots)) {
-    $roots = array($roots);
-  }
-  
-  if ($path[0] == ".") // . should always be first
-    array_shift($path);
-  $path = array_merge($roots, $path);
-  array_unshift($path, ".");
-
-  set_include_path(implode(PATH_SEPARATOR, $path));
-}
-function elation_readpaths($root) {
-  $matches = array(); 
-  $homedir = $_ENV['HOME'] . '/';
-  
-  $paths = file_get_contents('config/elation.path');
-  
-  if($paths !== false) {
-    $paths = explode(PHP_EOL, $paths);
-    $newpaths = array($root);
-    foreach($paths as $path) {
-      if(!empty($path)) {
-        if($homedir) {
-          $path = str_replace('~/', $homedir, $path);
-        }
-        $newpaths[] = $path;
-      }
-    }
-    elation_addroot($newpaths);
-  }
 }

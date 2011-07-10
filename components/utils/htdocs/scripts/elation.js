@@ -281,7 +281,9 @@ elation.extend("html.dimensions", function(element, ignore_size) {
 			height = ignore_size ? 0 : element.offsetHeight,
 			left = element.offsetLeft,
 			top = element.offsetTop,
-      id = element.id || '';
+			scrollleft = element.scrollLeft || 0,
+			scrolltop = element.scrollTop || 0,
+			id = element.id || '';
 	
   try {
     while (element = element.offsetParent) {
@@ -299,7 +301,8 @@ elation.extend("html.dimensions", function(element, ignore_size) {
 		x : left, 
 		y : top, 
 		w : width, 
-		h : height 
+		h : height,
+		s : [scrollleft, scrolltop]
 	};
 });
 
@@ -429,6 +432,42 @@ elation.extend('html.getscroll', function(shpadoinkle) {
 });
 elation.extend("html.get_scroll", elation.html.getscroll);
 elation.extend("html.getScroll", elation.html.getscroll);
+
+elation.extend("html.styleget", function(el, styles) {
+  if (typeof styles == 'string') {
+    styles = [styles];
+  }
+  var ret = {};
+  var computed = window.getComputedStyle(el, null);
+  for (var k = 0; k < styles.length; k++) {
+    for (var i = computed.length; i--;) {
+      var property = elation.utils.camelize(computed[i]);
+      if (property.indexOf(styles[k]) > -1) {
+        ret[property] = computed[property];
+      }
+    }
+  }
+  return ret;
+});
+elation.extend("html.stylecopy", function(dst, src, styles) {
+  if (typeof styles == 'string') {
+    styles = [styles];
+  }
+  var computed = window.getComputedStyle(src, null);
+  for (var k = 0; k < styles.length; k++) {
+    for (var i = computed.length; i--;) {
+      var property = elation.utils.camelize(computed[i]);
+      if (property.indexOf(styles[k]) > -1) {
+        dst.style[property] = computed[property];
+      }
+    }
+  }
+});
+elation.extend("utils.camelize", function(text) {
+  return text.replace(/-+(.)?/g, function (match, chr) {
+    return chr ? chr.toUpperCase() : '';
+  });
+});
 
 elation.extend("utils.isElement", function(obj) {
   try {

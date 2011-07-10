@@ -24,9 +24,10 @@ if (dir_exists_in_path('thrift/')) {
     public $version = 0;
 
     function CassandraWrapper($name, $cfg, $lazy=false) {
+      global $cassandra_E_ConsistencyLevel;
       $this->cfg = $cfg;
       $this->keyspace = $this->cfg["keyspace"];
-      $this->consistency = any($this->cfg["consistency"], cassandra_ConsistencyLevel::ONE);
+      $this->consistency = any((is_numeric($this->cfg["consistency"]) ? $this->cfg["consistency"] : $cassandra_E_ConsistencyLevel[$this->cfg["consistency"]]), cassandra_ConsistencyLevel::ONE);
       $this->version = $this->cfg["version"];
     }
     function Open() {

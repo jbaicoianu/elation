@@ -38,6 +38,9 @@ class SessionManager
   public $is_new_user;                  // flag to indicate if this is a new user (no fl-uid)
   public $is_new_session = 0;           // determine if it is a new session
 
+  public $sessionsource = "cassandra.userdata.usersession";
+  public $sessiontable = "userdata.session";
+
   /**
    * List of domains for which we want to serve cookies at the top level for (ie, thefind.com)
    * Everything else uses the FQDN (ie, www.glimpse.com, shop.glimpse.com, etc)
@@ -105,10 +108,10 @@ class SessionManager
     global $webapp;
 
     $this->data = DataManager::singleton();
-    //Profiler::StartTimer("SessionManager::Init()");
+    Profiler::StartTimer("SessionManager::Init()", 2);
 
+    /*
     if ($this->data->caches["memcache"]["session"] !== NULL) {
-      $cfgmgr = ConfigManager::singleton();
       $this->cache_obj = $this->data->caches["memcache"]["session"];
       //$this->session_cache_expire = $this->data->caches["memcache"]["session"]->lifetime;
     } else {
@@ -118,6 +121,7 @@ class SessionManager
       Logger::Error("SessionManager::init() - Cannot connect to session memcache - " . $this->data->sources);
       $this->cache_obj =& NoCache::singleton();
     }
+    */
 
     // instantiate the pandora object
     $pandora = PandoraLog::singleton();
@@ -168,7 +172,9 @@ class SessionManager
     session_cache_limiter('private');
 
     // initiate sessionization
-    session_start();
+    if (!headers_sent()) {
+      session_start();
+    }
 
     /**
      * Read the permanent session ID from cookie.
@@ -223,7 +229,9 @@ class SessionManager
         $this->first_session_for_day = 1;
       }
       $fluid_data = $this->fluid.','.$this->session_count.','.$this->last_access;
-      setcookie('fl-uid', $fluid_data, time()+31536000, "/", $domain); // (update the permanent cookie)
+      if (!headers_sent()) {
+        setcookie('fl-uid', $fluid_data, time()+31536000, "/", $domain); // (update the permanent cookie)
+      }
     }
 
 
@@ -238,19 +246,25 @@ class SessionManager
      * If not in the DB, create a new session.
      */
     $this->flsid = session_id();
-    $session_memcache = $this->cache_obj->get($this->flsid);
+    //$session_memcache = $this->cache_obj->get($this->flsid);
+    $session_memcache = DataManager::fetch("memcache.session#{$this->flsid}", $this->flsid);
     //$tmpsession = unserialize($session_memcache);
 
     if (!empty($session_memcache["fluid"]))
       $this->fluid = $session_memcache["fluid"];
 
     if (empty($session_memcache) && !$this->is_new_user) {
+      /*
       $result = $this->data->Query("db.userdata.usersession.{$this->flsid}:nocache",
                                    "SELECT data FROM usersession.usersession WHERE fl_uid=:fl_uid LIMIT 1",
                                    array(":fl_uid" => $this->fluid));
-      if ($result && $result->NumResults() == 1) {
-        $data = $result->GetResult(0);
-        $_SESSION["persist"] = unserialize($data->data);
+      */
+      $result = DataManager::QueryFetch($this->sessionsource . "#{$this->fluid}",
+                                   $this->sessiontable,
+                                   array("fl_uid" => $this->fluid));
+      if ($result && count($result) == 1) {
+        $data = current($result);
+        $_SESSION["persist"] = unserialize($data["data"]);
         $this->has_db_record = true;
         if (! $_SESSION["persist"]["has_db_record"]) {
           $_SESSION["persist"]["has_db_record"] = true;
@@ -290,7 +304,7 @@ class SessionManager
       "referrer_id"         => $webapp->request["args"]["rid"],
       "widget_id"           => $webapp->request["args"]["wid"],
       "user_registration_id"=> "$pandoraUserTypeNum.$userid",
-      "version"             => $webapp->version,
+      "version"             => 0,
       "cobrand"             => $this->root->cobrand,
       "first_session_for_day" => $this->first_session_for_day,
       "session_count"       => $this->session_count,
@@ -326,7 +340,7 @@ class SessionManager
     // set the script session ID
     $this->flssid = $this->generate_fluid();
 
-    //Profiler::StopTimer("SessionManager::Init()");
+    Profiler::StopTimer("SessionManager::Init()");
   }
   public function quit() {
     // instantiate the pandora object
@@ -353,10 +367,9 @@ class SessionManager
       $pdata_serialize = serialize($_SESSION["persist"]);
       $ip = $_SERVER['REMOTE_ADDR'];
       Logger::Warn("Creating session in database");
-      $result = $this->data->Query("db.userdata.usersession.{$this->flsid}:nocache",
-                                   "INSERT INTO usersession.usersession (fl_uid, data, ip_addr, create_time) "
-                                   . " VALUES (:fluid, :data, INET_ATON(:ip_addr), UNIX_TIMESTAMP(NOW()))",
-                                   array(":fluid"=>$this->fluid, ":data"=>$pdata_serialize, ":ip_addr"=>$ip));
+      $result = DataManager::QueryInsert($this->sessionsource . "#{$this->fluid}",
+                                   $this->sessiontable,
+                                   array($this->fluid => array("fl_uid"=>$this->fluid, "data"=>$pdata_serialize, "ip_addr"=>$ip)));
       // set the $_SESSION
       $this->has_db_record = true;
     }
@@ -408,7 +421,8 @@ class SessionManager
   public function read($id)
   {
     // calculate the crc value of this for comparison later
-    $cacheentry = $this->cache_obj->get($id);
+    //$cacheentry = $this->cache_obj->get($id);
+    $cacheentry = DataManager::fetch("memcache.session#{$id}", $id);
     if ($cacheentry instanceOf CacheEntry)
       $data = $cacheentry->getPayload();
     else
@@ -443,13 +457,16 @@ class SessionManager
     $pdata = $_SESSION["persist"];
     $pdata_serialize = serialize($pdata);
 
-    $data = $this->cache_obj->get($id);
+    //Logger::Warn($pdata_serialize);
+    //$data = $this->cache_obj->get($id);
+    $data = DataManager::fetch("memcache.session#{$id}", $id);
     $pdata_before = $data["persist"];
     $pdata_before_serialize = serialize($pdata_before);
 
     // update the memcache with the entire $_SESSION
     //$session_serialize = serialize($_SESSION);
-    $this->cache_obj->set($id, $_SESSION, 0);
+    //$this->cache_obj->set($id, $_SESSION, 0);
+    $data = DataManager::update("memcache.session#{$id}", $id, $_SESSION);
 
     if (empty($pdata) || is_null($pdata)) {
       $new_crc = 0;
@@ -464,11 +481,19 @@ class SessionManager
         $this->create_new_persist_record();
         // need to set the session cache again with we set the has_db_record param
         //$session_serialize = serialize($_SESSION);
-        $this->cache_obj->set($id, $_SESSION, 0, $this->session_cache_expire);
+        //$this->cache_obj->set($id, $_SESSION, 0, $this->session_cache_expire);
+        DataManager::update("memcache.session#{$id}", $id, $_SESSION);
       } else {
+        /*
         $result = $this->data->Query("db.userdata.usersession.{$id}:nocache",
                                      "UPDATE usersession.usersession SET data=:data WHERE fl_uid=:fl_uid",
                                      array(":data" => $pdata_serialize, ":fl_uid"  => $this->fluid)
+                                     );
+        */
+        $result = $this->data->QueryUpdate($this->sessionsource . "#{$this->fluid}",
+                                     $this->sessiontable,
+                                     array($this->fluid => array("data" => $pdata_serialize)), 
+                                     array("fl_uid"  => $this->fluid)
                                      );
         Logger::Info("Updating userdata.usersession record for $this->fluid");
       }
@@ -495,7 +520,7 @@ class SessionManager
   public function gc($maxlifetime)
   {
     $touched_limit = time() - $maxlifetime;
-    $result = $this->data->Query("db.userdata.usersession:nocache",
+    $result = $this->data->Query($this->sessionsource . ".userdata.usersession:nocache",
                                  "DELETE FROM usersession.usersession WHERE touched < :touched",
                                  array(":touched" => $touched_limit));
   }

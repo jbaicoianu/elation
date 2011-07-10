@@ -35,7 +35,7 @@ class Component_utils extends Component {
     return $this->GetComponentResponse("./listitem.tpl", $vars);
   }
 
-  function controller_panel($args) {
+  function controller_panel($args, $output="inline") {
     $ret = "";
 
     $vars["placementname"] = $args["placement"]; // FIXME - we currently don't do anything with placements
@@ -51,8 +51,31 @@ class Component_utils extends Component {
     $vars["panel"]["enabled"] = any($args["enabled"], (isset($vars["panel"]["cfg"]["enabled"]) ? $vars["panel"]["cfg"]["enabled"] : true));
     $vars["panel"]["args"] = any($args["panelargs"], array());
 
-    if (!empty($vars["panel"]["enabled"]))
-      $ret = $this->GetTemplate("./panel.tpl", $vars);
+    // If the apicomponent option is set for this panel, execute the specified component
+    if (!empty($vars["panel"]["cfg"]["apicomponent"])) {
+      $apicomponentargs = array_merge_recursive(any($vars["panel"]["cfg"]["apicomponentargs"], array()), $args);
+      if ($output != "html" && $output != "inline" && $output != "popup" && $output != "snip") {
+        $ret = ComponentManager::fetch($vars["panel"]["cfg"]["apicomponent"], $apicomponentargs, $output);
+      } else {
+        $vars["apicomponentoutput"] = ComponentManager::fetch($vars["panel"]["cfg"]["apicomponent"], $apicomponentargs, "data");
+      }
+    }
+
+    if ($output == "ajax") {
+      $ret = array();
+      $ajaxpanels = self::PanelFilterAjax($vars["panel"]["cfg"]);
+      foreach ($ajaxpanels as $k=>$p) {
+        if ($p["component"] == "utils.panel") { // Execute subpanels as AJAX requests and merge their results in with ours
+          $subret = ComponentManager::fetch($p["component"], $p["componentargs"], "ajax");
+	        $ret = array_merge($ret, $subret);
+        } else {
+          $ret[$vars["panel"]["id"] . "_" . $k] = ComponentManager::fetch($p["component"], $p["componentargs"]);
+        }
+      }
+    } else if (empty($ret)) {
+      if (!empty($vars["panel"]["enabled"]))
+        $ret = $this->GetTemplate("./panel.tpl", $vars);
+    }
     return $ret;
   }
   function controller_panel_item($args) {
@@ -61,7 +84,7 @@ class Component_utils extends Component {
       if (!empty($vars["panelitem"]["componentargs"])) {
         $vars["panelitem"]["componentargs"] = array_merge($args["panelargs"], $vars["panelitem"]["componentargs"]);
       } else {
-        $vars["panelitem"]["componentargs"] = $vars["panelargs"];
+        $vars["panelitem"]["componentargs"] = $args["panelargs"];
       }
     }
     return $this->GetTemplate("./panel_item.tpl", $vars);
@@ -89,6 +112,20 @@ class Component_utils extends Component {
       uasort($arr["items"], _panelsort);
     }
     return $arr;
+  }
+  static function PanelFilterAjax($panel, $nameprefix=NULL) {
+    $ret = array();
+    if (!empty($panel["items"])) {
+      foreach ($panel["items"] as $name=>$item) {
+        $realname = ($nameprefix !== NULL ? $nameprefix . "_" : "") . $name . $item["enabled"];
+        if (($item["ajax"] || $item["component"] == "utils.panel")) {
+          $ret[$realname] = $item;
+        } else if (!empty($item["items"])) {
+          $ret = array_merge($ret, self::PanelFilterAjax($item, $realname));
+        }
+      }
+    }
+    return $ret;
   }
 }  
 function _panelsort($a, $b) {

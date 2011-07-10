@@ -164,6 +164,13 @@ class ConfigManager extends Base {
       }
     }
 
+    if (!empty($_COOKIE["tf-dev"])) {
+      $tfdev = json_decode($_COOKIE["tf-dev"], true);
+
+      if (!empty($tfdev["serveroverrides"])) {
+        $this->SetServerOverride($tfdev["serveroverrides"]);
+      }
+    }
     return $servers;
   }
 
@@ -207,16 +214,18 @@ class ConfigManager extends Base {
    *
    * @return array
    */
-  function ConfigMerge(&$cfg1, &$cfg2) {
+  function ConfigMerge(&$cfg1, &$cfg2, $updatelocations=true) {
     Profiler::StartTimer("ConfigManager::ConfigMerge()");
     foreach ($cfg2 as $k=>$v) {
       if (is_array($v)) {
-        $this->ConfigMerge($cfg1[$k], $cfg2[$k]);
+        $this->ConfigMerge($cfg1[$k], $cfg2[$k], false);
       } else {
         $cfg1[$k] = $cfg2[$k];
       }
     }
-    //$this->locations = $this->getLocations();
+    if ($updatelocations) {
+      $this->locations = $this->getLocations();
+    }
     Profiler::StopTimer("ConfigManager::ConfigMerge()");
   }
   /**
@@ -295,23 +304,22 @@ class ConfigManager extends Base {
 
     //remove revision key / value pair. It should be auto incremented
     unset($oldcfg["revision"]);
-    //print_pre($newcfg);
     //unset($newcfg["revision"]);
 
+    /*
     $diff = array_diff_assoc_recursive($newcfg, $oldcfg);
     
     $configupdates = $this->FlattenConfig($diff);
+    */
     $configdeletes = $this->FlattenConfig($deletecfg);
-    
-    //print_pre($configupdates);
-
-    if (count($configupdates) > 0) {
-      foreach ($configupdates as $k=>$v) {
+    if (count($newcfg) > 0) {
+      foreach ($newcfg as $k=>$v) {
+        Logger::Debug('ConfigManager Update: [' . $name . ' ' . $cobrandid . ' ' . $role . '] ' . $k . ' = ' . $v["value"] . ' : ' . $v["type"]);
         $response = DataManager::Query("db.config.cobrand_config.{$name}-{$k}:nocache",
-                                       "UPDATE config.cobrand_config SET value=:value WHERE name=:name AND cobrandid=:cobrandid and role=:role",
-                                       array(":value" => $v, ":name" => $k, ":cobrandid" => $cobrandid, ":role" => $role));
+                                       "UPDATE config.cobrand_config SET value=:value, type=:type WHERE name=:name AND cobrandid=:cobrandid AND role=:role",
+                                       array(":value" => $v["value"], ":type" => $v["type"], ":name" => $k, ":cobrandid" => $cobrandid, ":role" => $role));
         if (!empty($response) && $response->numrows > 0) {
-          $ret |= true;
+          $ret = true;
         }
       }
       $updaterevision = true;
@@ -348,14 +356,12 @@ class ConfigManager extends Base {
 
     if ($updaterevision) {
       $this->UpdateRevision($cobrandid, $role);
-      if ($this->data->caches["memcache"]) {
-      $this->data->caches["memcache"]["data"]->delete("db.config.cobrand_config.{$name}.{$role}");
-      $this->data->caches["memcache"]["data"]->delete("db.config.version.$name.$role");
+      DataManager::CacheClear("db.config.cobrand_config.{$name}.{$role}");
+      DataManager::CacheClear("db.config.version.{$name}.{$role}");
     }
-   }
 
     if ($ret)
-      $this->data->CacheClear("db.config.cobrand_config.{$name}.{$role}");
+      DataManager::CacheClear("db.config.cobrand_config.{$name}.{$role}");
 
     return $ret;
   }
@@ -409,7 +415,8 @@ class ConfigManager extends Base {
           //$this->data->caches["memcache"]["data"]->delete("db.config.cobrand_config.{$name}.{$role}");
           //$this->data->caches["memcache"]["data"]->delete("db.config.version.$name.$role");
           $ret = true;
-          $this->data->CacheClear("db.config.cobrand_config.{$name}.{$role}");
+          DataManager::CacheClear("db.config.cobrand_config.{$name}.{$role}");
+          DataManager::CacheClear("db.config.version.$name.$role");
         }
       }
     }
@@ -431,7 +438,7 @@ class ConfigManager extends Base {
                                        array(":key" => $oldcfg['key'], ":config_name" => $config_name, ":role" => $role));
             if (!empty($response)) {
                 $ret = true;
-                $this->data->CacheClear("db.config.cobrand_config.{$config_name}.{$role}");
+                DataManager::CacheClear("db.config.cobrand_config.{$config_name}.{$role}");
             }
         }
         return $ret;
@@ -456,7 +463,9 @@ class ConfigManager extends Base {
         $query = DataManager::Query("db.config.cobrand.{$cobrandname}.version:nocache",
                               "INSERT INTO config.version (cobrandid, role, revision, added, updated) VALUES(:cobrandid, :role, 1, now(), now())",
                               array(":cobrandid" => $query->id,
-                                    ":role" => "dev")); // FIXME - should this add to all versions or just let the migrate script handle this?
+                                    ":role" => $this->role)); // FIXME - should this add to all versions or just let the migrate script handle this?
+        DataManager::CacheClear("db.config.version.ALL.{$this->role}");
+        DataManager::CacheClear("db.config.version.$cobrandname.{$this->role}");
       }
     }
     return $ret;
@@ -502,6 +511,7 @@ class ConfigManager extends Base {
    * @return array
    */
   function &GetConfig($name, $setcurrent=true, $role="", $skipcache=false) {
+    Profiler::StartTimer("ConfigManager::GetConfig()", 2);
     $ret = array();
 
     if ( ($name != "base") && (strpos($name, ".") === false) && (strpos($name, "abtest") === false)  ) {
@@ -632,6 +642,7 @@ class ConfigManager extends Base {
       // Update locations to reflect any new settings we got from the cobrand config
       $this->locations = $this->getLocations();
     }
+    Profiler::StopTimer("ConfigManager::GetConfig()");
     return $ret;
   }
 
@@ -773,11 +784,12 @@ class ConfigManager extends Base {
         }
      }
 
-     if ($ret)
-       $this->data->caches["memcache"]["data"]->delete("db.config.version.{$name}.{$role}");
-
-       return $ret;
+     if ($ret) {
+       DataManager::CacheClear("db.config.version.{$name}.{$role}");
      }
+
+     return $ret;
+   }
 
 
   /**

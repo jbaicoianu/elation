@@ -23,10 +23,6 @@ include_once("lib/profiler.php");
 include_once("include/common_funcs.php");
 include_once("include/app_class.php");
 
-if (file_exists_in_path('Zend/Loader/Autoloader.php')) {
-  include_once "Zend/Loader/Autoloader.php";
-}
-
 class WebApp extends App {
 
   public $orm;
@@ -106,7 +102,8 @@ class WebApp extends App {
 
     $req["basedir"] = $webroot;
     $req["baseurl"] = $req["scheme"] . "://" . $req["host"] . $req["basedir"];
-    $req["url"] = $req["baseurl"] . $req["path"];
+    //$req["url"] = $req["baseurl"] . $page;
+    $req["url"] = $req["baseurl"] . $_SERVER["REQUEST_URI"]; // FIXME - This probably breaks non-root-level installs...
 
     if ($req["basedir"] == '/') {
       $req["basedir"] = '';
@@ -164,7 +161,7 @@ class WebApp extends App {
               $ismatch = false;
           }
         }
-        if ($ismatch && !empty($rule->except)) {
+        if ($ismatch && $rule->except) {
           $exceptflag = true;
           foreach ($rule->except->attributes() as $exceptkey => $exceptstr) {
             $checkstr = array_get($req, $exceptkey);
@@ -182,11 +179,11 @@ class WebApp extends App {
         }
         if ($ismatch && !$isexcept) {
           // Apply nested rules first...
-          if (!empty($rule->rule)) {
+          if ($rule->rule) {
             $req = $this->ApplyRedirects($req, $rule->rule);
           }
           // Then process "set" command
-          if (!empty($rule->set)) {
+          if ($rule->set) {
             Logger::Info("Applying redirect:\n   " . $rule->asXML());
             if (!empty($req["args"]["testredir"]))
               print "<pre>" . htmlspecialchars($rule->asXML()) . "</pre><hr />";
@@ -208,7 +205,7 @@ class WebApp extends App {
             }
           }
           // And finally process "unset"
-          if (!empty($rule->unset)) {
+          if ($rule->unset) {
             $unset = false;
             foreach ($rule->unset->attributes() as $unsetkey => $unsetval) {
               if ($unsetkey == "_ALL_" && $unsetval == "ALL") {

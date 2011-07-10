@@ -24,47 +24,48 @@ elation.extend('panel', new function(options) {
 		
     if (args) {
 			if (args.id)
-				panel.element = $("#"+args.id);
+				panel.element = $TF("#"+args.id);
 			
 			panel.items = {};
 			if (args.cfg && args.cfg.items) {
-				$.each(args.cfg.items, function(k, v) {
+				$TF.each(args.cfg.items, function(k, v) {
 					panel.items[k] = new elation.panel.add_item(k, v, panel);
 				});
 			}
+      if (panel.cfg) {
+        if (panel.cfg.jsobject && panel.cfg.jsobject != "false") {
+          var obj = eval(panel.cfg.jsobject);
+          
+          if (typeof obj == 'function') {
+            panel.jsobj = new obj(this, panel);
+            elation[panel.name] = panel.jsobj;
 
-			if (panel.cfg.jsobject && panel.cfg.jsobject != "false") {
-				var obj = eval(panel.cfg.jsobject);
-				
-				if (typeof obj == 'function') {
-					panel.jsobj = new obj(this, panel);
-					elation[panel.name] = panel.jsobj;
+            if (typeof panel.jsobj.init == 'function')
+              panel.jsobj.init();
+          }
+        }
 
-          if (typeof panel.jsobj.init == 'function')
-            panel.jsobj.init();
-				}
-			}
-
-			if (panel.cfg.navigation == "true") {
-				panel.container = document.getElementById(panel.cfg.targetid);
-				this.lis = $('div.tf_utils_panel_' + name + ' ul li');;
-        
-        for (var i=0; i<this.lis.length; i++)
-          if (elation.html.hasclass(this.lis[i], 'selected'))
-            panel.li = this.lis[i];
-				
-				for (var item in panel.items) {
-					var	element = panel.items[item].element;
-					
-					if (typeof element == 'object' && element.length > 0) {
-						elation.events.add(element[0], 'click', this);
-						element[0].onselectstart = function() { return(false); };
-					}
-				}
-				
-				panel.item = this.get_item(panel, $('div.tf_utils_panel_' + name + ' ul li.selected')[0]);
-			}
-			
+        if (panel.cfg.navigation == "true") {
+          panel.container = document.getElementById(panel.cfg.targetid);
+          this.lis = $TF('div.tf_utils_panel_' + name + ' ul li');;
+          
+          for (var i=0; i<this.lis.length; i++)
+            if (elation.html.hasclass(this.lis[i], 'selected'))
+              panel.li = this.lis[i];
+          
+          for (var item in panel.items) {
+            var	element = panel.items[item].element;
+            
+            if (typeof element == 'object' && element.length > 0) {
+              elation.events.add(element[0], 'click', this);
+              element[0].onselectstart = function() { return(false); };
+            }
+          }
+          
+          panel.item = this.get_item(panel, $TF('div.tf_utils_panel_' + name + ' ul li.selected')[0]);
+        }
+      }
+      
 			panel.content = {};
 		}
 	}
@@ -104,27 +105,8 @@ elation.extend('panel', new function(options) {
 		
 		if (item.name == panel.item.name)
 			return;
-		  
-    if (typeof pandoraLog == 'object') {
-			pandoraLog.mouseovertype = item.name;
-    }
-    
-    if (typeof googleAnalytics == 'object') {
-      googleAnalytics.mouseovertype = item.name;
-      if (item.name == "shoplikeme")
-        googleAnalytics.trackEvent(['tab', 'shoplikeme']);
-      else if (item.name == "theweb")
-        googleAnalytics.trackEvent(['tab', 'theWeb']);
-			else if (item.name == "nearby")
-        googleAnalytics.trackEvent(['tab', 'nearby']);
-      else if (item.name == "shoplikefriends")
-        googleAnalytics.trackEvent(['tab', 'shoplikefriends']);
-			else if (item.name == "myfinds")
-        googleAnalytics.trackEvent(['tab', 'myfinds']);
-      else
-        googleAnalytics.trackEvent(['popup_tab', googleAnalytics.mouseovertype]);
-    }
 		
+    
 		this.load_tab_content(panel, target, item);
 	}
 	
@@ -137,6 +119,33 @@ elation.extend('panel', new function(options) {
 					: this.panels[this.panelmap[panel]],
 				item = item || this.get_item(panel, target);
 		
+    if (typeof pandoraLog == 'object') {
+			pandoraLog.mouseovertype = item.name;
+    }
+    
+    if (typeof googleAnalytics == 'object') {
+      googleAnalytics.mouseovertype = item.name;
+      pagetype = googleAnalytics.pagetype;
+      
+      switch (panel.name) {
+        case 'tabs':
+          googleAnalytics.trackEvent(['tab', item.name, pagetype]);
+          break;
+        
+        case "infocard_popup":
+          googleAnalytics.trackEvent(['popup_tab', item.name]);
+          break;
+        
+        default:
+          if (pagetype)
+            googleAnalytics.trackEvent([panel.name, item.name, pagetype]);
+          else
+            googleAnalytics.trackEvent([panel.name, item.name]);
+          
+          break;
+      }
+    }
+    
 		if (!panel.container) {
 			var href = target.getElementsByTagName('a').length > 0
 						? target.getElementsByTagName('a')[0].href
@@ -186,7 +195,7 @@ elation.extend('panel', new function(options) {
 		
 		// cache content of tab for later retrieval
 		if (!panel.cfg.nocache) {
-			if ($('img.tf_results_ajax_spinner',panel.container).length == 0) // kludgy - dont save content if content still loading
+			if ($TF('img.tf_results_ajax_spinner',panel.container).length == 0) // kludgy - dont save content if content still loading
 				panel.content[panel.item.name] = panel.container.innerHTML;
 			}
 			panel.item = item;
@@ -198,7 +207,7 @@ elation.extend('panel', new function(options) {
 		} else {
 			// tab fade-in effect
 			if (elation.browser && elation.browser.type != 'msie')
-				$(panel.container).animate({ opacity: 0 }, 'fast');
+				$TF(panel.container).animate({ opacity: 0 }, 'fast');
 		}
 		if (!panel.container.style.minHeight)
 			panel.container.style.minHeight = panel.container.offsetHeight + 'px';
@@ -234,7 +243,7 @@ elation.extend('panel', new function(options) {
 		}
     
 		var componentname = item.args.contentcomponent || panel.cfg.contentcomponent;
-		
+
 		// ajax-fetch tab content
 		ajaxlib.Queue({
 			url: componentname, 
@@ -244,7 +253,7 @@ elation.extend('panel', new function(options) {
 				function(response) {
 					// tab fade-in effect
 					if (elation.browser && elation.browser.type != 'msie')
-						$(panel.container).css({ opacity: 0 })
+						$TF(panel.container).css({ opacity: 0 })
 							.animate({ opacity: 1 }, 'fast')
 							.animate({ opacity: 'auto' }, 0);
 					
@@ -311,7 +320,7 @@ elation.extend('panel', new function(options) {
       if (!this.panel) 
 				return;
 			
-			this.element = $("ul.tf_utils_panel_content li#" + this.panel.id + "_" + this.name);
+			this.element = $TF("ul.tf_utils_panel_content li#" + this.panel.id + "_" + this.name);
 			
 			if (this.args.contentcomponent && !this.args.nopopup && this.element.length > 0) {
 				var panelname = this.panel.name.replace(/\./g, "_") + "_" + this.name;

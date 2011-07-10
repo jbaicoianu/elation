@@ -1,5 +1,8 @@
-var elation = new function() {
-  this.extend = function(name, func) {
+var elation = new function(selector, parent, first) {
+  if (typeof selector == 'string' && typeof elation.find == 'function')
+    elation.find(selector, parent, first);
+  
+  this.extend = function(name, func, clobber) {
 		var ptr = this,
 				parts = name.split("."),
 				i;
@@ -11,7 +14,7 @@ var elation = new function() {
 			ptr = ptr[parts[i]];
 		}
 		
-		if (typeof ptr[parts[i]] == 'undefined') {
+		if (typeof ptr[parts[i]] == 'undefined' || clobber == true) {
 			ptr[parts[i]] = func;
 		} else {
 			console.log("elation: tried to clobber existing component '" + name + "'");
@@ -19,17 +22,44 @@ var elation = new function() {
   }
 }
 
-$TF = $ = jQuery.noConflict();
+if (!window.console) { // if no console, use tfconsole if available
+	window.console = {};
+	
+	window.console.log = function(txt) {
+ 		if (elation.utils.logging) 
+      elation.utils.logging(txt);
+	}
+} else { // output to both firebug console and tfconsole
+	window.console.log = function(txt) {
+		if (elation.utils.logging) 
+			elation.utils.logging(txt);
+		
+		if (console && typeof console.debug != 'undefined') 
+			console.debug.apply(this, arguments);
+	}
+}
+
+elation.extend('utils.logging', function(txt) {
+	if (elation.debug && typeof elation.debug.log != 'undefined') 
+		elation.debug.log(txt);
+	else {
+		if (!elation.utils.logging.prelog)
+			elation.utils.logging.prelog = [];
+		
+		elation.utils.logging.prelog.push(txt);
+	}
+});
 
 elation.extend("checkhash", new function() {
-  this.timer = setInterval(function() { 
-    try { 
-      if (typeof elation.search.backbutton == 'object') {
-        elation.search.backbutton.check();
-      }
-    } catch(e) { }
-  }, 500);
-  
+  var init = function() {
+    this.timer = setInterval(function() { 
+      try { 
+        if (elation.search && elation.search.backbutton) {
+          elation.search.backbutton.check();
+        }
+      } catch(e) { }
+    }, 500);
+  }
   this.fetch = function(url, callback) {
     elation.ajax.Queue({
       url: url, 
@@ -39,74 +69,98 @@ elation.extend("checkhash", new function() {
       ]
     });
   }
+  
+  //(function(self) {
+  if (typeof $TF != 'undefined') {
+    $TF(document).ready(function() {
+      setTimeout(function() {
+        init();
+      }, 500);
+    });
+  }
+  //})(this);
 });
 
 elation.extend("component", new function() {
   this.namespace = "elation";
   this.registry = [];
-  this.init = function() {
+  this.init = function(root) {
     var componentattr = "component";
     var argsattr = this.namespace+':args';
     // Find all elements which have a namespace:componentattr attribute
 
-    //var elements = $("["+this.namespace+"\\:"+componentattr+"]"); 
-		/*
-    function nsresolver(prefix) {  
-      var ns = {  
-        'xhtml' : 'http://www.w3.org/1999/xhtml',  
-        'elation': 'http://www.ajaxelation.com/xmlns'  
-      };  
-			alert(ns[prefix]);
-      return ns[prefix] || null;  
-    }  
-		*/
-		
-    var nsresolver = document.createNSResolver(document.documentElement);
-		
-		// FIXME - I've started work to switch this over to use xpath selectors instead of jquery but namespaces make it a pain
-		//         Right now this is just selecting all elements, very inefficient...
-		//var selector = '//*['+this.namespace+':'+componentattr+']';
-		//var selector = "//*[@*["+this.namespace+":"+componentattr+"]]";
-		//var selector = "//*[@*[namespace-uri()='http://www.ajaxelation.com/xmlns']]";
-		//var selector = "//*[local-name()='component']";
-		var selector = "//*";
-		
-    var result = document.evaluate(selector, document, nsresolver, XPathResult.ANY_TYPE, null);
-    var elements = [];
-    while (element = result.iterateNext()) {
-      elements.push(element);
+    if (root == undefined) {
+      root = document;
     }
-		console.log('i init now');
+
+    if (false && document.evaluate) { // FIXME - using jQuery to query namespace elements for now, the custom method below throws errors in IE
+      if (document.createNSResolver) {
+        var nsresolver = document.createNSResolver(document.documentElement);
+      } else {
+        var nsresolver = function(prefix) {  
+          var ns = {  
+            'xhtml' : 'http://www.w3.org/1999/xhtml',  
+            'elation': 'http://www.ajaxelation.com/xmlns'  
+          };  
+          return ns[prefix] || null;  
+        }  
+      }
+      
+      // FIXME - I've started work to switch this over to use xpath selectors instead of jquery but namespaces make it a pain
+      //         Right now this is just selecting all elements, very inefficient...
+      //var selector = '//*['+this.namespace+':'+componentattr+']';
+      //var selector = "//*[@*["+this.namespace+":"+componentattr+"]]";
+      //var selector = "//*[@*[namespace-uri()='http://www.ajaxelation.com/xmlns']]";
+      //var selector = "//*[local-name()='component']";
+      var selector = "//*";
+      
+      var result = document.evaluate(selector, root, nsresolver, XPathResult.ANY_TYPE, null);
+      var elements = [];
+      var element;
+      while (element = result.iterateNext()) {
+        elements.push(element);
+      }
+    } else {
+      var elements = $TF("["+this.namespace+"\\:"+componentattr+"]"); 
+    }
     for (var i = 0; i < elements.length; i++) {
       var element = elements[i];
+      // Parse out the elation:component and elation:name attributes, if set.  Fall back on HTML id if no name specified
       var componenttype = element.getAttribute(this.namespace+':'+componentattr);
       var componentname = element.getAttribute(this.namespace+':name') || element.id;
       if (componenttype) {
-        var componentargs = {}, j;
-        // First look for a JSON-encoded args array in the element's direct children
-        for (j = 0; j < element.children.length; j++) {
-          if (element.children[j].nodeName == argsattr.toUpperCase()) {
-            try {
-              componentargs = JSON.parse(element.children[j].innerHTML);
-              break; // only one args array per block, bail out when we find one so we don't waste time with the rest
-            } catch(e) {
-              // Probably JSON syntax error
-              console.log("Could not parse " + argsattr + ": " + element.children[j].innerHTML);
+        var componentinitialized = element.getAttribute(this.namespace+':componentinitialized') || false;
+        if (!componentinitialized) { // FIXME - this isn't working in IE, so components are getting reinitialized with each AJAX request
+          element.setAttribute(this.namespace+':componentinitialized', 1);
+          var componentargs = {}, j;
+          // First look for a JSON-encoded args array in the element's direct children (elation:args)
+          if (element.children) {
+            for (j = 0; j < element.children.length; j++) {
+              // FIXME - IE seems to drop the namespace, might be related to above FIXME, so look for a child named "args"
+              if (element.children[j].nodeName == argsattr.toUpperCase() || element.children[j].nodeName == "args") { 
+                try {
+                  componentargs = JSON.parse(element.children[j].innerHTML);
+                  element.removeChild(element.children[j]);
+                  if (componentargs == null) { // empty JSON could cause errors later, so reset null to an empty hash
+                    componentargs = {};
+                  }
+                  break; // only one args array per block, bail out when we find one so we don't waste time with the rest
+                } catch(e) {
+                  // Probably JSON syntax error
+                  console.log("Could not parse " + argsattr + ": " + element.children[j].innerHTML);
+                }
+              }
             }
           }
-        }
-        // Then, loop through the attributes and parse out any individual arguments which can be specified as attributes
-        for (j = 0; j < element.attributes.length; j++) {
-          if (element.attributes[j].nodeName.substring(0, argsattr.length+1) == argsattr+'.') {
-            componentargs[element.attributes[j].nodeName.substring(argsattr.length+1)] = element.attributes[j].nodeValue;
+          // Then, loop through the attributes and parse out any individual arguments which can be specified as attributes
+          for (j = 0; j < element.attributes.length; j++) {
+            if (element.attributes[j].nodeName.substring(0, argsattr.length+1) == argsattr+'.') {
+              componentargs[element.attributes[j].nodeName.substring(argsattr.length+1)] = element.attributes[j].nodeValue;
+            }
           }
+          // Instantiate the new component with all parsed arguments
+          elation.component.create(componentname, componenttype, element, componentargs);
         }
-        // Instantiate the new component with all parsed arguments
-        //elation.component.create(componenttype, element, componentargs);
-        var componentclass = elation.utils.arrayget(elation, componenttype);
-        if (typeof componentclass == 'function') {
-          componentclass(componentname, element, componentargs);
-        } 
       }
     }
   }
@@ -134,6 +188,13 @@ elation.extend("component", new function() {
     }
     el.fn.init.prototype = el.fn; // The functions which were passed in are attached to the insantiable component objects
     elation.extend(name, el); // inject the newly-created component wrapper into the main elation object
+  }
+  this.create = function(name, type, container, args) {
+    var componentclass = elation.utils.arrayget(elation, type);
+    if (typeof componentclass == 'function') {
+      return componentclass.call(componentclass, name, container, args);
+    } 
+    console.log("elation: tried to instantiate unknown component type '" + type + "' named '" + name + "'", componentclass);
   }
 });
 
@@ -198,7 +259,7 @@ elation.extend('onloads',new function() {
     eval(script);
   }
 });
-elation.onloads.init();
+//elation.onloads.init();
 
 elation.extend("html.dimensions", function(element, ignore_size) {
 	if (typeof element != 'object' || element === window) {
@@ -222,11 +283,13 @@ elation.extend("html.dimensions", function(element, ignore_size) {
 			top = element.offsetTop,
       id = element.id || '';
 	
-	while (element = element.offsetParent) {
-		top += element.offsetTop - element.scrollTop;
-		left += element.offsetLeft - element.scrollLeft;
-	}
-	
+  try {
+    while (element = element.offsetParent) {
+      top += element.offsetTop - element.scrollTop;
+      left += element.offsetLeft - element.scrollLeft;
+    }
+  } catch(e) { console.log('html.dimensions: '+e.message); }
+  
 	if (elation.browser.type == 'safari')
 		top += elation.html.getscroll(1);
 	
@@ -259,21 +322,23 @@ elation.extend("html.position", function(obj) {
 
 // methods for css classname information and manipulation
 elation.extend("html.hasclass", function(element, className) {
-  var re = new RegExp("(^| )" + className + "( |$)", "g");
-  return element.className.match(re);
+  if(element && element.className) {
+    var re = new RegExp("(^| )" + className + "( |$)", "g");
+    return element.className.match(re);
+  }
 });
 
 elation.extend("html.addclass", function(element, className) {
-  if (!elation.html.hasclass(element, className)) {
-    element.className += " " + className;
+  if (element && !elation.html.hasclass(element, className)) {
+    element.className += (element.className ? " " : "") + className;
   }
-});
+}); 
 
 elation.extend("html.removeclass", function(element, className) {
   var re = new RegExp("(^| )" + className + "( |$)", "g");
-  if (element.className.match(re)) {
+  if (element && element.className && element.className.match(re)) {
     element.className = element.className.replace(re, " ");
-  }
+  } 
 });
 
 elation.extend("html.toggleclass", function(element, className) {
@@ -365,6 +430,21 @@ elation.extend('html.getscroll', function(shpadoinkle) {
 elation.extend("html.get_scroll", elation.html.getscroll);
 elation.extend("html.getScroll", elation.html.getscroll);
 
+elation.extend("utils.isElement", function(obj) {
+  try {
+    //Using W3 DOM2 (works for FF, Opera and Chrome)
+    return obj instanceof HTMLElement;
+  }
+  catch(e){
+    //Browsers not supporting W3 DOM2 don't have HTMLElement and
+    //an exception is thrown and we end up here. Testing some
+    //properties that all elements have. (works on IE7)
+    return (typeof obj==="object") &&
+      (obj.nodeType===1) && (typeof obj.style === "object") &&
+      (typeof obj.ownerDocument ==="object");
+  }
+});
+
 elation.extend("utils.encodeURLParams", function(obj) {
   var value,ret = '';
   
@@ -378,6 +458,51 @@ elation.extend("utils.encodeURLParams", function(obj) {
   
   return ret;
 });
+elation.extend("utils.parseURL", function(str) {
+  var ret = {uri: str, args: {}};
+  var hashparts = str.split('#');
+  var parts = hashparts[0].split("?");
+  if (parts[0]) {
+    var fileparts = parts[0].split(/:\/\//, 2);
+    if (fileparts[1]) {
+      ret.scheme = fileparts[0];
+      if (fileparts[1][0] == '/') {
+        ret.host = document.location.host;
+        ret.path = fileparts[1];
+      } else {
+        var pathparts = fileparts[1].split("/");
+        ret.host = pathparts.shift();
+        ret.path = '/' + pathparts.join("/");
+      }
+    } else {
+      ret.scheme = document.location.protocol.slice(0, -1);
+      ret.host = document.location.host;
+      ret.path = fileparts[0];
+    }
+  }
+  if (parts[1]) {
+    var args = parts[1].split("&");
+    ret.args = {};
+    for (var i = 0; i < args.length; i++) {
+      var argparts = args[i].split("=", 2);
+      ret.args[argparts[0]] = decodeURIComponent(argparts[1]);
+    }
+  }
+  if (hashparts[1]) {
+    var hashargs = hashparts[1].split("&");
+    ret.hashargs = {};
+    for (var i = 0; i < hashargs.length; i++) {
+      var hashargparts = hashargs[i].split("=", 2);
+      ret.hashargs[hashargparts[0]] = decodeURIComponent(hashargparts[1]);
+    }
+  }
+  return ret;
+});
+elation.extend("utils.makeURL", function(obj) {
+  var argstr = elation.utils.encodeURLParams(obj.args);
+  return obj.scheme + "://" + obj.host + obj.path + (argstr ? '?' + argstr : '');
+});
+
 
 /* Sets value in a multilevel object element 
 * args:
@@ -408,6 +533,36 @@ elation.extend("utils.arrayget", function(obj, name) {
     ptr = ptr[x[i]];
   }
   return (typeof ptr == "undefined" ? null : ptr);
+});
+elation.extend("utils.arraymin", function(array) {
+	var value=ret=0;
+	
+	for (var i=total=0; i<array.length; i++) {
+		value = array[i];
+		if (ret == 0 || value < ret) 
+			ret = value;
+	}
+	
+	return ret; 
+});
+elation.extend("utils.arraymax", function(array) {
+	var value=ret=0;
+	
+	for (var i=total=0; i<array.length; i++) {
+		value = array[i];
+		if (value > ret) ret = value;
+	}
+	
+	return ret; 
+});
+elation.extend("utils.arrayavg", function(array) {
+	return (arraySum(array) / array.length); 
+});
+elation.extend("utils.arraysum", function(array) {
+	for (var i=total=0; i<array.length; i++) 
+    total += array[i];
+	
+  return total;
 });
 
 //Returns true if it is a DOM node
@@ -510,11 +665,14 @@ elation.extend("utils.getOnly", function(obj, tag, className) {
 });
 
 // Navigates up the DOM from a given element looking for match
-elation.extend("utils.getParent", function(element, tag, all_occurrences) {
+elation.extend("utils.getParent", function(element, tag, classname, all_occurrences) {
   var ret = [];
   
+  if (typeof classname != 'string' && elation.utils.isTrue(classname))
+    all_occurances = true;
+  
   while (element && element.nodeName != 'BODY') {
-    if (element.nodeName == tag.toUpperCase()) {
+    if (element.nodeName == tag.toUpperCase() && (!classname || elation.html.hasclass(element, classname))) {
       if (all_occurrences)
         ret.push(element);
       else
@@ -525,6 +683,16 @@ elation.extend("utils.getParent", function(element, tag, all_occurrences) {
   }
   
   return (ret.length == 0 ? false : ret);
+});
+
+elation.extend("utils.isin", function(parent, element) {
+  if (!parent || !element)
+    return false;
+  
+ 	while (!elation.utils.isNull(element) && element != parent && element != document.body)
+    element = element.offsetParent;
+  
+  return (parent == element);
 });
 
 elation.extend("utils.indexOf", function(array, object) {
@@ -738,21 +906,21 @@ elation.extend("utils.get_html_translation_table", function(table, quote_style) 
 	return histogram;
 });
 
-JSON=function(){function f(n){return n<10?'0'+n:n;}Date.prototype.toJSON=function(key){return this.getUTCFullYear()+'-'+f(this.getUTCMonth()+1)+'-'+f(this.getUTCDate())+'T'+f(this.getUTCHours())+':'+f(this.getUTCMinutes())+':'+f(this.getUTCSeconds())+'Z';};var cx=/[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,escapeable=/[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,gap,indent,meta={'\b':'\\b','\t':'\\t','\n':'\\n','\f':'\\f','\r':'\\r','"':'\\"','\\':'\\\\'},rep;function quote(string){escapeable.lastIndex=0;return escapeable.test(string)?'"'+string.replace(escapeable,function(a){var c=meta[a];if(typeof c==='string'){return c;}return'\\u'+('0000'+(+(a.charCodeAt(0))).toString(16)).slice(-4);})+'"':'"'+string+'"';}function str(key,holder){var i,k,v,length,mind=gap,partial,value=holder[key];if(value&&typeof value==='object'&&typeof value.toJSON==='function'){value=value.toJSON(key);}if(typeof rep==='function'){value=rep.call(holder,key,value);}switch(typeof value){case'string':return quote(value);case'number':return isFinite(value)?String(value):'null';case'boolean':case'null':return String(value);case'object':if(!value){return'null';}gap+=indent;partial=[];if(typeof value.length==='number'&&!(value.propertyIsEnumerable('length'))){length=value.length;for(i=0;i<length;i+=1){partial[i]=str(i,value)||'null';}v=partial.length===0?'[]':gap?'[\n'+gap+partial.join(',\n'+gap)+'\n'+mind+']':'['+partial.join(',')+']';gap=mind;return v;}if(rep&&typeof rep==='object'){length=rep.length;for(i=0;i<length;i+=1){k=rep[i];if(typeof k==='string'){v=str(k,value,rep);if(v){partial.push(quote(k)+(gap?': ':':')+v);}}}}else{for(k in value){if(Object.hasOwnProperty.call(value,k)){v=str(k,value,rep);if(v){partial.push(quote(k)+(gap?': ':':')+v);}}}}v=partial.length===0?'{}':gap?'{\n'+gap+partial.join(',\n'+gap)+'\n'+mind+'}':'{'+partial.join(',')+'}';gap=mind;return v;}}return{stringify:function(value,replacer,space){var i;gap='';indent='';if(typeof space==='number'){for(i=0;i<space;i+=1){indent+=' ';}}else if(typeof space==='string'){indent=space;}rep=replacer;if(replacer&&typeof replacer!=='function'&&(typeof replacer!=='object'||typeof replacer.length!=='number')){throw new Error('JSON.stringify');}return str('',{'':value});},parse:function(text,reviver){var j;function walk(holder,key){var k,v,value=holder[key];if(value&&typeof value==='object'){for(k in value){if(Object.hasOwnProperty.call(value,k)){v=walk(value,k);if(v!==undefined){value[k]=v;}else{delete value[k];}}}}return reviver.call(holder,key,value);}cx.lastIndex=0;if(cx.test(text)){text=text.replace(cx,function(a){return'\\u'+('0000'+(+(a.charCodeAt(0))).toString(16)).slice(-4);});}if(/^[\],:{}\s]*$/.test(text.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g,'@').replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g,']').replace(/(?:^|:|,)(?:\s*\[)+/g,''))){j=eval('('+text+')');return typeof reviver==='function'?walk({'':j},''):j;}throw new SyntaxError('JSON.parse');}};}();
+if (typeof window.JSON == 'undefined') {
+  window.JSON=function(){function f(n){return n<10?'0'+n:n;}Date.prototype.toJSON=function(key){return this.getUTCFullYear()+'-'+f(this.getUTCMonth()+1)+'-'+f(this.getUTCDate())+'T'+f(this.getUTCHours())+':'+f(this.getUTCMinutes())+':'+f(this.getUTCSeconds())+'Z';};var cx=/[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,escapeable=/[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,gap,indent,meta={'\b':'\\b','\t':'\\t','\n':'\\n','\f':'\\f','\r':'\\r','"':'\\"','\\':'\\\\'},rep;function quote(string){escapeable.lastIndex=0;return escapeable.test(string)?'"'+string.replace(escapeable,function(a){var c=meta[a];if(typeof c==='string'){return c;}return'\\u'+('0000'+(+(a.charCodeAt(0))).toString(16)).slice(-4);})+'"':'"'+string+'"';}function str(key,holder){var i,k,v,length,mind=gap,partial,value=holder[key];if(value&&typeof value==='object'&&typeof value.toJSON==='function'){value=value.toJSON(key);}if(typeof rep==='function'){value=rep.call(holder,key,value);}switch(typeof value){case'string':return quote(value);case'number':return isFinite(value)?String(value):'null';case'boolean':case'null':return String(value);case'object':if(!value){return'null';}gap+=indent;partial=[];if(typeof value.length==='number'&&!(value.propertyIsEnumerable('length'))){length=value.length;for(i=0;i<length;i+=1){partial[i]=str(i,value)||'null';}v=partial.length===0?'[]':gap?'[\n'+gap+partial.join(',\n'+gap)+'\n'+mind+']':'['+partial.join(',')+']';gap=mind;return v;}if(rep&&typeof rep==='object'){length=rep.length;for(i=0;i<length;i+=1){k=rep[i];if(typeof k==='string'){v=str(k,value,rep);if(v){partial.push(quote(k)+(gap?': ':':')+v);}}}}else{for(k in value){if(Object.hasOwnProperty.call(value,k)){v=str(k,value,rep);if(v){partial.push(quote(k)+(gap?': ':':')+v);}}}}v=partial.length===0?'{}':gap?'{\n'+gap+partial.join(',\n'+gap)+'\n'+mind+'}':'{'+partial.join(',')+'}';gap=mind;return v;}}return{stringify:function(value,replacer,space){var i;gap='';indent='';if(typeof space==='number'){for(i=0;i<space;i+=1){indent+=' ';}}else if(typeof space==='string'){indent=space;}rep=replacer;if(replacer&&typeof replacer!=='function'&&(typeof replacer!=='object'||typeof replacer.length!=='number')){throw new Error('JSON.stringify');}return str('',{'':value});},parse:function(text,reviver){var j;function walk(holder,key){var k,v,value=holder[key];if(value&&typeof value==='object'){for(k in value){if(Object.hasOwnProperty.call(value,k)){v=walk(value,k);if(v!==undefined){value[k]=v;}else{delete value[k];}}}}return reviver.call(holder,key,value);}cx.lastIndex=0;if(cx.test(text)){text=text.replace(cx,function(a){return'\\u'+('0000'+(+(a.charCodeAt(0))).toString(16)).slice(-4);});}if(/^[\],:{}\s]*$/.test(text.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g,'@').replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g,']').replace(/(?:^|:|,)(?:\s*\[)+/g,''))){j=eval('('+text+')');return typeof reviver==='function'?walk({'':j},''):j;}throw new SyntaxError('JSON.parse');}};}();
+}
 
 elation.extend('JSON', new function() {
   this.parse = function(text) {
-    return this.JSON(['decode','parse'],text);
-  },
+    return this.JSON(['decode', 'parse'], text);
+  }
   
   this.stringify = function(text) {
-    return this.JSON(['encode','stringify'],text);
-  },
+    return this.JSON(['encode', 'stringify'], text);
+  }
   
-  this.JSON = function(parms,text) {
-		var key = typeof JSON[parms[0]] == 'function' 
-			? parms[0]
-			: parms[1];
+  this.JSON = function(parms, text) {
+		var key = (typeof JSON[parms[0]] == 'function' ? parms[0] : parms[1]);
     
 		return (key == 'parse' ? JSON.parse(text) : JSON.stringify(text));
   }
@@ -789,14 +957,35 @@ elation.extend('cookie', {
     }
 	}
 });
+elation.extend("url", function(hash) {
+  this.hash = {};
+  var hash = hash || window.location.hash;
+  
+  if (hash)
+    hash = hash.split('#')[1].split('&');
+  
+  for (var i=0; i<hash.length; i++) {
+    var parm = hash[i].split('=');
+    
+    this.hash[parm[0]] = parm[1];
+  }
+  
+  return this.hash;
+});
+elation.extend("id", function(id) {
+  return elation.find(id, true);
+});
 elation.extend("find", function(selectors, parent, first) {
   /*
-    selector engine can use commas, spaces, and find classnames via period.
-    need to add id support and multiple classname on single tag support
+    selector engine can use commas, spaces, and find classnames via period or id's via hash.
+    need to add multiple classname on single tag support
     this code is used for browsers which dont have their own selector engines
     this could be made a lot better.
   */
   this.findCore = function(selectors, oparent) {
+    if (!selectors)
+      return;
+    
     var	selectors = selectors.split(','),
         elements = [],
         selector, section, tag, tags, classname, isParent, parent, parents;
@@ -809,10 +998,17 @@ elation.extend("find", function(selectors, parent, first) {
       for (var p=0; parent = parents[p]; p++) {
         for (var q=0; q<section.length; q++) {
           isParent = (q = section.length - 1);
+          id = section[q].split('#');
           selector = section[q].split('.');
           tag = selector[0] || '*';
           tags = parent.getElementsByTagName(tag);
           classname = selector.length > 1 ? selector[1] : false;
+          
+          if (id.length > 1) {
+            elements.push(document.getElementById(id[1]));
+            
+            continue;
+          }
           
           for (var i=0; i<tags.length; i++) {
             if (classname) {
@@ -833,14 +1029,17 @@ elation.extend("find", function(selectors, parent, first) {
     
     return elements;
   }
-
+  
   var result;
   
+  // first returns the first element only.
+  // the parent parm can also act as first parm if boolean true
   if (elation.utils.isTrue(parent)) {
     first = true;
     parent = null;
   }
   
+  // use browsers native selector engine if available
   if (document.querySelectorAll) 
     result = (parent) 
       ? parent.querySelectorAll(selectors) 
@@ -848,7 +1047,7 @@ elation.extend("find", function(selectors, parent, first) {
   else
     result = this.findCore(selectors, parent);
   
-  if (first && typeof result == 'object')
+  if (first && (typeof result == 'object' || typeof result == 'function'))
     if (result.length > 0)
       result = result[0];
     else
@@ -859,7 +1058,6 @@ elation.extend("find", function(selectors, parent, first) {
 
 // grabs a js or css file and adds to document
 elation.extend('file.get', function(type, file, func) {
-	console.log(type, file, func);
   if (!type || !file)
     return false;
   
@@ -1105,6 +1303,22 @@ elation.extend('file.dependencies', new function() {
 	}
 });
 
+elation.extend('ui.gradient', function(element, first, last) {
+	switch (elation.browser.type) {
+		case "msie": 
+			element.style.filter = "progid:DXImageTransform.Microsoft.gradient(startColorstr='"+first+"', endColorstr='"+last+"')"; 
+			break;
+		
+		case "safari": 
+			element.style.cssText = "background:-webkit-gradient(linear, left top, left bottom, from("+first+"), to("+last+"));"; 
+			break;
+		
+		case "firefox": 
+			element.style.cssText = "background:-moz-linear-gradient(top, "+first+", "+last+");"; 
+			break;
+	}
+});
+
 elation.extend('ui.getCaretPosition', function(oField) {
 	// Initialize
 	var iCaretPos = 0;
@@ -1245,7 +1459,7 @@ elation.extend('ui.combobox', function(parent, callback) {
 		
 		elation.html.addclass(this.button, 'selected');
 		
-		$(this.ul)
+		$TF(this.ul)
 			.css({display: 'block', height: 0})
 			.animate({height: this.height + 'px'}, 150, "easein");
 	}
@@ -1256,7 +1470,7 @@ elation.extend('ui.combobox', function(parent, callback) {
 		elation.html.removeclass(this.button, 'selected');
 		
 		(function(self) {
-			$(self.ul)
+			$TF(self.ul)
 				.animate({height: 0}, 200, "easeout", function() {self.ul.style.display = 'none';});
 		})(this);
 	}
@@ -1353,7 +1567,7 @@ elation.extend('ui.infoboxes.twitter_form', function() {
   	args: 'url=' + encodeURIComponent(href),
   	callback: [this, function(args) {
   		//try {
-  		var response = thefind.JSON.parse(args);
+  		var response = elation.JSON.parse(args);
   		shortHREF = href = response.data.shorturl;
   		//}
   		//catch(e) {}
@@ -1372,7 +1586,7 @@ elation.extend('ui.infoboxes.twitter_form', function() {
   
   ajaxlib.Get('utils/shorturl.js?url=' + encodeURIComponent(href), null, {
   	callback: function(args) {
-  		var response = thefind.JSON.parse(args);
+  		var response = elation.JSON.parse(args);
   		shortHREF = href = response.data.shorturl;
   		setMessage();
   	},
@@ -1420,19 +1634,21 @@ elation.extend('data', new function() {
 			this[name].push(data[i]);
 	}
 	
-	this.find = function(name, path, value) {
+	this.find = function(name, path, value, get_all) {
 		if (elation.utils.isNull(this[name]))
 			return false;
 		
+    var ret = [];
+    
 		for (var i=0; i<this[name].length; i++) {
 			var item = this[name][i],
 					property = elation.utils.arrayget(item, path);
 			
 			if (property == value)
-				return item;
+				ret.push(item);
 		}
-		
-		return false;
+    
+		return (ret.length == 0 ? false : get_all ? ret : ret[0]);
 	}
 });
 
@@ -1527,301 +1743,76 @@ function any() {
 	return null;
 }
 
-/**
- * Google analytics tracking class and object
- */
-elation.extend('googleanalytics', function(args) {
-  this.GAalerts = Number(args.GAalerts);
-  this.trackingcode = args.trackingcode;
-  this.cobrand = args.cobrand;
-  this.query = args.query;
-  this.pagegroup = args.pagegroup;
-  this.pagetype = args.pagetype;
-  this.status = args.status;
-  this.total = args.total;
-  this.category = args.category;
-  this.subcategory = args.subcategory;
-  this.city = args.city;
-  this.state = args.state;
-  this.country = args.country;
-  this.pagenum = args.pagenum;
-  this.filters = args.filters;
-  this.version = args.version;
-  this.store_name = args.store_name;
-  this.alpha = args.alpha;
-  this.clickoutsource = 0;
-  this.myfindspanel = '';
-  this.mouseovertype = '';
-  this.mouseovereventenable = 1;
-  this.pageTracker = _gat._getTracker(this.trackingcode);
-  this.pageTracker._setCookieTimeout("172800"); // campaign tracking expiration 2 days
+/* JavaScript timing - Displays execution time of code blocks
+* usage:
+*   elation.timing.log();
+*   elation.timing.log();
+*   elation.timing.log();
+*   elation.timing.print();
+*/
+elation.extend('timing', new function() {
+	this.log = this.set;
+  this.enabled = false;
 
-  var self = this;
-  var ignoredOrganics=['www.thefind.com', 'thefind', 'thefind.com', 'the find', 'glimpse', 'glimpse.com', 'www.glimpse.com', 'local.thefind.com', 'green.thefind.com', 'ww1.glimpse.com', 'shoptrue.com', 'shoptrue', 'coupons.thefind.com', 'shop.glimpse.com', 'ww1.thefind.com', 'www.shoptrue.com', 'reviews.thefind.com', 'visual.thefind.com', 'prices.thefind.com'];
-  $.each(ignoredOrganics, function() {self.pageTracker._addIgnoredOrganic(this)});
-
-  var domainName = document.domain.match(/(\.(.+)\.com$)/gi);
-  if(domainName == null) {
-    domainName = document.domain.match(/(\.(.+)\.co\.uk$)/gi);
-  }
-  domainName = domainName[0];
-
-  if (this.cobrand=='local' || this.cobrand=='greenshopping' || this.cobrand=='visualbeta' || this.cobrand=='coupons' || this.cobrand=='thefind' || this.cobrand=='thefindww1' || this.cobrand=='reviews' || this.cobrand=='prices') {
-    this.pageTracker._setDomainName(domainName); // set to '.thefind.com' or '.dev.thefind.com'
-    this.pageTracker._setAllowLinker(true);
-    this.pageTracker._setAllowHash(false);
-  }else if (this.cobrand=='glimpse' || this.cobrand=='glimpseww1' || this.cobrand=='glimpseshop') {
-    this.pageTracker._setDomainName(domainName); //set to '.glimpse.com'
-    this.pageTracker._setAllowLinker(true);
-    this.pageTracker._setAllowHash(false);
-  }else if (this.cobrand=='shoptrue') {
-    this.pageTracker._setDomainName(domainName); //set to '.shoptrue.com'
-    this.pageTracker._setAllowLinker(true);
-    this.pageTracker._setAllowHash(false);
-  }else if (this.cobrand=='thefinduk') {
-    this.pageTracker._setDomainName(domainName); //set to '.thefind.co.uk'
-    this.pageTracker._setAllowLinker(true);
-    this.pageTracker._setAllowHash(false);
-  }
-
-  // attach event handlers to various static links
-  $("a.tf_search_item_link.tf_search_item_productimage_link").click(function () {if (!self.clickoutsource) self.clickoutsource = 1}); // product image
-  $("a.tf_search_item_link.tf_seeit strong img").click(function () {if (!self.clickoutsource) self.clickoutsource = 2}); // merchant logo
-  $("a.tf_search_item_link.tf_seeit").click(function () {if (!self.clickoutsource) self.clickoutsource = 3}); // VisitSite button
-  $("a.tf_search_item_link.tf_seeit strong").click(function () {if (!self.clickoutsource) self.clickoutsource = 4}); // intervening blankspace
-  $(".search_anchor_relatedqueries").each(function(n) {$(this).click(function() {self.trackEvent(['search', 'related_search', n+1])})});
-  $(".search_anchor_hotsearches").each(function(n) {$(this).click(function() {self.trackEvent(['links', self.pagetype, 'hot_searches', n+1])})});
-  $(".tf_info_iphonedownload").click(function() {self.trackEvent(['promo', 'bottom', 'iPhoneApp'])});
-  $(".tf_user_feedback_link").each(function(n) {$(this).click(function() {self.trackEvent(['links', self.pagetype, 'user_feedback', n+1])})});
-  $(".tf_about_results_link").each(function(n) {$(this).click(function() {self.trackEvent(['links', self.pagetype, 'about_these_search_results', n+1])})});
-  $(".link_icon_discover_same_product").each(function(n) {$(this).click(function() {self.trackEvent(['discover', 'same_product', self.category])})});
-  $(".link_icon_discover_similar_product").each(function(n) {$(this).click(function() {self.trackEvent(['discover', 'similar_product', self.category])})});
-  $(".search_anchor_suggestqueries").each(function(n) {$(this).click(function() {self.trackEvent(['links', 'recommendedSearches', this.innerHTML])})});
-  $("#tf_shoplikefriends_tellmorefriends").click(function() {self.trackEvent(['facebook', 'invite_friends'])});
-  $("#tf_shoplikefriends_becomefeaturedshopper").click(function() {self.trackEvent(['shoplike', 'become_featured_shopper'])});
-
-  //Links above first searchbox for products, coupons, reviews
-  $("#tf_search_links_products").click(function() {self.trackEvent(['links', 'theWeb', 'products'])});
-  $("#tf_search_links_coupons").click(function() {self.trackEvent(['links', 'theWeb', 'coupons'])});
-  $("#tf_search_links_reviews").click(function() {self.trackEvent(['links', 'theWeb', 'reviews'])});
-
-
-  //Merchantcenter footer link tracking
-  $('#tf_footer_merchantcenter').click(function() {
-    self.trackEvent(['merchant_center', self.cobrand, self.pagetype]);
-    if (self.query != 'none') {
-      self.trackEvent(['merchant_center', 'serp_footer', self.cobrand]);
-    }
-    else {
-      self.trackEvent(['merchant_center', 'home_footer', self.cobrand]);
-    }
-  });
-
-  //Don't know if the below ever gets fired ... 
-  $('#tf_middle_bottom_merchantcenter').click(function() {
-    self.trackEvent(['merchant_center', self.cobrand, self.pagetype]);
-    self.trackEvent(['merchant_center', 'home_retailer', self.cobrand]);
-  });
-
-
-	delete self;
-
-	if (this.GAalerts) {
-    $('body').append(
-      '<div id="ga_tagbox" style="position:fixed;left:0;top:0;border:1px dotted black;padding:5px;background-color:#eef;text-align:left;display:none"></div>'
-    );
-    $('#ga_tagbox').css('opacity', 0.9).click(function() {$(this).css('display', 'none')});
-  }
-
-  this.displayTag = function(content) {
-    $('#ga_tagbox').append(content+'<br \/>').css('display', 'block');
-  };
-
-  this.updatePageParameters = function(args) {
-    this.pagenum = (args['filter[pagenum]'] || args['page'] || "1");
-    this.filters = args['brand']?'1':'0';
-    this.filters += args['color']?'1':'0';
-    this.filters += Number(args['coupons'])?'1':'0';
-    this.filters += Number(args['local'])?'1':'0';
-    this.filters += Number(args['green'])?'1':'0';
-    this.filters += Number(args['marketplaces'])?'1':'0';
-    this.filters += (args['filter[price][min]']||args['filter[price][max]']||args['price'])?'1':'0';
-    this.filters += Number(args['sale'])?'1':'0';
-    this.filters += args['store']?'1':'0';
-    this.filters += args['freeshipping']?'1':'0';
-  };
-
-  this.setCustomVar = function(index, name, value, opt_scope) {
-    try {
-       this.pageTracker._setCustomVar(index, name, value, opt_scope);
-       if (this.GAalerts) this.displayTag('setCustomVar(' + index + ', ' + name + ', ' + value + ', ' + opt_scope + ')');
-    } catch (err) {
-       if (this.GAalerts) this.displayTag("setCustomVar Error: " + err.description);
-    }
-  };
-
-  this.trackPageViewWrapper = function(pageurl) {
-    try {
-      this.pageTracker._trackPageview(pageurl);
-      if (this.GAalerts) {
-        this.displayTag('trackPageview('+pageurl+')');
-      }
-    } catch (err) {if (this.GAalerts) this.displayTag("trackPageViewWrapper Error: " + err.description)}
-  };
-
-  this.trackPageview = function() {
-    var status = this.status;
-    var total = this.total;
-    var pagegroup = this.pagegroup;
-    var pagetype = this.pagetype;
-    var query = this.query.replace(/&/g, "+");
-    var errorPages = {
-      'B1':'noresults',
-      'B2':'noorganicresults',
-      'B3':'noresults',
-      'B4':'noresultscurrentmall',
-      'B5':'partialresults',
-      'S1':'serverexception',
-      '404':'error_404'};
-
-    //console.log(this.pagetype);
-    //special cases for myfinds and shoplikeme / shoplikefriends
-    if(this.pagetype == 'myfinds') {
+	this.init = function() {
+		this.l = [];
+		this.i = 0;
+	}
+	
+  // reset will reset timing from this point
+	this.set = function(reset) {
+    if (!this.enabled)
       return;
-    }
-
-    $.each(errorPages, function(k,v) {
-      if (k==status && (status!='B3' || total=='0')) {
-        query = pagetype+"-"+query;
-        pagegroup = "error";
-        pagetype = v;
-      }
-    });
-
-    if (this.pagetype=='error_404') this.query = '?page='+document.location.href  + '&from=' + document.referrer;
-
-    //TODO!!: check above format with Srilatha -- does not report properly
-    var pageurl = 'virt_'+pagegroup
-                + '/'+this.cobrand;
-
-    //console.log(this.pagetype);
-
-    switch (this.pagetype) {
-      case 'coupons_index':
-        pageurl += '/'+pagetype;
-        break;
-      case 'coupons_browsemap':
-        pageurl += '/'+pagetype;
-        pageurl += '/'+this.alpha;
-        break;
-      case 'coupons_store':
-      case 'store':
-        pageurl += '/'+pagetype;
-        pageurl += '/'+this.store_name;
-      	if (document.referrer && document.referrer.search('=') == -1) {
-                pageurl += '/?qry='+this.store_name;
-              } else {
-      	  pageurl += '/?qry='+query;
-      	}
-        pageurl += '&flt='+this.filters
-                + '&pgn='+this.pagenum
-                + '&ver='+this.version;
-        break;
-      case 'coupons_tag':
-        pageurl += '/coupons'; // pagetype in GA should be 'coupons'
-        pageurl += '/'+this.category
-                + '/'+this.subcategory
-                + '/?qry='+query
-                + '&flt='+this.filters
-                + '&pgn='+this.pagenum
-                + '&ver='+this.version;
-        break;
-      case 'merchant-register':
-        pageurl += '/upfront/email/';
-        break;
-      default:
-        pageurl += '/'+pagetype;
-        pageurl += '/'+this.category
-                + '/'+this.subcategory
-                + '/?qry='+query
-                + '&flt='+this.filters
-                + '&pgn='+this.pagenum
-                + '&ver='+this.version;
-        break;
-    }
-    if (this.GAalerts) this.displayTag('trackPageview('+pageurl+')');
-
-    try {
-      this.pageTracker._trackPageview(pageurl);
-    } catch (err) {if (this.GAalerts) this.displayTag("trackPageview Error: "+err.description)}
-  };
-
-  this.trackEvent = function(args) {
-    switch (args.length) {
-      case 2:
-        if (this.GAalerts) this.displayTag('trackEvent('+args[0]+','+args[1]+')');
-        try {
-          this.pageTracker._trackEvent(args[0], args[1]);
-        } catch (err) {if (this.GAalerts) this.displayTag("trackEvent Error: "+err.description)}
-        break;
-      case 3:
-        if (this.GAalerts) this.displayTag('trackEvent('+args[0]+','+args[1]+','+args[2]+')');
-        try {
-          this.pageTracker._trackEvent(args[0], args[1], args[2]);
-        } catch (err) {if (this.GAalerts) this.displayTag("trackEvent Error: "+err.description)}
-        break;
-      case 4:
-        if (this.GAalerts) this.displayTag('trackEvent('+args[0]+','+args[1]+','+args[2]+','+args[3]+')');
-        try {
-          this.pageTracker._trackEvent(args[0], args[1], args[2], Number(args[3]));
-        } catch (err) {if (this.GAalerts) this.displayTag("trackEvent Error: "+err.description)}
-        break;
-    }
-  };
-
-  this.trackClickout = function(args) {
-    this.trackEvent([args.event[0], args.event[1], args.event[2] + args.event[3]]);
-    this.clickoutsource=0;
-    this.myfindspanel='';
-    var orderID = Math.floor(Math.random()*1000000000000);
-    if (this.GAalerts) {
-      this.displayTag('addTrans('+orderID+','+args.trans[0]+','+args.trans[1]+',"","",'+this.city+','+this.state+','+this.country+')');
-      this.displayTag('addItem('+orderID+','+args.item[0]+','+args.item[1]+','+args.item[2]+','+args.item[3]+','+args.item[4]+')');
-    }
-    try {
-      this.pageTracker._addTrans(orderID, args.trans[0], args.trans[1], "", "", this.city, this.state, this.country);
-      this.pageTracker._addItem(orderID, args.item[0], args.item[1], args.item[2], args.item[3], args.item[4]);
-      this.pageTracker._trackTrans();
-    } catch (err) {if (this.GAalerts) this.displayTag("trackTrans Error: "+err.description)}
-  };
-
-  this.trackPrivacySettings = function() {
-    var perm = $('#user_privacy').val();
-    var permTxt = '';
-
-    switch (perm) {
-      case '0':
-        permTxt = 'everyone';
-        break;
-      case '1':
-        permTxt = 'friendsonly';
-        break;
-      case '2':
-        permTxt = 'justme';
-        break;
-    }
-
-    if (permTxt) {
-      this.trackEvent(['permissions', 'shoplikeme', permTxt]);
-    }
-  };
+    
+		if (reset)
+			this.init();
+		
+		var	i = this.i,
+				l = this.l;
+		
+		l[i] = new Date();
+		l[i].ms = (l[i].getSeconds() * 1000) + l[i].getMilliseconds();
+		
+		this.i++;
+	}
+	
+  // log will perform a set()
+	this.get = function(log) {
+		if (log)
+			this.set();	
+		
+		var l = this.l,
+				diff = l[l.length-1] - l[0];
+		
+		return diff;
+	}
+	
+  // log will perform a set()
+  // use_alert will use alert instead of console.log
+	this.print = function(name, log, use_alert) {
+    if (!this.enabled)
+      return;
+    
+		if (log)
+			this.set();
+		
+		var	l = this.l,
+				prefix = name ? name : 'timing',
+        times = '',
+        debug = '';
+		
+		for (var i = 0; i < this.i; i++)
+			if (i > 0) 
+				times += (l[i] - l[(i-1)]) + 'ms, ';
+		
+		if (i == 2)
+      debug = (l[l.length-1] - l[0]) + 'ms: ' + prefix;
+    else
+      debug = prefix + ': ' + times + 'total(' + (l[l.length-1] - l[0]) + 'ms)';
+		
+		if (use_alert)
+			alert(debug);
+		else
+			console.log(debug);
+  }
 });
-
-TFHtmlUtilsGoogleAnalytics = elation.googleanalytics;
-
-/**
- * This is used for something apparently
- */
-function TFHtmlUtilsPandoraLog() {
-  this.mouseovertype = "";
-}

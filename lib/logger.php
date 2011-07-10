@@ -206,8 +206,8 @@ class Logger {
       $folder = rtrim($sitecfg["logger"]["file"]["path"],"/");
       $fname = $folder . "/uilogger." . date("YmdH") . "0000";
       // create folder if not already there
-      if (file_exists($folder) == false) {
-        mkdir($folder, 0777);
+      if (file_exists($folder) == false && is_writable(dirname($folder))) {
+        mkdir($folder, 0777, true);
       }
       $file_exist = false;
       if (file_exists($fname) == false) {

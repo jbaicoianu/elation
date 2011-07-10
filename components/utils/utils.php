@@ -89,6 +89,21 @@ class Component_utils extends Component {
     }
     return $this->GetTemplate("./panel_item.tpl", $vars);
   }
+  function controller_panellist($args) {
+    $vars["panels"] = ConfigManager::get("panels.types");
+    return $this->GetTemplate("./panellist.tpl", $vars);
+  }
+  function controller_componentlist($args) {
+    $vars["components"] = json_decode(file_get_contents("config/components.json"));
+    return $this->GetTemplate("./componentlist.tpl", $vars);
+  }
+  function controller_paneledit($args) {
+    if (!empty($args["panel"])) {
+      $vars["panel"] = $args["panel"];
+      $vars["panelcfg"] = ConfigManager::get("panels.types.{$args["panel"]}");
+    }
+    return $this->GetTemplate("./paneledit.tpl", $vars);
+  }
   function controller_link($args) {
     $vars["label"] = $args["label"];
     if (!empty($args["url"])) {
@@ -103,8 +118,25 @@ class Component_utils extends Component {
     $vars["selectname"] = $args["selectname"];
     $vars["class"] = $args["class"];
     $vars["items"] = any($args["items"], array());
+    if (is_string($vars["items"])) {
+      $tmp = explode(";", $vars["items"]);
+      $vars["items"] = array_combine($tmp, $tmp);
+    }
     $vars["selected"] = $args["selected"];
+    if (!empty($vars["selected"]) && !isset($vars["items"][$vars["selected"]])) {
+      $vars["items"][$vars["selected"]] = $vars["selected"];
+    }
+    $vars["autosubmit"] = !empty($args["autosubmit"]);
     return $this->GetComponentResponse("./select.tpl", $vars);
+  }
+  function controller_input($args) {
+    $vars["inputname"] = $args["inputname"];
+    $vars["class"] = any($args["class"], false);
+    $vars["label"] = any($args["label"], false);
+    $vars["id"] = any($args["id"], "tf_utils_input_" . $vars["inputname"]);
+    $vars["value"] = any($args["value"], "");
+    $vars["type"] = any($args["type"], "");
+    return $this->GetComponentResponse("./input.tpl", $vars);
   }
 
   function PanelSort($arr) {

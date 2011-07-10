@@ -2,16 +2,31 @@ function TFPanel(args) {
   this.init = function(args) {
     this.orientation = args.orientation || 'horizontal';
     this.root = args.root || false;
-    //console.log("INIT panel:", args);
+    console.log("INIT panel:", args);
     this.elementtype = args.elementtype || 'DIV';
-    //this.container = args.container || document.createElement(this.elementtype);
-    this.container = document.createElement(this.elementtype);
-    this.container.className = 'a tf_utils_panel_' + this.orientation;
-    if (args.parentid)
-      document.getElementById(args.parentid).appendChild(this.container);
+    this.container = args.container || document.createElement(this.elementtype);
+    this.container.className = 'tf_utils_panel tf_utils_panel_' + this.orientation;
     this.createEditPanel();
     this.slots = [];
-    if (args.slots) {
+    if (args.items) {
+      if (args.items) {
+        var order = [];
+        for (var k in args.items) {
+          if (args.items[k].enabled != "0") {
+            order.push({order: args.items[k].order, name: k});
+          }
+        }
+        order.sort(function(a,b) { return a.order - b.order; });
+        console.log(order);
+        for (var i = 0; i < order.length; i++) {
+          var k = order[i].name;
+          //console.log(k, args.items[k]);
+          var slotcfg = {item: args.items[k], itemtype: args.items[k].type || 'panel'};
+          //console.log(slotcfg);
+          this.addSlot(slotcfg);
+        }
+      }
+    } else if (args.slots) {
       for (var i = 0; i < args.slots.length; i++) {
         this.addSlot(args.slots[i]);
       }
@@ -19,13 +34,28 @@ function TFPanel(args) {
       this.addSlot();
     }
   }
-  this.addSlot = function(slotargs) {
+  this.addSlot = function(slotargs, pos) {
     //console.log("panel::addSlot:", slotargs);
     if (typeof slotargs == 'undefined')
       slotargs = {panelorientation: this.orientation};
-    var slot = new TFPanelSlot(slotargs)
-    this.slots.push(slot);
-    this.container.appendChild(slot.container);
+    var slot = new TFPanelSlot(slotargs);
+    if (typeof pos == 'undefined') {
+      slot.order = this.slots.length;
+      this.slots.push(slot);
+      this.container.appendChild(slot.container);
+    } else {
+      slot.order = pos;
+      this.slots.splice(pos, 0, slot);
+      console.log(this.slots, pos);
+      if (this.slots[pos+1]) {
+        this.container.insertBefore(slot.container, this.slots[pos+1].container);
+      } else {
+        this.container.appendChild(slot.container);
+      }
+    }
+    for (var i = 0; i < this.slots.length; i++) {
+      this.slots[i].order = i;
+    }
     this.recalculateWidths();
   }
   this.removeSlot = function(slotnum) {
@@ -37,11 +67,11 @@ function TFPanel(args) {
     this.recalculateWidths();
   }
   this.fillSlot = function(slotnum, slot) {
-    
+      
   }
   this.createEditPanel = function() {
     this.editpanel = document.createElement('DIV');
-    this.editpanel.className = 'e';
+    this.editpanel.className = 'tf_utils_panel_edit';
     this.buttons = {
       'epminus': new TFUtilsButton({label: '-', events: { click: this }}),
       'epplus': new TFUtilsButton({label: '+', events: { click: this }}),
@@ -89,12 +119,12 @@ function TFPanel(args) {
   }
   this.toggleOrientation = function() {
     if (this.orientation == 'horizontal') {
-      thefind.utils.removeClass(this.container, 'tf_utils_panel_horizontal');
-      thefind.utils.addClass(this.container, 'tf_utils_panel_vertical');
+      elation.html.removeclass(this.container, 'tf_utils_panel_horizontal');
+      elation.html.addclass(this.container, 'tf_utils_panel_vertical');
       this.orientation = 'vertical';
     } else {
-      thefind.utils.removeClass(this.container, 'tf_utils_panel_vertical');
-      thefind.utils.addClass(this.container, 'tf_utils_panel_horizontal');
+      elation.html.removeclass(this.container, 'tf_utils_panel_vertical');
+      elation.html.addclass(this.container, 'tf_utils_panel_horizontal');
       this.orientation = 'horizontal';
     }
     this.buttons['flip'].setLabel(this.orientation);
@@ -107,11 +137,18 @@ function TFPanel(args) {
         if (this.slots[k].itemtype == 'panel') {
           console.log('PANEL: ', this);
           this.slots[k].item.getConfig();
-        } else if (this.slots[k].itemtype == "component") {
+        } else if (this.slots[k].itemtype == "component" || this.slots[k].itemtype == "panelitem") {
           console.log("COMPONENT:", this.slots[k].item);
         } else if (this.slots[k].itemtype != false) {
           console.log("Unknown item type:", this.slots[k]);
         }
+      }
+    }
+  }
+  this.loadConfig = function(panelcfg) {
+    if (panelcfg.items) {
+      for (var k in panelcfg.items) {
+
       }
     }
   }
@@ -125,17 +162,21 @@ function TFPanelSlot(args) {
     this.elementtype = args.elementtype || 'DIV';
     this.panelorientation = args.panelorientation || 'horizontal';
     this.container = document.createElement(this.elementtype);
-    this.container.className = "b";
+    this.container.className = "tf_utils_panel_slot";
     this.container.draggable = true;
     this.itemtype = args.itemtype || false;
     this.item = false;
+
+    if (this.itemtype == "panelitem") {
+      this.flip = new elation.html.flippable("flipper_"+parseInt(Math.random() * 10000), this.container);
+    }
 
     this.resetContent();
 
     if (args.item) {
       if (args.itemtype == 'panel')
         this.setAsPanel(args.item);
-      else if (args.itemtype == 'component')
+      else if (args.itemtype == 'component' || args.itemtype == 'panelitem')
         this.setAsComponent(args.item);
     }
 
@@ -144,12 +185,7 @@ function TFPanelSlot(args) {
       args.panel.container.appendChild(this.container);
 */
 
-    thefind.func.bind(this.container, 'dragstart', this);
-    thefind.func.bind(this.container, 'dragend', this);
-    thefind.func.bind(this.container, 'dragover', this);
-    thefind.func.bind(this.container, 'dragenter', this);
-    thefind.func.bind(this.container, 'dragleave', this);
-    thefind.func.bind(this.container, 'drop', this);
+    elation.events.add(this.container, 'dragstart,dragend,dragover,dragenter,dragleave,drop', this);
     //this.setAsPanel();
   }
   this.addButton = function(name, label) {
@@ -157,7 +193,7 @@ function TFPanelSlot(args) {
     this.buttons[name].addTo(this.container);
   }
   this.setAsPanel = function(panelargs) {
-    //console.log('panelslot::setAsPanel:', panelargs);
+    console.log('panelslot::setAsPanel:', panelargs);
     if (typeof panelargs == 'undefined') 
       panelargs = {};
     this.container.innerHTML = '';
@@ -166,7 +202,7 @@ function TFPanelSlot(args) {
     this.container.appendChild(this.item.container);
   }
   this.setAsComponent = function(componentargs) {
-    //console.log('panelslot::setAsComponent:', componentargs);
+    console.log('panelslot::setAsComponent:', componentargs);
     if (typeof componentargs == 'undefined') 
       componentargs = {};
     this.container.innerHTML = '';
@@ -181,15 +217,38 @@ function TFPanelSlot(args) {
     var content = data;
     if (typeof data['content'] != 'undefined')
       content = data['content'];
-    this.container.innerHTML = content;
+    this.container.innerHTML = this.getInfoDiv() + content;
   }
   this.resetContent = function() {
     this.item = false;
     this.itemtype = false;
     this.buttons = {};
     this.container.innerHTML = '';
-    this.addButton('subdivide', 'Subdivide');
+    //this.addButton('subdivide', 'Split');
     //this.addButton('content', 'Set Content');
+  }
+  this.getInfoDiv = function() {
+    var ret = '<div class="tf_utils_panel_slot_info">';
+    if (this.itemtype == "component") {
+      ret += '<h3>' + this.item.name + '</h3>';
+    }
+    /*
+    ret += "<ul>";
+    for (var k in this.item.componentargs) {
+      ret += '<li>' + k + ' = ';
+      console.log(this.item.componentargs[k]);
+      if (typeof this.item.componentargs[k] == 'string' && this.item.componentargs[k].indexOf('\n') >= 0) {
+        ret += '<textarea name="' + k + '">' + this.item.componentargs[k] + '</textarea>';
+      } else {
+        ret += '<input name="' + k + '" value="' + elation.utils.escapeHTML(this.item.componentargs[k]).replace('"', '&quot;') + '" />';
+      }
+      ret += '</li>';
+    }
+    ret += "</ul>";
+    */
+    ret += '</div>';
+    console.log(this.item);
+    return ret;
   }
 
   this.handleEvent = function(ev) {
@@ -209,20 +268,21 @@ function TFPanelSlot(args) {
       case 'dragstart':
         var el = ev.target || ev.currentTarget;
         ev.dataTransfer.setData('text/html', el.innerHTML);
-        ev.dataTransfer.setData('thefind/panelslot', JSON.stringify(this));
+        ev.dataTransfer.setData('elation/panelslot', JSON.stringify(this));
+        console.log("plip", ev.dataTransfer.types);
         ev.effectAllowed = 'move'; // only allow moves
         ev.stopPropagation();
         break;
       case 'dragenter':
       case 'dragover':
         var state = '';
-        if (ev.dataTransfer.types.contains('thefind/panelslot')) {
-          var panelobj = ev.dataTransfer.getData('thefind/panelslot')
-          if (panelobj == thefind.JSON.stringify(this))
+        if (this.dataTransferContains(ev.dataTransfer, 'elation/panelslot')) {
+          var panelobj = ev.dataTransfer.getData('elation/panelslot')
+          if (panelobj == elation.JSON.stringify(this))
             state = 'self';
           else
             state = 'droppable';
-        } else if (ev.dataTransfer.types.contains('text/html')) {
+        } else if (this.dataTransferContains(ev.dataTransfer, 'text/html')) {
           if (ev.target.innerHTML == ev.dataTransfer.getData('text/html'))
             state = 'self';
           else
@@ -231,7 +291,7 @@ function TFPanelSlot(args) {
         if (state == '') {
           this.clearContainerStates(['droppable', 'self']);
         } else {
-          thefind.utils.addClass(this.container, 'tf_utils_state_' + state);
+          elation.html.addclass(this.container, 'tf_utils_state_' + state);
           if (state == 'droppable') {
             ev.dataTransfer.dropEffect = 'all';
             ev.preventDefault();
@@ -242,6 +302,7 @@ function TFPanelSlot(args) {
             ev.stopPropagation();
           }
         }
+        elation.html.dragdrop.dropcover("paneledit").show(this.container, [ev.pageX, ev.pageY]);
         break;
       case 'dragleave':
         this.clearContainerStates(['droppable', 'self']);
@@ -254,27 +315,59 @@ function TFPanelSlot(args) {
         }
         break;
       case 'drop':
-        console.log('plop');
+        var region = elation.html.dragdrop.dropcover('paneledit').getRegion([ev.pageX, ev.pageY]);
+        elation.html.dragdrop.dropcover('paneledit').hide();
+        console.log('plop ', region, ev.dataTransfer.types);
         var accept = false;
-console.log('dataTransfer types:', ev.dataTransfer.types);
-        if (ev.dataTransfer.types.contains('thefind/panelslot')) {
-          var panelslot = ev.dataTransfer.getData('thefind/panelslot')
-          if (panelslot != thefind.JSON.stringify(this)) {
-            this.clone(thefind.JSON.parse(panelslot));
+        var component = false;
+        if (this.dataTransferContains(ev.dataTransfer, 'elation/panelslot')) {
+          var panelslot = ev.dataTransfer.getData('elation/panelslot');
+          if (panelslot != elation.JSON.stringify(this)) {
+            this.clone(elation.JSON.parse(panelslot));
           }
           accept = true;
-        } else if (ev.dataTransfer.types.contains('thefind/component')) {
-          var component = ev.dataTransfer.getData('thefind/component');
-          this.setAsComponent(thefind.JSON.parse(component));
+        } else if (this.dataTransferContains(ev.dataTransfer, 'elation/component')) {
+          component = elation.JSON.parse(ev.dataTransfer.getData('elation/component'));
           accept = true;
-        } else if (ev.dataTransfer.types.contains('text/html')) {
+        } else if (this.dataTransferContains(ev.dataTransfer, 'text/html')) {
           var data = ev.dataTransfer.getData('text/html');
-          this.setAsComponent({name: 'page.content', content: data});
+          component = {name: 'html.static', content: data};
           accept = true;
-        } else if (ev.dataTransfer.types.contains('text/plain')) {
+        } else if (this.dataTransferContains(ev.dataTransfer, 'text/plain')) {
           var data = ev.dataTransfer.getData('text/plain');
-          this.setAsComponent({name: 'page.content', content: data});
+          component = {name: 'html.static', content: data};
           accept = true;
+        }
+        if (component) {
+          var orientation = '';
+          var orientations = {
+            'left': ['horizontal', 0],
+            'right': ['horizontal', 1],
+            'top': ['vertical', 0],
+            'bottom': ['vertical', 1],
+          };
+          if (typeof orientations[region] == 'undefined') {
+            this.setAsComponent(component);
+          } else {
+            var orientation = orientations[region][0];
+            if (!this.itemtype) {
+              this.setAsPanel({orientation: orientation, slots: []});
+            } else if (this.itemtype == "component") {
+              var olditem = this.item;
+              this.setAsPanel({orientation: orientation, slots: []});
+              this.item.addSlot({item: olditem, itemtype: 'component'});
+            }
+            if (this.itemtype == 'panel') {
+              if (this.item.orientation == orientation) {
+                var newpos = orientations[region][1] * this.item.slots.length;;
+                console.log('do the thing now, at position', newpos, ' current order ', this.order);
+                var slotcfg = {item: component, itemtype: 'component'};
+                this.item.addSlot(slotcfg, newpos);
+              } else {
+                alert("no don't");
+              }
+            }
+          }
         }
         this.clearContainerStates(['droppable', 'self']);
         if (accept) {
@@ -284,10 +377,18 @@ console.log('dataTransfer types:', ev.dataTransfer.types);
         break;
     }
   }
+  this.dataTransferContains = function(dt, type) {
+    // wrapper function since chrome and firefox handle event.dataTransfer.types differently
+    if (typeof dt.types.contains == 'function') {
+      return dt.types.contains(type);
+    } else {
+      return (dt.types.indexOf(type) >= 0);
+    }
+  }
   this.clearContainerStates = function(types) {
     for (var i = 0; i < types.length; i++) {
-      while (thefind.utils.hasClass(this.container, 'tf_utils_state_' + types[i]))
-        thefind.utils.removeClass(this.container, 'tf_utils_state_' + types[i]);
+      while (elation.html.hasclass(this.container, 'tf_utils_state_' + types[i]))
+        elation.html.removeclass(this.container, 'tf_utils_state_' + types[i]);
     }
   }
   this.clone = function(obj) {
@@ -305,8 +406,19 @@ console.log('dataTransfer types:', ev.dataTransfer.types);
 function TFComponent(args) {
   this.init = function(args) {
     //console.log("INIT component", args);
-    this.name = args.name;
-    this.componentargs = args.componentargs || {};
+    this.name = args.component || args.name;
+    this.componentargs = {};
+    if (args.args) {
+      for (var i = 0; i < args.args.length; i++) {
+        this.componentargs[args.args[i]] = ''; // FIXME - should probably be a fancy type-aware object
+      }
+    }
+
+    if (args.componentargs) {
+      for (var k in args.componentargs) {
+        this.componentargs[k] = args.componentargs[k];
+      }
+    }
     this.content = args.content || false;
   }
 
@@ -316,10 +428,10 @@ function TFComponent(args) {
       //console.log('getcontent:', this);
       (function(self, contentcallback) {
         ajaxlib.Queue({
-          method: "SCRIPT",
-          url: "/" + self.name.replace(".","/") + ".json",
-          args: thefind.utils.encodeURLParams(self.componentargs),
-          callback: function(data) { self.content = data.content; if (typeof contentcallback == 'function') { contentcallback(data.content); } }
+          method: "GET",
+          url: "/" + self.name.replace(".","/") + ".snip",
+          args: elation.utils.encodeURLParams(self.componentargs),
+          callback: function(data) { self.content = data; if (typeof contentcallback == 'function') { contentcallback(data); } }
         });
       })(this, contentcallback);
       ret = '<img src="/images/misc/plugin-icon-180x120.png"/>';
@@ -339,58 +451,19 @@ function TFUtilsPanelToolkit() {
   this.buttons = {};
 
   this.init = function() {
-    this.addComponents([
-      {name:'page.header'},
-      {name:'page.logo'},
-      {name:'page.footer'},
-      //{name:'page.ads', content: '<h6>sponsored links</h6><a href="#">Shoes at Macy\'s</a><p>Shop Shoes at Macy\'s. Save 25-50% On Select Shoes.</p><em>Macys.com/Shoes</em>'},
-      {name:'user.login'},
-      {name:'user.register'},
-      {name:'user.infobox'},
-      {name:'search.input', componentargs: {enabled: 1}},
-      {name:'search.info', content: 'Found 60,847 stores with 3,734,773 products matching <strong>shoes</strong>'},
-      {name:'search.results', content: '[search results go here]'},
-      {name:'search.filters', content: '[search filters go here]'},
-      {name:'catmap.map_browse'},
-      //{name:'catmap.map_breadcrumbs'},
-      //{name:'catmap.map_items'},
-      {name:'catmap.tf100'},
-      {name:'corporate.navigation'},
-      //{name:'coupons.directory'},
-      {name:'debug.abtests'},
-      {name:'debug.performance'},
-      {name:'feedback.view'},
-      //{name:'hotsearches.frontpage'},
-      {name:'hotsearches.live'},
-      {name:'hotsearches.map'},
-      {name:'local.console'},
-      //{name:'local.settings'},
-      //{name:'marketing.about_results'},
-      {name:'marketing.bookmark'},
-      //{name:'marketing.browsecloud'},
-      {name:'marketing.browsemap'},
-      //{name:'marketing.browsesearches'},
-      {name:'marketing.discoverytext'},
-      {name:'marketing.familylinks', componentargs: {placement: 'frontpage.bottom'}},
-      {name:'marketing.goodguide'},
-      {name:'marketing.likeoursite'},
-      {name:'marketing.line'},
-      {name:'myfinds.recent_products'},
-      {name:'myfinds.recent_searches'},
-      {name:'myfinds.saved_products'}
-    ]);
-    
+    (function(self) {
+      elation.ajax.Get("/utils/componentlist.js", null, {
+        callback: function(data) { 
+          var response = elation.JSON.parse(data);
+          self.addComponents(response.data.components);
+        }
+      });
+    })(this);
 
     this.container = document.createElement('DIV');
     this.container.id = 'tf_utils_toolkit';
-    this.container.innerHTML = '<h3>Drag content types to place above</h3>';
+    this.container.innerHTML = '<h3>Drag components to place in panel &raquo;</h3>';
     document.body.appendChild(this.container);
-
-    for (var k in this.components) { 
-      if (this.components.hasOwnProperty(k)) {
-        this.addButton(k, k);
-      }
-    }
   }
 
   this.addComponent = function(args) {
@@ -401,6 +474,12 @@ function TFUtilsPanelToolkit() {
   this.addComponents = function(components) {
     for (var i = 0; i < components.length; i++) {
       this.addComponent(components[i]);
+    }
+
+    for (var k in this.components) { 
+      if (this.components.hasOwnProperty(k)) {
+        this.addButton(k, k);
+      }
     }
   }
   this.addButton = function(name, label, container) {
@@ -421,9 +500,9 @@ function TFUtilsPanelToolkit() {
     if (typeof parent == 'undefined')
       parent = this.container;
     var contextmenuclass = 'tf_toolkit_contextmenu';
-    var contextmenus = thefind.utils.getElementsByClassName(parent, "DIV", contextmenuclass);
+    var contextmenus = elation.find("DIV." + contextmenuclass, parent);
     if (!contextmenus || !contextmenus[0] || contextmenus[0].length == 0) {
-      contextmenu = document.createElement('DIV');
+      var contextmenu = document.createElement('DIV');
       contextmenu.className = contextmenuclass;
       parent.appendChild(contextmenu);
       for (var k in items) {
@@ -432,6 +511,22 @@ function TFUtilsPanelToolkit() {
           this.addButton(fullname, fullname, contextmenu);
         }
       }
+    } else {
+      var contextmenu = contextmenus[0];
+    }
+
+    // FIXME - this positioning code isn't perfect, too many levels of scroll and offset.
+    // Should probably just move the contextmenu out to be a sibling of the this.container rather than a child
+
+    var dims = elation.html.dimensions(contextmenu);
+    var windims = elation.html.dimensions(window);
+    var cdims = elation.html.dimensions(this.container);
+    var pdims = elation.html.dimensions(parent);
+    //if (dims.y + dims.h - cdims.s[1] > windims.h - windims.s[1]) {
+    if (pdims.y + dims.h > windims.h) {
+      contextmenu.style.top = Math.max(windims.h - dims.h, 0) + 'px';
+    } else {
+      contextmenu.style.top = (pdims.y) + 'px';
     }
   }
   this.handleEvent = function(ev) {
@@ -444,8 +539,8 @@ function TFUtilsPanelToolkit() {
       case 'mouseover':
         var el = ev.target || ev.currentTarget;
         if (el) {
-          var name = el.innerHTML;
-          var component = thefind.utils.arrayGet(this.components, name);
+          var name = el.innerHTML.split('<')[0];
+          var component = elation.utils.arrayget(this.components, name);
           if (typeof component != 'undefined' && component != null) {
             if (component instanceof TFComponent) {
               component.getContent();
@@ -460,12 +555,13 @@ function TFUtilsPanelToolkit() {
         if (el) {
           var name = el.innerHTML;
 
-          var component = thefind.utils.arrayGet(this.components, name);
+          var component = elation.utils.arrayget(this.components, name);
           if (typeof component != 'undefined') {
             ev.dataTransfer.setDragImage(this.getPreview(component), 0, 0);
             ev.dataTransfer.setData('text/html', component.content);
-            ev.dataTransfer.setData('thefind/component', JSON.stringify(component));
+            ev.dataTransfer.setData('elation/component', JSON.stringify(component));
             ev.effectAllowed = 'move'; // only allow moves
+            console.log("plip", ev.dataTransfer);
           }
         }
         break;
@@ -530,7 +626,7 @@ function TFUtilsButton(args, container) {
     this.element.className = classname;
 
     for (var k in this.events) {
-      thefind.func.bind(this.element, k, this.events[k]);
+      elation.events.add(this.element, k, this.events[k]);
     }
   }
   this.addTo = function(container) {
@@ -549,23 +645,34 @@ function TFUtilsButton(args, container) {
 }
 
 
-function TFPanelEditor() {
-  this.init = function() {
+elation.component.add("utils.paneledit", {
+  init: function(name, container, args) {
+    this.container = container;
+    this.args = args;
+
     this.toolkit = new TFUtilsPanelToolkit();
-    this.base = new TFPanel({parentid: 'dostuff', orientation: 'vertical', 'root':true});
-    this.base.addSlot();
-    this.base.addSlot();
+    //this.base = new TFPanel({container: container, orientation: 'vertical', 'root':true});
+    //this.base.addSlot();
+    //this.base.addSlot();
 
     this.savebutton = new TFUtilsButton({label: 'Save', events: { click: this }}, this.toolkit.container);
-    //thefind.func.bind(window, 'resize', base);
-  }
-  this.handleEvent = function(ev) {
+    //elation.func.bind(window, 'resize', base);
+  },
+  handleEvent: function(ev) {
     switch(ev.type) {
       case 'click':
         this.base.getConfig();
         break;
     }
+  },
+  setPanelConfig: function(panelcfg) {
+    if (!panelcfg) panelcfg = {};
+    panelcfg.container = this.container;
+    panelcfg.root = true;
+    if (!panelcfg.orientation) {
+      panelcfg.orientation = "vertical";
+    }
+    this.base = new TFPanel(panelcfg);
   }
-  this.init();
-}
+});
 

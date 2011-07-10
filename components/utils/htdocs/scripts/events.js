@@ -24,10 +24,11 @@ elation.extend("events", {
       event = list[i];
       
       if (fn || element) {
-        if ((fn && event.origin !== fn) || (element && event.target !== element))
-          continue;
-        else
+        if ((fn && event.origin == fn) || (element && event.target == element)) {
           events.push(event);
+        } else {
+          continue;
+        }
       } else {
         events.push(event);
       }
@@ -72,6 +73,10 @@ elation.extend("events", {
 		var	elements = ((!elation.utils.isNull(elements.nodeName) || elements == window) ? [ elements ] : elements),
 				types = types.split(',');
 		
+		if (typeof fn == "string") {
+			fn = (function(func) { return function(ev) { eval(func); }; })(fn);
+		}
+
 		for (var e=0; e<elements.length; e++) {
 			var element = elements[e];
 			
@@ -232,8 +237,13 @@ elation.extend("events", {
 		
 		return target;
 	},
+	isTransition: function(ev, parent) {
+		var tg = this.getTarget(ev),
+				reltg = this.getRelated(ev);
+		return (elation.utils.isin(parent, tg) && !elation.utils.isin(parent, reltg));
+	},
 
-  // returns mouse or all finger touch coords
+	// returns mouse or all finger touch coords
 	coords: function(event) {
 		if (typeof event.touches != 'undefined' && event.touches.length > 0) {
 			var c = {

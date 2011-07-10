@@ -2,59 +2,90 @@
   padding: 0;
   margin: 0;
 }
+body {
+  background: #ccc;
+}
 .tf_utils_panel_content_item {
-  border:1px solid red;
-  padding: 1em;
+  outline:1px dashed black;
+  xpadding: .5em;
 }
 .tf_utils_panel_content.tf_utils_panel_horizontal>li.tf_utils_panel_content_item {
   display: inline-block;
+  vertical-align: top;
 }
 .tf_utils_panel_content.tf_utils_panel_vertical>li.tf_utils_panel_content_item {
   display: block;
 }
-{/literal}
 
 #dostuff {
-  background: cornflowerblue;
+  background: white;
   padding: 10px;
+  /*margin-left: 15em;*/
+  border: 1px solid black;
+  box-shadow: 2px 2px 2px #999;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 15em;
+  overflow: auto;
 }
-.a {
+.tf_utils_panel {
   position: relative;
   xbackground: purple;
   xpadding: 10px;
   white-space: nowrap;
-  background: cornflowerblue;
+  xbackground: cornflowerblue;
 }
-.b {
+.tf_utils_panel_slot {
   min-height: 20px;
-  border: 2px solid black;
-  padding: 8px;
+  border: 1px dashed black;
+  padding: 1em;
   xpadding: 1em;
   white-space: normal;
-  -moz-border-radius: 5px;
+  border-radius: 5px;
+  position: relative;
 }
-.b.tf_utils_state_droppable {
-  border: 2px solid yellow;
-  background: #ffca73 !important;
+.tf_utils_panel_slot.tf_utils_state_droppable {
+  /*border: 2px solid yellow;*/
+  /* background: #ffca73 !important; */
 }
-.b.tf_utils_state_self {
+.tf_utils_panel_slot.tf_utils_state_self {
   border: 2px solid lightgreen;
   background: #95ee6b !important;
 }
-.a.tf_utils_panel_vertical>.b {
-  background: lightblue;
+.tf_utils_panel.tf_utils_panel_vertical>.tf_utils_panel_slot {
+  xbackground: lightblue;
   display: block;
   
 }
-.a.tf_utils_panel_horizontal>.b {
-  background: lightskyblue;
+.tf_utils_panel.tf_utils_panel_horizontal>.tf_utils_panel_slot {
+  xbackground: lightskyblue;
   display: inline-block;
   vertical-align: top;
 }
-.a .b:hover {
-  border: 2px solid white;
+.tf_utils_panel>.tf_utils_panel_slot:hover {
+  /*border: 2px solid #900; 
+  margin: -1px;*/
+  /*background: #fffff0;*/
 }
-.e {
+.tf_utils_panel .tf_utils_panel_slot .tf_utils_panel_slot_info {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: #eee;
+  opacity: .8;
+  padding: .2em .5em;
+  border-left: 1px dashed black;
+  border-bottom: 1px dashed black;
+  font-size: .8em;
+  box-shadow: 2px 2px 2px #999;
+}
+.tf_utils_panel>.tf_utils_panel_slot:hover>.tf_utils_panel_slot_info {
+  background: #fcc;
+  z-index: 1000;
+}
+.tf_utils_panel_edit {
   border: 1px solid red;
   position: absolute;
   background: white;
@@ -64,49 +95,54 @@
   white-space: nowrap;
   display: none;
   z-index: 500;
-  -moz-border-radius: 5px;
+  border-radius: 5px;
 }
-.e button {
+.tf_utils_panel_edit button {
   min-width: 1.8em;
   text-align: center;
 }
-.e button:hover {
+.tf_utils_panel_edit button:hover {
   color: #900;
 }
-.a:hover>.e {
-  display: block;
+.tf_utils_panel:hover>.tf_utils_panel_edit {
+  display: none;
 }
 #tf_utils_toolkit {
   position: fixed;
-  bottom: 0;
   left: 0;
+  top: 0;
+  height: 100%;
+  width: 15em;
   background: #ccc;
-  min-width: 20em;
-  border-top: 2px solid black;
   border-right: 2px solid black;
-  -moz-border-radius: 0 5px 0 0;
+  box-shadow: 2px 2px 2px #999;
+  overflow-y: auto;
+  overflow-x: visible;
 }
 #tf_utils_toolkit .tf_toolkit_contextmenu {
-  position: absolute; 
-  top: -1.8em;
-  left: 0;
-  min-width: 100%;
+  position: fixed; 
+  z-index: 500;
+  left: 13em;
+  max-height: 100%;
+  overflow-y: auto;
   background: #ccc;
   border: 2px solid black;
   white-space: nowrap;
-  -moz-border-radius: 5px;
+  border-radius: 5px;
   display: none;
+  box-shadow: 2px 2px 2px #666;
 }
 #tf_utils_toolkit .tf_utils_button_draggable:hover .tf_toolkit_contextmenu {
   display: block;
 }
 .tf_utils_button_draggable {
-  display: inline-block;
-  padding: .5em;
-  margin: .5em;
-  border: 1px solid blue;
-  -moz-border-radius: 5px;
+  display: block;
+  padding: .2em;
+  border-top: 1px solid blue;
   cursor: move;
+}
+#tf_utils_toolkit .tf_utils_button_draggable:hover .tf_toolkit_contextmenu .tf_utils_button_draggable:first-child {
+  border-top: 0;
 }
 .tf_utils_button_draggable:hover {
   background: #99c;

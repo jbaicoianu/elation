@@ -163,18 +163,21 @@ elation.extend("ajax", new function() {
     return true;
   }
 
-  this.processResponse = function(responses) {
-    /* DISABLED - back button code (still seems to be working...)
-		if (
-			(typeof thefind != 'undefined' && typeof thefind.ajax_back_button != 'undefined') && 
-			(typeof search != 'undefined' && search.urlhash) && 
-			(typeof obj != 'undefined' && obj.url == '') && 
-			(!ignore)
-		) {
-			thefind.ajax_back_button.add(dom, docroot, obj);
-		}
-    */
-    var common = { // Used to keep track of registered dependencies, etc. while all responses are processed
+  this.processResponse = function(responses, nobj) {
+    // If there's no obj variable, this isn't being called from a closure so use the function argument instead
+    if (typeof obj == 'undefined') { 
+      obj = nobj;
+    }
+    if (
+      (typeof elation.search != 'undefined' && typeof elation.search.backbutton != 'undefined') && 
+      (typeof search != 'undefined' && search.urlhash) && 
+      (typeof obj != 'undefined' && obj.url == '' && !elation.utils.isTrue(obj.ignore))
+    ) {
+      elation.search.backbutton.add(responses, obj);
+    }
+    
+    // Used to keep track of registered dependencies, etc. while all responses are processed
+    var common = { 
       inlinescripts: [],
       data: {},
       dependencies: {}
@@ -182,6 +185,7 @@ elation.extend("ajax", new function() {
 		
     for (var i = 0; i < responses.length; i++) {
       var type = responses[i].type || 'xhtml';
+      
       if (typeof this.responsehandlers[type] == 'function') {
         this.responsehandlers[type](responses[i], common);
       } else {
@@ -193,14 +197,16 @@ elation.extend("ajax", new function() {
     var cssparms = '', javascriptparms = '';
     for (var key in common.dependencies.css) {
       if (common.dependencies.css.hasOwnProperty(key)) {
-        if (common.dependencies.css[key].length > 0)
+        if (common.dependencies.css[key].length > 0) {
           cssparms += key + '=' + common.dependencies.css[key].join('+') + '&';
+        }
       }
     }
     for (var key in common.dependencies.javascript) {
       if (common.dependencies.javascript.hasOwnProperty(key)) {
-        if (common.dependencies.javascript[key].length > 0) 
+        if (common.dependencies.javascript[key].length > 0) {
           javascriptparms += key + '=' + common.dependencies.javascript[key].join('+') + '&';
+				}
       }
     }
     var batch = new elation.file.batch();
@@ -209,10 +215,11 @@ elation.extend("ajax", new function() {
     if (javascriptparms.length > 0)
       batch.add('/scripts/main?'+javascriptparms.substr(0,javascriptparms.length-1),null,true);
 		
+    common.inlinescripts.push("elation.component.init();");
     // Execute all inline scripts
     var execute_scripts = function() {
       if (common.inlinescripts.length > 0) {
-        var  script_text = '';
+        var script_text = '';
         for (var i = 0; i < common.inlinescripts.length; i++) {
           if (!common.inlinescripts[i] || typeof common.inlinescripts[i] == 'undefined') 
             continue;
@@ -253,7 +260,6 @@ elation.extend("ajax", new function() {
       }
     }
   }
-  
   this.responsehandlers = {
     'infobox': function(response, common) {
       var content = response['_content'],
@@ -278,28 +284,36 @@ elation.extend("ajax", new function() {
             targetel.innerHTML += response['_content'];
           } else {
             //thefind.func.ie6_purge(targetel);
+            
+            if (response['target'] == 'tf_search_results_main') {
+              response['_content'] += "<div style='position:absolute;background:red;width:100%;height:100%;'></div>"
+            }
+            
 						targetel.innerHTML = response['_content'];
           }
           
           register_inline_scripts(common, targetel);
-
+					
           /* repositions infobox after ajax injection, use responsetype ["infobox"] if applicable */
-          var infobox = elation.ui.infobox.target(targetel);
-          
-          if (infobox && infobox.args.reposition) {
-            common.inlinescripts.push("elation.ui.infobox.position('"+infobox.name+"', true);");
+          if (elation.ui && elation.ui.infobox) {
+            var infobox = elation.ui.infobox.target(targetel);
+            
+            if (infobox && infobox.args.reposition) {
+              common.inlinescripts.push("elation.ui.infobox.position('"+infobox.name+"', true);");
+            }
           }
         }
       }
     },
     'javascript': function(response, common) {
-      if (response['_content'])
+      if (response['_content']) {
         common.inlinescripts.push(response['_content']);
+			}
     },
     'data': function(response, common) {
       if (response['name'] && response['_content']) {
         common.data[response['name']] = elation.JSON.parse(response['_content']);
-
+				
         /* FIXME - this also seems like an odd place for infobox-related code (see above) */
         if (response['name'] == 'infobox.content') {
           var	text = elation.JSON.parse(response['_content']),
@@ -309,7 +323,7 @@ elation.extend("ajax", new function() {
           div.innerHTML = text;
           
           register_inline_scripts(common, div);
-
+					
           /* repositions infobox after ajax injection, use responsetype ["infobox"] if applicable */
           var infobox = elation.ui.infobox.getCurrent();
           
@@ -346,6 +360,9 @@ elation.extend("ajax", new function() {
 				if (typeof tf_debugconsole != 'undefined')
           tf_debugconsole.scrollToBottom();
       }
+    },
+    'args': function(response, common) {
+      // FIXME: need to ask James what is being sent as responsetype == args
     }
   }
 
@@ -399,11 +416,15 @@ elation.extend("ajax", new function() {
           window.clearTimeout(timeouttimer);
 
         if (xmlhttp.status == 200) {
-          if (xmlhttp.responseXML) {
+         if (xmlhttp.responseXML) {
             var dom = xmlhttp.responseXML.firstChild;
             var results = [];
-            //processResponse(dom, docroot, obj);
-            processResponse.call(elation.ajax, elation.ajax.translateXML(dom));
+            
+            processResponse.call(elation.ajax, elation.ajax.translateXML(dom), obj);
+            
+            if (obj.callback) {
+              elation.ajax.executeCallback(obj.callback, xmlhttp.responseText);
+            }
           } else if (xmlhttp.responseText) {
             if (obj.callback) {
               elation.ajax.executeCallback(obj.callback, xmlhttp.responseText);
@@ -418,7 +439,7 @@ elation.extend("ajax", new function() {
       }
     }
 
-     //alert('trying '+obj.method+' '+obj.url);
+    //alert('trying '+obj.method+' '+obj.url);
     try {
       if (obj.method == "POST") {
         xmlhttp.open(obj.method, obj.url, true);
@@ -432,11 +453,14 @@ elation.extend("ajax", new function() {
         xmlhttp.onreadystatechange = readystatechange;
         xmlhttp.send(null);
       } else if (obj.method == "SCRIPT") {
-        var url = this.host + obj.url;
+        var url = (obj.url.match(/^https?:/) ? obj.url : this.host + obj.url);
         if (obj.args) url += '?' + elation.utils.encodeURLParams(obj.args);
-        elation.file_utils.get('javascript', url);
+        elation.file.get('javascript', url);
       }
     } catch (e) {
+      if (typeof console != 'undefined') {
+        console.log(e);
+      }
       if (obj.failurecallback) {
         elation.ajax.executeCallback(obj.failurecallback, e);
       }
@@ -460,7 +484,8 @@ elation.extend("ajax", new function() {
 
   this.processHash = function(hash) {
     return false;
-    url = String(document.location);
+    var url = String(document.location);
+    /*
     if (hash.length > 0)
       if (url.indexOf("#") > 0)
         this.Get(url.substr(0, url.indexOf("#")) + "?" + hash.substr(1));
@@ -468,6 +493,17 @@ elation.extend("ajax", new function() {
         this.Get(url + "?" + hash.substr(1));
     else
       this.Get(url.replace("#", "?"));
+    */
+    var url = elation.utils.parseURL(document.location.href);
+    console.log(document.location.href, url);
+    url.hash = "";
+    var hashparts = hash.split("&");
+    for (var i = 0; i < hashparts.length; i++) {
+      var argparts = hashparts[i].split("=");
+      url.args[argparts[0]] = url.args[argparts[1]];
+    }
+    console.log(elation.utils.makeURL(url));
+
   }
 
   this.setLoader = function(target, img, text) {
@@ -582,11 +618,11 @@ iframe = new Object();
     }
   }
   this.link = function(link, history) {
-    this.Get(link, history);
+    this.Get(link, null, {history: history});
     return false;
   }
   this.form = function(form, history) {
-    this.Post(form, history);
+    this.Post(form, null, {history: history});
     return false;
   }
 
@@ -618,15 +654,16 @@ function ajaxChild(url) {
   }
 }
 */
+//setTimeout(function() { setInterval(function() { elation.ajax.checkHistory(); }, 100); }, 1000);
 
 // Convenience functions to use within webpages
 function ajaxLink(ajaxlib, link, history) {
-  ajaxlib.Get(link, history);
+  elation.ajax.link(link, history);
   return false;
 }
 
 function ajaxForm(ajaxlib, form, history) {
-  ajaxlib.Post(form, history);
+  elation.ajax.form(form, history);
   return false;
 }
 

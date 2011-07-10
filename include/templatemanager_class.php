@@ -148,8 +148,7 @@ class TemplateManager extends Smarty {
       if (!empty($r["_content"])) {
         // FIXME - calling postprocess here can cause issues with jsonencoding and with other strings which contain [[ and ]], but it's somewhat necessary for some things...
         //$output .= '><![CDATA[' . $this->PostProcess($r["_content"]) . ']]></response>';
-        //FIXME: warning supression is evil!
-        @$output .= '><![CDATA[' . $r["_content"] . ']]></response>';
+        $output .= '><![CDATA[' . $r["_content"] . ']]></response>';
       } else {
         $output .= '/>';
       }
@@ -158,7 +157,7 @@ class TemplateManager extends Smarty {
     $output .= "</responses>";
     return $output;
   }
-  function GenerateJavascript($responses, $jsonp="ajaxlib.blah") {
+  function GenerateJavascript($responses, $jsonp="elation.ajax.processResponse") {
     if (is_string($responses))
       $responses = array("data" => array("content" => $responses));
     $real = $this->ConvertOutputAjaxlib($responses);
@@ -231,7 +230,7 @@ class TemplateManager extends Smarty {
     Profiler::StartTimer("TemplateManager::PostProcess()");
 
     if (!is_array($output)) { // FIXME - we should probably still postprocess if we're returning XML
-      if (preg_match_all("/\[\[([^\]:|]+)(?:[:|](.*?))?\]\]/", $output, $matches, PREG_SET_ORDER)) {
+      if (preg_match_all("/\[\[(\w[^\[\]{}:|]*)(?:[:|](.*?))?\]\]/", $output, $matches, PREG_SET_ORDER)) {
         $search = $replace = array();
         foreach ($matches as $m) {
           $search[] = $m[0];

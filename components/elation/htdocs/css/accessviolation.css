@@ -1,0 +1,16 @@
+.elation_accessviolation {
+  background: #fee;
+  border: 1px solid #f33;
+  border-radius: 8px;
+  padding: 1em;
+  margin: 1em auto;
+  max-width: 40em;
+}
+.elation_accessviolation .elation_accessviolation_error {
+  float: left;
+  margin-right: 1em;
+}
+.elation_accessviolation p {
+  clear: left;
+  margin: .5em 0;
+}

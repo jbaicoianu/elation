@@ -25,7 +25,7 @@ class Component_elation extends Component {
   function controller_profiler($args) {
     return Profiler::Display(E_ALL);
   }
-  function controller_settings(&$args) {
+  function controller_settings(&$args, $output="inline") {
     $cfg = $this->root->cfg->FlattenConfig($this->root->cfg->LoadServers($this->root->locations["config"] . "/servers.ini", false));
     
     $vars["tfdev"] = (!empty($_COOKIE["tf-dev"]) ? json_decode($_COOKIE["tf-dev"], true) : array());
@@ -42,7 +42,7 @@ class Component_elation extends Component {
       $diff_curr = array_diff_assoc_recursive($args["settings"], $this->root->cfg->FlattenConfig($this->root->cfg->servers));
 
       $vars["tfdev"]["serveroverrides"] = $diff_orig;
-      setcookie("tf-dev", json_encode($vars["tfdev"]), 0, "/");
+      setcookie("tf-dev", json_encode($vars["tfdev"]), time() + 86400*365, "/"); // dev cookie persists for a year
       
       if (!empty($diff_curr)) {
         foreach ($diff_curr as $setting=>$value) {
@@ -56,13 +56,12 @@ class Component_elation extends Component {
     }
 
     $vars["settings"] = $this->root->cfg->FlattenConfig($this->root->cfg->servers);
+    $vars["container"] = ($output == "html");
     $ret = $this->GetComponentResponse("./settings.tpl", $vars);
 
-    //if ($this->root->request["ajax"]) {
-    //  $ret = $responses;
-    //} else {
-    //  $ret = $responses["tf_debug_tab_settings"];
-    //}
+    if ($output == "ajax") {
+      $ret = array("tf_debug_tab_settings" => $ret);
+    }
     return $ret;
   }
   function controller_inspect($args, $output="inline") {
@@ -128,11 +127,12 @@ class Component_elation extends Component {
     if ($user->isLoggedIn() && ($user->HasRole("ADMIN"))) {
       if (!empty($args["memcacheaction"])) {
         if ($args["memcacheaction"] == "delete" && !empty($args["memcachekey"])) {
-          $this->data->caches["memcache"]["data"]->delete($args["memcachekey"]);
+          DataManager::CacheClear($args["memcachekey"]);
           $vars["tf_debug_memcache_status"] = "Deleted key '{$args['memcachekey']}'";
         } else if ($args["memcacheaction"] == "flush" && !empty($args["memcachetype"])) {
-          if (!empty($this->data->caches["memcache"][$args["memcachetype"]])) {
-            if ($this->data->caches["memcache"][$args["memcachetype"]]->flush()) {
+          $data = DataManager::singleton();
+          if (!empty($data->caches["memcache"][$args["memcachetype"]])) {
+            if ($data->caches["memcache"][$args["memcachetype"]]->flush()) {
               $vars["tf_debug_memcache_status"] = "Cache flushed successfully (" . $args["memcachetype"] . ")";
             } else {
               $vars["tf_debug_memcache_status"] = "FAILED TO FLUSH CACHE: " . $args["memcachetype"];
@@ -145,11 +145,11 @@ class Component_elation extends Component {
       $vars["admin"] = true;
     }
 
-    if (!empty($this->data->caches["memcache"]["session"])) {
-      $vars["stats"]["session"] = $this->data->caches["memcache"]["session"]->getExtendedStats();
+    if (!empty($data->caches["memcache"]["session"])) {
+      $vars["stats"]["session"] = $data->caches["memcache"]["session"]->getExtendedStats();
     }
-    if (!empty($this->data->caches["memcache"]["data"])) {
-      $vars["stats"]["data"] = $this->data->caches["memcache"]["data"]->getExtendedStats();
+    if (!empty($data->caches["memcache"]["data"])) {
+      $vars["stats"]["data"] = $data->caches["memcache"]["data"]->getExtendedStats();
     }
 
     if ($output == "ajax") {
@@ -199,5 +199,123 @@ class Component_elation extends Component {
       $vars = array("tf_debug_tab_apc" => $this->GetTemplate("./apc.tpl", $vars));
     }
     return $this->GetComponentResponse("./apc.tpl", $vars);
+  }
+  function controller_abtests($args, $output="inline") {
+    $user = User::Singleton();
+    if (!($user->isLoggedIn() && ($user->HasRole("ADMIN")))) {
+      return ComponentManager::fetch("elation.accessviolation", NULL, "componentresponse");
+    }
+    $data = DataManager::singleton();
+    $req = $this->root->request['args'];
+    $vars['err_msg'] = "";
+    if ($req['save_scope']) {
+      // prepare to save new abtest - make sure we are not creating an active collision
+      if ($req['status'] == 'active') {
+        $sql = "SELECT * FROM userdata.abtest
+          WHERE status='active'
+          AND cobrand=:cobrand
+          AND effective_dt != :effective_dt";
+        if ($req['save_scope'] != 'all') $sql .= " AND role = :role";
+        $query = DataManager::Query("db.userdata.abtest:nocache",
+                              $sql,
+                              array(
+                                ":cobrand"=>$req['cobrand'],
+                                ":effective_dt"=>$req['effective_dt'],
+                                ":role"=>$req['role'])
+                             );
+        if ($query->results) $vars['err_msg'] = "***Save Aborted -- Active Status Collision -- ".$req['cobrand']." ".$query->results[0]->effective_dt;
+      }
+      if (!$vars['err_msg']) {
+      // write new abtest group to database
+        $roles=array($req['role']);
+        if ($req['save_scope'] == 'all') $roles=array('dev', 'test', 'live', 'elation');
+        foreach ($roles as $role) {
+          DataManager::Query("db.userdata.abtest:nocache",
+                        "DELETE FROM userdata.abtest
+                          WHERE effective_dt=:effective_dt
+                          AND cobrand=:cobrand
+                          AND role=:role",
+                        array(
+                            ":effective_dt"=>$req["effective_dt"],
+                            ":cobrand"=>$req["cobrand"],
+                            ":role"=>$role)
+                       );
+          foreach ($req['version'] as $k=>$v) {
+            DataManager::Query("db.userdata.abtest:nocache",
+                         "INSERT INTO userdata.abtest
+                            SET version=:version,
+                               percent=:percent,
+                                effective_dt=:effective_dt,
+                                duration_days=:duration_days,
+                                status=:status,
+                                cobrand=:cobrand,
+                                config=:config,
+                                role=:role,
+                                is_base=:is_base",
+                          array(
+                              ":version"=>$v,
+                              ":percent"=>$req['percent'][$k],
+                              ":effective_dt"=>$req['effective_dt'],
+                              ":duration_days"=>$req['duration'],
+                              ":status"=>$req['status'],
+                              ":cobrand"=>$req['cobrand'],
+                              ":config"=>$req['config'][$k],
+                              ":role"=>$role,
+                              ":is_base"=>($req['isbase_position']==$k?'1':'0'))
+                          );
+          }
+        }
+      }
+      //fall into new lookup---
+    }
+    $query = DataManager::Query("db.userdata.abtest:nocache",
+                          "SELECT * FROM userdata.abtest ORDER BY status, role, cobrand, effective_dt",
+                          array()
+                         );
+    $vars['last_version'] = 0;
+    foreach($query->results as $res) {
+      $vars['abtest'][$res->status][$res->role][$res->cobrand][$res->effective_dt][]
+        = array('Version'=>$res->version,
+                'Percent'=>$res->percent,
+                'Duration'=>$res->duration_days,
+                'Config'=>$res->config,
+                'IsBase'=>$res->is_base);
+      if($vars['last_version'] < $res->version) $vars['last_version'] = $res->version;
+    }
+    $config = ConfigManager::singleton();
+    $cobrands=$config->GetCobrandList('name');
+    $cobrand_test="";
+    foreach($cobrands['cobrand'] as $k=>$v) {
+      preg_match('#\.([^.]+)#', $v->name, $matches);
+      if ($cobrand_test!=$matches[1]) $vars['cobrands'][] = $matches[1];
+      $cobrand_test=$matches[1];
+    }
+    for ($i=0; $i<40; $i++) {
+      $vars['dates'][]=date("Y-m-d", 86400*$i + time());
+    }
+    $content = $this->GetTemplate("./abtests.tpl", $vars);
+    if ($output == "ajax") {
+      $ret["tf_debug_tab_abtests"] = $content;
+    } else {
+      $ret = $content;
+    }
+    return $ret;
+  }
+  public function controller_ping($args) {
+    return $this->GetComponentResponse("./ping.tpl");
+  }
+  public function controller_accessviolation($args) {
+    return $this->GetComponentResponse("./accessviolation.tpl");
+  }
+  public function controller_404($args, $output="inline") {
+    if ($output == "inline") {
+      $componentname = any(ConfigManager::get("page.missing"), NULL);
+    } else {
+      $componentname = any(ConfigManager::get("page.404"), NULL);
+    }
+    if (!empty($componentname)) {
+      return ComponentManager::fetch($componentname, $args, $output);
+    }
+    return $this->GetComponentResponse("./404.tpl", $args);
   }
 }  

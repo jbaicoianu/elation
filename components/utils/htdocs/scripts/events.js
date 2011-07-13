@@ -47,11 +47,12 @@ elation.extend("events", {
     return events;
   },
   
-  register: function(element, type, fn) {
+  register: function(element, type, fn, custom_event_name) {
     var event = { 
       type: type, 
       target: element, 
       origin: fn,
+      custom_event: custom_event_name,
       preventDefault: function() { return; },
       cancelBubble: function() { return; },
       stopPropogation: function() { return; }
@@ -61,11 +62,14 @@ elation.extend("events", {
       elation.events.events[type] = [];
     
     elation.events.events[type].push(event);
+    
+    if (custom_event_name)
+      elation.events.events[custom_event_name].push(event);
   },
   
   
 	// syntax: add(element || [ elements ], "type1,type2,type3", function || object);
-	add: function(elements, types, fn) {
+	add: function(elements, types, fn, custom_event_name) {
 		if (!elements || !types || !fn || typeof types != "string")
 			return;
 		
@@ -81,7 +85,7 @@ elation.extend("events", {
 			for (var i=0; i<types.length; i++) {
 				var type = types[i];
 				
-        elation.events.register(element, type, fn);
+        elation.events.register(element, type, fn, custom_event_name);
         
 				if ("addEventListener" in element) {
           if (type == 'mousewheel' && elation.browser.type != 'safari')
@@ -89,6 +93,9 @@ elation.extend("events", {
 					
           if (typeof fn == "object" && fn.handleEvent) {
 						element[type+fn] = function(e) { 
+              if (e.custom_event)
+                elation.events.fire('custom_event', fn);
+              
 							fn.handleEvent(e); 
 						}
 						element.addEventListener(type, element[(type + fn)], false);
@@ -98,7 +105,10 @@ elation.extend("events", {
 				} else if (element.attachEvent) {
 					if (typeof fn == "object" && fn.handleEvent) { 
 						element[type+fn] = function() { 
-							fn.handleEvent(elation.events.fix(window.event)); 
+              if (e.custom_event)
+                elation.events.fire('custom_event', fn);
+							
+              fn.handleEvent(elation.events.fix(window.event)); 
 						}
 					} else {
 						element["e" + type + fn] = fn;

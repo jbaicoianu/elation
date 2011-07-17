@@ -1,4 +1,3 @@
-/* Cross-platform event handlers */
 elation.extend("events", {
   events: {},
   
@@ -17,9 +16,12 @@ elation.extend("events", {
         events = [],
         event;
     
-    if (!list)
+    if (!list) {
+      this.events[type] = [];
       return;
+    }
     
+    // gather all the events associated with this event type
     for (var i=0; i<list.length; i++) {
       event = list[i];
       
@@ -33,6 +35,7 @@ elation.extend("events", {
       }
     }
     
+    // fire each event
     for (var i=0; i<events.length; i++) {
       var event = events[i];
       
@@ -62,18 +65,23 @@ elation.extend("events", {
       elation.events.events[type] = [];
     
     elation.events.events[type].push(event);
-    
-    if (custom_event_name)
+    /*
+    if (custom_event_name) {
+      if (!elation.events.events[custom_event_name])
+        elation.events.events[custom_event_name] = [];
+      
       elation.events.events[custom_event_name].push(event);
+    }
+    */
   },
   
   
 	// syntax: add(element || [ elements ], "type1,type2,type3", function || object);
 	add: function(elements, types, fn, custom_event_name) {
-		if (!elements || !types || !fn || typeof types != "string")
+		if (!types || !fn || typeof types != "string")
 			return;
 		
-		var	elements = ((!elation.utils.isNull(elements.nodeName) || elements == window) ? [ elements ] : elements),
+		var	elements = (!elements ? [{}] : ((!elation.utils.isNull(elements.nodeName) || elements == window) ? [ elements ] : elements)),
 				types = types.split(',');
 		
 		for (var e=0; e<elements.length; e++) {
@@ -93,8 +101,8 @@ elation.extend("events", {
 					
           if (typeof fn == "object" && fn.handleEvent) {
 						element[type+fn] = function(e) { 
-              if (e.custom_event)
-                elation.events.fire('custom_event', fn);
+              if (custom_event_name)
+                elation.events.fire(custom_event_name);
               
 							fn.handleEvent(e); 
 						}
@@ -105,8 +113,8 @@ elation.extend("events", {
 				} else if (element.attachEvent) {
 					if (typeof fn == "object" && fn.handleEvent) { 
 						element[type+fn] = function() { 
-              if (e.custom_event)
-                elation.events.fire('custom_event', fn);
+              if (custom_event_name)
+                elation.events.fire(custom_event_name, fn);
 							
               fn.handleEvent(elation.events.fix(window.event)); 
 						}

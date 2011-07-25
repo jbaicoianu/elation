@@ -1,4 +1,9 @@
 RewriteEngine On
+
+# Pass off immediately to Elation for all URLs under the Elation web root, 
+# unless the file already exists.  The second RewriteCond includes special 
+# handling for the case where the user is running Elation out of /~user/ 
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^((.*)?)$ go.php [QSA]
+RewriteCond %{REQUEST_URI} ^(/~[^/]+/)?.*$
+RewriteRule ^((.*)?)$ %1go.php [QSA]
 

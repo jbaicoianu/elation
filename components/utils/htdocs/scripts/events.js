@@ -2,7 +2,6 @@ elation.extend("events", {
   events: {},
   
   fire: function(type, fn, element, data) {
-    console.log('FIRING: ' + type, fn, element, data);
     if (typeof type == 'object') {
       fn = elation.utils.arrayget(type, 'fn') || fn;
       element = elation.utils.arrayget(type, 'element') || element;
@@ -10,6 +9,7 @@ elation.extend("events", {
       type = elation.utils.arrayget(type, 'type');
     }
 
+    console.log('FIRING: ' + type, fn, element, data);
     if (!type)
       return false;
     
@@ -26,7 +26,6 @@ elation.extend("events", {
     for (var i=0; i<list.length; i++) {
       event = list[i];
       
-      console.log(fn, element);
       if (fn || element) {
         if ((fn && event.origin !== fn) || (element && event.target !== element))
           continue;
@@ -69,8 +68,12 @@ elation.extend("events", {
       stopPropogation: function() { return; }
     };
     
-    if (custom_event_name)
+    if (custom_event_name) {
+      if (!elation.events.events[custom_event_name])
+        elation.events.events[custom_event_name] = [];
+      
       console.log('BINDING '+type+' -> '+custom_event_name);
+    }
     
     if (!elation.events.events[type])
       elation.events.events[type] = [];

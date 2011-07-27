@@ -267,7 +267,7 @@ class ComponentMissing extends Component {
     }
     return $this->GetTemplate("404.tpl", $this);
     */
-    return ComponentManager::fetch("elation.404", array("name" => $this->name), $output);
+    return ComponentManager::fetch("elation.404", array("name" => $this->fullname), $output);
   }
 }
 

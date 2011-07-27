@@ -442,4 +442,17 @@ class Component_elation extends Component {
     }
     return $this->GetComponentResponse("./404.tpl", $args);
   }
+  public function controller_component($args) {
+    $vars = array(
+      "tag"       => any($args["tag"], "div"),
+      "id"        => $args["id"],
+      "classname" => $args["classname"],
+      "component" => $args["component"],
+      "args"      => $args["args"],
+      "content"   => $args["content"],
+      "events"    => $args["events"],
+      "tagtype"   => any($args["tagtype"], "both")
+    );
+    return $this->GetComponentResponse("./component.tpl", $vars);
+  }
 }  

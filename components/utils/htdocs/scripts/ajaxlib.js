@@ -52,6 +52,10 @@
 
 elation.extend("ajax", new function() {
 	this.Queue = function (obj) {
+    // if args is object, convert to string.  this might not be the best place to put this.
+    if (elation.utils.arrayget(obj, 'args') && typeof obj.args == 'object')
+      obj.args = elation.utils.encodeURLParams(obj.args);
+    
     if (obj.constructor.toString().indexOf("Array") != -1) {
       for (var i = 0; i < obj.length; i++) {
         if (!obj[i].method) obj[i].method = "GET";

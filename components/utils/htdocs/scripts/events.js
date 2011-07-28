@@ -10,6 +10,7 @@ elation.extend("events", {
       type = elation.utils.arrayget(type, 'type');
     }
 
+    //console.log('fire:',type,fn,element,data);
     if (!type)
       return false;
     
@@ -21,8 +22,7 @@ elation.extend("events", {
       return;
     
     for (var i=0; i<list.length; i++) {
-      event = list[i];
-      
+      event = elation.events.fix(list[i]);
       if (fn || element) {
         if ((fn && event.origin == fn) || (element && event.target == element)) {
           events.push(event);
@@ -34,14 +34,17 @@ elation.extend("events", {
       }
     }
     
-    for (var i=0; i<events.length; i++) {
+    for (var i=events.length-1; i>=0; i--) {
       var event = events[i];
-      
+      event.data = data;
       if (event.origin) {
         if (typeof event.origin == 'function')
           event.origin(event);
         else if (typeof event.origin.handleEvent != 'undefined')
           event.origin.handleEvent(event);
+      }
+      if (event.cancelBubble) {
+        break;
       }
     }
     
@@ -54,8 +57,8 @@ elation.extend("events", {
       target: element, 
       origin: fn,
       preventDefault: function() { return; },
-      cancelBubble: function() { return; },
-      stopPropogation: function() { return; }
+      stopPropagation: function() { return; },
+      cancelBubble: false
     };
     
     if (!elation.events.events[type])

@@ -87,6 +87,7 @@ elation.extend("component", new function() {
   this.init = function(root) {
     var componentattr = "component";
     var argsattr = this.namespace+':args';
+    var eventsattr = this.namespace+':events';
     // Find all elements which have a namespace:componentattr attribute
 
     if (root == undefined) {
@@ -127,27 +128,45 @@ elation.extend("component", new function() {
       var element = elements[i];
       // Parse out the elation:component and elation:name attributes, if set.  Fall back on HTML id if no name specified
       var componenttype = element.getAttribute(this.namespace+':'+componentattr);
-      var componentname = element.getAttribute(this.namespace+':name') || element.id;
+      var componentid = element.getAttribute(this.namespace+':name') || element.id;
       if (componenttype) {
         var componentinitialized = element.getAttribute(this.namespace+':componentinitialized') || false;
         if (!componentinitialized) { // FIXME - this isn't working in IE, so components are getting reinitialized with each AJAX request
           element.setAttribute(this.namespace+':componentinitialized', 1);
-          var componentargs = {}, j;
+          var componentargs = {}, events = {}, j;
           // First look for a JSON-encoded args array in the element's direct children (elation:args)
           if (element.children) {
             for (j = 0; j < element.children.length; j++) {
               // FIXME - IE seems to drop the namespace, might be related to above FIXME, so look for a child named "args"
               if (element.children[j].nodeName == argsattr.toUpperCase() || element.children[j].nodeName == "args") { 
                 try {
-                  componentargs = JSON.parse(element.children[j].innerHTML);
-                  element.removeChild(element.children[j]);
-                  if (componentargs == null) { // empty JSON could cause errors later, so reset null to an empty hash
-                    componentargs = {};
+                  var content = element.children[j].innerHTML.trim();
+                  if (content.length > 0) {
+                    componentargs = JSON.parse(content);
+                    element.removeChild(element.children[j]);
+                    if (componentargs == null) { // empty JSON could cause errors later, so reset null to an empty hash
+                      componentargs = {};
+                    }
                   }
-                  break; // only one args array per block, bail out when we find one so we don't waste time with the rest
+                  //break; // only one args array per block, bail out when we find one so we don't waste time with the rest
                 } catch(e) {
                   // Probably JSON syntax error
                   console.log("Could not parse " + argsattr + ": " + element.children[j].innerHTML);
+                }
+              } else if (element.children[j].nodeName == eventsattr.toUpperCase() || element.children[j].nodeName == "events") { 
+                try {
+                  var content = element.children[j].innerHTML.trim();
+                  if (content.length > 0) {
+                    events = JSON.parse(content);
+                    element.removeChild(element.children[j]);
+                    if (events == null) { // empty JSON could cause errors later, so reset null to an empty hash
+                      events = {};
+                    }
+                  }
+                  //break; // only one events array per block, bail out when we find one so we don't waste time with the rest
+                } catch(e) {
+                  // Probably JSON syntax error
+                  console.log("Could not parse " + eventsattr + ": " + element.children[j].innerHTML);
                 }
               }
             }
@@ -159,42 +178,148 @@ elation.extend("component", new function() {
             }
           }
           // Instantiate the new component with all parsed arguments
-          elation.component.create(componentname, componenttype, element, componentargs);
+          elation.component.create(componentid, componenttype, element, componentargs, events);
         }
       }
     }
   }
-  this.add = function(name, classdef) {
+  this.add = function(type, classdef) {
     // At the top level, a component is just a function which checks to see if
     // an instance with the given name exists already.  If it doesn't we create
     // it, and then we return a reference to the specified instance.
-    var el = function(name, container, args) {
+    var component = function(name, container, args, events) {
       if (!name && name !== 0) // If no name was passed, use the current object count as a name instead ("anonymous" components)
-        name = el.objcount;
-      if (!el.obj[name]) {
-        el.obj[name] = new el.fn.init(name, container, args);
-        el.objcount++;
+        name = component.objcount;
+      if (!component.obj[name]) {
+        component.obj[name] = new component.base(type);
+        component.objcount++;
       }
-      return el.obj[name];
+      if (component.obj[name] && container) {
+        component.obj[name].componentinit(type, name, container, args, events);
+        if (typeof component.obj[name].init == 'function') {
+          component.obj[name].init(name, container, args, events);
+        }
+      }
+      return component.obj[name];
     };
-    el.objcount = 0;
-    el.obj = {}; // this is where we store all the instances of this type of component
-    el.fn = (typeof classdef == 'function' ? new classdef : classdef); // and this is where we store the functions
-    // If no init function is defined, add a default one
-    if (!el.fn.init) el.fn.init = function(name, container, args) { 
-      this.name = name;
-      this.container = container;
-      this.args = args;
+    component.objcount = 0;
+    component.obj = {}; // this is where we store all the instances of this type of component
+    component.base = function() { }
+    component.base.prototype = new this.base(type);
+    if (classdef) {
+      component.base.prototype.extend(classdef);
     }
-    el.fn.init.prototype = el.fn; // The functions which were passed in are attached to the insantiable component objects
-    elation.extend(name, el); // inject the newly-created component wrapper into the main elation object
+    elation.extend(type, component); // inject the newly-created component wrapper into the main elation object
   }
-  this.create = function(name, type, container, args) {
+  this.create = function(id, type, container, args, events) {
     var componentclass = elation.utils.arrayget(elation, type);
     if (typeof componentclass == 'function') {
-      return componentclass.call(componentclass, name, container, args);
+      return componentclass.call(componentclass, id, container, args, events);
     } 
-    console.log("elation: tried to instantiate unknown component type '" + type + "' named '" + name + "'", componentclass);
+    console.log("elation: tried to instantiate unknown component type '" + type + "', id '" + id + "'", componentclass);
+  }
+  this.get = function(id, type, container, args, events) {
+    var componentclass = elation.utils.arrayget(elation, type);
+    if (componentclass && typeof componentclass == 'function') {
+      return componentclass.call(componentclass, id, container, args, events);
+    } else {
+      console.log('no way buddy');
+      this.add(type);
+      return this.create(id, type, container, args, events);
+    }
+  }
+  this.info = function(type) {
+    var componentclass = elation.utils.arrayget(elation, type);
+    if (componentclass && typeof componentclass == 'function') {
+      return {objcount: componentclass.objcount};
+    }
+  }
+  this.base = function(component) {
+    this.componentinit = function(name, id, container, args, events) {
+      this.name = name;
+      this.id = id;
+      this.container = container;
+      this.args = args || {};
+      this.events = events || {};
+      if (this.container) {
+        for (var k in this.events) {
+          if (typeof this.events[k] == 'string') {
+            (function(self, type, blub) {
+              self[type] = function(ev) { eval(blub); }
+              //console.log(self, type, blub);
+              elation.events.add(self.container, type, self);
+            })(this, k, this.events[k]);
+          } else {
+            elation.events.add(this.container, k, this.events[k]);
+          }
+        }
+      }
+      elation.events.fire({type: "init", fn: this, data: this, element: this.container});
+    }
+    this.extend = function(from) {
+      for (var k in from) {
+        if (k != 'constructor' && k != 'prototype') {
+          this[k] = from[k];
+        }
+      }
+    }
+    this.set = function(sets, value) {
+      // special set function to send update notifications when the object (or eventually, individual values) change
+      if (typeof sets == 'string' && value) {
+        var k = sets;
+        sets = {};
+        sets[k] = value;
+      } 
+      var changes = 0;
+      for (var k in sets) {
+        if (elation.utils.arrayget(this, k) != sets[k]) {
+          elation.utils.arrayset(this, k, sets[k]);
+          changes++;
+        }
+      }
+      if (changes > 0) {
+        // TODO - if we supported bindings, we could send updates directly to specific observers when specific attributes are updated
+        elation.events.fire({type:'update', origin: this, data: this, element: this.container});
+        return true;
+      }
+      return false;
+    }
+    this.setevents = function(events) {
+      for (var k in events) {
+        this.events[k] = events[k];
+      }
+    }
+    this.fetch = function(type, callback, force) {
+      var ret;
+      var urlbase = "/~bai/"; // FIXME - stupid stupid stupid!  move this to the right place asap!
+      if (force || !this.content) {
+        (function(self, callback) {
+          console.log(urlbase + self.name.replace(".","/") + "." + type);
+          var args = self.args;
+          args.events = self.events;
+          console.log('stupid dumb args is', args);
+          ajaxlib.Queue({
+            method: "GET",
+            url: urlbase + self.name.replace(".","/") + "." + type,
+            args: elation.utils.encodeURLParams(args),
+            callback: function(data) { self.content = data; if (typeof callback == 'function') { callback(data); } }
+          });
+        })(this, callback);
+        ret = '<img src="/images/misc/plugin-icon-180x120.png"/>';
+      } else {
+        ret = this.content;
+        if (typeof callback == 'function')
+          callback(this.content);
+      }
+
+      return ret;
+    }
+    this.handleEvent = function(ev) {
+      if (typeof this[ev.type] == 'function') {
+        this[ev.type](ev);
+      }
+    }
+
   }
 });
 
@@ -464,7 +589,7 @@ elation.extend("html.stylecopy", function(dst, src, styles) {
   }
 });
 elation.extend("utils.camelize", function(text) {
-  return text.replace(/-+(.)?/g, function (match, chr) {
+  return text.replace(/[-\.]+(.)?/g, function (match, chr) {
     return chr ? chr.toUpperCase() : '';
   });
 });
@@ -491,7 +616,13 @@ elation.extend("utils.encodeURLParams", function(obj) {
     ret = obj;
   } else {
     for (var key in obj) {
-      ret += (ret != '' ? '&' : '') + key + '=' + encodeURIComponent(obj[key]); 
+      if (typeof obj[key] == "object") {
+        for (var key2 in obj[key]) {
+          ret += (ret != '' ? '&' : '') + key + '[' + key2 + ']=' + encodeURIComponent(obj[key][key2]); 
+        }
+      } else {
+        ret += (ret != '' ? '&' : '') + key + '=' + encodeURIComponent(obj[key]); 
+      }
     }
   }
   

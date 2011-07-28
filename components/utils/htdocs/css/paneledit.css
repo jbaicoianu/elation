@@ -4,6 +4,7 @@
 }
 body {
   background: #ccc;
+  font-family: sans-serif;
 }
 .tf_utils_panel_content_item {
   outline:1px dashed black;
@@ -78,12 +79,15 @@ body {
   padding: .2em .5em;
   border-left: 1px dashed black;
   border-bottom: 1px dashed black;
-  font-size: .8em;
+  font-size: .6em;
   box-shadow: 2px 2px 2px #999;
 }
 .tf_utils_panel>.tf_utils_panel_slot:hover>.tf_utils_panel_slot_info {
   background: #fcc;
   z-index: 1000;
+}
+.tf_utils_panel>.tf_utils_panel_slot.tf_utils_state_active {
+  background: #ddf;
 }
 .tf_utils_panel_edit {
   border: 1px solid red;
@@ -111,7 +115,7 @@ body {
   position: fixed;
   left: 0;
   top: 0;
-  height: 100%;
+  bottom: 12.5em;
   width: 15em;
   background: #ccc;
   border-right: 2px solid black;
@@ -132,19 +136,49 @@ body {
   display: none;
   box-shadow: 2px 2px 2px #666;
 }
-#tf_utils_toolkit .tf_utils_button_draggable:hover .tf_toolkit_contextmenu {
+#tf_utils_toolkit .elation_ui_button_draggable:hover .tf_toolkit_contextmenu {
   display: block;
 }
-.tf_utils_button_draggable {
+.elation_ui_button_draggable {
   display: block;
   padding: .2em;
   border-top: 1px solid blue;
   cursor: move;
 }
-#tf_utils_toolkit .tf_utils_button_draggable:hover .tf_toolkit_contextmenu .tf_utils_button_draggable:first-child {
+#tf_utils_toolkit .elation_ui_button_draggable:hover .tf_toolkit_contextmenu .elation_ui_button_draggable:first-child {
   border-top: 0;
 }
-.tf_utils_button_draggable:hover {
+.elation_ui_button_draggable:hover {
   background: #99c;
 }
 
+#toolbox_detail {
+  position: fixed;
+  bottom: 0;
+}
+#toolbox_detail ul {
+  border-top: 1px solid black;
+  border-bottom: 1px solid black;
+  padding: .2em;
+  height: 10em;
+  width: 14.5em;;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+#toolbox_detail ul li {
+  white-space: nowrap;
+}
+#toolbox_detail ul li label {
+  display: inline-block;
+  width: 40%;
+}
+#toolbox_detail ul li input {
+  width: 60%;
+  margin-left: -2px;
+  margin-right: -1px;
+  border: 1px solid black;
+}
+#toolbox_detail ul li input.state_modified {
+  background: #ff9;
+  border: 1px solid #660;
+}

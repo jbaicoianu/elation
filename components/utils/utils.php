@@ -4,37 +4,6 @@ class Component_utils extends Component {
   function init() {
   }
 
-  function controller_utils($args, $output="inline") {
-    $vars["args"] = $args;
-    return $this->GetTemplate("./utils.tpl", $vars);
-  }
-  function controller_status($args, $output="inline") {
-    $vars["args"] = $args;
-    return $this->GetTemplate("./status.tpl", $vars);
-  }
-  function controller_list($args) {
-    $listitems = any($args["items"], array());
-    if ($listitems instanceOf Collection) {
-      $listitems = $listitems->toArray();
-    }
-    $vars["id"] = $args["id"];
-    $vars["class"] = $args["class"];
-    $vars["itemclass"] = $args["itemclass"];
-    $vars["chunksize"] = any($args["chunksize"], 1);
-    $vars["chunks"] = $args["chunks"];
-    if (!empty($vars["chunks"])) {
-      $vars["chunksize"] = ceil(count($listitems) / $vars["chunks"]);
-    }
-    $vars["itemcomponent"] = any($args["itemcomponent"], "utils.listitem");
-    $vars["listitems"] = array_chunk($listitems, $vars["chunksize"], true);
-    return $this->GetComponentResponse("./list.tpl", $vars);
-  }
-  function controller_listitem($args) {
-    $vars["item"] = $args["item"];
-    $vars["itemname"] = $args["itemname"];
-    return $this->GetComponentResponse("./listitem.tpl", $vars);
-  }
-
   function controller_panel($args, $output="inline") {
     $ret = "";
 
@@ -94,8 +63,39 @@ class Component_utils extends Component {
     return $this->GetTemplate("./panellist.tpl", $vars);
   }
   function controller_componentlist($args) {
-    $vars["components"] = json_decode(file_get_contents("config/components.json"));
+    $tree = any($args["tree"], true); 
+    $vars["components"] = $args["components"];
+    $vars["root"] = any($args["root"], true);
+    if (!empty($args["classname"])) {
+      $vars["classname"] = $args["classname"];
+    }
+    if (empty($vars["components"])) {
+      $components = json_decode(file_get_contents("config/components.json"));
+      if (!empty($components)) {
+        if ($tree) {
+          $vars["components"] = array();
+          foreach ($components as $component) {
+            $key = str_replace(".", ".components.", $component->name);
+            array_set($vars["components"], $key, $component);
+          }
+        } else {
+          $vars["components"] = $components;
+        }
+      }
+    }
     return $this->GetTemplate("./componentlist.tpl", $vars);
+  }
+  function controller_componentdetails($args) {
+    $vars["root"] = any($args["root"], true);
+    $vars["id"] = any($args["id"], false);
+    if (!empty($args["component"])) {
+      $components = ComponentManager::fetch("utils.componentlist", array("tree" => true), "data");
+      $key = str_replace(".", ".components.", $args["component"]);
+      $vars["component"] = array_get($components["components"], $key);
+      $vars["componentargs"] = any($args["componentargs"], array());
+      $vars["events"] = any($args["events"], array());
+    }
+    return $this->GetComponentResponse("./componentdetails.tpl", $vars);
   }
   function controller_paneledit($args) {
     if (!empty($args["panel"])) {
@@ -112,31 +112,6 @@ class Component_utils extends Component {
       $vars["url"] = DependencyManager::$locations["basedir"] . "/" . str_replace(".", "/", $args["component"]);
     }
     return $this->GetComponentResponse("./link.tpl", $vars);
-  }
-  function controller_select($args) {
-    $vars["id"] = $args["id"];
-    $vars["selectname"] = $args["selectname"];
-    $vars["class"] = $args["class"];
-    $vars["items"] = any($args["items"], array());
-    if (is_string($vars["items"])) {
-      $tmp = explode(";", $vars["items"]);
-      $vars["items"] = array_combine($tmp, $tmp);
-    }
-    $vars["selected"] = $args["selected"];
-    if (!empty($vars["selected"]) && !isset($vars["items"][$vars["selected"]])) {
-      $vars["items"][$vars["selected"]] = $vars["selected"];
-    }
-    $vars["autosubmit"] = !empty($args["autosubmit"]);
-    return $this->GetComponentResponse("./select.tpl", $vars);
-  }
-  function controller_input($args) {
-    $vars["inputname"] = $args["inputname"];
-    $vars["class"] = any($args["class"], false);
-    $vars["label"] = any($args["label"], false);
-    $vars["id"] = any($args["id"], "tf_utils_input_" . $vars["inputname"]);
-    $vars["value"] = any($args["value"], "");
-    $vars["type"] = any($args["type"], "");
-    return $this->GetComponentResponse("./input.tpl", $vars);
   }
 
   function PanelSort($arr) {

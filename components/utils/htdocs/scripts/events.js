@@ -9,7 +9,7 @@ elation.extend("events", {
       type = elation.utils.arrayget(type, 'type');
     }
 
-    console.log('FIRING: ' + type, fn, element, data);
+    //console.log('FIRING: ' + type, fn, element, data);
     if (!type)
       return false;
     
@@ -72,7 +72,7 @@ elation.extend("events", {
       if (!elation.events.events[custom_event_name])
         elation.events.events[custom_event_name] = [];
       
-      console.log('BINDING '+type+' -> '+custom_event_name);
+      //console.log('BINDING '+type+' -> '+custom_event_name);
     }
     
     if (!elation.events.events[type])

@@ -251,7 +251,7 @@ class SessionManager
       //Logger::Error(print_r($_SESSION, true));
     }
 
-    $this->has_db_record = ($_SESSION["persist"]["has_db_record"]) ? true : false;
+    $this->has_db_record = (isset($_SESSION["persist"]) && $_SESSION["persist"]["has_db_record"]) ? true : false;
 
     // Store permenant session id, actual (temporary) session id,
     // and create pointers to $_SESSION memory space

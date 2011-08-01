@@ -273,8 +273,41 @@ function object_set(&$obj, $key, $value, $delim=".") {
     $ptr = $value;
   }
 
-  //Profiler::StopTimer("array_set");
+  //Profiler::StopTimer("object_set");
   return $ret;
+}
+function object_get(&$obj, $key, $delim=".") {
+  //Profiler::StartTimer("object_get");
+  $ret = true;
+
+  $keyparts = explode($delim, $key);
+
+  $ptr =& $obj;
+  while ($keypart = array_shift($keyparts)) {
+    if ($keypart !== "") {
+      if (is_object($ptr)) {
+        if (!isset($ptr->{$keypart})) {
+          $ptr->{$keypart} = array();
+          $ptr =& $ptr->{$keypart};
+        } else {
+          $ptr =& $ptr->{$keypart};
+        }
+      } else if (is_array($ptr)) {
+        if (isset($ptr[$keypart])) {
+          $ptr =& $ptr[$keypart];
+        } else {
+          $ret = false;
+          break;
+        }
+      } else {
+        $ret = false;
+        break;
+      }
+    }
+  }
+
+  //Profiler::StopTimer("object_get");
+  return ($ret ? $ptr : NULL);
 }
 if (!function_exists("array_set")) {
   function array_set(&$arr, $key, $value, $delim=".") {

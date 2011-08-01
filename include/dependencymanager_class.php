@@ -23,16 +23,16 @@ class DependencyManager {
     if (empty($args["type"])) {
       $args["type"] = "component";
     }
-    $browser = any($args["browser"], "all");
-    $priority = any($args["priority"], 2);
-    if (!is_array(self::$dependencies[$priority]))
+    $browser = (!empty($args["browser"]) ? $args["browser"] : "all");
+    $priority = (!empty($args["priority"]) ? $args["priority"] : 2);
+    if (!isset(self::$dependencies[$priority]) || !is_array(self::$dependencies[$priority]))
       self::$dependencies[$priority] = array();
     
     //self::$dependencies[$args["type"]][] = Dependency::create($args["type"], $args);
     $dep = Dependency::create($args["type"], $args);
     if (!isset(self::$dependencies[$priority][$browser][$args["type"]][$dep->id()])) {
       self::$dependencies[$priority][$browser][$args["type"]][$dep->id()] = $dep;
-      if (Logger::$enabled && !$silent) {
+      if (Logger::$enabled) {
         Logger::Notice("Added {$args["type"]} dependency ({$browser}): '{$dep->content()}'");
       }
     }
@@ -43,7 +43,8 @@ class DependencyManager {
   static function display() {
     $ret = "";
     $cfg = ConfigManager::singleton();
-    $combine = $cfg->servers["dependencies"]["combine"];
+    $combine = (!empty($cfg->servers["dependencies"]) ? $cfg->servers["dependencies"]["combine"] : false);
+
 
     ksort(self::$dependencies);
     foreach (self::$dependencies as $priority=>$browsers) {
@@ -153,7 +154,7 @@ abstract class Dependency {
   public $accept;
 
   function Dependency($args, $silent=false) {
-    $this->browser = any($args["browser"], "all");
+    $this->browser = (!empty($args["browser"]) ? $args["browser"] : "all");
     $this->type = $args["type"];
 
     $this->Init($args, DependencyManager::$locations);
@@ -169,7 +170,14 @@ abstract class Dependency {
     return md5($this->type . ":" . $this->content());
   }
   function content() {
-    return any($this->name, $this->property, $this->code, $this->file, $this->url, $this->meta["name"], $this->meta["property"], $this->meta["httpequiv"], "(unknown)");
+    $order = array("name", "property", "code", "file", "url", "meta.name", "meta.property", "meta.httpequiv");
+    foreach ($order as $o) {
+      if (($foo = object_get($this, $o)) !== null) {
+        return $foo;
+      }
+    }
+    return "(unknown)";
+    //return any($this->name, $this->property, $this->code, $this->file, $this->url, $this->meta["name"], $this->meta["property"], $this->meta["httpequiv"], "(unknown)");
   }
   function GetFilename($path, $fname) {
     $ret = NULL;
@@ -363,10 +371,15 @@ class DependencyMeta extends Dependency {
   public $meta;
 
   function Init($args, $locations) {
-    $this->meta = array("property"=>$args["property"], "name"=>$args["name"], "content"=>$args["content"], "httpequiv" => $args["httpequiv"]);
+    $this->meta = array();
+    if (isset($args["property"])) $this->meta["property"] = $args["property"];
+    if (isset($args["name"])) $this->meta["name"] = $args["name"];
+    if (isset($args["content"])) $this->meta["content"] = $args["content"];
+    if (isset($args["httpequiv"])) $this->meta["httpequiv"] = $args["httpequiv"];
   }
 
   function Display($locations, $extras=NULL) {
+    $ret = '';
     if (!empty($this->meta["name"]) && !empty($this->meta["content"]))
       $ret .= sprintf('<meta name="%s" content="%s" />'."\n", $this->meta["name"], $this->meta["content"]);
     else if (!empty($this->meta["property"]) && !empty($this->meta["content"]))

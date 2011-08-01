@@ -1,5 +1,7 @@
 <?
-include_once("outlet/Outlet.php");
+if (file_exists_in_path("outlet/Outlet.php")) {
+  include_once("outlet/Outlet.php");
+}
 /**
  * class OrmManager
  * Singleton object for fetching ORM model information
@@ -13,24 +15,16 @@ class OrmManager {
 
   function __construct($locations=NULL) {
     $dbdir = any($locations['tmp'], 'tmp');
-    Outlet::init(array(
-      'connection' => array(
-        'type' => 'datamanager',
-        /*
-        'dsn' => 'sqlite:tmp/elation.sqlite',
-        'dialect' => 'sqlite'
-        */
-        /*
-        'dsn' => 'mysql:host=localhost',
-        'dialect' => 'mysql',
-        'username' => 'elation',
-        'password' => ''
-        */
-      ),
-      'classes' => array(
-      ),
-    ));
-    $this->outlet =& Outlet::getInstance();
+    if (class_exists("Outlet")) {
+      Outlet::init(array(
+        'connection' => array(
+          'type' => 'datamanager',
+        ),
+        'classes' => array(
+        ),
+      ));
+      $this->outlet =& Outlet::getInstance();
+    }
   }
 
   function GetModels() {
@@ -48,10 +42,11 @@ class OrmManager {
     return $models;
   }
   static function LoadModel($model) {
-    if ($this instanceOf OrmManager)
+    if (isset($this) && $this instanceOf OrmManager)
       $me = $this;
     else
       $me = self::singleton();
+    if (!$me->outlet) return;
     $models = explode(",", $model);
     //print_pre($models);
     foreach ($models as $model) {

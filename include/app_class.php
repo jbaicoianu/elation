@@ -99,7 +99,9 @@ class App {
         $this->tplmgr = TemplateManager::singleton($this->locations);
         $this->tplmgr->assign_by_ref("webapp", $this);
         $this->components = ComponentManager::singleton($this);
-        $this->orm = OrmManager::singleton($this->locations);
+        if (class_exists("OrmManager")) {
+          $this->orm = OrmManager::singleton($this->locations);
+        }
         //$this->tplmgr->SetComponents($this->components);
       } catch (Exception $e) {
         print $this->HandleException($e);
@@ -336,7 +338,7 @@ class App {
   }
 
   function GetRequestedConfigName($req=NULL) {
-    $ret = any($this->cfg->servers["cobrand"], "thefind");
+    $ret = (isset($this->cfg->servers["cobrand"]) ? $this->cfg->servers["cobrand"] : "thefind");
 
     if (empty($req))
       $req = $this->request;

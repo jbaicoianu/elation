@@ -77,9 +77,12 @@ class Profiler {
   }  
   
   public static function GetTime($name) {
-    $time = self::$times[$name];
-    if (!empty(self::$scratch->start[$name]))            
-      $time += self::GetTimeDiff(self::$scratch->start[$name], microtime(true));
+    $time = null;
+    if (isset(self::$times[$name])) {
+      $time = self::$times[$name];
+      if (!empty(self::$scratch->start[$name]))            
+        $time += self::GetTimeDiff(self::$scratch->start[$name], microtime(true));
+    }
     return $time;
   }
   

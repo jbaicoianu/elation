@@ -220,16 +220,18 @@ class Logger {
       }
     }
 
-    $timestats = array("page" => any($webapp->components->pagecfg["pagename"], $webapp->request["path"]), "total" => Profiler::GetTime("WebApp"));
-    if (($time = Profiler::GetTime("QPMWrapper:Query()")) != NULL) $timestats["qpm"] = $time;
-    if (($time = Profiler::GetTime("QPMWrapper:Query() - first byte")) != NULL) $timestats["qpmfirstbyte"] = $time;
-    if (($time = Profiler::GetTime("DBWrapper:Query()")) != NULL) $timestats["db"] = $time;
-    if (($time = Profiler::GetTime("WebApp::TimeToDisplay")) != NULL) $timestats["firstbyte"] = $time;
-    if (($time = Profiler::GetTime("WebApp::Display() - Conteg")) != NULL) $timestats["output"] = $time;
-    if (($time = Profiler::GetTime("Conteg::compress")) != NULL) $timestats["compress"] = $time;
-    if (($time = Profiler::GetTime("Postprocessing")) != NULL) $timestats["postprocessing"] = $time;
+    if (!empty($webapp) && !empty($webapp->components)) {
+      $timestats = array("page" => any($webapp->components->pagecfg["pagename"], $webapp->request["path"]), "total" => Profiler::GetTime("WebApp"));
+      if (($time = Profiler::GetTime("QPMWrapper:Query()")) != NULL) $timestats["qpm"] = $time;
+      if (($time = Profiler::GetTime("QPMWrapper:Query() - first byte")) != NULL) $timestats["qpmfirstbyte"] = $time;
+      if (($time = Profiler::GetTime("DBWrapper:Query()")) != NULL) $timestats["db"] = $time;
+      if (($time = Profiler::GetTime("WebApp::TimeToDisplay")) != NULL) $timestats["firstbyte"] = $time;
+      if (($time = Profiler::GetTime("WebApp::Display() - Conteg")) != NULL) $timestats["output"] = $time;
+      if (($time = Profiler::GetTime("Conteg::compress")) != NULL) $timestats["compress"] = $time;
+      if (($time = Profiler::GetTime("Postprocessing")) != NULL) $timestats["postprocessing"] = $time;
+      DataManager::Query("stats.default.blah:nocache", "www.timing.total", $timestats);
+    }
 
-    DataManager::Query("stats.default.blah:nocache", "www.timing.total", $timestats);
     $data = DataManager::singleton();
     if ($data) {
       $data->Quit(); // shutdown to make sure sockets are flushed

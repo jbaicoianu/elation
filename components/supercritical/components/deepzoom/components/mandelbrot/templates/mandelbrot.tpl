@@ -1,1 +1,0 @@
-deepzoom_mandelbrot

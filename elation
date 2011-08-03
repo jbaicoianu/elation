@@ -147,6 +147,20 @@ EOF
   echo done
 }
 
+web_create() {
+  DIRNAME=$1
+  if [ -d $DIRNAME ]; then
+    echo Directory \'$DIRNAME\' already exists, aborting
+  else
+    echo -n Creating web directory \'$DIRNAME\'...
+    mkdir "$DIRNAME" "$DIRNAME/config" "$DIRNAME/htdocs"
+    pwd >"$DIRNAME/config/elation.path"
+    cp htdocs/.htaccess "$DIRNAME/htdocs/"
+    cp htdocs/go.php "$DIRNAME/htdocs/"
+    echo done.
+  fi
+}
+
 web_init() {
   echo -n Initializing web...
   [ ! -d tmp ] && mkdir -m 2777 tmp
@@ -230,6 +244,9 @@ case "$ACTION" in
     ;;
   web)
     case "$SUBACTION" in
+      create)
+        web_create $3
+        ;;
       init)
         web_init
         ;;
@@ -237,7 +254,7 @@ case "$ACTION" in
         web_compact
         ;;
       *)
-        echo "Usage: $0 $ACTION [init|compact]"
+        echo "Usage: $0 $ACTION [create|init|compact]"
         ;;
     esac
     ;;

@@ -107,7 +107,7 @@ class App {
         print $this->HandleException($e);
       }
     } else {
-      $fname = "./templates/uninitialized.tpl";
+      $fname = "components/elation/templates/uninitialized.html";
       if (($path = file_exists_in_path($fname, true)) !== false) {
         print file_get_contents($path . "/" . $fname);
       }
@@ -250,8 +250,8 @@ class App {
         "trace" => $e->getTrace());
     $user = User::singleton();
     $vars["debug"] = ($this->debug || $user->HasRole("ADMIN"));
-    if ($this->tplmgr && ($path = file_exists_in_path("templates/exception.tpl", true)) !== false) {
-      return $this->tplmgr->GetTemplate($path . "/templates/exception.tpl", $this, $vars);
+    if ($this->tplmgr && ($path = file_exists_in_path("components/elation/templates/exception.tpl", true)) !== false) {
+      return $this->tplmgr->GetTemplate($path . "/components/elation//templates/exception.tpl", $this, $vars);
     }
     return sprintf("Unhandled Exception: '%s' at %s:%s\n", $vars["exception"]["message"], $vars["exception"]["file"], $vars["exception"]["line"]);
   }
@@ -282,8 +282,8 @@ class App {
 
       //$vars['dumpedException'] = var_export($vars['exception'], true);
 
-      if (isset($this->tplmgr) && ($path = file_exists_in_path("templates/exception.tpl", true)) !== false) {
-        print $this->tplmgr->GetTemplate($path . "/templates/exception.tpl", $this, $vars);
+      if (isset($this->tplmgr) && ($path = file_exists_in_path("components/elation/templates/exception.tpl", true)) !== false) {
+        print $this->tplmgr->GetTemplate($path . "/components/elation//templates/exception.tpl", $this, $vars);
       } else {
         print "<blockquote><strong>" . $type . ":</strong> " . $errstr . "</blockquote> <address>" . $vars["exception"]["file"] . ":" . $vars["exception"]["line"] . "</address>";
       }

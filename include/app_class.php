@@ -35,8 +35,10 @@ class App {
     Profiler::StartTimer("WebApp::Init", 1);
     Profiler::StartTimer("WebApp::TimeToDisplay", 1);
 
-    register_shutdown_function(array('Logger','processShutdown'));
+    // disable notices by default.  This should probably be a config option...
+    error_reporting(error_reporting() ^ E_NOTICE); 
 
+    register_shutdown_function(array($this, 'shutdown'));
     ob_start();
     $this->rootdir = $rootdir;
     $this->debug = !empty($args["debug"]);
@@ -542,5 +544,17 @@ class App {
     }
 
     return $req;
+  }
+  public function shutdown() {
+    $error = error_get_last();
+    switch ($error["type"]) {
+      case E_ERROR:
+      case E_PARSE:
+        $this->HandleError($error["type"], $error["message"], $error["file"], $error["line"], null);
+        break;
+    }
+    if (class_exists("Logger")) {
+      Logger::processShutdown();
+    }
   }
 }

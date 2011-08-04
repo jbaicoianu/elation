@@ -100,7 +100,15 @@ class ComponentManager extends Component {
       $ret["component"] = "index";
       $ret["content"] = self::fetch("index", $args, $outputtype);
     } else if (strpos($page, "/../") === false && file_exists("./htdocs" . $page)) {
-      $outputtype = any(mime_content_type("./htdocs" . $page), "text/plain");
+      $pathinfo = pathinfo($page); 
+      // FIXME - this should be extended and made configurable, we do similar stuff later...
+      $mimetypes = array(
+        "js" => "application/javascript",
+        "css" => "text/css",
+        "html" => "text/html",
+        "txt" => "text/plain"
+      );
+      $outputtype = any($mimetypes[$pathinfo["extension"]], mime_content_type("./htdocs" . $page), "text/plain");
       $ret["type"] = $ret["responsetype"] = $outputtype;
       $ret["content"] = file_get_contents("./htdocs" . $page);
     } else if (preg_match("|^/((?:[^./]+/?)*)(?:\.(.*))?$|", $page, $m)) {
@@ -131,12 +139,12 @@ class ComponentManager extends Component {
     }
     if ($ret['content'] instanceOf ComponentResponse) {
       $output = $ret['content']->getOutput($outputtype);
-      $ret['responsetype'] = $output[0];
+      $ret['type'] = $ret['responsetype'] = $output[0];
       $ret['content'] = $output[1];
     } else if ($outputtype == "ajax") {
-      $ret['responsetype'] = "application/xml";
-    } else {
-      $ret['responsetype'] = "text/html";
+      $ret['type'] = $ret['responsetype'] = "application/xml";
+    } else if (empty($ret['type'])) {
+      $ret['type'] = $ret['responsetype'] = "text/html";
     }
 
     // Pandora page log

@@ -156,7 +156,7 @@ web_create() {
     mkdir "$DIRNAME" "$DIRNAME/config" "$DIRNAME/htdocs"
     pwd >"$DIRNAME/config/elation.path"
     cp htdocs/.htaccess "$DIRNAME/htdocs/"
-    cp htdocs/go.php "$DIRNAME/htdocs/"
+    cp htdocs/index.php "$DIRNAME/htdocs/"
     echo done.
   fi
 }

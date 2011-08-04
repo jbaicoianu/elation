@@ -22,10 +22,24 @@
 // slightly easier to handle, and also provides an easy way to extend Smarty with
 // custom functions/blocks/etc in a nice clean package.
 
-require("include/Smarty/Smarty.class.php");
+if (file_exists_in_path("smarty/libs/Smarty.class.php")) {
+  include_once("smarty/libs/Smarty.class.php");
+} else if (file_exists_in_path("include/smarty/Smarty.class.php")) {
+  include_once("include/smarty/Smarty.class.php");
+} else {
+  Logger::Error("Couldn't find Smarty include file");
+  // Define a dummy Smarty class just so we don't die
+  class Smarty {
+    function assign() { }
+    function assign_by_ref() { }
+    function template_exists() { }
+  };
+}
 
 // Form validation
-include_once("Smarty/SmartyValidate.class.php");
+if (file_exists_in_path("include/smarty/SmartyValidate.class.php")) {
+  include_once("include/smarty/SmartyValidate.class.php");
+}
 
 
 class TemplateManager extends Smarty {
@@ -51,11 +65,18 @@ class TemplateManager extends Smarty {
     //$this->config_dir   = $root . '/text/'.LANGUAGE;
     $this->_file_perms  = 0664;
 
-    $this->plugins_dir[] = $root . '/include/smarty';
+    //$this->plugins_dir[] = $root . '/include/smarty';
+    $filepaths = file_find_paths("include/smarty/plugins");
+    foreach ($filepaths as $fp) {
+      $this->plugins_dir[] = $fp;
+    }
+
 
     //$this->load_filter("output", "varreplace");
-    // Initialize SmartyValidate
-    SmartyValidate::connect($this);
+    if (class_exists("SmartyValidate")) {
+      // Initialize SmartyValidate
+      SmartyValidate::connect($this);
+    }
 
     // Make global variables accessible from within smarty templates
     /*

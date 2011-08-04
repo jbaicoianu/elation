@@ -1,1 +1,0 @@
-../../components/blog/model/blog_class.php

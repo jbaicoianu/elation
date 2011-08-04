@@ -469,10 +469,22 @@ function file_exists_in_path ($file, $realpath=false, $directory=false)
     Profiler::StopTimer("file_exists_in_path");
     return false;
 }
-
 function dir_exists_in_path($dir, $realpath=false) {
   return file_exists_in_path($dir, $realpath, true);
 }
+function file_find_paths($file) {
+  $files = array();
+  $paths = explode(PATH_SEPARATOR, get_include_path());
+  foreach ($paths as $path) {
+    // Formulate the absolute path
+    $fullpath = realpath($path . DIRECTORY_SEPARATOR . $file);
+    if (file_exists($fullpath)) {
+      $files[] = $fullpath;
+    }
+  }
+  return $files;
+}
+
 function friendly_url($url, $encode=true) {
   $vals = array(
                 "_"=>"//", // technically this replaces "_" with "__"

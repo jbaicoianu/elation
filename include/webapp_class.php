@@ -33,13 +33,25 @@ class WebApp extends App {
   function ParseRequest($page=NULL, $post=NULL) {
     Profiler::StartTimer("WebApp::Init - parserequest", 1);
     $webroot = "";
-    if ($page === NULL)
-      $page = $_SERVER["SCRIPT_URL"];
     if ($page === NULL) {
-      if (preg_match("/^(.*?)\/go\.php$/", $_SERVER["SCRIPT_NAME"], $m)) {
+      if (preg_match("/^(.*?)\/index\.php$/", $_SERVER["SCRIPT_NAME"], $m)) {
         $webroot = $m[1];
       }
-      $page = preg_replace("/" . preg_quote($webroot, "/") . "(.*?)(\?.*)?$/", "$1", $_SERVER["REQUEST_URI"]);
+//print_pre($_SERVER);
+      if (isset($_SERVER["PATH_INFO"])) {
+        $page = $_SERVER["PATH_INFO"];
+        $webroot = $_SERVER["SCRIPT_NAME"];
+      } else if (isset($_SERVER["SCRIPT_URL"])) {
+        $page = $_SERVER["SCRIPT_URL"];
+      } else if (empty($_SERVER["REDIRECT_URL"])) {
+        $webroot = $_SERVER["SCRIPT_NAME"];
+        $page = "/";
+      } else {
+        $page = preg_replace("/" . preg_quote($webroot, "/") . "(.*?)(\?.*)?$/", "$1", $_SERVER["REQUEST_URI"]);
+        if ($page == "/index.php") {
+          $page = "/";
+        }
+      }
     }
     if ($post === NULL) {
       $post = array();

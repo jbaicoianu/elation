@@ -1,9 +1,14 @@
-RewriteEngine On
+<ifModule mod_rewrite.c>
+  RewriteEngine On
 
-# Pass off immediately to Elation for all URLs under the Elation web root, 
-# unless the file already exists.  The second RewriteCond includes special 
-# handling for the case where the user is running Elation out of /~user/ 
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteCond %{REQUEST_URI} ^(/~[^/]+/)?.*$
-RewriteRule ^((.*)?)$ %1go.php [QSA]
+  # If you're running out of your ~/public_html directory, uncomment the line below and
+  # fill in the correct username (strange interaction between mod_rewrite and mod_userdir)
+  #RewriteBase /~USERNAME/elation
+
+  # Pass off immediately to Elation for all URLs under the Elation web root, 
+  # unless the file already exists.  The second RewriteCond includes special 
+  # handling for the case where the user is running Elation out of /~user/ 
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule .* index.php [QSA]
+</ifModule>
 

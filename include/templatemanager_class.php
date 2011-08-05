@@ -321,18 +321,18 @@ class TemplateManager extends Smarty {
     }
     return $this->_is_compiled_cache[$resource_name];
   }
-  public function assign_by_ref($tpl_var, &$value, $nocache = false, $scope = SMARTY_LOCAL_SCOPE) {
+  public function assign_by_ref($tpl_var, &$value, $nocache = false) {
     if (method_exists($this, "assignByRef")) {
-      return $this->assignByRef($tpl_var, $value, $nocache, $scope);
+      return $this->assignByRef($tpl_var, $value, $nocache);
     } else {
-      return parent::assign_by_ref($tplvar, $value);
+      return parent::assign_by_ref($tpl_var, $value);
     }
   }
   public function template_exists($resource_name) {
     if (method_exists($this, "templateExists")) {
       return $this->templateExists($resource_name);
     } else {
-      return $this->template_exists($resource_name);
+      return parent::template_exists($resource_name);
     }
   }
 }

@@ -299,7 +299,7 @@ class ComponentManager extends Component {
       else
         $componentname = $name;
 
-      if ($this->HasComponent($componentname, &$args)) {
+      if ($this->HasComponent($componentname, $args)) {
         $component =& $this->GetComponent($componentname);
         if ($component !== NULL) {
           if (!empty($subcomponentname)) {
@@ -397,18 +397,22 @@ class ComponentResponse implements ArrayAccess {
       case 'componentresponse':
         $ret = array("", $this);
         break;
-      case 'html':
-      case 'fhtml':
-        $framecomponent = any(ConfigManager::get("page.frame"), "html.page");
-        // If framecomponent is false/0, just return the raw content
-        $ret = array("text/html", (empty($framecomponent) ? $this->data["content"] : ComponentManager::fetch($framecomponent, array("content" => $this), "inline")));
-        break;
       case 'popup': // Popup is same as HTML, but we only use the bare-minimum html.page frame
         $vars["content"] = $this;
         $ret = array("text/html", ComponentManager::fetch("html.page", $vars, "inline"));
         break;
-      default:
+      case 'snip':
+      case 'inline':
+      case 'commandline':
         $ret = array("text/html", $tplmgr->GetTemplate($this->template, NULL, $this->data));
+        break;
+      case 'html':
+      case 'fhtml':
+      default:
+        $framecomponent = any(ConfigManager::get("page.frame"), "html.page");
+        // If framecomponent is false/0, just return the raw content
+        $ret = array("text/html", (empty($framecomponent) ? $this->data["content"] : ComponentManager::fetch($framecomponent, array("content" => $this), "inline")));
+        break;
     }
     if (!empty($this->prefix)) {
       $ret[1] = $this->prefix . $ret[1];

@@ -204,14 +204,16 @@ class Logger {
         }
       }
       $folder = rtrim($sitecfg["logger"]["file"]["path"],"/");
-      $fname = $folder . "/uilogger." . date("YmdH") . "0000";
       // create folder if not already there
       if (file_exists($folder) == false && is_writable(dirname($folder))) {
         mkdir($folder, 0777, true);
       }
+      $fname = $folder . "/uilogger." . date("YmdH") . "0000";
       $file_exist = false;
       if (file_exists($fname) == false) {
-        $file_exist = is_writable($folder) && touch($fname);
+        if (is_writable($fname)) {
+          $file_exist = touch($fname);
+        }
       } else {
         $file_exist = true;
       }
@@ -220,18 +222,16 @@ class Logger {
       }
     }
 
-    if (!empty($webapp) && !empty($webapp->components)) {
-      $timestats = array("page" => any($webapp->components->pagecfg["pagename"], $webapp->request["path"]), "total" => Profiler::GetTime("WebApp"));
-      if (($time = Profiler::GetTime("QPMWrapper:Query()")) != NULL) $timestats["qpm"] = $time;
-      if (($time = Profiler::GetTime("QPMWrapper:Query() - first byte")) != NULL) $timestats["qpmfirstbyte"] = $time;
-      if (($time = Profiler::GetTime("DBWrapper:Query()")) != NULL) $timestats["db"] = $time;
-      if (($time = Profiler::GetTime("WebApp::TimeToDisplay")) != NULL) $timestats["firstbyte"] = $time;
-      if (($time = Profiler::GetTime("WebApp::Display() - Conteg")) != NULL) $timestats["output"] = $time;
-      if (($time = Profiler::GetTime("Conteg::compress")) != NULL) $timestats["compress"] = $time;
-      if (($time = Profiler::GetTime("Postprocessing")) != NULL) $timestats["postprocessing"] = $time;
-      DataManager::Query("stats.default.blah:nocache", "www.timing.total", $timestats);
-    }
+    $timestats = array("page" => any($webapp->components->pagecfg["pagename"], $webapp->request["path"]), "total" => Profiler::GetTime("WebApp"));
+    if (($time = Profiler::GetTime("QPMWrapper:Query()")) != NULL) $timestats["qpm"] = $time;
+    if (($time = Profiler::GetTime("QPMWrapper:Query() - first byte")) != NULL) $timestats["qpmfirstbyte"] = $time;
+    if (($time = Profiler::GetTime("DBWrapper:Query()")) != NULL) $timestats["db"] = $time;
+    if (($time = Profiler::GetTime("WebApp::TimeToDisplay")) != NULL) $timestats["firstbyte"] = $time;
+    if (($time = Profiler::GetTime("WebApp::Display() - Conteg")) != NULL) $timestats["output"] = $time;
+    if (($time = Profiler::GetTime("Conteg::compress")) != NULL) $timestats["compress"] = $time;
+    if (($time = Profiler::GetTime("Postprocessing")) != NULL) $timestats["postprocessing"] = $time;
 
+    DataManager::Query("stats.default.blah:nocache", "www.timing.total", $timestats);
     $data = DataManager::singleton();
     if ($data) {
       $data->Quit(); // shutdown to make sure sockets are flushed

@@ -11,7 +11,7 @@
    <li>
     {$trace.class}{$trace.type}{$trace.function}(
      {foreach from=$trace.args item=arg name=trace}
-       <code>{if is_string($arg)}'{$arg|escape:html}'{else}{php}print gettype($this->_tpl_vars["arg"]){/php}{/if}</code>{if !$smarty.foreach.trace.last},{/if}
+       <code>{if is_string($arg)}'{$arg|escape:html}'{elseif is_scalar($arg)}{$arg}{else}{gettype var=$arg}{/if}</code>{if !$smarty.foreach.trace.last},{/if}
      {/foreach}
     )
     <address>{$trace.file}:{$trace.line}</address>

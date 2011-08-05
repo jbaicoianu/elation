@@ -151,26 +151,14 @@ Editing a component:
 
 Full Component Structure:
 =========================
-|- deepzoom
 |- demo
 | `- blog
 |- elation
 | |- orm
 | |- component
 | `- notes
-|- games
 |- html
 |- index
-|- media
-|- page 
-|- supercritical
-| |- audio
-| |- boxeebox
-| |- deepzoom
-| |- iphone
-| |- maintenance
-| |- navigation
-| |- performance
-| |- snapshot
-| `- utils
-|- utils
+|- ui
+`- utils
+

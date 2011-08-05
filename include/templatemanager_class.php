@@ -22,9 +22,14 @@
 // slightly easier to handle, and also provides an easy way to extend Smarty with
 // custom functions/blocks/etc in a nice clean package.
 
-if (file_exists_in_path("smarty/libs/Smarty.class.php")) {
+if (($path = file_exists_in_path("smarty3/Smarty.class.php")) !== false) {                // Smarty 3, global install
+  $path .= "/smarty3";
+  include_once("smarty3/Smarty.class.php");
+} else if (($path = file_exists_in_path("smarty/libs/Smarty.class.php")) !== false) {     // Smarty 2, global install
+  $path .= "/smarty/libs";
   include_once("smarty/libs/Smarty.class.php");
-} else if (file_exists_in_path("include/smarty/Smarty.class.php")) {
+} else if (($path = file_exists_in_path("include/smarty/Smarty.class.php")) !== false) {  // local install
+  $path .= "/include/smarty";
   include_once("include/smarty/Smarty.class.php");
 } else {
   Logger::Error("Couldn't find Smarty include file");
@@ -34,6 +39,9 @@ if (file_exists_in_path("smarty/libs/Smarty.class.php")) {
     function assign_by_ref() { }
     function template_exists() { }
   };
+}
+if (!empty($path)) {
+  define("SMARTY_PATH", $path);
 }
 
 // Form validation
@@ -46,6 +54,8 @@ class TemplateManager extends Smarty {
   private $_template_exists_cache = array();
   private $_is_combined_cache = array();
   protected static $instance;
+  public $varreplace = array();
+  public $currenttpl = null;
   public static function singleton($args=NULL) { $name = __CLASS__; if (!self::$instance) { self::$instance = new $name($args); } return self::$instance;  }
 
 
@@ -65,12 +75,11 @@ class TemplateManager extends Smarty {
     //$this->config_dir   = $root . '/text/'.LANGUAGE;
     $this->_file_perms  = 0664;
 
-    //$this->plugins_dir[] = $root . '/include/smarty';
+    $this->plugins_dir[] = SMARTY_DIR . "/plugins";
     $filepaths = file_find_paths("include/smarty/plugins");
     foreach ($filepaths as $fp) {
       $this->plugins_dir[] = $fp;
     }
-
 
     //$this->load_filter("output", "varreplace");
     if (class_exists("SmartyValidate")) {
@@ -93,54 +102,70 @@ class TemplateManager extends Smarty {
     // each other's toes.  Also implements transient variables (ie, variables which
     // are stored only for this template - not its children)
 
-    // First we back up the old tpl variables, then
-    // we parse our way through the object heirarchy to create our new temporary variable
-    // array.
-  
-    $oldvars =& $this->_tpl_vars;
+    // Much of this has been obsoleted by Smarty 3, but we keep this wrapper for backwards compatibility
 
-    $tmpobj =& $object;
-    $newvars = $this->_tpl_vars; 
-    if (!empty($vars)) {
-      // FIXME - originally this used references, but that didn't work well for nonpersistant variables.  Does this work ok in all cases?
-      foreach ($vars as $k=>$v) {
-        $newvars[$k] = $v;
-      }
-    }
-    
-    /*
-    if (!empty($tmpobj)) {
-      do {
-        foreach ($tmpobj as $k=>$v) {
-          if (!isset($newvars[$k]) && $k[0] != "_") { // && !in_array($k, array("smarty", "parent", "modules"))) {
-            $newvars["this"][$k] =& $tmpobj->{$k};
+    if (method_exists($this, "createTemplate")) {
+      if ($this->HasTemplate($resource_name)) {
+        $parenttpl = $this->currenttpl;
+        $tplobj = $this->createTemplate($resource_name, ($parentpl !== null ? $parentpl : $this));
+        $this->currenttpl = $tplobj;
+        if (!empty($vars)) {
+          foreach ($vars as $k=>$v) {
+            $tplobj->assign($k, $v);
           }
         }
-      } while ($tmpobj =& $tmpobj->parent);
-    }
-    */
-
-    $newvars["this"] =& $object;
-    
-    // DEBUG: print tpl_vars
-    /*
-    print "<pre>";
-    print_r($newvars);
-    print "</pre>";
-    */
-
-    // Move the new variable array into place...
-    $this->_tpl_vars =& $newvars;
-
-    // Parse the template...
-    if ($this->HasTemplate($resource_name)) {
-      $return = $this->fetch($resource_name);
+        $return = $tplobj->fetch();
+        $this->currenttpl = $parenttpl;
+      } else {
+        $return = "[Could not find template '$resource_name']";
+      }
     } else {
-      $return = "[Could not find template '$resource_name']";
-    }
+      // First we back up the old tpl variables, then we merge in whatever variables were passed
+      $oldvars =& $this->_tpl_vars;
 
-    // And put everything back where we found it.
-    $this->_tpl_vars =& $oldvars;
+      $tmpobj =& $object;
+      $newvars = $this->_tpl_vars; 
+      if (!empty($vars)) {
+        // FIXME - originally this used references, but that didn't work well for nonpersistant variables.  Does this work ok in all cases?
+        foreach ($vars as $k=>$v) {
+          $newvars[$k] = $v;
+        }
+      }
+      
+      /*
+      if (!empty($tmpobj)) {
+        do {
+          foreach ($tmpobj as $k=>$v) {
+            if (!isset($newvars[$k]) && $k[0] != "_") { // && !in_array($k, array("smarty", "parent", "modules"))) {
+              $newvars["this"][$k] =& $tmpobj->{$k};
+            }
+          }
+        } while ($tmpobj =& $tmpobj->parent);
+      }
+      */
+
+      $newvars["this"] =& $object;
+      
+      // DEBUG: print tpl_vars
+      /*
+      print "<pre>";
+      print_r($newvars);
+      print "</pre>";
+      */
+
+      // Move the new variable array into place...
+      $this->_tpl_vars =& $newvars;
+
+      // Parse the template...
+      if ($this->HasTemplate($resource_name)) {
+        $return = $this->fetch($resource_name);
+      } else {
+        $return = "[Could not find template '$resource_name']";
+      }
+
+      // And put everything back where we found it.
+      $this->_tpl_vars =& $oldvars;
+    }
 
     return $return;
   }
@@ -295,6 +320,20 @@ class TemplateManager extends Smarty {
       $this->_is_compiled_cache[$resource_name] = Smarty::_is_compiled($resource_name, $compile_path);
     }
     return $this->_is_compiled_cache[$resource_name];
+  }
+  public function assign_by_ref($tpl_var, &$value, $nocache = false, $scope = SMARTY_LOCAL_SCOPE) {
+    if (method_exists($this, "assignByRef")) {
+      return $this->assignByRef($tpl_var, $value, $nocache, $scope);
+    } else {
+      return parent::assign_by_ref($tplvar, $value);
+    }
+  }
+  public function template_exists($resource_name) {
+    if (method_exists($this, "templateExists")) {
+      return $this->templateExists($resource_name);
+    } else {
+      return $this->template_exists($resource_name);
+    }
   }
 }
 

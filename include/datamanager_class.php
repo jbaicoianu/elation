@@ -140,6 +140,8 @@ class DataManager {
     $source = DataManager::PickSource($queryid);
     if (empty($source)) {
       Logger::Error("Unable to determine source to serve request: %s", $queryid->name);
+      Profiler::StopTimer("DataManager::Query()");
+      Profiler::StopTimer("DataManager::Query($id)");
       return $result;
     }
 

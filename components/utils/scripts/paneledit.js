@@ -456,73 +456,6 @@ function TFPanelSlot(args) {
   this.init(args);
 }
 /*
-function TFComponent(args) {
-  this.init = function(args) {
-    //console.log("INIT component", args);
-    this.name = args.component || args.name;
-    this.container = args.container;
-    this.componentargs = {};
-    this.events = {};
-    if (args.args) {
-      for (var i = 0; i < args.args.length; i++) {
-        this.componentargs[args.args[i]] = ''; // FIXME - should probably be a fancy type-aware object
-      }
-    }
-
-    if (args.componentargs) {
-      for (var k in args.componentargs) {
-        this.componentargs[k] = args.componentargs[k];
-      }
-    }
-    //this.content = args.content || false;
-  }
-  this.set = function(sets, value) {
-    if (typeof sets == 'string' && value) {
-      sets = {sets: value};
-    } 
-    var changes = 0;
-    for (var k in sets) {
-      if (this.componentargs[k] != sets[k]) {
-        this.componentargs[k] = sets[k];
-        changes++;
-      }
-    }
-    //this.getContent(function(data) { alert(data); }, true);
-    if (changes > 0) {
-      elation.events.fire({type:'update', origin: this, data: this, element: this.container});
-    }
-  }
-  this.setevents = function(events) {
-    for (var k in events) {
-      this.events[k] = events[k];
-    }
-    //elation.events.fire({type:'update', origin: this, data: this, element: this.container});
-  }
-  this.getContent = function(contentcallback, force) {
-    var ret;
-    if (force || !this.content) {
-      //console.log('getcontent:', this);
-      (function(self, contentcallback) {
-        ajaxlib.Queue({
-          method: "GET",
-          url: "/~bai/" + self.name.replace(".","/") + ".snip",
-          args: elation.utils.encodeURLParams(self.componentargs),
-          callback: function(data) { self.content = data; if (typeof contentcallback == 'function') { contentcallback(data); } }
-        });
-      })(this, contentcallback);
-      ret = '<img src="/images/misc/plugin-icon-180x120.png"/>';
-    } else {
-      ret = this.content;
-      if (typeof contentcallback == 'function')
-        contentcallback(this.content);
-    }
-
-    return ret;
-  }
-  this.init(args);
-}
-*/
-/*
 function TFEventDatatransfer() {
   this.data = {};
   this.setData = function(type, content) {
@@ -536,50 +469,6 @@ function TFEventDatatransfer() {
   }
 }
 */
-/*
-function TFUtilsButton(args, container) {
-  this.init = function(args, container) {
-    this.tag = args.tag || "BUTTON";
-    this.classname = args.classname || "";
-    this.label = args.label || "Submit";
-    this.draggable = args.draggable || false;
-    this.events = args.events || {}
-    this.create();
-
-    if (typeof(container) != 'undefined')
-      this.addTo(container);
-  }
-  this.create = function() {
-    this.element = document.createElement(this.tag);
-    this.element.innerHTML = this.label;
-    var classname = '';
-    if (this.draggable) {
-      classname = 'tf_utils_button_draggable';
-      this.element.draggable = true;
-    }
-    classname += this.classname;
-    this.element.className = classname;
-
-    for (var k in this.events) {
-      elation.events.add(this.element, k, this.events[k]);
-    }
-  }
-  this.addTo = function(container) {
-    if (typeof container != 'undefined') {
-      container.appendChild(this.element);
-      return true;
-    }
-    return false;
-  }
-  this.setLabel = function(label) {
-    this.label = label;
-    if (this.element)
-      this.element.innerHTML = label;
-  }
-  this.init(args, container);
-}
-*/
-
 
 elation.component.add("utils.paneledit", {
   init: function(name, container, args) {

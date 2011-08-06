@@ -1,5 +1,9 @@
 <?php
-include_once("../include/elation.php");
+if (file_exists("../include/elation.php")) {
+  require_once("../include/elation.php");
+} else {
+  require_once("elation.php");
+}
 $root = preg_replace("|/htdocs$|", "", getcwd());
 chdir($root);
 elation_readpaths($root);

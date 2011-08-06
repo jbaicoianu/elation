@@ -193,10 +193,12 @@ system_package() {
     [ ! -d "$INSTALLDIR/etc/elation" ] && mkdir -p "$INSTALLDIR/etc/elation" 
     [ ! -d "$INSTALLDIR/usr/bin" ] && mkdir -p "$INSTALLDIR/usr/bin" 
     [ ! -d "$INSTALLDIR/usr/share/elation" ] && mkdir -p "$INSTALLDIR/usr/share/elation" 
+    [ ! -d "$INSTALLDIR/usr/share/php" ] && mkdir -p "$INSTALLDIR/usr/share/php" 
     [ ! -d "$INSTALLDIR/var/lib/elation" ] && mkdir -p "$INSTALLDIR/var/lib/elation" 
 
     cp elation $INSTALLDIR/usr/bin
     cp -r components config htdocs include lib README templates tests util $INSTALLDIR/usr/share/elation
+    cp include/elation.php $INSTALLDIR/usr/share/php
     cp -r config/* $INSTALLDIR/etc/elation
     echo
     # Evaluate shell variables in control file

@@ -1,9 +1,10 @@
 <ifModule mod_rewrite.c>
   RewriteEngine On
 
-  # If you're running out of your ~/public_html directory, uncomment the line below and
-  # fill in the correct username (strange interaction between mod_rewrite and mod_userdir)
-  #RewriteBase /~USERNAME/elation
+  # Handle mod_userdir as cleanly as possible.  This only works for the default
+  # Apache settings - if you've customized them, you may need to modify the regex
+  RewriteCond %{REQUEST_FILENAME} /([^/]+)/public_html/(.*?)/index.php$
+  RewriteBase /~%1/%2
 
   # Pass off immediately to Elation for all URLs under the Elation web root, 
   # unless the file already exists.  The second RewriteCond includes special 

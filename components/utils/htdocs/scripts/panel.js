@@ -126,7 +126,6 @@ elation.extend('panel', new function(options) {
     if (typeof googleAnalytics == 'object') {
       googleAnalytics.mouseovertype = item.name;
       pagetype = googleAnalytics.pagetype;
-      //console.log('tracking', panel.name, item.name, pagetype, panel);
       
       switch (panel.name) {
         case 'tabs':
@@ -134,7 +133,7 @@ elation.extend('panel', new function(options) {
           break;
         
         case "infocard_popup":
-          googleAnalytics.trackEvent(['popup_tab', item.name, pagetype]);
+          googleAnalytics.trackEvent(['popup_tab', item.name]);
           break;
         
         default:

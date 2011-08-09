@@ -1,4 +1,3 @@
-/* Cross-platform event handlers */
 elation.extend("events", {
   events: {},
   
@@ -10,6 +9,7 @@ elation.extend("events", {
       type = elation.utils.arrayget(type, 'type');
     }
 
+    //console.log('FIRING: ' + type, fn, element, data);
     if (!type)
       return false;
     
@@ -17,9 +17,12 @@ elation.extend("events", {
         events = [],
         event;
     
-    if (!list)
+    if (!list) {
+      this.events[type] = [];
       return;
+    }
     
+    // gather all the events associated with this event type
     for (var i=0; i<list.length; i++) {
       event = list[i];
       
@@ -33,8 +36,12 @@ elation.extend("events", {
       }
     }
     
+    // fire each event
     for (var i=0; i<events.length; i++) {
       var event = events[i];
+      
+      if (data)
+        event.data = data;
       
       if (event.origin) {
         if (typeof event.origin == 'function')
@@ -47,29 +54,51 @@ elation.extend("events", {
     return events;
   },
   
-  register: function(element, type, fn) {
+  register: function(element, type, fn, custom_event_name) {
+    if (custom_event_name)
+      custom_event_name = custom_event_name.replace('.','_');
+    
     var event = { 
       type: type, 
       target: element, 
       origin: fn,
+      custom_event: custom_event_name,
       preventDefault: function() { return; },
       cancelBubble: function() { return; },
       stopPropogation: function() { return; }
     };
     
+    if (custom_event_name) {
+      if (!elation.events.events[custom_event_name])
+        elation.events.events[custom_event_name] = [];
+      
+      //console.log('BINDING '+type+' -> '+custom_event_name);
+    }
+    
     if (!elation.events.events[type])
       elation.events.events[type] = [];
     
     elation.events.events[type].push(event);
+    /*
+    if (custom_event_name) {
+      if (!elation.events.events[custom_event_name])
+        elation.events.events[custom_event_name] = [];
+      
+      elation.events.events[custom_event_name].push(event);
+    }
+    */
   },
   
   
 	// syntax: add(element || [ elements ], "type1,type2,type3", function || object);
-	add: function(elements, types, fn) {
-		if (!elements || !types || !fn || typeof types != "string")
+	add: function(elements, types, fn, custom_event_name) {
+    if (custom_event_name)
+      custom_event_name = custom_event_name.replace('.','_');
+    
+		if (!types || !fn || typeof types != "string")
 			return;
 		
-		var	elements = ((!elation.utils.isNull(elements.nodeName) || elements == window) ? [ elements ] : elements),
+		var	elements = (!elements ? [{}] : ((!elation.utils.isNull(elements.nodeName) || elements == window) ? [ elements ] : elements)),
 				types = types.split(',');
 		
 		for (var e=0; e<elements.length; e++) {
@@ -81,7 +110,7 @@ elation.extend("events", {
 			for (var i=0; i<types.length; i++) {
 				var type = types[i];
 				
-        elation.events.register(element, type, fn);
+        elation.events.register(element, type, fn, custom_event_name);
         
 				if ("addEventListener" in element) {
           if (type == 'mousewheel' && elation.browser.type != 'safari')
@@ -89,6 +118,9 @@ elation.extend("events", {
 					
           if (typeof fn == "object" && fn.handleEvent) {
 						element[type+fn] = function(e) { 
+              if (custom_event_name)
+                elation.events.fire({ type: custom_event_name, data: fn });
+              
 							fn.handleEvent(e); 
 						}
 						element.addEventListener(type, element[(type + fn)], false);
@@ -98,7 +130,10 @@ elation.extend("events", {
 				} else if (element.attachEvent) {
 					if (typeof fn == "object" && fn.handleEvent) { 
 						element[type+fn] = function() { 
-							fn.handleEvent(elation.events.fix(window.event)); 
+              if (custom_event_name)
+                elation.events.fire({ type: custom_event_name, data: fn });
+							
+              fn.handleEvent(elation.events.fix(window.event)); 
 						}
 					} else {
 						element["e" + type + fn] = fn;

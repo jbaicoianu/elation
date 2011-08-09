@@ -16,7 +16,7 @@
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
- */
+*/
 
 include_once("lib/logger.php");
 include_once("lib/profiler.php");
@@ -102,7 +102,8 @@ class WebApp extends App {
 
     $req["basedir"] = $webroot;
     $req["baseurl"] = $req["scheme"] . "://" . $req["host"] . $req["basedir"];
-    $req["url"] = $req["baseurl"] . $page;
+    //$req["url"] = $req["baseurl"] . $page;
+    $req["url"] = $req["baseurl"] . $_SERVER["REQUEST_URI"]; // FIXME - This probably breaks non-root-level installs...
 
     if ($req["basedir"] == '/') {
       $req["basedir"] = '';

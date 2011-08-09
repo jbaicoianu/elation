@@ -957,9 +957,9 @@ elation.extend('cookie', {
     }
 	}
 });
-elation.extend("url", function() {
+elation.extend("url", function(hash) {
   this.hash = {};
-  var hash = window.location.hash;
+  var hash = hash || window.location.hash;
   
   if (hash)
     hash = hash.split('#')[1].split('&');
@@ -983,6 +983,9 @@ elation.extend("find", function(selectors, parent, first) {
     this could be made a lot better.
   */
   this.findCore = function(selectors, oparent) {
+    if (!selectors)
+      return;
+    
     var	selectors = selectors.split(','),
         elements = [],
         selector, section, tag, tags, classname, isParent, parent, parents;

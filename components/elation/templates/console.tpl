@@ -6,6 +6,7 @@
   <li class="tf_debug_link"><a class="tf_debug_link" href="#" onclick="return elation.debug.setTab('apc',true,'/elation/apc.snip');">APC</a></li>
   <li class="tf_debug_link"><a class="tf_debug_link" href="#" onclick="return elation.debug.setTab('abtests',true,'/elation/abtests.snip');">ABTests</a></li>
   <li class="tf_debug_link"><a class="tf_debug_link" href="#" onclick="return elation.debug.setTab('performance',true,'/elation/performance.snip');">Performance</a></li>
+  <li class="tf_debug_link"><a class="tf_debug_link" href="#" onclick="return elation.debug.setTab('anal',true);">Analytics</a></li>
   <li class="tf_debug_link"><a class="tf_debug_link" href="#" onclick="return elation.debug.setTab('admin',true,'/admin/.snip');">Admin</a></li>
  </ul>
  <ul id="tf_debug_tabs">
@@ -16,6 +17,7 @@
   <li class="tf_debug_tab" id="tf_debug_tab_apc"></li>
   <li class="tf_debug_tab" id="tf_debug_tab_abtests"></li>
   <li class="tf_debug_tab" id="tf_debug_tab_performance"></li>
+  <li class="tf_debug_tab" id="tf_debug_tab_anal">{component name="debug.gatool"}</li>
   <li class="tf_debug_tab" id="tf_debug_tab_admin">{* component name="elation.session" *}</li>
  </ul>
  <script type="text/javascript">

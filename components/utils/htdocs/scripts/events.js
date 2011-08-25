@@ -1,19 +1,20 @@
 elation.extend("events", {
   events: {},
   
-  fire: function(type, fn, element, data) {
+  fire: function(type, data, target, element, fn) {
     if (typeof type == 'object') {
-      fn = elation.utils.arrayget(type, 'fn') || fn;
-      element = elation.utils.arrayget(type, 'element') || element;
       data = elation.utils.arrayget(type, 'data') || data;
+      target = elation.utils.arrayget(type, 'target') || target;
+      element = elation.utils.arrayget(type, 'element') || element;
+      fn = elation.utils.arrayget(type, 'fn') || fn;
       type = elation.utils.arrayget(type, 'type');
     }
 
-    //console.log('FIRING: ' + type, fn, element, data);
     if (!type)
       return false;
     
     var list = this.events[type],
+        original_events = [],
         events = [],
         event;
     
@@ -23,39 +24,68 @@ elation.extend("events", {
     }
     
     // gather all the events associated with this event type
+    // filter by [element] and/or [fn] if present
     for (var i=0; i<list.length; i++) {
       event = list[i];
       
       if (fn || element) {
         if ((fn && event.origin == fn) || (element && event.target == element)) {
-          events.push(event);
+          original_events.push(event);
         } else {
           continue;
         }
       } else {
-        events.push(event);
+        original_events.push(event);
       }
     }
     
     // fire each event
-    for (var i=0; i<events.length; i++) {
-      var event = events[i];
+    for (var i=0; i<original_events.length; i++) {
+      var eventObj = original_events[i],
       
-      if (data)
-        event.data = data;
+          // break reference to eventObj so original doesn't get overwritten
+          event = {
+            type: type, 
+            target: target ? target : eventObj.target,
+            data: data ? data : null,
+            origin: eventObj.origin,
+            custom_event: eventObj.custom_event,
+            preventDefault: eventObj.preventDefault,
+            cancelBubble: eventObj.cancelBubble,
+            stopPropogation: eventObj.stopPropogation,
+          };
       
-      if (event.origin) {
-        if (typeof event.origin == 'function')
-          event.origin(event);
-        else if (typeof event.origin.handleEvent != 'undefined')
-          event.origin.handleEvent(event);
-      }
+      if (!event.origin)
+        continue;
+      
+      if (typeof event.origin == 'function')
+        event.origin(event);
+      else if (typeof event.origin.handleEvent != 'undefined')
+        event.origin.handleEvent(event);
+      
+      events.push(event);
     }
     
+    // return all event objects that were fired
     return events;
   },
   
-  register: function(element, type, fn, custom_event_name) {
+  register: function(types, fn, element) {
+    var types = types.split(','),
+        type;
+    
+    for (var i=0; i<types.length; i++) {
+      type = types[i];
+      
+      if (!this.events[type])
+        if (fn || element)
+          this._register(element, type, fn);
+        else
+          this.events[type] = [];
+    }
+  },
+  
+  _register: function(element, type, fn, custom_event_name) {
     if (custom_event_name)
       custom_event_name = custom_event_name.replace('.','_');
     
@@ -115,7 +145,7 @@ elation.extend("events", {
 			for (var i=0; i<types.length; i++) {
 				var type = types[i];
 				
-        elation.events.register(element, type, fn, custom_event_name);
+        elation.events._register(element, type, fn, custom_event_name);
         
 				if ("addEventListener" in element) {
           if (type == 'mousewheel' && elation.browser.type != 'safari')

@@ -41,10 +41,18 @@ class ComponentManager extends Component {
     // Load all content URLs from the config, and build a lookup table based on URL
     $cfg = ConfigManager::singleton();
     $contentpages = $cfg->getSetting("page.content");
+    $contenturls = array();
+    $contentredirects = array();
     if (!empty($contentpages)) {
       foreach($contentpages as $pagename=>$pagevalues) {
         $contenturls[$pagevalues["url"]] = $pagevalues;
         $contenturls[$pagevalues["url"]]["name"] = $pagename;
+        if (!empty($pagevalues["redirects"])) {
+          $redirects = explode(",", $pagevalues["redirects"]);
+          foreach ($redirects as $r) {
+            $contentredirects[$r] = $pagevalues["url"];
+          }
+        }
       }
     }
 
@@ -98,6 +106,9 @@ class ComponentManager extends Component {
       $outputtype = any(mime_content_type("./htdocs" . $page), "text/plain");
       $ret["type"] = $ret["responsetype"] = $outputtype;
       $ret["content"] = file_get_contents("./htdocs" . $page);
+    } else if (isset($contentredirects[$page])) {
+      // Redirects stored in page.content.*.redirects
+      http_redirect($contentredirects[$page]);
     } else if (preg_match("|^/((?:[^./]+/?)*)(?:\.(.*))?$|", $page, $m)) {
       // Dispatch directly to a component.  File extension determines output type
       $componentname = str_replace("/", ".", $m[1]);
@@ -360,7 +371,8 @@ class ComponentResponse implements ArrayAccess {
         break;
       case 'json':
       case 'jsonp':
-        $ret = array("application/javascript", $tplmgr->GenerateJavascript($this->data, any($_REQUEST["jsonp"], "elation.ajax.processResponse")));
+        $jsonp = any($_REQUEST["jsonp"], "elation.ajax.processResponse");
+        $ret = array("application/javascript", $jsonp . "(" . json_encode($this->data) . ");");
         break;
       case 'js':
         $ret = array("application/javascript", json_encode($this) . "\n");
@@ -389,6 +401,9 @@ class ComponentResponse implements ArrayAccess {
       case 'popup': // Popup is same as HTML, but we only use the bare-minimum html.page frame
         $vars["content"] = $this;
         $ret = array("text/html", ComponentManager::fetch("html.page", $vars, "inline"));
+        break;
+      case 'snip':
+        $ret = array("text/html", $tplmgr->GetTemplate($this->template, NULL, $this->data));
         break;
       default:
         $ret = array("text/html", $tplmgr->GetTemplate($this->template, NULL, $this->data));

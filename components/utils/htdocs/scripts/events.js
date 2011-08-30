@@ -52,7 +52,7 @@ elation.extend("events", {
             custom_event: eventObj.custom_event,
             preventDefault: eventObj.preventDefault,
             cancelBubble: eventObj.cancelBubble,
-            stopPropogation: eventObj.stopPropogation,
+            stopPropogation: eventObj.stopPropogation
           };
       
       if (!event.origin)

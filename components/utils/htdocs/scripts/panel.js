@@ -53,12 +53,21 @@ elation.extend('panel', new function(options) {
             if (elation.html.hasclass(this.lis[i], 'selected'))
               panel.li = this.lis[i];
           
-          for (var item in panel.items) {
-            var	element = panel.items[item].element;
+          for (var key in panel.items) {
+            var	item = panel.items[key],
+                element = item.element;
             
             if (typeof element == 'object' && element.length > 0) {
               elation.events.add(element[0], 'click', this);
               element[0].onselectstart = function() { return(false); };
+              if (item.args.selected && item.args.contentcomponent && item.args.nopopup) {
+                console.log('EXECUTE', item, panel);
+                (function(self, buh, el) {
+                  setTimeout(function() {
+                    self.load_tab_content(panel, el, buh);
+                  },1);
+                })(this, item, element[0]);
+              }
             }
           }
           
@@ -111,6 +120,7 @@ elation.extend('panel', new function(options) {
 	}
 	
 	this.load_tab_content = function(panel, target, item) {
+    console.log('load',panel, target, item);
 		var	target = (typeof target == 'string')
 					? document.getElementById(target)
 					: target,
@@ -145,7 +155,7 @@ elation.extend('panel', new function(options) {
           break;
       }
     }
-    
+    console.log(1);
 		if (!panel.container) {
 			var href = target.getElementsByTagName('a').length > 0
 						? target.getElementsByTagName('a')[0].href
@@ -191,10 +201,13 @@ elation.extend('panel', new function(options) {
 			return panel.item = item;
 		}
 		
+    console.log(2);
 		this.select_item(item, panel);
+    console.log(3);
 		
 		// cache content of tab for later retrieval
 		if (!panel.cfg.nocache) {
+    console.log(5);
 			if ($TF('img.tf_results_ajax_spinner',panel.container).length == 0) // kludgy - dont save content if content still loading
 				panel.content[panel.item.name] = panel.container.innerHTML;
 			}
@@ -205,10 +218,12 @@ elation.extend('panel', new function(options) {
 			if (panel.content[item.name]) 
 				return panel.container.innerHTML = panel.content[item.name];
 		} else {
+    console.log(6);
 			// tab fade-in effect
-			if (elation.browser && elation.browser.type != 'msie')
-				$TF(panel.container).animate({ opacity: 0 }, 'fast');
+			//if (elation.browser && elation.browser.type != 'msie')
+			//	$TF(panel.container).animate({ opacity: 0 }, 'fast');
 		}
+    console.log(4);
 		if (!panel.container.style.minHeight)
 			panel.container.style.minHeight = panel.container.offsetHeight + 'px';
 		
@@ -217,23 +232,29 @@ elation.extend('panel', new function(options) {
 		
 		// Merge args from both the panel and any specified contentcomponentargs
 		var urlargs = {};
-		
+		    console.log(7);
+
 		if (typeof panel.args == 'object') 
 			for (var k in panel.args) 
 				if (panel.args.hasOwnProperty(k)) 
 					urlargs[k] = panel.args[k];
 		
+        console.log(8);
+
 		if (typeof item.args.contentcomponentargs == 'object') 
 			for (var k in item.args.contentcomponentargs) 
 				if (item.args.contentcomponentargs.hasOwnProperty(k)) 
 					urlargs[k] = item.args.contentcomponentargs[k];
 		
+        console.log(9);
+
 		urlargs['targetid'] = panel.cfg.targetid;
 		urlargs['tab'] = item.args.argname;
 		panel.active_argname = item.args.argname;
 		
 		var parms = elation.utils.encodeURLParams(urlargs);
-		
+		    console.log(10);
+
 		if (panel.jsobj) {
       if (typeof panel.jsobj.setTab == 'function')
         panel.jsobj.setTab(target, item, panel);
@@ -241,9 +262,10 @@ elation.extend('panel', new function(options) {
       if (panel.jsobj.args)
         parms = parms + (parms ? '&' : '') + elation.utils.encodeURLParams(panel.jsobj.args);
 		}
-    
-		var componentname = item.args.contentcomponent || panel.cfg.contentcomponent;
+        console.log(11);
 
+		var componentname = item.args.contentcomponent || panel.cfg.contentcomponent;
+    console.log('fetch', componentname, panel, item);
 		// ajax-fetch tab content
 		ajaxlib.Queue({
 			url: componentname, 
@@ -252,10 +274,10 @@ elation.extend('panel', new function(options) {
 				this, 
 				function(response) {
 					// tab fade-in effect
-					if (elation.browser && elation.browser.type != 'msie')
-						$TF(panel.container).css({ opacity: 0 })
-							.animate({ opacity: 1 }, 'fast')
-							.animate({ opacity: 'auto' }, 0);
+					//if (elation.browser && elation.browser.type != 'msie')
+					//	$TF(panel.container).css({ opacity: 0 })
+					//		.animate({ opacity: 1 }, 'fast')
+					//		.animate({ opacity: 'auto' }, 0);
 					
           if (panel.jsobj && typeof panel.jsobj.success == 'function') {
             panel.jsobj.success(response);

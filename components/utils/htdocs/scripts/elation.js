@@ -120,8 +120,10 @@ elation.extend("component", new function() {
       while (element = result.iterateNext()) {
         elements.push(element);
       }
-    } else {
+    } else if (typeof $TF != 'undefined') {
       var elements = $TF("["+this.namespace+"\\:"+componentattr+"]"); 
+    } else {
+      var elements = [];
     }
     for (var i = 0; i < elements.length; i++) {
       var element = elements[i];

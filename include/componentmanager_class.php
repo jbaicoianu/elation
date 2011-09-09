@@ -372,7 +372,8 @@ class ComponentResponse implements ArrayAccess {
       case 'json':
       case 'jsonp':
         $jsonp = any($_REQUEST["jsonp"], "elation.ajax.processResponse");
-        $ret = array("application/javascript", $jsonp . "(" . json_encode($this->data) . ");");
+        //$ret = array("application/javascript", $jsonp . "(" . json_encode($this->data) . ");");
+        $ret = array("application/javascript", $tplmgr->GenerateJavascript($this->data, $jsonp));
         break;
       case 'js':
         $ret = array("application/javascript", json_encode($this) . "\n");

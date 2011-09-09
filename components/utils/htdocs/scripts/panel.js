@@ -53,12 +53,23 @@ elation.extend('panel', new function(options) {
             if (elation.html.hasclass(this.lis[i], 'selected'))
               panel.li = this.lis[i];
           
-          for (var item in panel.items) {
-            var	element = panel.items[item].element;
+          for (var key in panel.items) {
+            var	item = panel.items[key],
+                element = item.element;
             
             if (typeof element == 'object' && element.length > 0) {
               elation.events.add(element[0], 'click', this);
               element[0].onselectstart = function() { return(false); };
+              
+              /*
+              if (item.args.selected && item.args.contentcomponent && item.args.nopopup) {
+                (function(self, buh, el) {
+                  setTimeout(function() {
+                    self.load_tab_content(panel, el, buh);
+                  },1);
+                })(this, item, element[0]);
+              }
+              */
             }
           }
           
@@ -243,7 +254,7 @@ elation.extend('panel', new function(options) {
 		}
     
 		var componentname = item.args.contentcomponent || panel.cfg.contentcomponent;
-
+    
 		// ajax-fetch tab content
 		ajaxlib.Queue({
 			url: componentname, 

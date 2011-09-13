@@ -94,6 +94,12 @@ class OrmManager {
     else
       return self::singleton()->save($obj);
   }
+  function From($obj) {
+    if ($this instanceOf OrmManager)
+      return $this->outlet->from($obj);
+    else
+      return self::singleton()->from($obj);
+  }
 }
 /**
  * class OrmMaster

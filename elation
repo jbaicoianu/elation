@@ -83,6 +83,7 @@ component_enable() {
   COMPONENTNAME=$1
   COMPONENTDIR=$(component_get_dir $COMPONENTNAME)
   LINKPATH=$(echo $COMPONENTNAME |tr '.' '/')
+  COMPONENTFILENAME=$(echo $COMPONENTNAME |tr '.' '_')
   BASEDIR=$(pwd)
 
   if component_exists $COMPONENTNAME; then
@@ -105,14 +106,14 @@ component_enable() {
         cd $BASEDIR
       fi
     done
-    if [ -e components/$COMPONENTNAME/$COMPONENTNAME.model ]; then
+    if [ -e $COMPONENTDIR/$COMPONENTFILENAME.model ]; then
       [ ! -e config/model ] && mkdir config/model
-      cd config/model && ln -sf $BASEDIR/components/$COMPONENTNAME/$COMPONENTNAME.model . && cd $BASEDIR
+      cd config/model && ln -sf $COMPONENTDIR/$COMPONENTFILENAME.model . && cd $BASEDIR
       echo -n "model "
     fi
-    if [ -e components/$COMPONENTNAME/model ]; then
+    if [ -e $COMPONENTDIR/model ]; then
       [ ! -e include/model ] && mkdir include/model
-      cd include/model && ln -sf $BASEDIR/components/$COMPONENTNAME/model/*_class.php . && cd $BASEDIR
+      cd include/model && ln -sf $COMPONENTDIR/model/*_class.php . && cd $BASEDIR
       echo -n "classes "
     fi
     echo "DONE"

@@ -184,7 +184,7 @@ function array_diff_assoc_recursive($array1, $array2) {
 // trimbo
 function object_to_array($obj, $keymap=NULL) {
   $arr = array();
-  if (get_class($obj) == "SimpleXMLElement") {
+  if ($obj instanceof SimpleXMLElement) {
     foreach ($obj->attributes() as $k=>$v) {
       $arr[$k] = (string) $v;
     }

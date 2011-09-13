@@ -45,7 +45,7 @@ elation.extend("utils.dynamics", function(parent, args) {
       this.vel = this.vel.add(this.accel.multiply(.5*t*t));
       this.moving = true;
     }
-    if (this.rotating) {
+    if (this.rotating && this.parent && this.parent.rotateRel) {
       this.parent.rotateRel(this.angular.multiply(t));
     }
     var collision = [1, false, false]; //this.checkCollisions(t);
@@ -122,6 +122,8 @@ elation.extend("utils.dynamics", function(parent, args) {
   this.addForce = function(name, force) {
     if (force instanceof Vector)
       this.forces[name] = force;
+    if (force instanceof THREE.Vector3)
+      this.forces[name] = $V([force.x, force.y, force.z]);
     else
       this.forces[name] = $V(force);
     this.forces._num++;
@@ -150,6 +152,12 @@ elation.extend("utils.dynamics", function(parent, args) {
     }
   }
 
+  this.setFriction = function(friction) {
+    this.friction = friction;
+    if (friction == 0) {
+      this.removeForce('friction');
+    }
+  }
   this.calculateFriction = function(time) {
     var v = this.vel.modulus();
 
@@ -182,27 +190,45 @@ elation.extend("utils.dynamics", function(parent, args) {
         obj.skiptime -= time;
         continue;
       }
-      if (this.radius && obj.box) { // FIXME - this only works for the outer level walls right now, it should be for general-purpose bounding boxes
+      if (this.radius && obj.box) { // FIXME - this only works in 2d right now...
         var speed = this.vel.multiply(time);
         var blah = speed.modulus();
         var newpos = this.pos.add(speed);
         var fraction;
-        if ((newpos.e(1) < obj.box[0][0] + this.radius) && speed.e(1) < 0 && 
-            (fraction = ((this.pos.e(1) - obj.box[0][0]) - this.radius) / ((this.pos.e(1) - obj.box[0][0]) - (newpos.e(1) - obj.box[0][0]))) < ret[0])
-            //(fraction = (newpos.e(1) - (obj.box[0][0] + this.radius)) / speed.e(1)) < ret[0])
-            ret = [fraction, $V([-1, 0, 0]), obj];
-        if ((newpos.e(1) > obj.box[1][0] - this.radius) && speed.e(1) > 0 &&
-            (fraction = ((this.pos.e(1) - obj.box[1][0]) + this.radius) / ((this.pos.e(1) - obj.box[1][0]) - (newpos.e(1) - obj.box[1][0]))) < ret[0])
-            //(fraction = (newpos.e(1) - (obj.box[1][0] - this.radius)) / speed.e(1)) < ret[0])
-          ret = [fraction, $V([1, 0, 0]), obj];
-        if ((newpos.e(2) < obj.box[0][1] + this.radius) && speed.e(2) < 0 &&
-            (fraction = ((this.pos.e(2) - obj.box[0][1]) - this.radius) / ((this.pos.e(2) - obj.box[0][1]) - (newpos.e(2) - obj.box[0][1]))) < ret[0])
-            //(fraction = (newpos.e(2) - (obj.box[0][1] + this.radius)) / speed.e(2)) < ret[0])
-          ret = [fraction, $V([0, -1, 0]), obj];
-        if ((newpos.e(2) > obj.box[1][1] - this.radius) && speed.e(2) > 0 && 
-            (fraction = ((this.pos.e(2) - obj.box[1][1]) + this.radius) / ((this.pos.e(2) - obj.box[1][1]) - (newpos.e(2) - obj.box[1][1]))) < ret[0])
-            //(fraction = (newpos.e(2) - (obj.box[1][1] - this.radius)) / speed.e(2)) < ret[0])
-          ret = [fraction, $V([0, 1, 0]), obj];
+        if (obj.box.inverted) {
+          if ((newpos.e(1) < obj.box.tl[0] + this.radius) && speed.e(1) < 0 && 
+              (fraction = ((this.pos.e(1) - obj.box.tl[0]) - this.radius) / ((this.pos.e(1) - obj.box.tl[0]) - (newpos.e(1) - obj.box.tl[0]))) < ret[0])
+              //(fraction = (newpos.e(1) - (obj.box.tl[0] + this.radius)) / speed.e(1)) < ret[0])
+              ret = [fraction, $V([-1, 0, 0]), obj]; // moving left, left side - bounce right
+          if ((newpos.e(1) > obj.box.br[0] - this.radius) && speed.e(1) > 0 &&
+              (fraction = ((this.pos.e(1) - obj.box.br[0]) + this.radius) / ((this.pos.e(1) - obj.box.br[0]) - (newpos.e(1) - obj.box.br[0]))) < ret[0])
+              //(fraction = (newpos.e(1) - (obj.box.br[0] - this.radius)) / speed.e(1)) < ret[0])
+            ret = [fraction, $V([1, 0, 0]), obj]; // moving right, right side - bounce left
+          if ((newpos.e(2) < obj.box.tl[1] + this.radius) && speed.e(2) < 0 &&
+              (fraction = ((this.pos.e(2) - obj.box.tl[1]) - this.radius) / ((this.pos.e(2) - obj.box.tl[1]) - (newpos.e(2) - obj.box.tl[1]))) < ret[0])
+              //(fraction = (newpos.e(2) - (obj.box.tl[1] + this.radius)) / speed.e(2)) < ret[0])
+            ret = [fraction, $V([0, -1, 0]), obj]; // moving up, top side - bounce down
+          if ((newpos.e(2) > obj.box.br[1] - this.radius) && speed.e(2) > 0 && 
+              (fraction = ((this.pos.e(2) - obj.box.br[1]) + this.radius) / ((this.pos.e(2) - obj.box.br[1]) - (newpos.e(2) - obj.box.br[1]))) < ret[0])
+              //(fraction = (newpos.e(2) - (obj.box.br[1] - this.radius)) / speed.e(2)) < ret[0])
+            ret = [fraction, $V([0, 1, 0]), obj]; // moving down, bottom side - bounce up
+        } else {
+          // FIXME - this doesn't actually work.  Need to implement full dynamic polygon collision detection...
+          /*
+          if ((newpos.e(1) < obj.box.br[0] + this.radius) && speed.e(1) < 0 && (newpos.e(2) > obj.box.tl[1] && newpos.e(2) < obj.box.br[1]) && 
+              (fraction = ((this.pos.e(1) - obj.box.br[0]) - this.radius) / ((this.pos.e(1) - obj.box.br[0]) - (newpos.e(1) - obj.box.br[0]))) < ret[0])
+              ret = [fraction, $V([1, 0, 0]), obj]; // moving left, right wall - bounce right
+          if ((newpos.e(1) > obj.box.tl[0] - this.radius) && speed.e(1) > 0 &&
+              (fraction = ((this.pos.e(1) - obj.box.tl[0]) + this.radius) / ((this.pos.e(1) - obj.box.tl[0]) - (newpos.e(1) - obj.box.tl[0]))) < ret[0])
+            ret = [fraction, $V([-1, 0, 0]), obj]; // moving right, left wall - bounce left
+          if ((newpos.e(2) < obj.box.br[1] + this.radius) && speed.e(2) < 0 &&
+              (fraction = ((this.pos.e(2) - obj.box.br[1]) - this.radius) / ((this.pos.e(2) - obj.box.br[1]) - (newpos.e(2) - obj.box.br[1]))) < ret[0])
+            ret = [fraction, $V([0, 1, 0]), obj]; // moving up, bottom wall - bounce down
+          if ((newpos.e(2) > obj.box.tl[1] - this.radius) && speed.e(2) > 0 && 
+              (fraction = ((this.pos.e(2) - obj.box.tl[1]) + this.radius) / ((this.pos.e(2) - obj.box.tl[1]) - (newpos.e(2) - obj.box.tl[1]))) < ret[0])
+            ret = [fraction, $V([0, -1, 0]), obj]; // moving down, top wall - bounce up
+          */
+        }
       } else if (this.radius && obj.radius) {
         var xrel = $V(obj.pos).to3D().subtract($V(this.pos).to3D());
         //console.log(obj.pos, this.pos, xrel);

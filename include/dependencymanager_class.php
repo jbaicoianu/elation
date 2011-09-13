@@ -170,9 +170,10 @@ abstract class Dependency {
     return md5($this->type . ":" . $this->content());
   }
   function content() {
-    $order = array("name", "property", "code", "file", "url", "meta.name", "meta.property", "meta.httpequiv");
+    $order = array("url", "name", "property", "code", "file", "url", "meta.name", "meta.property", "meta.httpequiv");
     foreach ($order as $o) {
-      if (($foo = object_get($this, $o)) !== null) {
+      $foo = object_get($this, $o); 
+      if (!empty($foo)) {
         return $foo;
       }
     }

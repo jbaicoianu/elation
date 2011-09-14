@@ -279,6 +279,13 @@ elation.extend("ajax", new function() {
         }
       }
     },
+    'notify': function(response, common) {
+      var content = response['_content'],
+          name = response['name'],
+          infobox;
+      
+      elation.ui.notify.show(name, content);
+    },
     'xhtml': function(response, common) {
       if (response['target'] && response['_content']) {
         var targetel = document.getElementById(response['target']);
@@ -292,16 +299,19 @@ elation.extend("ajax", new function() {
             if (response['target'] == 'tf_search_results_main') {
               response['_content'] += "<div style='position:absolute;background:red;width:100%;height:100%;'></div>"
             }
+            var infobox = elation.ui.infobox.target(targetel);
             
-						targetel.innerHTML = response['_content'];
+            console.log(targetel);
+            if (infobox)
+              infobox.animate_inject(response['_content'], targetel);
+            else
+              targetel.innerHTML = response['_content'];
           }
           
           register_inline_scripts(common, targetel);
 					
           /* repositions infobox after ajax injection, use responsetype ["infobox"] if applicable */
-          if (elation.ui && elation.ui.infobox) {
-            var infobox = elation.ui.infobox.target(targetel);
-            
+          if (elation.ui && elation.ui.infobox && infobox) {
             if (infobox && infobox.args.reposition) {
               common.inlinescripts.push("elation.ui.infobox.position('"+infobox.name+"', true);");
             }

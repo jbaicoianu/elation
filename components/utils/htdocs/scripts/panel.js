@@ -217,8 +217,8 @@ elation.extend('panel', new function(options) {
 				return panel.container.innerHTML = panel.content[item.name];
 		} else {
 			// tab fade-in effect
-			if (elation.browser && elation.browser.type != 'msie')
-				$TF(panel.container).animate({ opacity: 0 }, 'fast');
+			//if (elation.browser && elation.browser.type != 'msie')
+			//	$TF(panel.container).animate({ opacity: 0 }, 'fast');
 		}
 		if (!panel.container.style.minHeight)
 			panel.container.style.minHeight = panel.container.offsetHeight + 'px';
@@ -263,10 +263,10 @@ elation.extend('panel', new function(options) {
 				this, 
 				function(response) {
 					// tab fade-in effect
-					if (elation.browser && elation.browser.type != 'msie')
-						$TF(panel.container).css({ opacity: 0 })
-							.animate({ opacity: 1 }, 'fast')
-							.animate({ opacity: 'auto' }, 0);
+					//if (elation.browser && elation.browser.type != 'msie')
+					//	$TF(panel.container).css({ opacity: 0 })
+					//		.animate({ opacity: 1 }, 'fast')
+					//		.animate({ opacity: 'auto' }, 0);
 					
           if (panel.jsobj && typeof panel.jsobj.success == 'function') {
             panel.jsobj.success(response);

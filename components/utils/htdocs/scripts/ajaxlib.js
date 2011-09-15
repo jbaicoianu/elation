@@ -301,7 +301,6 @@ elation.extend("ajax", new function() {
             }
             var infobox = elation.ui.infobox.target(targetel);
             
-            console.log(targetel);
             if (infobox)
               infobox.animate_inject(response['_content'], targetel);
             else
@@ -311,10 +310,8 @@ elation.extend("ajax", new function() {
           register_inline_scripts(common, targetel);
 					
           /* repositions infobox after ajax injection, use responsetype ["infobox"] if applicable */
-          if (elation.ui && elation.ui.infobox && infobox) {
-            if (infobox && infobox.args.reposition) {
-              common.inlinescripts.push("elation.ui.infobox.position('"+infobox.name+"', true);");
-            }
+          if (elation.ui && elation.ui.infobox && infobox && infobox.args.reposition) {
+            common.inlinescripts.push("elation.ui.infobox.position('"+infobox.name+"', true);");
           }
         }
       }

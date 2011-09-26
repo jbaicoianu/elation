@@ -121,8 +121,10 @@ elation.extend("component", new function() {
       while (element = result.iterateNext()) {
         elements.push(element);
       }
-    } else {
+    } else if (typeof $TF != 'undefined') {
       var elements = $TF("["+this.namespace+"\\:"+componentattr+"]"); 
+    } else {
+      var elements = [];
     }
     for (var i = 0; i < elements.length; i++) {
       var element = elements[i];
@@ -329,6 +331,9 @@ elation.extend('onloads',new function() {
 
   this.add = function(expr) {
     this.onloads.push(expr);
+    
+    // if DOM already loaded, execute immediately
+    if (this.done) this.execute();
   }
   this.init = function() {
     /* for Safari */
@@ -363,7 +368,8 @@ elation.extend('onloads',new function() {
   }
   this.execute = function() {
     // quit if this function has already been called
-    if (elation.onloads.done) return;
+    // ^--- no dont do that or else we cant execute after dom load
+    //if (elation.onloads.done) return;
 
     // flag this function so we don't do the same thing twice
     elation.onloads.done = true;

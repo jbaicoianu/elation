@@ -79,7 +79,7 @@ class Facebook extends BaseFacebook
     unset($_SESSION[$session_var_name]);
   }
 
-  protected function clearAllPersistentData() {
+  public function clearAllPersistentData() {
     foreach (self::$kSupportedKeys as $key) {
       $this->clearPersistentData($key);
     }

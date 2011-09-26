@@ -36,7 +36,7 @@ class App {
     Profiler::StartTimer("WebApp::TimeToDisplay", 1);
 
     // disable notices by default.  This should probably be a config option...
-    error_reporting(error_reporting() ^ E_NOTICE); 
+    //error_reporting(error_reporting() ^ E_NOTICE); 
 
     register_shutdown_function(array($this, 'shutdown'));
     ob_start();
@@ -448,9 +448,10 @@ class App {
                 $ismatch = false;
             }
           }
-          if ($ismatch && !empty($rule->except)) {
+          if ($ismatch && isset($rule->except)) {
             $exceptflag = true;
-            foreach ($rule->except->attributes() as $exceptkey => $exceptstr) {
+            $attr = $rule->except->attributes();
+            foreach ($attr as $exceptkey => $exceptstr) {
               $checkstr = array_get($req, $exceptkey);
               if ($checkstr !== NULL) {
                 $m = NULL;
@@ -466,11 +467,11 @@ class App {
           }
           if ($ismatch && !$isexcept) {
             // Apply nested rules first...
-            if (!empty($rule->rule)) {
+            if ($rule->rule) {
               $req = $this->ApplyRedirects($req, $rule->rule);
             }
             // Then process "set" command
-            if (!empty($rule->set)) {
+            if ($rule->set) {
               Logger::Info("Applying redirect:\n   " . $rule->asXML());
               if (!empty($req["args"]["testredir"]))
                 print "<pre>" . htmlspecialchars($rule->asXML()) . "</pre><hr />";
@@ -492,7 +493,7 @@ class App {
               }
             }
             // And finally process "unset"
-            if (!empty($rule->unset)) {
+            if (isset($rule->unset)) {
               $unset = false;
               foreach ($rule->unset->attributes() as $unsetkey => $unsetval) {
                 if ($unsetkey == "_ALL_" && $unsetval == "ALL") {

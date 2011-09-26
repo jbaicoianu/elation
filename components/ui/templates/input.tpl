@@ -8,5 +8,5 @@
   {if !empty($value)} value="{$value|escape:html}"{/if}
   elation:component="ui.input"
   />
+  {dependency name="ui.input"}
 {/strip}
-

@@ -167,7 +167,7 @@ elation.extend("ajax", new function() {
     return true;
   }
 
-  this.processResponse = function(responses, nobj) {
+  this.processResponse = function(responses, nobj) { 
     // If there's no obj variable, this isn't being called from a closure so use the function argument instead
     if (typeof obj == 'undefined') { 
       obj = nobj;
@@ -396,7 +396,7 @@ elation.extend("ajax", new function() {
     return ret;   
   }
 
-  this._go = function(obj) {
+  this._go = function(obj) { 
     var docroot = this.docroot;
 
     // Need to assign these to local variables so the subfunction can access them

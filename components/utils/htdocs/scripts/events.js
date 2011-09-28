@@ -147,6 +147,9 @@ elation.extend("events", {
 				
         elation.events._register(element, type, fn, custom_event_name);
         
+        if (!element)
+          continue;
+        
 				if ("addEventListener" in element) {
           if (type == 'mousewheel' && elation.browser.type != 'safari')
             type = 'DOMMouseScroll';

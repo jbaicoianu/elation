@@ -964,7 +964,8 @@ class DataBase {
       $stmt = $this->db->prepare($sql);
     } catch (PDOException $e) {
       $err = $this->db->errorInfo();
-      throw new DataBaseException($e->getMessage(), $e->getCode(), $sql, $bind_vars);
+      //throw new DataBaseException($e->getMessage(), $e->getCode(), $sql, $bind_vars);
+      throw $e;
     }
     if (! empty($bind_vars)) {
       $i = 1;
@@ -983,7 +984,8 @@ class DataBase {
       $result = $stmt->execute();
       Logger::Debug("Database::update() - $sql");
     } catch (PDOException $e) {
-      throw new DataBaseException($e->getMessage(), $e->getCode(), $sql, $bind_vars);
+      //throw new DataBaseException($e->getMessage(), $e->getCode(), $sql, $bind_vars);
+      throw $e;
     }
     return $result;
   }
@@ -1014,7 +1016,8 @@ class DataBase {
       try {
         $stmt = $this->db->prepare($sql);
       } catch (PDOException $e) {
-        throw new DataBaseException($e->getMessage(), $e->getCode(), $sql, $bind_vars);
+        //throw new DataBaseException($e->getMessage(), $e->getCode(), $sql, $bind_vars);
+        throw $e;
       }
 
       //ok now bind the parameters
@@ -1056,7 +1059,8 @@ class DataBase {
       $stmt = $this->db->exec($sql);
       Logger::Debug("Database::exec() - $sql");
     } catch (PDOException $e) {
-      throw new DataBaseException($e->getMessage(), $e->getCode(), $sql, $bind_vars=array());
+      //throw new DataBaseException($e->getMessage(), $e->getCode(), $sql, $bind_vars=array());
+      throw $e;
     }
     return $stmt;
   }
@@ -1072,7 +1076,8 @@ class DataBase {
       $stmt = $this->db->query($sql);
       Logger::Debug("Database::query() - $sql");
     } catch (PDOException $e) {
-      throw new DataBaseException($e->getMessage(), $e->getCode(), $sql, $bind_vars=array());
+      //throw new DataBaseException($e->getMessage(), $e->getCode(), $sql, $bind_vars=array());
+      throw $e;
     }
     return $stmt;
   }
@@ -1226,9 +1231,12 @@ class DataBase {
    */
   public function queryBindOneRowCache($sql, $bind_vars=array(), $timeout=60) {
     if (is_null($this->cache_obj)) {
+      /*
       throw new DataBaseException("No Cache object set",
                                   DataBaseException::QUERY_CACHE_MISSING,
                                   $sql, $bind_vars);
+      */
+      throw new Exception("No Cache object set: $sql");
     }
 
     $key = $this->constructCacheKey($sql, $bind_vars);
@@ -1251,9 +1259,12 @@ class DataBase {
    */
   public function queryBindAllRowsCache($sql, $bind_vars=array(), $timeout=60) {
     if (is_null($this->cache_obj)) {
+      /*
       throw new DataBaseException("No Cache object set",
       DataBaseException::QUERY_CACHE_MISSING,
       $sql, $bind_vars);
+      */
+      throw new Exception("No Cache object set: $sql");
     }
 
     $key = $this->construct_cache_key($sql, $bind_vars);
@@ -1287,9 +1298,12 @@ class DataBase {
    */
   public function queryBindOneValueCache($sql, $bind_vars=array(), $timeout=60) {
     if (is_null($this->cache_obj)) {
+      /*
       throw new DataBaseException("No Cache object set",
       DataBaseException::QUERY_CACHE_MISSING,
       $sql, $bind_vars);
+      */
+      throw new Exception("No Cache object set: $sql");
     }
 
     $key = $this->construct_cache_key($sql, $bind_vars);

@@ -2,7 +2,7 @@ var elation = new function(selector, parent, first) {
   if (typeof selector == 'string' && typeof elation.find == 'function')
     elation.find(selector, parent, first);
   
-  this.extend = function(name, func, clobber) {
+  this.extend = function(name, func, clobber, inheritfrom) {
 		var ptr = this,
 				parts = name.split("."),
 				i;
@@ -19,7 +19,11 @@ var elation = new function(selector, parent, first) {
 		} else {
 			console.log("elation: tried to clobber existing component '" + name + "'");
 		}
-  }
+		if (typeof inheritfrom == 'function') {
+			ptr.prototype = new inheritfrom;
+			ptr.prototype.constructor = ptr;
+		}
+	}
 }
 
 if (!window.console) { // if no console, use tfconsole if available
@@ -291,7 +295,8 @@ elation.extend("component", new function() {
     }
     this.fetch = function(type, callback, force) {
       var ret;
-      var urlbase = "/~bai/"; // FIXME - stupid stupid stupid!  move this to the right place asap!
+      //var urlbase = "/~bai/"; // FIXME - stupid stupid stupid!  move this to the right place asap!
+      var urlbase = '/';
       if (force || !this.content) {
         (function(self, callback) {
           console.log(urlbase + self.name.replace(".","/") + "." + type);

@@ -84,6 +84,9 @@ elation.extend("utils.physics.object", function(args) {
   this.iterate = function(t) {
     if (!this.sleeping) {
       var fallasleep = true;
+      if ((this.drag > 0 || this.friction > 0)) {
+        this.calculateFriction();
+      }
       if (this.accel && this.accel.length() > elation.utils.physics.system.lambda) {
         //this.vel = this.vel.add(this.accel.multiply(.5*t*t));
         this.vel.addSelf(this.accel.clone().multiplyScalar(.5*t*t));
@@ -136,6 +139,34 @@ elation.extend("utils.physics.object", function(args) {
       this.accel = false;
     }
     //this.sleeping = !(this.accel && this.accel.length() > 0);
+  }
+  this.setFriction = function(friction) {
+    this.friction = friction;
+    if (friction == 0) {
+      this.removeForce('friction');
+    }
+  }
+  this.calculateFriction = function(time) {
+    var v = this.vel.length();
+
+    if (v > 0.00001) {
+      if (this.drag > 0) {
+        var fd = this.vel.clone().multiplyScalar(-.5*this.drag*v);
+        this.addForce("drag", fd);
+      }
+      if (this.friction > 0) {
+        var fd = this.vel.clone().multiplyScalar(-1 * this.friction * this.mass);
+        this.addForce("friction", fd);
+      }
+    } else {
+      console.log('stopped', this.vel);
+      // Friction always wins!  We've ground to a halt.
+      this.removeForce("friction");
+      this.removeForce("drag");
+      //this.vel.set(0,0,0);
+      //this.accel = false; // Are we 100% sure this is what we want?  What happens if there are still other forces being applied?
+      //this.sleeping = true;
+    }
   }
   this.setVelocity = function(xyz) {
     if (xyz instanceof THREE.Vector3) {

@@ -36,37 +36,44 @@ elation.extend("utils.dynamics", function(parent, args) {
     console.log("colliders:", this.colliders);
   }
 
-  this.iterate = function(t) {
-    if (t > 2) return; // If it's been more than 2 seconds, it's probably because the browser was inactive/paused
-    if ((this.drag > 0 || this.friction > 0) && this.moving) {
-      this.calculateFriction();
-    }
-    if (this.accel) {
-      this.vel = this.vel.add(this.accel.multiply(.5*t*t));
-      this.moving = true;
-    }
-    if (this.rotating && this.parent && this.parent.rotateRel) {
-      this.parent.rotateRel(this.angular.multiply(t));
-    }
-    var collision = [1, false, false]; //this.checkCollisions(t);
-    var maxcollisions = 4;
-    var collisionnum = 0;
-    var foo = t;
-    while (foo > 0 && /*collision[0] !== 1 && collision[0] >= 0 &&*/ collisionnum++ < maxcollisions) {
-      collision = this.checkCollisions(foo);
-      this.move(foo * collision[0], (collision[0] == 1));
-      foo *= (1 - collision[0]);
-      if (collision[1]) {
-        if (collision[2].allowskipcollisions) {
-          collision[2].skiptime = .1;
-        }
-        //console.log(collisionnum, t, foo, collision);
-        this.bounce(collision);
+  this.iterate = function(fullt) {
+    if (fullt > 2) return; // If it's been more than 2 seconds, it's probably because the browser was inactive/paused
+
+    var subdivisions = (fullt < .02 ? 1 : 4);
+    var t = fullt / subdivisions;
+
+    for (var s = 0; s < subdivisions; s++) {
+  
+      if ((this.drag > 0 || this.friction > 0) && this.moving) {
+        this.calculateFriction();
       }
-      //this.setVelocity([0,0,0]);
+      if (this.accel) {
+        this.vel = this.vel.add(this.accel.multiply(.5*t*t));
+        this.moving = true;
+      }
+      if (this.rotating && this.parent && this.parent.rotateRel) {
+        this.parent.rotateRel(this.angular.multiply(t));
+      }
+      var collision = [1, false, false]; //this.checkCollisions(t);
+      var maxcollisions = 4;
+      var collisionnum = 0;
+      var foo = t;
+      while (foo > 0 && /*collision[0] !== 1 && collision[0] >= 0 &&*/ collisionnum++ < maxcollisions) {
+        collision = this.checkCollisions(foo);
+        this.move(foo * collision[0], (collision[0] == 1));
+        foo *= (1 - collision[0]);
+        if (collision[1]) {
+          if (collision[2].allowskipcollisions) {
+            collision[2].skiptime = .1;
+          }
+          //console.log(collisionnum, t, foo, collision);
+          this.bounce(collision);
+        }
+        //this.setVelocity([0,0,0]);
+      }
+      if (collisionnum == maxcollisions) 
+        console.log("MAX COLLISIONS");
     }
-    if (collisionnum == maxcollisions) 
-      console.log("MAX COLLISIONS");
   }
   this.setVelocity = function(xyz) {
     this.vel = $V(xyz).to3D();
@@ -272,6 +279,7 @@ elation.extend("utils.collider", function(parent, options) {
 
   this.init = function() {
     if (this.options.radius) this.radius = this.options.radius;
+    if (this.options.collisionmesh) this.collisionmesh = this.options.collisionmesh;
   }
   this.intersects = function(other) {
 

@@ -1115,7 +1115,7 @@ class DataBase {
         $i = 1;
         foreach($bind_vars as $key => $value) {
           // determine if this is binding by ? or by :name
-          $key = ($key[0] == ":") ? $key : $i;
+          $key = ($key[0] == ":") ? $key : (is_numeric($key) ? $i : ":" . $key);
           $stmt->bindValue($key, $value);
           $i++;
         }

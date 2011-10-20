@@ -16,7 +16,7 @@
     <ul>
     {if !empty($component->events)}
       {foreach from=$component->events item=event}
-        <li>{component name="ui.input" label=$event value=$events.$event inputname="events.`$event`}</li>
+        <li>{component name="ui.input" label=$event value=$events.$event inputname="events.`$event`"}</li>
       {/foreach}
     {/if}
     </ul>

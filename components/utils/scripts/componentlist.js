@@ -5,19 +5,6 @@ elation.component.add('utils.componentlist', {
     this.args = args || {};
     this.components = {};
     this.buttons = {};
-    /*
-    (function(self) {
-      elation.ajax.Get("/~bai/utils/componentlist.js?tree=0", null, {
-        callback: function(data) { 
-          var response = elation.JSON.parse(data);
-          self.addComponents(response.data.components);
-        }
-      });
-    })(this);
-    this.container.id = 'tf_utils_toolkit';
-    this.container.innerHTML = '<h3>Drag components to place in panel &raquo;</h3>';
-    document.body.appendChild(this.container);
-    */
     if (this.args.components) {
       this.addComponents(this.args.components);
       this.drawButtons();

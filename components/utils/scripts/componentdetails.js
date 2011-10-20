@@ -15,7 +15,7 @@ elation.component.add('utils.componentdetails', {
   setComponent: function(component) {
     this.active = component;
     (function(self) {
-      var url = '/~bai/utils/componentdetails.snip?component=' + component.name + '&root=0'; 
+      var url = '/utils/componentdetails.snip?component=' + component.name + '&root=0'; 
       if (component.args) {
         for (var k in component.args) {
           url += '&componentargs[' + k + ']=' + component.args[k];

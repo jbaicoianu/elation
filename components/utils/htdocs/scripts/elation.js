@@ -212,14 +212,14 @@ elation.extend('onloads',new function() {
   }
   this.init = function() {
     /* for Safari */
-    if (/WebKit/i.test(navigator.userAgent)) { // sniff
+    //if (/WebKit/i.test(navigator.userAgent)) { // sniff
       this.timer = setInterval(function() {
         if (/loaded|complete/.test(document.readyState)) {
           elation.onloads.execute(); // call the onload handler
         }
       }, 10);
-      return;
-    }
+    //  return;
+    //}
 
     /* for Mozilla/Opera9 */
     if (document.addEventListener) {
@@ -548,6 +548,36 @@ elation.extend("utils.makeURL", function(obj) {
   return obj.scheme + "://" + obj.host + obj.path + (argstr ? '?' + argstr : '');
 });
 
+elation.extend("utils.merge", function(entities, mergeto) {
+  if (typeof entities == 'object') {
+    if (typeof mergeto == 'undefined') mergeto = {}; // Initialize to same type as entities
+    for (var i in entities) {
+      switch (typeof entities[i]) {
+        case 'object':
+          if (typeof mergeto[i] == 'object') {
+            //console.log('merge object: ', i);
+            elation.utils.merge(entities[i], mergeto[i]);
+          } else {
+            //console.log('assign object: ', i, typeof mergeto[i]);
+            mergeto[i] = entities[i];
+          }
+          break;
+        case 'array':
+          if (typeof mergeto[i] == 'array') {
+            //console.log('concat array: ', i);
+            mergeto[i].concat(entities[i]);
+          } else {
+            //console.log('assign array: ', i, typeof mergeto[i]);
+            mergeto[i] = entities[i];
+          }
+          break;
+        default:
+          mergeto[i] = entities[i];
+      }
+    }
+  }
+  return mergeto;
+});
 
 /* Sets value in a multilevel object element 
 * args:

@@ -897,6 +897,7 @@ function isBot() {
                            "jakarta commons",
                            "python-urllib",
                            "voyager /1.0",
+                           "libwww-perl",
                            "RPT-HTTPClient");
   for ($i=0; $i<count($bot_user_agents); $i++) {
     if ( (stripos($_SERVER['HTTP_USER_AGENT'], $bot_user_agents[$i]) !== false) ) {
@@ -927,4 +928,22 @@ function array_merge_recursive_distinct($arr1, $arr2) {
   }
   return $arr1;
 }
+function hexdump($data, $width=16) {
+  $dump = $line_hex = $line_ascii = "";
+  $hexwidth = $width * 3;
+  for ($i = 0; $i < strlen($data); $i++) {
+    $ord = ord($data[$i]);
+    $line_hex .= sprintf("%02x ", $ord);
+    $printable = ($ord >= 32);
+    $line_ascii .= ($printable ? $data[$i] : '.');
 
+    if ($i % $width == $width - 1) {
+      $dump .= "\n" . $line_hex . "\t" . $line_ascii;
+      $line_hex = $line_ascii = "";
+    }
+  }
+  if ($i % $width != 0) {
+    $dump .= sprintf("\n%-{$hexwidth}s\t%s\n\n", $line_hex, $line_ascii);
+  }
+  print "<pre>" . $dump . "</pre>";
+}

@@ -344,7 +344,6 @@ elation.extend("ajax", new function() {
       }
     },
     'dependency': function(response, common) {
-      //console.log('process dependency', response);
       if (response['deptype'] == 'component' && response['name']) {
         var name = response['name'].split('.', 2); // FIXME - this won't work with "deep" components (eg. thefind.search.filters.color)
         if (name[0] && response['subtypes']) {
@@ -360,7 +359,6 @@ elation.extend("ajax", new function() {
       }
     },
     'debug': function(response, common) {
-      //console.log('process debug', response);
       if (response['_content']) {
         var debugcontainer = document.getElementById('tf_debug_tab_logger');
         if (debugcontainer) {
@@ -506,14 +504,14 @@ elation.extend("ajax", new function() {
       this.Get(url.replace("#", "?"));
     */
     var url = elation.utils.parseURL(document.location.href);
-    console.log(document.location.href, url);
+    //console.log(document.location.href, url);
     url.hash = "";
     var hashparts = hash.split("&");
     for (var i = 0; i < hashparts.length; i++) {
       var argparts = hashparts[i].split("=");
       url.args[argparts[0]] = url.args[argparts[1]];
     }
-    console.log(elation.utils.makeURL(url));
+    //console.log(elation.utils.makeURL(url));
 
   }
 

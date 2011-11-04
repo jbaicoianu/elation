@@ -129,7 +129,11 @@ elation.extend("events", {
 		if (!types || !fn || typeof types != "string")
 			return;
 		
-		var	elements = (!elements ? [{}] : ((!elation.utils.isNull(elements.nodeName) || elements == window) ? [ elements ] : elements)),
+    var elements = elation.utils.isNull(elements) 
+          ? [{}] 
+          : typeof elements.length != 'number' 
+            ? [ elements ] 
+            : elements,
 				types = types.split(',');
 		
 		if (typeof fn == "string") {

@@ -550,7 +550,7 @@ elation.extend("utils.makeURL", function(obj) {
 
 elation.extend("utils.merge", function(entities, mergeto) {
   if (typeof entities == 'object') {
-    if (typeof mergeto == 'undefined') mergeto = {}; // Initialize to same type as entities
+    if (typeof mergeto == 'undefined' || mergeto === null) mergeto = {}; // Initialize to same type as entities
     for (var i in entities) {
       switch (typeof entities[i]) {
         case 'object':

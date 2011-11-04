@@ -897,7 +897,6 @@ function isBot() {
                            "jakarta commons",
                            "python-urllib",
                            "voyager /1.0",
-                           "libwww-perl",
                            "RPT-HTTPClient");
   for ($i=0; $i<count($bot_user_agents); $i++) {
     if ( (stripos($_SERVER['HTTP_USER_AGENT'], $bot_user_agents[$i]) !== false) ) {

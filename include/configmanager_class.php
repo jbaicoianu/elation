@@ -921,10 +921,10 @@ class ConfigManager extends Base {
    }
 
   public static function get($key) {
-    return self::$instance->GetSetting($key);
+    return self::singleton()->GetSetting($key);
   }
   public static function merge(&$newcfg) {
-    return self::$instance->ConfigMerge(self::$instance->current, $newcfg);
+    return self::singleton()->ConfigMerge(self::$instance->current, $newcfg);
   }
 }
 

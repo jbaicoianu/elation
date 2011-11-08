@@ -120,18 +120,17 @@ elation.extend("events", {
     */
   },
   
-  
 	// syntax: add(element || [ elements ], "type1,type2,type3", function || object);
 	add: function(elements, types, fn, custom_event_name) {
     if (custom_event_name)
       custom_event_name = custom_event_name.replace('.','_');
-    
+
 		if (!types || !fn || typeof types != "string")
 			return;
-		
+
     var elements = elation.utils.isNull(elements) 
           ? [{}] 
-          : typeof elements.length != 'number' 
+          : typeof elements.length != 'number' || elements == window
             ? [ elements ] 
             : elements,
 				types = types.split(',');

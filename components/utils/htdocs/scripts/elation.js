@@ -3,51 +3,54 @@ var elation = new function(selector, parent, first) {
     elation.find(selector, parent, first);
   
   this.extend = function(name, func, clobber) {
-		var ptr = this,
-				parts = name.split("."),
-				i;
-		
-		for (i = 0; i < parts.length-1; i++) {
-			if (typeof ptr[parts[i]] == 'undefined')
-				ptr[parts[i]] = {};
-			
-			ptr = ptr[parts[i]];
-		}
-		
-		if (typeof ptr[parts[i]] == 'undefined' || clobber == true) {
-			ptr[parts[i]] = func;
-		} else {
-			console.log("elation: tried to clobber existing component '" + name + "'");
-		}
+    var ptr = this,
+        parts = name.split("."),
+        i;
+    
+    for (i = 0; i < parts.length-1; i++) {
+      if (typeof ptr[parts[i]] == 'undefined')
+        ptr[parts[i]] = {};
+      
+      ptr = ptr[parts[i]];
+    }
+    
+    if (typeof ptr[parts[i]] == 'undefined' || clobber == true) {
+      ptr[parts[i]] = func;
+    } else {
+      console.log("elation: tried to clobber existing component '" + name + "'");
+    }
   }
 }
 
 if (!window.console) { // if no console, use tfconsole if available
-	window.console = {};
-	
-	window.console.log = function(txt) {
- 		if (elation.utils.logging) 
+  window.console = {};
+  
+  window.console.log = function(txt) {
+     if (elation.utils.logging) 
       elation.utils.logging(txt);
-	}
+  }
 } else { // output to both firebug console and tfconsole
-	window.console.log = function(txt) {
-		if (elation.utils.logging) 
-			elation.utils.logging(txt);
-		
-		if (console && typeof console.debug != 'undefined') 
-			console.debug.apply(this, arguments);
-	}
+  /*
+  // DISABLED - not really used anymore, and gets in the way of debugging
+  window.console.log = function(txt) {
+    if (elation.utils.logging) 
+      elation.utils.logging(txt);
+    
+    if (console && typeof console.debug != 'undefined') 
+      console.debug.apply(this, arguments);
+  }
+  */
 }
 
 elation.extend('utils.logging', function(txt) {
-	if (elation.debug && typeof elation.debug.log != 'undefined') 
-		elation.debug.log(txt);
-	else {
-		if (!elation.utils.logging.prelog)
-			elation.utils.logging.prelog = [];
-		
-		elation.utils.logging.prelog.push(txt);
-	}
+  if (elation.debug && typeof elation.debug.log != 'undefined') 
+    elation.debug.log(txt);
+  else {
+    if (!elation.utils.logging.prelog)
+      elation.utils.logging.prelog = [];
+    
+    elation.utils.logging.prelog.push(txt);
+  }
 });
 
 elation.extend("checkhash", new function() {
@@ -140,8 +143,9 @@ elation.extend("component", new function() {
             for (j = 0; j < element.children.length; j++) {
               // FIXME - IE seems to drop the namespace, might be related to above FIXME, so look for a child named "args"
               if (element.children[j].nodeName == argsattr.toUpperCase() || element.children[j].nodeName == "args") { 
+                var argtext = element.children[j].textContent || element.children[j].innerText;
                 try {
-                  componentargs = JSON.parse(element.children[j].innerHTML);
+                  componentargs = JSON.parse(argtext);
                   element.removeChild(element.children[j]);
                   if (componentargs == null) { // empty JSON could cause errors later, so reset null to an empty hash
                     componentargs = {};
@@ -149,7 +153,7 @@ elation.extend("component", new function() {
                   break; // only one args array per block, bail out when we find one so we don't waste time with the rest
                 } catch(e) {
                   // Probably JSON syntax error
-                  console.log("Could not parse " + argsattr + ": " + element.children[j].innerHTML);
+                  console.log("Could not parse " + argsattr + ": " + argtext);
                 }
               }
             }
@@ -374,7 +378,7 @@ elation.extend("html.toggleClass", elation.html.toggleClass);
 */
 elation.extend('html.create', function(parms, classname, style, additional, append, before) {
   if (typeof parms == 'object')
-    var tag = parms.tag,
+    var tag = parms.tag || 'div',
         classname = parms.classname,
         style = parms.style,
         additional = parms.attributes,
@@ -496,11 +500,27 @@ elation.extend("utils.encodeURLParams", function(obj) {
   if (typeof obj == "string") {
     ret = obj;
   } else {
-    for (var key in obj) {
-      ret += (ret != '' ? '&' : '') + key + '=' + encodeURIComponent(obj[key]); 
+    var flattened = elation.utils.flattenURLParams(obj);
+    for (var key in flattened) {
+      if (typeof flattened[key] != 'undefined') {
+        ret += (ret != '' ? '&' : '') + key + '=' + encodeURIComponent(flattened[key]); 
+      }
     }
   }
   
+  return ret;
+});
+elation.extend("utils.flattenURLParams", function(obj, prefix) {
+  var ret = {};
+  for (var k in obj) {
+    var key = (prefix ? prefix + '[' + k + ']' : k);
+    if (typeof obj[k] == 'object') {
+      var flattened = elation.utils.flattenURLParams(obj[k], key);
+      elation.utils.merge(flattened, ret);
+    } else {
+      ret[key] = obj[k];
+    }
+  }
   return ret;
 });
 elation.extend("utils.parseURL", function(str) {
@@ -552,27 +572,26 @@ elation.extend("utils.merge", function(entities, mergeto) {
   if (typeof entities == 'object') {
     if (typeof mergeto == 'undefined' || mergeto === null) mergeto = {}; // Initialize to same type as entities
     for (var i in entities) {
-      switch (typeof entities[i]) {
-        case 'object':
-          if (typeof mergeto[i] == 'object') {
+      if (entities[i] !== null) {
+        if (entities[i] instanceof Array) {
+          if (mergeto[i] instanceof Array) {
+            //console.log('concat array: ' + i + ' (' + mergeto[i].length + ' + ' + entities[i].length + ')');
+            mergeto[i] = mergeto[i].concat(entities[i]);
+          } else {
+            //console.log('assign array: ', i, typeof mergeto[i]);
+            mergeto[i] = entities[i];
+          }
+        } else if (entities[i] instanceof Object) {
+          if (mergeto[i] instanceof Object) {
             //console.log('merge object: ', i);
             elation.utils.merge(entities[i], mergeto[i]);
           } else {
             //console.log('assign object: ', i, typeof mergeto[i]);
             mergeto[i] = entities[i];
           }
-          break;
-        case 'array':
-          if (typeof mergeto[i] == 'array') {
-            //console.log('concat array: ', i);
-            mergeto[i].concat(entities[i]);
-          } else {
-            //console.log('assign array: ', i, typeof mergeto[i]);
-            mergeto[i] = entities[i];
-          }
-          break;
-        default:
+        } else {
           mergeto[i] = entities[i];
+        }
       }
     }
   }

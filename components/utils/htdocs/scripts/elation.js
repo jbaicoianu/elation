@@ -86,11 +86,16 @@ elation.extend("checkhash", new function() {
 
 elation.extend("component", new function() {
   this.namespace = "elation";
+  this.attrs = {
+    componenttype: 'component',
+    componentname: 'name',
+    componentargs: 'args',
+    componentinit: 'initialized'
+  };
   this.registry = [];
   this.init = function(root) {
-    var componentattr = "component";
-    var argsattr = this.namespace+':args';
-    // Find all elements which have a namespace:componentattr attribute
+    var argsattr = this.namespace+':'+this.attrs.componentargs;
+    // Find all elements which have a <namespace>:<componenttype> attribute
 
     if (root == undefined) {
       root = document;
@@ -111,8 +116,8 @@ elation.extend("component", new function() {
       
       // FIXME - I've started work to switch this over to use xpath selectors instead of jquery but namespaces make it a pain
       //         Right now this is just selecting all elements, very inefficient...
-      //var selector = '//*['+this.namespace+':'+componentattr+']';
-      //var selector = "//*[@*["+this.namespace+":"+componentattr+"]]";
+      //var selector = '//*['+this.namespace+':'+this.attrs.componenttype+']';
+      //var selector = "//*[@*["+this.namespace+":"+this.attrs.componenttype+"]]";
       //var selector = "//*[@*[namespace-uri()='http://www.ajaxelation.com/xmlns']]";
       //var selector = "//*[local-name()='component']";
       var selector = "//*";
@@ -124,19 +129,17 @@ elation.extend("component", new function() {
         elements.push(element);
       }
     } else if (typeof $TF != 'undefined') {
-      var elements = $TF("["+this.namespace+"\\:"+componentattr+"]"); 
+      var elements = $TF("["+this.namespace+"\\:"+this.attrs.componenttype+"]"); 
     } else {
       var elements = [];
     }
     for (var i = 0; i < elements.length; i++) {
       var element = elements[i];
-      // Parse out the elation:component and elation:name attributes, if set.  Fall back on HTML id if no name specified
-      var componenttype = element.getAttribute(this.namespace+':'+componentattr);
-      var componentname = element.getAttribute(this.namespace+':name') || element.id;
-      if (componenttype) {
-        var componentinitialized = element.getAttribute(this.namespace+':componentinitialized') || false;
+      var componentid = this.parseid(element);
+      if (componentid.type) {
+        var componentinitialized = element.getAttribute(this.namespace+':'+this.attrs.componentinit) || false;
         if (!componentinitialized) { // FIXME - this isn't working in IE, so components are getting reinitialized with each AJAX request
-          element.setAttribute(this.namespace+':componentinitialized', 1);
+          element.setAttribute(this.namespace+':'+this.attrs.componentinit, 1);
           var componentargs = {}, j;
           // First look for a JSON-encoded args array in the element's direct children (elation:args)
           if (element.children) {
@@ -165,7 +168,7 @@ elation.extend("component", new function() {
             }
           }
           // Instantiate the new component with all parsed arguments
-          elation.component.create(componentname, componenttype, element, componentargs);
+          elation.component.create(componentid.name, componentid.type, element, componentargs);
         }
       }
     }
@@ -179,6 +182,7 @@ elation.extend("component", new function() {
         name = el.objcount;
       if (!el.obj[name]) {
         el.obj[name] = new el.fn.init(name, container, args);
+        container.setAttribute(elation.component.namespace+':'+elation.component.attrs.componentname, name);
         el.objcount++;
       }
       return el.obj[name];
@@ -201,6 +205,26 @@ elation.extend("component", new function() {
       return componentclass.call(componentclass, name, container, args);
     } 
     console.log("elation: tried to instantiate unknown component type '" + type + "' named '" + name + "'", componentclass);
+  }
+  this.parseid = function(element) {
+    // Parse out the elation:component and elation:name attributes, if set.  Fall back on HTML id if no name specified
+    var componentid = {
+      type: element.getAttribute(this.namespace+':'+this.attrs.componenttype),
+      name: element.getAttribute(this.namespace+':'+this.attrs.componentname) || element.id
+    }
+    return componentid;
+  }
+  this.fetch = function(type, name) {
+    if (type instanceof HTMLElement) {
+      var id = this.parseid(type);
+    } else {
+      var id = {type: type, name: name};
+    }
+    if (id.type && id.name) {
+      var componentclass = elation.utils.arrayget(elation, id.type);
+      return componentclass(id.name);
+    }
+
   }
 });
 

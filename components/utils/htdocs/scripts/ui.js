@@ -266,6 +266,85 @@ elation.extend("ui.panel.slideout", function(parentdiv, args) {
   this.init(parentdiv, args);
 });
 
+elation.extend("ui.buttonize", function(parent, args) {
+  this.parent = parent;
+  this.classname = elation.utils.arrayget(args, 'classname') ? args.classname : 'tf_ui_button';
+  this.nudge = elation.utils.arrayget(args, 'nudge') ? args.nudge : 'both';
+  this.click_callback = elation.utils.arrayget(args, 'click_callback') ? args.click_callback : false;
+  
+  this.init = function() {
+    switch (this.nudge) {
+      case 'both': this.nudge_right = true; this.nudge_down = true; break;
+      case 'down': this.nudge_right = false; this.nudge_down = true; break;
+      case 'right': this.nudge_right = true; this.nudge_down = false; break;
+      case 'none': this.nudge_right = false; this.nudge_down = false; break;
+    }
+    
+    elation.events.add(this.parent, 'mousedown,mouseover,mouseout,selectstart', this);
+    
+    if (this.click_callback)
+      elation.events.add(this.parent, 'click', this);
+  }
+  this.nudger = function(target, nudge) {
+    var css = {};
+    
+    if (this.nudge_down)
+      css.marginTop = parseInt($TF(target).css("marginTop")) + (nudge?1:-1) +'px';
+    
+    if (this.nudge_right)
+      css.marginLeft = parseInt($TF(target).css("marginLeft")) + (nudge?1:-1) +'px';
+    
+    $TF(target).css(css);
+  }
+	this.handleEvent = function(event) {
+		var event = event || window.event,
+				target = elation.events.getTarget(event),
+				type = event.type == 'DOMMouseScroll' ? 'mousewheel' : event.type;
+		
+		if (typeof this[type] == 'function')
+			return this[type](event, target);
+	}
+  this.click = function(event, target) {
+    if (this.click_callback)
+      this.click_callback(event, target);
+  }
+	this.mousedown = function(event, target) {
+    elation.events.add(document, "mouseup", this);
+    var target = this.parent;
+    
+    if (this.nudge)
+      this.nudger(target, true);
+    
+    elation.html.addclass(target, this.classname+'_down');
+		event.preventDefault();
+	}
+	this.mouseup = function(event, target) {
+    elation.events.remove(document, "mouseup", this);
+    var target = this.parent;
+    
+    if (this.nudge)
+      this.nudger(target, false);
+    
+    elation.html.removeclass(target, this.classname+'_down');
+	}
+	this.mouseover = function(event, target) {
+		target = this.parent;
+		
+		elation.html.addclass(target, this.classname+'_hover');
+	}
+	this.mouseout = function(event, target) {
+		target = this.parent;
+		
+		elation.html.removeclass(target, this.classname+'_hover');
+	}
+  this.selectstart = function(e) {
+    e.preventDefault();
+    return false;
+  }
+  
+  this.init();
+});
+
 elation.component.add("ui.scrollable", {
   timeinfo: {buckets: [], counter: 0, num: 20},
 

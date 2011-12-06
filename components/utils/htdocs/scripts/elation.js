@@ -357,6 +357,57 @@ elation.extend("html.position", function(obj) {
   return [curleft,curtop];
 });
 
+// html.preloader will fire events and/or callback when all elements have onload'd
+elation.extend('html.preloader', function(elements, args) {
+  this.elements = elements;
+  this.args = args || { timeout: 2000, callback: false };
+  this.index = 0;
+  
+  this.init = function() {
+    for (var i=0; i<this.elements.length; i++) {
+      elation.events.add(this.elements[i], 'load', this);
+    }
+    
+    (function(self) {
+      self.timer = setTimeout(function() {
+        if (!self.items) {
+          console.log('2s timeout reached, forcing load.');
+          self.done();
+        }
+      }, self.args.timeout || 2000);
+    })(this);
+  }
+  
+  this.load = function(event, target) {
+    elation.events.fire('preloader_load', this);
+    
+    if (++this.index == this.elements.length) {
+      this.done();
+    }
+    //console.log('loaded image ',this.numImgsLoaded,'of',this.imgs.length, img.target);
+  }
+  
+  this.done = function() {
+    elation.events.fire('preloader_done', self);
+    
+    if (typeof this.args.callback == 'function')
+      this.args.callback();
+    
+    clearTimeout(this.timer);
+  }
+  
+	this.handleEvent = function(event) {
+		var event = event || window.event,
+				target = elation.events.getTarget(event),
+				type = event.type == 'DOMMouseScroll' ? 'mousewheel' : event.type;
+		
+		if (typeof this[type] == 'function')
+			return this[type](event, target);
+	}
+  
+  this.init();
+});
+
 // methods for css classname information and manipulation
 elation.extend("html.hasclass", function(element, className) {
   if(element && element.className) {

@@ -872,6 +872,7 @@ function isBot() {
    * (last updated on 7/23/07)
    */
   $bot_user_agents = array("im2-",
+                           "KeepAliveClient",
                            "googlebot",
                            "adsbot-google",
                            "mediapartners-google",

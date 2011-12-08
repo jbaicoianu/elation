@@ -68,11 +68,19 @@ class ComponentManager extends Component {
     $ret["pagename"] = $pagecfg["pagename"] = ''; //str_replace("/", "_", substr($page, 1));
     $this->pagecfg["args"] = $args;
 
-    if(!empty($contenturls[$page])) {
+    $page_noextension = preg_replace("/\.[^.]+$/", "", $page);
+
+    if(!empty($contenturls[$page]) || !empty($contenturls[$page_noextension])) {
       // Check for config-mapped URL first
-      $pagecfg["pagename"] = any($contenturls[$page]["pagename"], $contenturls[$page]["name"]);
-      $pagecfg["pagegroup"] = $contenturls[$page]["pagegroup"];
-      $pagevars = $contenturls[$page];
+      $pagevars = any($contenturls["page"], $contenturls[$page_noextension]);
+      $pagecfg["pagename"] = any($pagevars["pagename"], $pagevars["name"]);
+      $pagecfg["pagegroup"] = $pagevars["pagegroup"];
+
+      $ext = substr($page, strlen($page_noextension)+1);
+      if (!empty($ext)) {
+        $outputtype = $ret["type"] = $ret["responsetype"] = $pagecfg["type"] = $ext;
+      }
+
       if(!empty($pagevars["options"])) {
         $cfg->ConfigMerge($cfg->current, $pagevars["options"]);
       }

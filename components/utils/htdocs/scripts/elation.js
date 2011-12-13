@@ -365,30 +365,46 @@ elation.extend('html.preloader', function(elements, args) {
   
   this.init = function() {
     for (var i=0; i<this.elements.length; i++) {
-      elation.events.add(this.elements[i], 'load', this);
+      if (this.elements[i].complete)
+        this.index++;
+      else
+        elation.events.add(this.elements[i], 'load', this);
     }
     
-    (function(self) {
-      self.timer = setTimeout(function() {
-        if (!self.items) {
-          console.log('2s timeout reached, forcing load.');
-          self.done();
-        }
-      }, self.args.timeout || 2000);
-    })(this);
+    if (!this.validate())
+      (function(self) {
+        self.timer = setTimeout(function() {
+          if (!self.items) {
+            console.log('2s timeout reached, forcing load.');
+            self.done();
+          }
+        }, self.args.timeout || 2000);
+      })(this);
   }
   
   this.load = function(event, target) {
     elation.events.fire('preloader_load', this);
     
-    if (++this.index == this.elements.length) {
+    this.validate(true);
+  }
+  
+  this.validate = function(increment) {
+    if (increment) this.index++;
+    
+    //console.log('validate', increment, this.index, this.elements.length);
+    if (this.index == this.elements.length) {
       this.done();
+      
+      return true;
     }
-    //console.log('loaded image ',this.numImgsLoaded,'of',this.imgs.length, img.target);
+    
+    return false;
   }
   
   this.done = function() {
-    elation.events.fire('preloader_done', self);
+    (function(self) {
+      setTimeout(function() { elation.events.fire('preloader_done', self); }, 1);
+    })(this);
     
     if (typeof this.args.callback == 'function')
       this.args.callback();

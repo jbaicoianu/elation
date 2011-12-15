@@ -182,6 +182,7 @@ elation.extend("component", new function() {
         name = el.objcount;
       if (!el.obj[name]) {
         el.obj[name] = new el.fn.init(name, container, args);
+        console.log(name);
         container.setAttribute(elation.component.namespace+':'+elation.component.attrs.componentname, name);
         el.objcount++;
       }
@@ -215,7 +216,7 @@ elation.extend("component", new function() {
     return componentid;
   }
   this.fetch = function(type, name) {
-    if (type instanceof HTMLElement) {
+    if (!elation.utils.isNull(type) && elation.utils.iselement(type)) {
       var id = this.parseid(type);
     } else {
       var id = {type: type, name: name};
@@ -244,6 +245,9 @@ elation.extend('onloads',new function() {
       this.timer = setInterval(function() {
         if (/loaded|complete/.test(document.readyState)) {
           elation.onloads.execute(); // call the onload handler
+          
+          
+          console.log('sdsd');
         }
       }, 10);
     //  return;

@@ -1,5 +1,4 @@
   [[debug]]
-gleAnalytics
   {dependency type="component" name="html.footer"}
   {dependency type="component" name="utils.panel"}
 

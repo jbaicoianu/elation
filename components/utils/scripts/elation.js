@@ -26,6 +26,7 @@ var elation = new function(selector, parent, first) {
 	}
 }
 
+/*
 if (!window.console) { // if no console, use tfconsole if available
 	window.console = {};
 	
@@ -42,6 +43,7 @@ if (!window.console) { // if no console, use tfconsole if available
 			console.debug.apply(this, arguments);
 	}
 }
+*/
 
 elation.extend('utils.logging', function(txt) {
 	if (elation.debug && typeof elation.debug.log != 'undefined') 
@@ -342,14 +344,14 @@ elation.extend('onloads',new function() {
   }
   this.init = function() {
     /* for Safari */
-    if (/WebKit/i.test(navigator.userAgent)) { // sniff
+    //if (/WebKit/i.test(navigator.userAgent)) { // sniff
       this.timer = setInterval(function() {
         if (/loaded|complete/.test(document.readyState)) {
           elation.onloads.execute(); // call the onload handler
         }
       }, 10);
-      return;
-    }
+    //  return;
+    //}
 
     /* for Mozilla/Opera9 */
     if (document.addEventListener) {
@@ -504,21 +506,28 @@ elation.extend("html.toggleClass", elation.html.toggleClass);
 */
 elation.extend('html.create', function(parms, classname, style, additional, append, before) {
   if (typeof parms == 'object')
-    var tag = parms.tag,
+    var tag = parms.tag || 'div',
         classname = parms.classname,
+        id = parms.id,
         style = parms.style,
+        content = parms.content,
         additional = parms.attributes,
         append = parms.append,
         before = parms.before;
   
   var element = document.createElement(tag || parms);
   
+  if (id)
+    element.id = id;
   if (classname)
     element.className = classname;
   
   if (style)
     for (var property in style)
       element.style[property] = style[property];
+
+  if (content)
+    element.innerHTML = content;
   
   if (additional)
     for (var property in additional)
@@ -1996,4 +2005,57 @@ elation.extend('timing', new function() {
 		else
 			console.log(debug);
   }
+});
+elation.extend("utils.parseXML", function(imgxml, leaf) {
+  var node, root, parent;
+  if (imgxml.nodeName) {
+    node = imgxml;
+  } else {
+    if (window.DOMParser) {
+      var parser = new DOMParser();
+      node = parser.parseFromString(imgxml,"text/xml").firstChild;
+    } else {
+      node = new ActiveXObject("Microsoft.XMLDOM");
+      node.async = "false";
+      node.loadXML(imgxml).firstChild; 
+    }
+  }
+  root = {};
+  if (!leaf) {
+    root[node.tagName] = {};
+    parent = root[node.tagName];
+    //node = parent[node.tagName];
+  } else {
+    parent = root;
+  }
+  if (node.attributes) {
+    for (var i = 0; i < node.attributes.length; i++) {
+      var name = node.attributes[i].nodeName;
+      var value = node.attributes[i].nodeValue;
+      parent[name] = value;
+    }
+  }
+  if (node.childNodes) {
+    for (var j = 0; j < node.childNodes.length; j++) {
+      var child = node.childNodes[j];
+      if (node.getElementsByTagName(child.tagName).length > 1) {
+        if (!parent._children) parent._children = {};
+        if (!parent._children[child.nodeName]) {
+          parent._children[child.nodeName] = [];
+        }
+        parent._children[child.nodeName].push(elation.utils.parseXML(child, true));
+      } else if (child.nodeName) {
+        if (child.nodeName == "#text" || child.nodeName == "#cdata-section") {
+          // this gets confused if you have multiple text/cdata nodes...
+          if (!child.nodeValue.match(/^[\s\n]*$/m)) {
+            parent._content = child.nodeValue;
+          }
+        } else {
+          if (!parent._children) parent._children = {};
+          parent._children[child.nodeName] = elation.utils.parseXML(child, true);
+        }
+      }
+    }
+  }
+  return root;
 });

@@ -167,11 +167,16 @@ elation.extend("ajax", new function() {
     return true;
   }
 
-  this.processResponse = function(responses, nobj) {
+  this.processResponse = function(data, nobj) {
     // If there's no obj variable, this isn't being called from a closure so use the function argument instead
     if (typeof obj == 'undefined') { 
       obj = nobj;
     }
+    // If this isn't an ajaxlib response, just return the raw data
+    if (!data.responses) {
+      return data;
+    } 
+    var responses = data.responses;
     if (
       (typeof elation.search != 'undefined' && typeof elation.search.backbutton != 'undefined') && 
       (typeof search != 'undefined' && search.urlhash) && 
@@ -379,8 +384,10 @@ elation.extend("ajax", new function() {
 
 
   this.translateXML = function(dom) { // Convert an XML object into a simple object
-    var ret = [];
+    var ret = {};
     if (dom && dom.childNodes) {
+      var tagname = dom.tagName;
+      ret[tagname] = [];
       for (var i = 0; i < dom.childNodes.length; i++) {
         var res = dom.childNodes.item(i);
         if (res.nodeType == 1) { // Right now we only understand ELEMENT_NODE types
@@ -389,7 +396,7 @@ elation.extend("ajax", new function() {
             newres[res.attributes[j].nodeName] = res.attributes[j].nodeValue;
           }
           newres['_content'] = (res.firstChild ? res.firstChild.nodeValue : false);
-          ret.push(newres);
+          ret[tagname].push(newres);
         }
       }
     }
@@ -460,7 +467,7 @@ elation.extend("ajax", new function() {
         xmlhttp.send(obj.args);
       } else if (obj.method == "GET") {
         xmlhttp.open(obj.method, obj.url + "?" + obj.args, true);
-        xmlhttp.setRequestHeader("X-Ajax", "1");
+        //xmlhttp.setRequestHeader("X-Ajax", "1");
         xmlhttp.onreadystatechange = readystatechange;
         xmlhttp.send(null);
       } else if (obj.method == "SCRIPT") {

@@ -470,6 +470,7 @@ elation.extend("html.toggleClass", elation.html.toggleClass);
 elation.extend('html.create', function(parms, classname, style, additional, append, before) {
   if (typeof parms == 'object')
     var tag = parms.tag || 'div',
+        id = parms.id,
         classname = parms.classname,
         style = parms.style,
         additional = parms.attributes,
@@ -478,6 +479,8 @@ elation.extend('html.create', function(parms, classname, style, additional, appe
   
   var element = document.createElement(tag || parms);
   
+  if (id)
+    element.id = id;
   if (classname)
     element.className = classname;
   

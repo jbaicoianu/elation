@@ -72,7 +72,7 @@ class ComponentManager extends Component {
 
     if(!empty($contenturls[$page]) || !empty($contenturls[$page_noextension])) {
       // Check for config-mapped URL first
-      $pagevars = any($contenturls["page"], $contenturls[$page_noextension]);
+      $pagevars = any($contenturls[$page], $contenturls[$page_noextension]);
       $pagecfg["pagename"] = any($pagevars["pagename"], $pagevars["name"]);
       $pagecfg["pagegroup"] = $pagevars["pagegroup"];
 

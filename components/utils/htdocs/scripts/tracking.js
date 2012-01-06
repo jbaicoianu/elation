@@ -20,6 +20,8 @@ elation.extend('googleanalytics', function(args) {
   this.version = args.version;
   this.store_name = args.store_name;
   this.alpha = args.alpha;
+  this.browse_nodename = args.browse_nodename;
+  this.browse_nodetype = args.browse_nodetype;
   this.clickoutsource = 0;
   this.myfindspanel = '';
   this.mouseovertype = '';
@@ -197,6 +199,14 @@ elation.extend('googleanalytics', function(args) {
       case 'merchant-register':
         pageurl += '/upfront/email/';
         break;
+      case 'browse_homepage':
+        pageurl = "/virt_result"
+                + "/glimpse"
+                + "/node"
+                + "/"+this.browse_nodename
+                + "/"+this.browse_nodetype; 
+console.log(this);
+      break;
       default:
         pageurl += '/'+pagetype;
         pageurl += '/'+this.category

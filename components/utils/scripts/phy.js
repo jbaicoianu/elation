@@ -30,30 +30,50 @@ elation.extend("utils.physics.system", new function() {
   }
   this.checkCollision = function(obj, t) {
     if (obj.radius > 0) {
-      var ray = new THREE.Ray(obj.pos, obj.vel.clone().normalize());
+      if (!this.tmpray) {
+        this.tmpray = new THREE.Ray(obj.pos, obj.vel.clone().normalize());
+      } else {
+        this.tmpray.origin = obj.pos;
+        this.tmpray.direction = obj.vel.clone().normalize();
+      }
   //console.log(ray);
       var speed = obj.vel.length();
-      //var c = THREE.Collisions.rayCastNearest(ray);
-      var objects = ray.intersectScene(elation.space.fly(0).scene);
-      c = objects[0];
-      if (c) { // && c.distance <= speed) {
-  //console.log(objects);
-        
-        var vrel = obj.vel.clone();
-        if (c.object && c.object.dynamics) {
-          vrel.subSelf(c.object.dynamics.vel);
+      var objects = this.tmpray.intersectScene(elation.space.fly(0).scene, speed);
+      for (var i = 0; i < objects.length; i++) {
+        var c = objects[i];
+
+        if (c) {
+          if (c.distance <= speed) {
+            //console.log(objects);
+            
+            var vrel = obj.vel.clone();
+            if (c.object && c.object.dynamics) {
+              vrel.subSelf(c.object.dynamics.vel);
+            }
+            var vsep = vrel.dot(c.face.normal);
+            //console.log("vsep", vsep, obj.radius);
+            if (vsep > 0) {
+              //console.log('already moving away');
+            } else if (obj.radius > 0 && (c.distance - obj.radius) <= speed * t) {
+              //console.log('crash at ', c.distance, speed, speed * t, obj.vel, obj.radius);
+              //obj.setVelocity([0,0,0]);
+              var foo = elation.space.admin(0).findThingParent(c.object);
+              if (foo && foo.dynamics) {
+                if (foo.dynamics != obj) {
+                  obj.bounce(c, t);
+                  foo.dynamics.bounce(c, t);
+                }
+              } else {
+                obj.bounce(c, t);
+              }
+              break;
+            } else {
+            }
+          } else if (c.distance > speed) {
+            // Object too far away, bail out
+            break;
+          }
         }
-        var vsep = vrel.dot(c.face.normal);
-        //console.log("vsep", vsep, obj.radius);
-        if (vsep > 0) {
-          //console.log('already moving away');
-        } else if (obj.radius > 0 && (c.distance - obj.radius) <= speed * t) {
-          console.log('crash at ', c.distance, speed, speed * t, obj.vel, obj.radius);
-          //obj.setVelocity([0,0,0]);
-          obj.bounce(c, t);
-        } else {
-        }
-      } else {
       }
     }
     obj.iterate(t);
@@ -64,7 +84,15 @@ elation.extend("utils.physics.system", new function() {
     } else {
       var idx = this.objects.push(new elation.utils.physics.object(obj))-1;
     }
-    console.log("added dynamics object:", this.objects[idx]);
+    //console.log("added dynamics object:", this.objects[idx]);
+  }
+  this.remove = function(obj) {
+    for (var i = 0; i < this.objects.length; i++) {
+      if (this.objects[i] == obj) {
+        this.objects.splice(i, 1);
+        break;
+      }
+    }
   }
   this.init();
 });
@@ -78,14 +106,16 @@ elation.extend("utils.physics.object", function(args) {
   this.pos = this.args.position || new THREE.Vector3(0,0,0); // Position, in m
   this.rot = this.args.rotation || new THREE.Vector3(0,0,0); // Rotation, in radians
   this.vel = this.args.vel || new THREE.Vector3(0,0,0); // Velocity, in m/s
+  this.accel = this.args.accel || new THREE.Vector3(); // Acceleration, in m/s^2
   this.angular = this.args.angular || new THREE.Vector3(0,0,0); // Rotational velocity, in degrees/s
   this.restitution = this.args.restitution || 1;
-  this.radius = this.args.radius || 0;
+  this.radius = (typeof this.args.radius != 'undefined' ? this.args.radius : 0);
   this.forces = {'_num': 0}; // Forces on this object, in N
   this.forcesum = new THREE.Vector3();
 
   this.init = function() {
-    console.log('Initialized physics object', this);
+    //console.log('Initialized physics object', this);
+    this.updateSleepState();
   }
   this.iterate = function(t) {
     if (!this.sleeping) {
@@ -114,7 +144,7 @@ elation.extend("utils.physics.object", function(args) {
 */
       this.updateSleepState();
       //console.log(fallasleep ? "fall asleep" : "keep going");
-      elation.events.fire({type: "dynamicsupdate", element: this});
+      elation.events.fire({type: "dynamicsupdate", element: this, data: t});
     }
   }
   this.addForce = function(name, force) {
@@ -128,7 +158,11 @@ elation.extend("utils.physics.object", function(args) {
     //console.log('added force', name, [force.x, force.y, force.z], [this.accel.x, this.accel.y, this.accel.z]);
   }
   this.updateSleepState = function() {
-    this.sleeping = !((this.accel && this.accel.length() > 0) || (this.vel && this.vel.length() > 0) || (this.angular && this.angular.length() > 0));
+    this.accelerating = (this.accel && this.accel.length() > 0);
+    this.moving = (this.vel && this.vel.length() > 0);
+    this.rotating = (this.angular && this.angular.length() > 0);
+
+    this.sleeping = !(this.accelerating || this.moving || this.rotating);
     return this.sleeping;
   }
   this.removeForce = function(name) {
@@ -265,7 +299,12 @@ elation.extend("utils.physics.object", function(args) {
     //console.log(this.vel.add(normal.multiply(j / this.mass)));
     //this.setVelocity(this.vel.add(normal.multiply(j / this.mass)));
     //if (this.args.onbounce) this.args.onbounce(); // FIXME - use custom events
-    elation.events.fire({type: 'bounce', element: this});
+    if (collision.object) {
+      elation.events.fire({type: 'bounce', element: this, fn: this, data: collision.object});
+      //elation.events.fire({type: 'bounce', element: collision.object, data: this});
+    } else {
+      elation.events.fire({type: 'bounce', element: this});
+    }
   }
   this.init();
 });

@@ -130,7 +130,7 @@ elation.extend("events", {
 
     var elements = elation.utils.isNull(elements) 
           ? [{}] 
-          : typeof elements.length != 'number' || elements == window
+          : !elation.utils.isArray(elements) || elements == window
             ? [ elements ] 
             : elements,
 				types = types.split(',');

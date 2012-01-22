@@ -97,10 +97,9 @@ elation.extend("component", new function() {
     var argsattr = this.namespace+':'+this.attrs.componentargs;
     // Find all elements which have a <namespace>:<componenttype> attribute
 
-    if (root == undefined) {
+    if (typeof root == 'undefined') {
       root = document;
     }
-
     if (false && document.evaluate) { // FIXME - using jQuery to query namespace elements for now, the custom method below throws errors in IE
       if (document.createNSResolver) {
         var nsresolver = document.createNSResolver(document.documentElement);
@@ -113,7 +112,7 @@ elation.extend("component", new function() {
           return ns[prefix] || null;  
         }  
       }
-      
+      alert(3);
       // FIXME - I've started work to switch this over to use xpath selectors instead of jquery but namespaces make it a pain
       //         Right now this is just selecting all elements, very inefficient...
       //var selector = '//*['+this.namespace+':'+this.attrs.componenttype+']';
@@ -129,7 +128,7 @@ elation.extend("component", new function() {
         elements.push(element);
       }
     } else if (typeof $TF != 'undefined') {
-      var elements = $TF("["+this.namespace+"\\:"+this.attrs.componenttype+"]"); 
+      var elements = $TF("["+this.namespace+"\\:"+this.attrs.componenttype+"]");
     } else {
       var elements = [];
     }

@@ -233,14 +233,18 @@ elation.extend("ajax", new function() {
         try {
           eval(script_text);
         } catch(e) {
-          batch.callback(script_text);
+          try {
+            batch.callback(script_text);
+          } catch(e) {
+            console.log(e);
+          }
         }
       }
     }
 		
     // FIXME - this had a delay of 1ms when type='data' and name='infobox.data' was passed, I'm sure there was a reason but it doesn't work with the way this is done now... 
     execute_scripts();  // no timer makes priceslider happy!  no ugly delay.
-
+    
     // If caller passed in a callback, execute it
     if (typeof obj != 'undefined' && obj.callback) {
       try {

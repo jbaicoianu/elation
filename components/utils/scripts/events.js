@@ -40,7 +40,6 @@ elation.extend("events", {
     }
     
     /*
-<<<<<<< HEAD:components/utils/scripts/events.js
     for (var i=events.length-1; i>=0; i--) {
       var event = events[i];
       event.data = data;
@@ -53,8 +52,8 @@ elation.extend("events", {
       if (event.cancelBubble) {
         break;
       }
-=======
-*/
+    */
+
     // fire each event
     for (var i=0; i<original_events.length; i++) {
       var eventObj = original_events[i],
@@ -136,16 +135,19 @@ elation.extend("events", {
     */
   },
   
-  
 	// syntax: add(element || [ elements ], "type1,type2,type3", function || object);
 	add: function(elements, types, fn, custom_event_name) {
     if (custom_event_name)
       custom_event_name = custom_event_name.replace('.','_');
-    
+
 		if (!types || !fn || typeof types != "string")
 			return;
-		
-		var	elements = (!elements ? [{}] : ((!elation.utils.isNull(elements.nodeName) || elements == window) ? [ elements ] : elements)),
+
+    var elements = elation.utils.isNull(elements) 
+          ? [{}] 
+          : !elation.utils.isArray(elements) || elements == window
+            ? [ elements ] 
+            : elements,
 				types = types.split(',');
 		
 		if (typeof fn == "string") {
@@ -162,6 +164,9 @@ elation.extend("events", {
 				var type = types[i];
 				
         elation.events._register(element, type, fn, custom_event_name);
+        
+        if (!element)
+          continue;
         
 				if ("addEventListener" in element) {
           if (type == 'mousewheel' && elation.browser.type != 'safari')

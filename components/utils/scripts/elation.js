@@ -27,33 +27,34 @@ var elation = new function(selector, parent, first) {
 }
 
 /*
+// DISABLED - not really used anymore, and gets in the way of debugging
 if (!window.console) { // if no console, use tfconsole if available
-	window.console = {};
-	
-	window.console.log = function(txt) {
- 		if (elation.utils.logging) 
+  window.console = {};
+  
+  window.console.log = function(txt) {
+     if (elation.utils.logging) 
       elation.utils.logging(txt);
-	}
+  }
 } else { // output to both firebug console and tfconsole
-	window.console.log = function(txt) {
-		if (elation.utils.logging) 
-			elation.utils.logging(txt);
-		
-		if (console && typeof console.debug != 'undefined') 
-			console.debug.apply(this, arguments);
-	}
+  window.console.log = function(txt) {
+    if (elation.utils.logging) 
+      elation.utils.logging(txt);
+    
+    if (console && typeof console.debug != 'undefined') 
+      console.debug.apply(this, arguments);
+  }
 }
 */
 
 elation.extend('utils.logging', function(txt) {
-	if (elation.debug && typeof elation.debug.log != 'undefined') 
-		elation.debug.log(txt);
-	else {
-		if (!elation.utils.logging.prelog)
-			elation.utils.logging.prelog = [];
-		
-		elation.utils.logging.prelog.push(txt);
-	}
+  if (elation.debug && typeof elation.debug.log != 'undefined') 
+    elation.debug.log(txt);
+  else {
+    if (!elation.utils.logging.prelog)
+      elation.utils.logging.prelog = [];
+    
+    elation.utils.logging.prelog.push(txt);
+  }
 });
 
 elation.extend("checkhash", new function() {
@@ -89,17 +90,24 @@ elation.extend("checkhash", new function() {
 
 elation.extend("component", new function() {
   this.namespace = "elation";
+  this.attrs = {
+    componenttype: 'component',
+    componentname: 'name',
+    componentargs: 'args',
+    componentevents: 'events',
+    componentinit: 'initialized'
+  };
   this.registry = [];
   this.init = function(root) {
     var componentattr = "component";
-    var argsattr = this.namespace+':args';
-    var eventsattr = this.namespace+':events';
-    // Find all elements which have a namespace:componentattr attribute
+    var argsattr = this.namespace+':'+this.attrs.componentargs;
+    var eventsattr = this.namespace+':' + this.attrs.componentevents;;
 
     if (root == undefined) {
       root = document;
     }
 
+    // Find all elements which have a <namespace>:<componenttype> attribute
     if (false && document.evaluate) { // FIXME - using jQuery to query namespace elements for now, the custom method below throws errors in IE
       if (document.createNSResolver) {
         var nsresolver = document.createNSResolver(document.documentElement);
@@ -115,8 +123,8 @@ elation.extend("component", new function() {
       
       // FIXME - I've started work to switch this over to use xpath selectors instead of jquery but namespaces make it a pain
       //         Right now this is just selecting all elements, very inefficient...
-      //var selector = '//*['+this.namespace+':'+componentattr+']';
-      //var selector = "//*[@*["+this.namespace+":"+componentattr+"]]";
+      //var selector = '//*['+this.namespace+':'+this.attrs.componenttype+']';
+      //var selector = "//*[@*["+this.namespace+":"+this.attrs.componenttype+"]]";
       //var selector = "//*[@*[namespace-uri()='http://www.ajaxelation.com/xmlns']]";
       //var selector = "//*[local-name()='component']";
       var selector = "//*";
@@ -128,25 +136,24 @@ elation.extend("component", new function() {
         elements.push(element);
       }
     } else if (typeof $TF != 'undefined') {
-      var elements = $TF("["+this.namespace+"\\:"+componentattr+"]"); 
+      var elements = $TF("["+this.namespace+"\\:"+this.attrs.componenttype+"]"); 
     } else {
       var elements = [];
     }
     for (var i = 0; i < elements.length; i++) {
       var element = elements[i];
-      // Parse out the elation:component and elation:name attributes, if set.  Fall back on HTML id if no name specified
-      var componenttype = element.getAttribute(this.namespace+':'+componentattr);
-      var componentid = element.getAttribute(this.namespace+':name') || element.id;
-      if (componenttype) {
-        var componentinitialized = element.getAttribute(this.namespace+':componentinitialized') || false;
+      var componentid = this.parseid(element);
+      if (componentid.type) {
+        var componentinitialized = element.getAttribute(this.namespace+':'+this.attrs.componentinit) || false;
         if (!componentinitialized) { // FIXME - this isn't working in IE, so components are getting reinitialized with each AJAX request
-          element.setAttribute(this.namespace+':componentinitialized', 1);
+          element.setAttribute(this.namespace+':'+this.attrs.componentinit, 1);
           var componentargs = {}, events = {}, j;
           // First look for a JSON-encoded args array in the element's direct children (elation:args)
           if (element.children) {
             for (j = 0; j < element.children.length; j++) {
               // FIXME - IE seems to drop the namespace, might be related to above FIXME, so look for a child named "args"
-              if (element.children[j].nodeName == argsattr.toUpperCase() || element.children[j].nodeName == "args") { 
+              if (element.children[j].nodeName.toLowerCase() == argsattr || element.children[j].nodeName.toLowerCase() == "args") { 
+                var argtext = element.children[j].textContent || element.children[j].innerText;
                 try {
                   var content = element.children[j].innerHTML.trim();
                   if (content.length > 0) {
@@ -159,7 +166,7 @@ elation.extend("component", new function() {
                   //break; // only one args array per block, bail out when we find one so we don't waste time with the rest
                 } catch(e) {
                   // Probably JSON syntax error
-                  console.log("Could not parse " + argsattr + ": " + element.children[j].innerHTML);
+                  console.log("Could not parse " + argsattr + ": " + argtext);
                 }
               } else if (element.children[j].nodeName == eventsattr.toUpperCase() || element.children[j].nodeName == "events") { 
                 try {
@@ -186,7 +193,7 @@ elation.extend("component", new function() {
             }
           }
           // Instantiate the new component with all parsed arguments
-          elation.component.create(componentid, componenttype, element, componentargs, events);
+          elation.component.create(componentid.name, componentid.type, element, componentargs, events);
         }
       }
     }
@@ -196,10 +203,13 @@ elation.extend("component", new function() {
     // an instance with the given name exists already.  If it doesn't we create
     // it, and then we return a reference to the specified instance.
     var component = function(name, container, args, events) {
-      if (!name && name !== 0) // If no name was passed, use the current object count as a name instead ("anonymous" components)
+      // If no name was passed, use the current object count as a name instead ("anonymous" components)
+      if (!name && name !== 0) {
         name = component.objcount;
+      }
       if (!component.obj[name]) {
         component.obj[name] = new component.base(type);
+        container.setAttribute(elation.component.namespace+':'+elation.component.attrs.componentname, name);
         component.objcount++;
       }
       if (component.obj[name] && container) {
@@ -327,6 +337,26 @@ elation.extend("component", new function() {
       if (typeof this[ev.type] == 'function') {
         this[ev.type](ev);
       }
+    }
+
+  }
+  this.parseid = function(element) {
+    // Parse out the elation:component and elation:name attributes, if set.  Fall back on HTML id if no name specified
+    var componentid = {
+      type: element.getAttribute(this.namespace+':'+this.attrs.componenttype),
+      name: element.getAttribute(this.namespace+':'+this.attrs.componentname) || element.id
+    }
+    return componentid;
+  }
+  this.fetch = function(type, name) {
+    if (!elation.utils.isNull(type) && elation.utils.iselement(type)) {
+      var id = this.parseid(type);
+    } else {
+      var id = {type: type, name: name};
+    }
+    if (id.type && id.name) {
+      var componentclass = elation.utils.arrayget(elation, id.type);
+      return componentclass(id.name);
     }
 
   }
@@ -459,6 +489,73 @@ elation.extend("html.position", function(obj) {
     }
   }
   return [curleft,curtop];
+});
+
+// html.preloader will fire events and/or callback when all elements have onload'd
+elation.extend('html.preloader', function(elements, args) {
+  this.elements = elements;
+  this.args = args || { timeout: 2000, callback: false };
+  this.index = 0;
+  
+  this.init = function() {
+    for (var i=0; i<this.elements.length; i++) {
+      if (this.elements[i].complete)
+        this.index++;
+      else
+        elation.events.add(this.elements[i], 'load', this);
+    }
+    
+    if (!this.validate())
+      (function(self) {
+        self.timer = setTimeout(function() {
+          if (!self.items) {
+            console.log('2s timeout reached, forcing load.');
+            self.done();
+          }
+        }, self.args.timeout || 2000);
+      })(this);
+  }
+  
+  this.load = function(event, target) {
+    elation.events.fire('preloader_load', this);
+    
+    this.validate(true);
+  }
+  
+  this.validate = function(increment) {
+    if (increment) this.index++;
+    
+    //console.log('validate', increment, this.index, this.elements.length);
+    if (this.index == this.elements.length) {
+      this.done();
+      
+      return true;
+    }
+    
+    return false;
+  }
+  
+  this.done = function() {
+    (function(self) {
+      setTimeout(function() { elation.events.fire('preloader_done', self); }, 1);
+    })(this);
+    
+    if (typeof this.args.callback == 'function')
+      this.args.callback();
+    
+    clearTimeout(this.timer);
+  }
+  
+	this.handleEvent = function(event) {
+		var event = event || window.event,
+				target = elation.events.getTarget(event),
+				type = event.type == 'DOMMouseScroll' ? 'mousewheel' : event.type;
+		
+		if (typeof this[type] == 'function')
+			return this[type](event, target);
+	}
+  
+  this.init();
 });
 
 // methods for css classname information and manipulation
@@ -635,17 +732,27 @@ elation.extend("utils.encodeURLParams", function(obj) {
   if (typeof obj == "string") {
     ret = obj;
   } else {
-    for (var key in obj) {
-      if (typeof obj[key] == "object") {
-        for (var key2 in obj[key]) {
-          ret += (ret != '' ? '&' : '') + key + '[' + key2 + ']=' + encodeURIComponent(obj[key][key2]); 
-        }
-      } else {
-        ret += (ret != '' ? '&' : '') + key + '=' + encodeURIComponent(obj[key]); 
+    var flattened = elation.utils.flattenURLParams(obj);
+    for (var key in flattened) {
+      if (typeof flattened[key] != 'undefined') {
+        ret += (ret != '' ? '&' : '') + key + '=' + encodeURIComponent(flattened[key]); 
       }
     }
   }
   
+  return ret;
+});
+elation.extend("utils.flattenURLParams", function(obj, prefix) {
+  var ret = {};
+  for (var k in obj) {
+    var key = (prefix ? prefix + '[' + k + ']' : k);
+    if (typeof obj[k] == 'object') {
+      var flattened = elation.utils.flattenURLParams(obj[k], key);
+      elation.utils.merge(flattened, ret);
+    } else {
+      ret[key] = obj[k];
+    }
+  }
   return ret;
 });
 elation.extend("utils.parseURL", function(str) {
@@ -693,6 +800,35 @@ elation.extend("utils.makeURL", function(obj) {
   return obj.scheme + "://" + obj.host + obj.path + (argstr ? '?' + argstr : '');
 });
 
+elation.extend("utils.merge", function(entities, mergeto) {
+  if (typeof entities == 'object') {
+    if (typeof mergeto == 'undefined' || mergeto === null) mergeto = {}; // Initialize to same type as entities
+    for (var i in entities) {
+      if (entities[i] !== null) {
+        if (entities[i] instanceof Array) {
+          if (mergeto[i] instanceof Array) {
+            //console.log('concat array: ' + i + ' (' + mergeto[i].length + ' + ' + entities[i].length + ')');
+            mergeto[i] = mergeto[i].concat(entities[i]);
+          } else {
+            //console.log('assign array: ', i, typeof mergeto[i]);
+            mergeto[i] = entities[i];
+          }
+        } else if (entities[i] instanceof Object) {
+          if (mergeto[i] instanceof Object) {
+            //console.log('merge object: ', i);
+            elation.utils.merge(entities[i], mergeto[i]);
+          } else {
+            //console.log('assign object: ', i, typeof mergeto[i]);
+            mergeto[i] = entities[i];
+          }
+        } else {
+          mergeto[i] = entities[i];
+        }
+      }
+    }
+  }
+  return mergeto;
+});
 
 /* Sets value in a multilevel object element 
 * args:
@@ -794,6 +930,11 @@ elation.extend("utils.isEmpty", function(obj) {
   
   return true;
 });
+elation.extend("utils.isArray", function(obj) {
+  var objclass = Object.prototype.toString.call(obj);
+  return objclass === '[object Array]' || objclass === '[object NodeList]';
+});
+//
 // runs through direct children of obj and 
 // returns the first matching <tag> [className]
 elation.extend("utils.getFirstChild", function(obj, tag, className) {

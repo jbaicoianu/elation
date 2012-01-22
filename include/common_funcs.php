@@ -917,6 +917,7 @@ function isBot() {
    * (last updated on 7/23/07)
    */
   $bot_user_agents = array("im2-",
+                           "KeepAliveClient",
                            "googlebot",
                            "adsbot-google",
                            "mediapartners-google",
@@ -979,4 +980,23 @@ function is_assoc($array) {
       return true;
   }
   return false;
+}
+function hexdump($data, $width=16) {
+  $dump = $line_hex = $line_ascii = "";
+  $hexwidth = $width * 3;
+  for ($i = 0; $i < strlen($data); $i++) {
+    $ord = ord($data[$i]);
+    $line_hex .= sprintf("%02x ", $ord);
+    $printable = ($ord >= 32);
+    $line_ascii .= ($printable ? $data[$i] : '.');
+
+    if ($i % $width == $width - 1) {
+      $dump .= "\n" . $line_hex . "\t" . $line_ascii;
+      $line_hex = $line_ascii = "";
+    }
+  }
+  if ($i % $width != 0) {
+    $dump .= sprintf("\n%-{$hexwidth}s\t%s\n\n", $line_hex, $line_ascii);
+  }
+  print "<pre>" . $dump . "</pre>";
 }

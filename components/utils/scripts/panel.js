@@ -234,6 +234,9 @@ elation.extend('panel', new function(options) {
 				if (panel.args.hasOwnProperty(k)) 
 					urlargs[k] = panel.args[k];
 		
+    if (!item.args)
+      return;
+    
 		if (typeof item.args.contentcomponentargs == 'object') 
 			for (var k in item.args.contentcomponentargs) 
 				if (item.args.contentcomponentargs.hasOwnProperty(k)) 
@@ -277,8 +280,12 @@ elation.extend('panel', new function(options) {
 	}
   
 	this.select_item = function(item, panel) {
-		var	li = elation.utils.arrayget(item, 'element'),
-        li = li.length > 0 ? li[0] : li;
+		var	li = elation.utils.arrayget(item, 'element');
+    
+    if (!li)
+      return;
+    
+    var li = li.length > 0 ? li[0] : li;
 		
 		if (elation.html.hasclass(li, 'tf_utils_state_disabled'))
 			return;

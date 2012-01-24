@@ -129,7 +129,11 @@ elation.extend("component", new function() {
         elements.push(element);
       }
     } else if (typeof $TF != 'undefined') {
-      var elements = $TF("["+this.namespace+"\\:"+this.attrs.componenttype+"]"); 
+      try {
+        var elements = $TF("["+this.namespace+"\\:"+this.attrs.componenttype+"]");
+      } catch(e) {
+        var elements = [];
+      }
     } else {
       var elements = [];
     }

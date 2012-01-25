@@ -78,7 +78,7 @@ class ComponentManager extends Component {
 
       $ext = substr($page, strlen($page_noextension)+1);
       if (!empty($ext)) {
-        $outputtype = $ret["type"] = $ret["responsetype"] = $pagecfg["type"] = $ext;
+        $outputtype = $ret["type"] = $pagecfg["type"] = $ext;
       }
 
       if(!empty($pagevars["options"])) {

@@ -220,6 +220,7 @@ elation.extend("ajax", new function() {
       batch.add('/scripts/main?'+javascriptparms.substr(0,javascriptparms.length-1),null,true);
 		
     common.inlinescripts.push("elation.component.init();");
+    
     // Execute all inline scripts
     var execute_scripts = function() {
       if (common.inlinescripts.length > 0) {
@@ -236,7 +237,7 @@ elation.extend("ajax", new function() {
           try {
             batch.callback(script_text);
           } catch(e) {
-            console.log(e);
+            console.log('-!- ajaxlib inlinescript warning: ' + e.message);
           }
         }
       }

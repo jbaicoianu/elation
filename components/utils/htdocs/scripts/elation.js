@@ -1235,10 +1235,10 @@ elation.extend("find", function(selectors, parent, first) {
     first = true;
     parent = null;
   }
-  
+  if (parent)console.log(typeof parent, parent.length);
   // use browsers native selector engine if available
   if (document.querySelectorAll) 
-    result = (parent) 
+    result = (parent && (typeof parent.length == 'undefined' || parent.length != 0)) 
       ? parent.querySelectorAll(selectors) 
       : document.querySelectorAll(selectors);
   else

@@ -98,7 +98,7 @@ class ComponentManager extends Component {
       if (!empty($pagevars["component"]) && self::has($pagevars["component"])) {
         $componentargs = (!empty($pagevars["vars"]) ? array_merge($pagevars["vars"], $args) : $args);
         $ret["component"] = $pagevars["component"];
-        $ret["content"] = self::fetch($pagevars["component"], $componentargs, $outputtype);
+        $ret["content"] = self::fetch($pagevars["component"], $componentargs, "componentresponse");
       } else if (!empty($pagevars["template"]) && $tplmgr->template_exists($pagevars["template"])) {
         $pagevars["vars"]["args"] = $args;
         $pagevars["vars"]["sitecfg"] = $this->root->sitecfg;

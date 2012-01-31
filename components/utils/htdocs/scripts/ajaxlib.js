@@ -437,7 +437,16 @@ elation.extend("ajax", new function() {
             processResponse.call(elation.ajax, elation.ajax.translateXML(dom), obj);
             
             if (obj.callback) {
-              elation.ajax.executeCallback(obj.callback, xmlhttp.responseText);
+              try {
+                elation.ajax.executeCallback(obj.callback, xmlhttp.responseText);
+              } catch(e) {
+                console.log('ajax callback execution delayed: ' + e.message);
+                
+                // fixes weird ass msie error about not enough information
+                setTimeout(function() {
+                  elation.ajax.executeCallback(obj.callback, xmlhttp.responseText);
+                },1000);
+              }
             }
           } else if (xmlhttp.responseText) {
             if (obj.callback) {

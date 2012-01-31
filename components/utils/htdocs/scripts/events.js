@@ -127,7 +127,8 @@ elation.extend("events", {
 
 		if (!types || !fn || typeof types != "string")
 			return;
-
+    
+    //if (types == 'change')
     var elements = elation.utils.isNull(elements) 
           ? [{}] 
           : !elation.utils.isArray(elements) || elements == window

@@ -446,7 +446,7 @@ elation.extend("html.removeclass", function(element, className) {
   var re = new RegExp("(^| )" + className + "( |$)", "g");
   if (element && element.className && element.className.match(re)) {
     element.className = element.className.replace(re, " ");
-  } 
+  }
 });
 
 elation.extend("html.toggleclass", function(element, className) {
@@ -796,11 +796,22 @@ elation.extend("utils.isEmpty", function(obj) {
   
   return true;
 });
+
 elation.extend("utils.isArray", function(obj) {
-  var objclass = Object.prototype.toString.call(obj);
-  return objclass === '[object Array]' || objclass === '[object NodeList]';
+  var objclass = Object.prototype.toString.call(obj),
+      allow = {
+        '[object Array]': true,
+        '[object NodeList]': true,
+        '[object HTMLCollection]': true
+      };
+  
+  if (elation.browser.type == 'msie' && objclass == '[object Object]') {
+    return !elation.utils.isNull(elation.utils.arrayget(obj, 'length'));
+  } else {
+    return allow[objclass] || false;
+  }
 });
-//
+
 // runs through direct children of obj and 
 // returns the first matching <tag> [className]
 elation.extend("utils.getFirstChild", function(obj, tag, className) {

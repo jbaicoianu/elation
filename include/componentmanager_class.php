@@ -98,7 +98,7 @@ class ComponentManager extends Component {
       if (!empty($pagevars["component"]) && self::has($pagevars["component"])) {
         $componentargs = (!empty($pagevars["vars"]) ? array_merge($pagevars["vars"], $args) : $args);
         $ret["component"] = $pagevars["component"];
-        $ret["responsetype"] = ComponentResponse::getOutputMimeType($outputtype);
+        $ret["type"] = $ret["responsetype"] = ComponentResponse::getOutputMimeType($outputtype);
         $ret["content"] = self::fetch($pagevars["component"], $componentargs, $outputtype);
       } else if (!empty($pagevars["template"]) && $tplmgr->template_exists($pagevars["template"])) {
         $pagevars["vars"]["args"] = $args;
@@ -385,29 +385,33 @@ class ComponentResponse implements ArrayAccess {
     return $this->template;
   }
 
+  function getOutputMimeType($type) {
+    return any(self::$outputtypes[$type], 'text/html');
+  }
   function getOutput($type) {
-    $ret = array($this->getOutputMimeType($type), NULL);;
+    $ret = array("text/html", NULL);;
     $tplmgr = TemplateManager::singleton();
     switch($type) {
       case 'ajax':
-        $ret[1] = $tplmgr->GenerateXML($this->data);
+        $ret = array("application/xml", $tplmgr->GenerateXML($this->data));
         break;
       case 'json':
       case 'jsonp':
         $jsonp = any($_REQUEST["jsonp"], "elation.ajax.processResponse");
-        $ret[1] = $tplmgr->GenerateJavascript($this->data, $jsonp);
+        //$ret = array("application/javascript", $jsonp . "(" . json_encode($this->data) . ");");
+        $ret = array("application/javascript", $tplmgr->GenerateJavascript($this->data, $jsonp));
         break;
       case 'js':
-        $ret[1] = json_encode($this) . "\n";
+        $ret = array("application/javascript", json_encode($this) . "\n");
         break;
       case 'jsi':
-        $ret[1] = json_indent(json_encode($this)) . "\n";
+        $ret = array("application/javascript", json_indent(json_encode($this)) . "\n");
         break;
       case 'txt':
-        $ret[1] = $tplmgr->GenerateHTML($tplmgr->GetTemplate($this->template, NULL, $this->data));
+        $ret = array("text/plain", $tplmgr->GenerateHTML($tplmgr->GetTemplate($this->template, NULL, $this->data)));
         break;
       case 'xml':
-        $ret[1] = object_to_xml($this, "response");
+        $ret = array("application/xml", object_to_xml($this, "response"));
         break;
       case 'data':
         $ret = array("", $this->data);
@@ -419,17 +423,17 @@ class ComponentResponse implements ArrayAccess {
       case 'fhtml':
         $framecomponent = any(ConfigManager::get("page.frame"), "html.page");
         // If framecomponent is false/0, just return the raw content
-        $ret[1] = (empty($framecomponent) ? $this->data["content"] : ComponentManager::fetch($framecomponent, array("content" => $this), "inline"));
+        $ret = array("text/html", (empty($framecomponent) ? $this->data["content"] : ComponentManager::fetch($framecomponent, array("content" => $this), "inline")));
         break;
       case 'popup': // Popup is same as HTML, but we only use the bare-minimum html.page frame
         $vars["content"] = $this;
-        $ret[1] = ComponentManager::fetch("html.page", $vars, "inline");
+        $ret = array("text/html", ComponentManager::fetch("html.page", $vars, "inline"));
         break;
       case 'snip':
-        $ret[1] = $tplmgr->GetTemplate($this->template, NULL, $this->data);
+        $ret = array("text/html", $tplmgr->GetTemplate($this->template, NULL, $this->data));
         break;
       default:
-        $ret[1] = $tplmgr->GetTemplate($this->template, NULL, $this->data);
+        $ret = array("text/html", $tplmgr->GetTemplate($this->template, NULL, $this->data));
     }
     if (!empty($this->prefix)) {
       $ret[1] = $this->prefix . $ret[1];
@@ -440,9 +444,6 @@ class ComponentResponse implements ArrayAccess {
     $this->prefix = $str;
   }
 
-  static function getOutputMimeType($type) {
-    return any(self::$outputtypes[$type], 'text/html');
-  }
   function __toString() {
     $output = $this->getOutput("snip");
     return $output[1];

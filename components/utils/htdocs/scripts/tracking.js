@@ -404,3 +404,71 @@ function TFHtmlUtilsPandoraLog() {
   this.mouseovertype = "";
 }
 
+elation.extend('autotrack', new function() {
+  this.events = [];
+  
+  this.add = function(name, item) {
+    var events = this.events;
+    
+    $TF(document).ready(function() {
+      events.push(new elation.autotrack.event(name, item));
+    });
+  }
+});
+
+elation.extend('autotrack.event', function(name, item) {
+  this.name = name;
+  this.item = item;
+  
+  this.init = function() {
+    //console.log('Registered: event('+name+') '+item.parm1+', '+ item.parm2+', '+ item.parm3);
+    elation.events.add(null, name, this);
+  }
+  
+  this.handleEvent = function(event) {
+    var _data = event.data,
+        _ga = typeof googleAnalytics != "undefined" ? googleAnalytics : { pagetype: 'unknown' },
+        name = this.name,
+        item = this.item;
+    
+    if (item.condition) {
+      try { 
+        var condition = eval(item.condition); 
+      } catch(e) { 
+        console.log('Warning: ga_tracking CONDITION could not evaluate: ',e); 
+      };
+    } else
+      var condition = true;
+    
+    if ((item.enabled == 1 || item.enabled == 'true') && condition) {
+      var do_eval = function(parm) { 
+            try { 
+              return eval(parm); 
+            } catch(e) { 
+              console.log('Warning: ga_tracking PARAMETER could not evaluate: ' + parm, e);
+              return "err:eval_failed";
+            };
+          },
+          parm1 = item.parm1 ? do_eval(item.parm1) : '',
+          parm2 = item.parm2 ? do_eval(item.parm2) : '',
+          parm3 = item.parm3 ? do_eval(item.parm3) : '',
+          parm4 = item.parm4 ? do_eval(item.parm4) : '',
+          parm5 = item.parm5 ? do_eval(item.parm5) : '';
+      
+      if (parm2 || parm3 || parm4 || parm5) {
+        //console.log('Fired: ', condition, name, parm1, parm2, parm3, parm4, parm5, item, _data);
+        
+        if (typeof googleAnalytics == 'object') {
+          if (parm5) googleAnalytics.trackEvent([ parm1, parm2, parm3, parm4, parm5 ]);
+          else if (parm4) googleAnalytics.trackEvent([ parm1, parm2, parm3, parm4 ]);
+          else if (parm3) googleAnalytics.trackEvent([ parm1, parm2, parm3 ]);
+          else if (parm2) googleAnalytics.trackEvent([ parm1, parm2 ]);
+        }
+      }
+    }
+  }
+  
+  this.init();
+  
+  return this;
+});

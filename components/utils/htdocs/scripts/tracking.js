@@ -121,6 +121,7 @@ elation.extend('googleanalytics', function(args) {
   };
 
   this.trackPageViewWrapper = function(pageurl) {
+  //console.log('url:'+pageurl);
     try {
       this.pageTracker._trackPageview(pageurl);
       if (this.GAalerts) {
@@ -164,7 +165,7 @@ elation.extend('googleanalytics', function(args) {
     var pageurl = 'virt_'+pagegroup
                 + '/'+this.cobrand;
 
-    //console.log(this.pagetype);
+    console.log(this.pagetype);
 
     switch (this.pagetype) {
       case 'coupons_index':
@@ -200,12 +201,16 @@ elation.extend('googleanalytics', function(args) {
         pageurl += '/upfront/email/';
         break;
       case 'browse_homepage':
-        pageurl = "/virt_result"
+        //pageurl = "/virt_result"
+                //+ "/glimpse"
+                //+ "/node"
+                //+ "/"+this.browse_nodename
+                //+ "/"+this.browse_nodetype; 
+        pageurl = "/virt_results"
                 + "/glimpse"
                 + "/node"
                 + "/"+this.browse_nodename
                 + "/"+this.browse_nodetype; 
-console.log(this);
       break;
       default:
         pageurl += '/'+pagetype;
@@ -216,6 +221,105 @@ console.log(this);
                 + '&pgn='+this.pagenum
                 + '&ver='+this.version;
         break;
+    }
+
+
+    if(this.pagetype == 'browse_homepage' || this.pagetype == 'browse_merchant' || this.pagetype == 'browse_brand') {
+      cobrand = 'glimpse';
+      page = elation.browse.page(0).subpage;
+      browseby = elation.browse.page(0).args.browseby;
+      list = elation.browse.page(0).getCurrentNode();
+      if(list.nodeid != undefined) {
+        node = elation.browse.page(0).getEntity('nodes', list.nodeid);
+        nodeName = node.displayname;
+      }
+      if(browseby == undefined && list.nodeid == undefined) {
+        page = '/home';
+      }
+      switch (page) {
+        case '/merchant':
+          //store page
+          store = elation.browse.page(0).getEntity('merchants', list.merchantid);
+          if(browseby == 'brands'){
+            //brand facet
+            brand = elation.browse.page(0).getEntity('brands', list.brandid);
+            this.pageURL = 'virt_results/'+cobrand+'/store/brand/?store='+store.name+'&brand='+brand.name;
+          } else if(browseby == 'styles'){
+            //style facet
+            style = elation.browse.page(0).getEntity('styles', list.styleid);
+            this.pageURL = 'virt_results/'+cobrand
+                         + '/store/style/?store='+store.name
+                         + '&style=';
+            if(style == undefined){
+              this.pageURL += node.displayname;
+            } else {
+              this.pageURL += style.stylevalue;
+            }
+          } else if(browseby == 'nodes') {
+            //node facet
+            node = elation.browse.page(0).getEntity('nodes', list.nodeid);
+            this.pageURL = 'virt_results/'+cobrand
+                         + '/store/style/?store='+store.name
+                         + '&style='
+                         + node.displayname;
+          }
+          break;
+        case '/brand':
+          //brand page
+          brand = elation.browse.page(0).getEntity('brands', list.brandid);
+          if(browseby == 'merchants'){
+            //store facet
+            store = elation.browse.page(0).getEntity('merchants', list.merchantid);
+            this.pageURL = 'virt_results/'+cobrand
+                         + '/brand/store/?brand='+brand.name
+                         + '&store='+store.name;
+          } else if(browseby == 'styles'){
+            //style facet
+            style = elation.browse.page(0).getEntity('styles', list.styleid);
+            this.pageURL = 'virt_results/'+cobrand
+                         + '/brand/style/?brand='+brand.name
+                         + '&style=';
+            if(style == undefined){
+              this.pageURL += node.displayname;
+            } else {
+              this.pageURL += style.stylevalue;
+            }
+          } else if(browseby == 'nodes') {
+            //node facet
+            node = elation.browse.page(0).getEntity('nodes', list.nodeid);
+            this.pageURL = 'virt_results/'+cobrand
+                         + '/brand/style/?brand='+brand.name
+                         + '&style='
+                         + node.displayname;
+          }
+          break;
+        case '/home':
+            this.pageURL = 'virt_home/'+cobrand;
+        default:
+          //node page
+          if(browseby == 'brands') {
+            //brand facet
+            brand = elation.browse.page(0).getEntity('brands', list.brandid);
+            this.pageURL = 'virt_results/'+cobrand
+                         + '/node/brand/?node='+nodeName
+                         + '&brand='+brand.name;
+          } else if(browseby == 'merchants') {
+            //store facet
+            store = elation.browse.page(0).getEntity('merchants', list.merchantid);
+            this.pageURL = 'virt_results/'+cobrand
+                         + '/node/store/?node='+nodeName
+                         + '&store='+store.name;
+          } else if(browseby == 'styles') {
+            //style facet
+            style = elation.browse.page(0).getEntity('styles', list.styleid);
+            this.pageURL = 'virt_results/'
+                         +cobrand+'/node/style/?node='+nodeName
+                         +'&style='
+                         +style.stylevalue;
+          }
+          break;
+      }
+      pageurl = this.pageURL;
     }
     if (this.GAalerts) this.displayTag('trackPageview('+pageurl+')');
 

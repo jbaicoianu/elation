@@ -362,12 +362,14 @@ class DependencyMeta extends Dependency {
   public $meta;
 
   function Init($args, $locations) {
-    $this->meta = array("property"=>$args["property"], "name"=>$args["name"], "content"=>$args["content"], "httpequiv" => $args["httpequiv"]);
+    $this->meta = array("property"=>$args["property"], "name"=>$args["name"], "content"=>$args["content"], "httpequiv" => $args["httpequiv"], "value" => $args["value"]);
   }
 
   function Display($locations, $extras=NULL) {
     if (!empty($this->meta["name"]) && !empty($this->meta["content"]))
       $ret .= sprintf('<meta name="%s" content="%s" />'."\n", $this->meta["name"], htmlspecialchars($this->meta["content"]));
+    else if (!empty($this->meta["name"]) && !empty($this->meta["value"]))
+      $ret .= sprintf('<meta name="%s" value="%s" />'."\n", $this->meta["name"], htmlspecialchars($this->meta["value"]));
     else if (!empty($this->meta["property"]) && !empty($this->meta["content"]))
       $ret .= sprintf('<meta property="%s" content="%s" />'."\n", $this->meta["property"], htmlspecialchars($this->meta["content"]));
     else if (!empty($this->meta["httpequiv"]) && !empty($this->meta["content"]))

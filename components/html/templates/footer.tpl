@@ -35,6 +35,8 @@
         {if $is_new_user}
            var date = new Date();
            googleAnalytics.setCustomVar(1, "FirstVisitDate", date, 1);
+           googleAnalytics.setCustomVar(5, "FirstVisitSource", "placeholder", 1);
+           googleAnalytics.setCustomVar(4, "FirstVisitCobrand", "{$cobrand|escape:javascript}", 1);
         {/if}
         {if $is_new_session}
            var landing_category = googleAnalytics.pagetype ? googleAnalytics.pagetype : "home";

@@ -224,7 +224,7 @@ elation.extend('googleanalytics', function(args) {
     }
 
 
-    if(this.pagetype == 'browse_homepage' || this.pagetype == 'browse_merchant' || this.pagetype == 'browse_brand') {
+    if(this.pagetype == 'browse_homepage' || this.pagetype == 'browse_merchant' || this.pagetype == 'browse_brand' || this.pagetype == 'browse_profile') {
       cobrand = 'glimpse';
       page = elation.browse.page(0).subpage;
       browseby = elation.browse.page(0).args.browseby;
@@ -233,7 +233,7 @@ elation.extend('googleanalytics', function(args) {
         node = elation.browse.page(0).getEntity('nodes', list.nodeid);
         nodeName = node.displayname;
       }
-      if(browseby == undefined && list.nodeid == undefined) {
+      if(browseby == undefined && list.nodeid == undefined && page != '/profile') {
         page = '/home';
       }
       switch (page) {
@@ -258,10 +258,12 @@ elation.extend('googleanalytics', function(args) {
           } else if(browseby == 'nodes') {
             //node facet
             node = elation.browse.page(0).getEntity('nodes', list.nodeid);
-            this.pageURL = 'virt_results/'+cobrand
+              this.pageURL = 'virt_results/'+cobrand
                          + '/store/style/?store='+store.name
-                         + '&style='
-                         + node.displayname;
+            if(typeof node != 'undefined') {
+              this.pageURL += '&style='
+                           + node.displayname;
+            }
           }
           break;
         case '/brand':
@@ -287,14 +289,21 @@ elation.extend('googleanalytics', function(args) {
           } else if(browseby == 'nodes') {
             //node facet
             node = elation.browse.page(0).getEntity('nodes', list.nodeid);
-            this.pageURL = 'virt_results/'+cobrand
+              this.pageURL = 'virt_results/'+cobrand
                          + '/brand/style/?brand='+brand.name
-                         + '&style='
-                         + node.displayname;
+            if(typeof node != 'undefined') {
+              this.pageURL += '&style='
+                           + node.displayname;
+            }
           }
           break;
         case '/home':
             this.pageURL = 'virt_home/'+cobrand;
+        break;
+        case '/profile':
+            this.pageURL = 'virt_profile/'+cobrand
+                         + '/me';
+        break;
         default:
           //node page
           if(browseby == 'brands') {
@@ -302,30 +311,37 @@ elation.extend('googleanalytics', function(args) {
             brand = elation.browse.page(0).getEntity('brands', list.brandid);
             this.pageURL = 'virt_results/'+cobrand
                          + '/node/brand/?node='+nodeName
-                         + '&brand='+brand.name;
+            if(typeof brand != 'undefined'){
+              this.pageURL += '&brand='+brand.name;
+            }
           } else if(browseby == 'merchants') {
             //store facet
             store = elation.browse.page(0).getEntity('merchants', list.merchantid);
             this.pageURL = 'virt_results/'+cobrand
                          + '/node/store/?node='+nodeName
-                         + '&store='+store.name;
+            if(typeof store != 'undefined'){
+              this.pageURL += '&store='+store.name;
+            }
           } else if(browseby == 'styles') {
             //style facet
             style = elation.browse.page(0).getEntity('styles', list.styleid);
             this.pageURL = 'virt_results/'
                          +cobrand+'/node/style/?node='+nodeName
-                         +'&style='
-                         +style.stylevalue;
+            if(typeof style != 'undefined') {
+              this.pageURL += '&style='+style.stylevalue;
+            }
           }
           break;
       }
       pageurl = this.pageURL;
     }
-    if (this.GAalerts) this.displayTag('trackPageview('+pageurl+')');
+    if(typeof pageurl != 'undefined') {
+      if (this.GAalerts) this.displayTag('trackPageview('+pageurl+')');
 
-    try {
-      this.pageTracker._trackPageview(pageurl);
-    } catch (err) {if (this.GAalerts) this.displayTag("trackPageview Error: "+err.description)}
+      try {
+        this.pageTracker._trackPageview(pageurl);
+      } catch (err) {if (this.GAalerts) this.displayTag("trackPageview Error: "+err.description)}
+    }
   };
 
   this.trackEvent = function(args) {

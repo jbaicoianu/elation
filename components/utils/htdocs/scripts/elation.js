@@ -665,6 +665,46 @@ elation.extend("utils.makeURL", function(obj) {
   var argstr = elation.utils.encodeURLParams(obj.args);
   return obj.scheme + "://" + obj.host + obj.path + (argstr ? '?' + argstr : '');
 });
+elation.extend("utils.friendlyurl", new function() {
+  this.encodemap = {"_": "//",
+                    "/": "_",
+                    "+": "&&",
+                    "&": "+",
+                    "-": "~",
+                    " ": "-",
+                    "\"": "%22",
+                    "'": "%27"
+                   };
+  this.decodemap = {};
+
+  (function(self) {
+    var keys = [];
+    for (var k in self.encodemap) {
+      keys.unshift(k);
+    }
+    for (var i = 0; i < keys.length; i++) {
+      self.decodemap[self.encodemap[keys[i]]] = keys[i];
+    }
+  })(this)
+  this.encode = function(str) {
+    var ret = str;
+    if (typeof str == 'string') {
+      for (var k in this.encodemap) {
+        ret = ret.replace(elation.utils.regexp.get(k, "g", true), this.encodemap[k]); 
+      }
+    }
+    return ret;
+  }
+  this.decode = function(str) {
+    var ret = str;
+    if (typeof str == 'string') {
+      for (var k in this.decodemap) {
+        ret = ret.replace(elation.utils.regexp.get(k, 'g', true), this.decodemap[k]); 
+      }
+    }
+    return ret;
+  }
+});
 
 elation.extend("utils.merge", function(entities, mergeto) {
   if (typeof entities == 'object') {
@@ -2024,3 +2064,22 @@ elation.extend('timing', new function() {
 			console.log(debug);
   }
 });
+elation.extend("utils.regexp", new function() {
+  this.specialchars = [
+    '/', '.', '*', '+', '?', '|',
+    '(', ')', '[', ']', '{', '}', '\\'
+  ];
+  this.cache = { '__regexp_escape': new RegExp('(\\' + this.specialchars.join('|\\') + ')', 'g') }
+
+  this.escape = function(text) {
+    return text.replace(this.cache['__regexp_escape'], '\\$1');
+  }
+  this.get = function(regstr, modifiers, escape) {
+    var regid = regstr + '|' + modifiers + (escape ? '|escaped' : '');
+    if (!this.cache[regid]) {
+      this.cache[regid] = new RegExp((escape ? elation.utils.regexp.escape(regstr) : regstr), modifiers);
+    }
+    return this.cache[regid];
+  }
+});
+

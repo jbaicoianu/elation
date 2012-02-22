@@ -168,7 +168,7 @@ elation.extend("component", new function() {
           // Then, loop through the attributes and parse out any individual arguments which can be specified as attributes
           for (j = 0; j < element.attributes.length; j++) {
             if (element.attributes[j].nodeName.substring(0, argsattr.length+1) == argsattr+'.') {
-              componentargs[element.attributes[j].nodeName.substring(argsattr.length+1)] = element.attributes[j].nodeValue;
+              elation.utils.arrayset(componentargs, element.attributes[j].nodeName.substring(argsattr.length+1), element.attributes[j].nodeValue);
             }
           }
           // Instantiate the new component with all parsed arguments

@@ -224,11 +224,11 @@ elation.extend("component", new function() {
     } else {
       var id = {type: type, name: name};
     }
+    
     if (id.type && id.name) {
       var componentclass = elation.utils.arrayget(elation, id.type);
       return componentclass(id.name);
     }
-
   }
 });
 

@@ -295,9 +295,39 @@ elation.extend('googleanalytics', function(args) {
             this.pageURL = 'virt_home/'+cobrand;
         break;
         case '/profile':
+            var browse_page = elation.browse.page(0);
+            var datakey = browse_page.getDataKey();
+            var loggedin_userid = browse_page.args.userid;
+            var username = elation.user.user.nickname, userid, type = '/me';
+            if(browse_page.data[datakey] && browse_page.data[datakey].persons) {
+              var persons_list = browse_page.data[datakey].persons;
+              var friends_list = browse_page.data[datakey].friends_list;
+              var trendsetters_list = browse_page.data[datakey].trendsetters_list;
+            }
+            if(friends_list){
+              for(friend_key in friends_list) {
+                key = friends_list[friend_key].key;
+                if(loggedin_userid == persons_list[key].id) {
+                  username = persons_list[key].name;
+                  userid = persons_list[key].id;
+                  type = '/friend';
+                }
+              }
+            }
+            if(trendsetters_list){
+              for(trendsetters_key in trendsetters_list) {
+                key = trendsetters_list[trendsetters_key].key;
+                if(loggedin_userid == persons_list[key].id) {
+                  username = persons_list[key].name;
+                  userid = persons_list[key].id;
+                  type = '/trendsetter';
+                }
+              }
+              key = trendsetters_list;
+            }
             this.pageURL = 'virt_profile/'+cobrand
-                         + '/me'
-                         + '?name='+elation.user.user.nickname;
+                         + type
+                         + '?name='+username;
           break;
         default:
           //node page
@@ -369,7 +399,10 @@ elation.extend('googleanalytics', function(args) {
   };
 
   this.trackClickout = function(args) {
-    this.trackEvent([args.event[0], args.event[1], args.event[2] + args.event[3]]);
+    if (args.event.length == 5) 
+      this.trackEvent([ args.event[0], args.event[1], args.event[2] , args.event[3] , args.event[4] ]);
+    else  
+      this.trackEvent([args.event[0], args.event[1], args.event[2] + args.event[3] ]);
     this.clickoutsource=0;
     this.myfindspanel='';
     var orderID = Math.floor(Math.random()*1000000000000);

@@ -9,20 +9,19 @@ elation.extend("events", {
       fn = elation.utils.arrayget(type, 'fn') || fn;
       type = elation.utils.arrayget(type, 'type');
     }
-
     if (!type)
       return false;
-    
+
     var list = this.events[type],
         original_events = [],
         events = [],
         event;
-    
+
     if (!list) {
       this.events[type] = [];
       return;
     }
-    
+
     // gather all the events associated with this event type
     // filter by [element] and/or [fn] if present
     for (var i=0; i<list.length; i++) {
@@ -38,34 +37,36 @@ elation.extend("events", {
         original_events.push(event);
       }
     }
-    
+
     // fire each event
     for (var i=0; i<original_events.length; i++) {
-      var eventObj = original_events[i],
+      var eventObj = original_events[i];
       
-          // break reference to eventObj so original doesn't get overwritten
-          event = {
-            type: type, 
-            target: target ? target : eventObj.target,
-            data: data ? data : null,
-            origin: eventObj.origin,
-            custom_event: eventObj.custom_event,
-            preventDefault: eventObj.preventDefault,
-            cancelBubble: eventObj.cancelBubble,
-            stopPropogation: eventObj.stopPropogation
-          };
+      // break reference to eventObj so original doesn't get overwritten
+      var event = {
+        type: type, 
+        target: (target ? target : eventObj.target),
+        data: (data ? data : null),
+        origin: eventObj.origin,
+        custom_event: eventObj.custom_event,
+        preventDefault: eventObj.preventDefault,
+        cancelBubble: eventObj.cancelBubble,
+        stopPropogation: eventObj.stopPropogation
+      };
       
       if (!event.origin)
         continue;
       
-      if (typeof event.origin == 'function')
-        event.origin(event);
-      else if (typeof event.origin.handleEvent != 'undefined')
+      if (typeof event.origin == 'function') {
+        // FIXME - MSIE keeps erroring on this line, saying expected ';', no idea why.  try/catch doesn't suppress error
+        if (elation.browser.type != 'msie') event.origin(event);
+        else console.log('Error firing custom event: '+type);
+      } else if (typeof event.origin.handleEvent != 'undefined') {
         event.origin.handleEvent(event);
-      
+      }
       events.push(event);
     }
-    
+
     // return all event objects that were fired
     return events;
   },

@@ -39,24 +39,17 @@
            googleAnalytics.setCustomVar(4, "FirstVisitCobrand", "{$cobrand|escape:javascript}", 1);
         {/if}
         {if $is_new_session}
-           var landing_category = googleAnalytics.pagetype ? googleAnalytics.pagetype : "home";
+           var landing_category = googleAnalytics.pagetype ? googleAnalytics.pagetype : "home page";
            // special handling for coupons since there coupons_index, coupons_browsemap, coupons_store, coupons_tag, etc
                  if (googleAnalytics.pagetype.search(/coupon/i) != -1) landing_category = 'coupons';
            //special handling for product search
            {if !empty($category)}
             if (googleAnalytics.pagetype == 'search') landing_category = "{$category}";
+            if (googleAnalytics.pagetype == 'browse_homepage') landing_category = "home page";
+            if (googleAnalytics.pagetype == 'index') landing_category = "home page";
            {/if}
            googleAnalytics.setCustomVar(2, "LandingCategory", landing_category, 2);
-                 googleAnalytics.setCustomVar(3, "VersionNumber", "{$version}", 2);
-           {if $is_logged_in}
-              {if $usertype eq 'facebook'}
-                googleAnalytics.setCustomVar(4, "UserID", "{$userid}", 2);
-              {else}
-                googleAnalytics.setCustomVar(4, "UserID", "{$useremail}", 2);
-              {/if}
-           {else}
-              googleAnalytics.setCustomVar(4, "UserID", "notLoggedin", 2);
-           {/if}
+           googleAnalytics.setCustomVar(3, "VersionNumber", "{$version}", 2);
            //googleAnalytics.trackEvent(["AB Test", "version", "{$version}"]) 
         {/if}
         googleAnalytics.trackPageview();

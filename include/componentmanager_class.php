@@ -411,7 +411,8 @@ class ComponentResponse implements ArrayAccess {
         $ret = array("text/plain", $tplmgr->GenerateHTML($tplmgr->GetTemplate($this->template, NULL, $this->data)));
         break;
       case 'xml':
-        $ret = array("application/xml", object_to_xml($this, "response"));
+        $rawxml = any(ConfigManager::get("page.rawxml"), false);
+        $ret = array("application/xml", ($rawxml ? $this->data["content"] : object_to_xml($this, "response")));
         break;
       case 'data':
         $ret = array("", $this->data);

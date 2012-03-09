@@ -224,7 +224,8 @@ elation.extend('googleanalytics', function(args) {
 
 
     if(this.pagetype == 'browse_homepage' || this.pagetype == 'browse_merchant' || this.pagetype == 'browse_brand' || this.pagetype == 'browse_profile') {
-      var cobrand = 'glimpse';
+      //var cobrand = 'glimpse';
+      var cobrand = googleAnalytics.cobrand;
       var page = elation.browse.page(0).subpage;
       var browseby = elation.browse.page(0).args.browseby;
       var list = elation.browse.page(0).getCurrentNode();

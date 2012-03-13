@@ -36,7 +36,7 @@
            var datetime = new Date();
            var d = (datetime.getMonth() + 1) + '-' + datetime.getDate() + '-' + datetime.getFullYear();
            googleAnalytics.setCustomVar(1, "FirstVisitDate", d, 1);
-           googleAnalytics.setCustomVar(5, "FirstVisitSource", "placeholder", 1);
+           //googleAnalytics.setCustomVar(5, "FirstVisitSource", "placeholder", 1);
            googleAnalytics.setCustomVar(4, "FirstVisitCobrand", "{$cobrand|escape:javascript}", 1);
         {/if}
         {if $is_new_session}

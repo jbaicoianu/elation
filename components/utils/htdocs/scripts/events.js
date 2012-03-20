@@ -58,9 +58,10 @@ elation.extend("events", {
         continue;
       
       if (typeof event.origin == 'function') {
+        event.origin(event);
         // FIXME - MSIE keeps erroring on this line, saying expected ';', no idea why.  try/catch doesn't suppress error
-        if (elation.browser.type != 'msie') event.origin(event);
-        else console.log('Error firing custom event: '+type);
+        //if (elation.browser.type != 'msie') event.origin(event);
+        //else console.log('Error firing custom event: '+type);
       } else if (typeof event.origin.handleEvent != 'undefined') {
         event.origin.handleEvent(event);
       }

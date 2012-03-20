@@ -389,6 +389,7 @@ elation.extend('html.preloader', function(elements, args) {
   this.load = function(event, target) {
     elation.events.fire('preloader_load', this);
     
+		//console.log('preloader done',target);
     this.validate(true);
   }
   
@@ -457,10 +458,10 @@ elation.extend("html.toggleclass", function(element, className) {
 });
 
 // for great justice
-elation.extend("html.hasClass", elation.html.hasClass);
-elation.extend("html.addClass", elation.html.addClass);
-elation.extend("html.removeClass", elation.html.removeClass);
-elation.extend("html.toggleClass", elation.html.toggleClass);
+elation.extend("html.hasClass", elation.html.hasclass);
+elation.extend("html.addClass", elation.html.addclass);
+elation.extend("html.removeClass", elation.html.removeclass);
+elation.extend("html.toggleClass", elation.html.toggleclass);
 
 /* creates a new html element
       example: elation.html.create({ 
@@ -1998,9 +1999,9 @@ function any() {
 *   elation.timing.log();
 *   elation.timing.print();
 */
-elation.extend('timing', new function() {
+elation.extend('timing', function(set_on_init) {
 	this.log = this.set;
-  this.enabled = false;
+  this.enabled = true;
 
 	this.init = function() {
 		this.l = [];
@@ -2054,7 +2055,7 @@ elation.extend('timing', new function() {
 				times += (l[i] - l[(i-1)]) + 'ms, ';
 		
 		if (i == 2)
-      debug = (l[l.length-1] - l[0]) + 'ms: ' + prefix;
+      debug = prefix + ': ' + (l[l.length-1] - l[0]) + 'ms';
     else
       debug = prefix + ': ' + times + 'total(' + (l[l.length-1] - l[0]) + 'ms)';
 		
@@ -2063,6 +2064,9 @@ elation.extend('timing', new function() {
 		else
 			console.log(debug);
   }
+  
+  if (set_on_init)
+    this.set(true);
 });
 elation.extend("utils.regexp", new function() {
   this.specialchars = [

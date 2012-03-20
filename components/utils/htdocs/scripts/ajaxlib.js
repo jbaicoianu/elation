@@ -462,23 +462,50 @@ elation.extend("ajax", new function() {
       }
     }
 
-    //alert('trying '+obj.method+' '+obj.url);
     try {
-      if (obj.method == "POST") {
-        xmlhttp.open(obj.method, obj.url, true);
-        xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        xmlhttp.setRequestHeader("X-Ajax", "1");
-        xmlhttp.onreadystatechange = readystatechange;
-        xmlhttp.send(obj.args);
-      } else if (obj.method == "GET") {
-        xmlhttp.open(obj.method, obj.url + "?" + obj.args, true);
-        xmlhttp.setRequestHeader("X-Ajax", "1");
-        xmlhttp.onreadystatechange = readystatechange;
-        xmlhttp.send(null);
-      } else if (obj.method == "SCRIPT") {
-        var url = (obj.url.match(/^https?:/) ? obj.url : this.host + obj.url);
-        if (obj.args) url += '?' + elation.utils.encodeURLParams(obj.args);
-        elation.file.get('javascript', url);
+      switch (obj.method.toUpperCase()) {
+        case "POST":
+          xmlhttp.open(obj.method, obj.url, true);
+          xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+          xmlhttp.setRequestHeader("X-Ajax", "1");
+          xmlhttp.onreadystatechange = readystatechange;
+          xmlhttp.send(obj.args);
+          break;
+        
+        case "SCRIPT":
+          var url = (obj.url.match(/^https?:/) ? obj.url : this.host + obj.url);
+          if (obj.args) url += '?' + elation.utils.encodeURLParams(obj.args);
+          elation.file.get('javascript', url);
+          break;
+          
+        // wont return payload, lower overhead (maybe?)
+        case "IMAGE":
+          var url = (obj.url.match(/^https?:/) ? obj.url : this.host + obj.url),
+              url = (obj.args ? url+'?'+obj.args : url),
+              img = elation.html.create({
+                tag: 'img',
+                style: {
+                  visibility: 'hidden',
+                  position: 'absolute'
+                },
+                attributes: {
+                  src: url
+                },
+                append: document.body
+              });
+          
+          elation.events.add(img, 'load,error', function(event) {
+            document.body.removeChild(img);
+          });
+          break;
+        
+        // defaults to GET method
+        default:
+          xmlhttp.open(obj.method, obj.url + "?" + obj.args, true);
+          xmlhttp.setRequestHeader("X-Ajax", "1");
+          xmlhttp.onreadystatechange = readystatechange;
+          xmlhttp.send(null);
+          break;
       }
     } catch (e) {
       if (typeof console != 'undefined') {

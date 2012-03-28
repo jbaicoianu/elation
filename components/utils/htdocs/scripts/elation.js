@@ -297,12 +297,17 @@ elation.extend('onloads',new function() {
     eval(script);
   }
 });
-//elation.onloads.init();
 
+elation.extend("html.window.width", function() {
+  return window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+});
+elation.extend("html.window.height", function() {
+  return window.innerHeight	|| document.documentElement.clientHeight || document.body.clientHeight;
+});
 elation.extend("html.dimensions", function(element, ignore_size) {
 	if (typeof element != 'object' || element === window) {
-		var	width = window.innerWidth		|| document.documentElement.clientWidth		|| document.body.clientWidth,
-				height = window.innerHeight	|| document.documentElement.clientHeight	|| document.body.clientHeight;
+		var	width = elation.html.window.width(),
+				height = elation.html.window.height();
 		
 		return {
 			0 : width,
@@ -1994,12 +1999,11 @@ function any() {
 
 /* JavaScript timing - Displays execution time of code blocks
 * usage:
-*   elation.timing.log();
-*   elation.timing.log();
-*   elation.timing.log();
-*   elation.timing.print();
+*   var timing = new elation.timing(boolSetOnInit);
+*   timing.set(boolClear);
+*   timing.print(strLabel, boolSetBeforePrint, boolUseAlert);
 */
-elation.extend('timing', function(set_on_init) {
+elation.extend('timing', function(boolSetOnInit) {
 	this.log = this.set;
   this.enabled = true;
 
@@ -2009,11 +2013,11 @@ elation.extend('timing', function(set_on_init) {
 	}
 	
   // reset will reset timing from this point
-	this.set = function(reset) {
+	this.set = function(boolClear) {
     if (!this.enabled)
       return;
     
-		if (reset)
+		if (boolClear)
 			this.init();
 		
 		var	i = this.i,
@@ -2038,15 +2042,15 @@ elation.extend('timing', function(set_on_init) {
 	
   // log will perform a set()
   // use_alert will use alert instead of console.log
-	this.print = function(name, log, use_alert) {
+	this.print = function(strLabel, boolSetBeforePrint, boolUseAlert) {
     if (!this.enabled)
       return;
     
-		if (log)
+		if (boolSetBeforePrint)
 			this.set();
 		
 		var	l = this.l,
-				prefix = name ? name : 'timing',
+				prefix = strLabel ? strLabel : 'timing',
         times = '',
         debug = '';
 		
@@ -2059,13 +2063,13 @@ elation.extend('timing', function(set_on_init) {
     else
       debug = prefix + ': ' + times + 'total(' + (l[l.length-1] - l[0]) + 'ms)';
 		
-		if (use_alert)
+		if (boolUseAlert)
 			alert(debug);
 		else
 			console.log(debug);
   }
   
-  if (set_on_init)
+  if (boolSetOnInit)
     this.set(true);
 });
 elation.extend("utils.regexp", new function() {

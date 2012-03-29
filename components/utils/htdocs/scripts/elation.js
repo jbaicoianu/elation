@@ -863,7 +863,7 @@ elation.extend("utils.isArray", function(obj) {
 elation.extend("utils.getFirstChild", function(obj, tag, className) {
   for (var i=0; i<obj.childNodes.length; i++)
     if (obj.childNodes[i].nodeName == tag.toUpperCase())
-      if (className && this.hasclass(obj, className))
+      if (className && elation.html.hasclass(obj, className))
         return obj.childNodes[i];
       else if (!className)
         return obj.childNodes[i];
@@ -876,7 +876,7 @@ elation.extend("utils.getFirstChild", function(obj, tag, className) {
 elation.extend("utils.getLastChild", function(obj, tag, className) {
   for (var i=obj.childNodes.length-1; i>=0; i--)
     if (obj.childNodes[i].nodeName == tag.toUpperCase())
-      if (className && this.hasclass(obj, className))
+      if (className && elation.html.hasclass(obj, className))
         return obj.childNodes[i];
       else if (!className)
         return obj.childNodes[i];
@@ -891,7 +891,7 @@ elation.extend("utils.getAll", function(obj, tag, className) {
       all = obj.getElementsByTagName(tag);
   
   for (var i=0; i<all.length; i++)
-    if (className && this.hasclass(all[i], className))
+    if (className && elation.html.hasclass(all[i], className))
       ret.push(all[i]);
     else if (!className)
       ret.push(all[i]);
@@ -909,7 +909,7 @@ elation.extend("utils.getOnly", function(obj, tag, className) {
   
   for (var i=0; el=obj.childNodes[i]; i++)
     if (el.nodeName == tag.toUpperCase()) {
-      if (className && this.hasclass(el, className))
+      if (className && elation.html.hasclass(el, className))
         ret.push(el);
       else if (!className)
         ret.push(el);

@@ -47,9 +47,9 @@ if (dir_exists_in_path('thrift/')) {
     }
 
     function Close() {
-      if (!empty($this->transport))
+      if (!empty($this->transport) && $this->transport->isOpen())
         $this->transport->close();
-      if (!empty($this->socket))
+      if (!empty($this->socket) && $this->socket->isOpen())
         $this->socket->close();
       unset($this->socket);
       unset($this->protocol);

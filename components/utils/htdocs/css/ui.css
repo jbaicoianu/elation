@@ -221,3 +221,23 @@ elation\:args {
   display: none;
 }
 
+#tf_debug_profiler {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  background: rgba(255,255,255,.8);
+  border: 1px solid black;
+  white-space: nowrap;
+  overflow-y: auto;
+  max-height: 20em;
+}
+#tf_debug_profiler table {
+  margin: 1em 2em 1em 1em;
+}
+#tf_debug_profiler th {
+  padding-left: 2em;
+}
+#tf_debug_profiler .timeTotal, 
+#tf_debug_profiler .timePerExecution {
+  text-align: right;
+}

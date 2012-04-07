@@ -7,7 +7,7 @@ elation.extend("browser", new function() {
     return this.place;
   }
   var detect = navigator.userAgent.toLowerCase();
-  alert('detect: '+detect);
+  
   if (this.checkIt('konqueror')) {
     this.type = "Konqueror";
     this.OS = "Linux";

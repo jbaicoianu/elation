@@ -175,7 +175,7 @@ if (dir_exists_in_path('thrift/')) {
      * @param array $bind_vars
      * @return int
      */
-    function &QueryDelete($queryid, $table, $where, $extras=array()) {
+    function &QueryDelete($queryid, $table, $where, $bind=NULL, $extras=NULL) {
       $consistency = any($extras["consistency"], $this->consistency, cassandra_ConsistencyLevel::ONE);
       if ($this->Open()) {
         $keyspace = $this->keyspace;
@@ -186,7 +186,7 @@ if (dir_exists_in_path('thrift/')) {
           $timestamp = $this->getTimestamp();
           $deletion = new cassandra_Deletion(array("timestamp" => $timestamp));
           if (is_array($where)) {
-            $deletion->predicate = new cassandra_SlicePredicate(array("column_names" => $this->GenerateIndex($extras["indexby"], $where)));
+            $deletion->predicate = new cassandra_SlicePredicate(array("column_names" => array($this->GenerateIndex($extras["indexby"], $where))));
           } else {
             $super_column = new cassandra_SuperColumn();
             $super_column->name = $this->unparse_column_name($where, true);

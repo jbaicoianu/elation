@@ -274,6 +274,8 @@ class DBWrapper extends ConnectionWrapper {
           print_pre($where_condition);
           print_pre($bind_vars);
           */
+          //Logger::Error("Execute querydelete: $realtable $where_condition");
+          //Logger::Error($bind_vars);
           try {
             $rows_affected = $this->conn[$servernum]->delete($realtable, $where_condition, $bind_vars);
             Logger::Notice("Execute delete query on table $table (Using " . $this->dsn . ")");

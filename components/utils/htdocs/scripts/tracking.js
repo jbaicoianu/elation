@@ -223,7 +223,8 @@ elation.extend('googleanalytics', function(args) {
     }
 
 
-    if(this.pagetype == 'browse_homepage' || this.pagetype == 'browse_merchant' || this.pagetype == 'browse_brand' || this.pagetype == 'browse_profile') {
+    if(this.pagetype == 'browse_homepage' || this.pagetype == 'browse_merchant' || this.pagetype == 'browse_brand' || this.pagetype == 'browse_profile'
+        || this.pagetype == 'browse_sets') {
       //var cobrand = 'glimpse';
       var cobrand = googleAnalytics.cobrand;
       var page = elation.browse.page(0).subpage;
@@ -240,7 +241,9 @@ elation.extend('googleanalytics', function(args) {
             this.pageURL = 'virt_results/'+cobrand
                          + '/store/brand/'
                          + '?store='+list.merchant
-                         + '&brand='+list.brand;
+            if(typeof list.brand != 'undefined'){
+              this.pageURL += '&brand='+list.brand;
+            }
           } else if(browseby == 'styles'){
             //style facet
             this.pageURL = 'virt_results/'+cobrand
@@ -326,10 +329,16 @@ elation.extend('googleanalytics', function(args) {
               }
               key = trendsetters_list;
             }
+            //this.pageURL = 'virt_profile/'+cobrand
+                         //+ type
+                         //+ '?name='+username;
             this.pageURL = 'virt_profile/'+cobrand
                          + type
                          + '?name='+username;
           break;
+        case '/catalog':
+
+        break;
         default:
           //node page
           if(browseby == 'brands') {

@@ -843,6 +843,16 @@ elation.extend("utils.isEmpty", function(obj) {
   return true;
 });
 
+elation.extend("utils.isEmptyObj", function(obj) {
+    for (var key in obj) {
+        if (obj.hasOwnProperty(key))
+            return false;
+    }
+
+    return true;
+}
+);
+
 elation.extend("utils.isArray", function(obj) {
   var objclass = Object.prototype.toString.call(obj),
       allow = {
@@ -1174,6 +1184,9 @@ elation.extend('JSON', new function() {
   }
   
   this.JSON = function(parms, text) {
+    if (elation.utils.isEmptyObj(text))
+      return;
+    
 		var key = (typeof JSON[parms[0]] == 'function' ? parms[0] : parms[1]);
     
 		return (key == 'parse' ? JSON.parse(text) : JSON.stringify(text));

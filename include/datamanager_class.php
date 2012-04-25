@@ -264,14 +264,14 @@ class DataManager {
    * @param array $where_condition
    * @return int (last insert id)
    */
-  static function &QueryDelete($id, $table, $where_condition=NULL, $bind_vars=array()) {
+  static function &QueryDelete($id, $table, $where_condition=NULL, $bind_vars=array(), $extras=NULL) {
     Profiler::StartTimer("DataManager::QueryDelete()");
     Profiler::StartTimer("DataManager::QueryDelete($id)", 3);
     $qstart = microtime(true);
     $rows_affected = NULL;
     $queryid = new DatamanagerQueryID($id);
     if ($source =& DataManager::PickSource($queryid)) {
-      $rows_affected = $source->QueryDelete($queryid, $table, $where_condition, $bind_vars);
+      $rows_affected = $source->QueryDelete($queryid, $table, $where_condition, $bind_vars, $extras);
     }
     Profiler::StopTimer("DataManager::QueryDelete()");
     Profiler::StopTimer("DataManager::QueryDelete($id)");
@@ -543,8 +543,8 @@ class DataManager {
   static function &update($id, $table, $values, $where_condition=NULL, $bind_vars=array()) {
     return self::QueryUpdate($id, $table, $values, $where_condition, $bind_vars);
   }
-  static function &delete($id, $table, $where_condition=NULL, $bind_vars=array()) {
-    return self::QueryDelete($id, $table, $where_condition, $bind_vars);
+  static function &delete($id, $table, $where_condition=NULL, $bind_vars=array(), $extras=NULL) {
+    return self::QueryDelete($id, $table, $where_condition, $bind_vars, $extras=NULL);
   }
   static function &create($id, $table, $columns) {
     return self::QueryCreate($id, $table, $columns);

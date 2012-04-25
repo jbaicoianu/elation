@@ -943,8 +943,8 @@ elation.extend("utils.isin", function(parent, element) {
   if (!parent || !element)
     return false;
   
- 	while (!elation.utils.isNull(element) && element != parent && element != document.body)
-    element = element.offsetParent;
+ 	while (!elation.utils.isNull(element) && element != parent && element != document.body) 
+    element = element.parentNode;
   
   return (parent == element);
 });

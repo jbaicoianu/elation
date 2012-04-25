@@ -223,8 +223,10 @@ elation.extend('googleanalytics', function(args) {
     }
 
 
-    if(this.pagetype == 'browse_homepage' || this.pagetype == 'browse_merchant' || this.pagetype == 'browse_brand' || this.pagetype == 'browse_profile') {
-      var cobrand = 'glimpse';
+    if(this.pagetype == 'browse_homepage' || this.pagetype == 'browse_merchant' || this.pagetype == 'browse_brand' || this.pagetype == 'browse_profile'
+        || this.pagetype == 'browse_sets') {
+      //var cobrand = 'glimpse';
+      var cobrand = googleAnalytics.cobrand;
       var page = elation.browse.page(0).subpage;
       var browseby = elation.browse.page(0).args.browseby;
       var list = elation.browse.page(0).getCurrentNode();
@@ -239,7 +241,9 @@ elation.extend('googleanalytics', function(args) {
             this.pageURL = 'virt_results/'+cobrand
                          + '/store/brand/'
                          + '?store='+list.merchant
-                         + '&brand='+list.brand;
+            if(typeof list.brand != 'undefined'){
+              this.pageURL += '&brand='+list.brand;
+            }
           } else if(browseby == 'styles'){
             //style facet
             this.pageURL = 'virt_results/'+cobrand
@@ -298,7 +302,12 @@ elation.extend('googleanalytics', function(args) {
             var browse_page = elation.browse.page(0);
             var datakey = browse_page.getDataKey();
             var loggedin_userid = browse_page.args.userid;
-            var username = elation.user.user.nickname, userid, type = '/me';
+            var username = elation.user.user.nickname, userid, type = '/me', cat;
+            if(typeof list.catalog != 'undefined'){
+              cat = '/catalogs';
+            } else {
+              cat = '/likes';
+            }
             if(browse_page.data[datakey] && browse_page.data[datakey].persons) {
               var persons_list = browse_page.data[datakey].persons;
               var friends_list = browse_page.data[datakey].friends_list;
@@ -326,9 +335,15 @@ elation.extend('googleanalytics', function(args) {
               key = trendsetters_list;
             }
             this.pageURL = 'virt_profile/'+cobrand
+                         + cat
                          + type
-                         + '?name='+username;
+            if(typeof list.catalog != 'undefined'){
+              this.pageURL += '/?catalog='+list.catalog;
+            }
           break;
+        case '/catalog':
+
+        break;
         default:
           //node page
           if(browseby == 'brands') {

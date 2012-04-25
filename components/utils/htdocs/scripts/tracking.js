@@ -302,7 +302,12 @@ elation.extend('googleanalytics', function(args) {
             var browse_page = elation.browse.page(0);
             var datakey = browse_page.getDataKey();
             var loggedin_userid = browse_page.args.userid;
-            var username = elation.user.user.nickname, userid, type = '/me';
+            var username = elation.user.user.nickname, userid, type = '/me', cat;
+            if(typeof list.catalog != 'undefined'){
+              cat = '/catalogs';
+            } else {
+              cat = '/likes';
+            }
             if(browse_page.data[datakey] && browse_page.data[datakey].persons) {
               var persons_list = browse_page.data[datakey].persons;
               var friends_list = browse_page.data[datakey].friends_list;
@@ -329,12 +334,12 @@ elation.extend('googleanalytics', function(args) {
               }
               key = trendsetters_list;
             }
-            //this.pageURL = 'virt_profile/'+cobrand
-                         //+ type
-                         //+ '?name='+username;
             this.pageURL = 'virt_profile/'+cobrand
+                         + cat
                          + type
-                         + '?name='+username;
+            if(typeof list.catalog != 'undefined'){
+              this.pageURL += '/?catalog='+list.catalog;
+            }
           break;
         case '/catalog':
 

@@ -8,6 +8,9 @@ elation.extend("browser", new function() {
   }
   var detect = navigator.userAgent.toLowerCase();
   
+  // mozilla/5.0 (ipad; cpu os 5_1 like mac os x) applewebkit/534.46 (khtml, like gecko) mobile/9b176
+  // /^Mozilla.*?\(iPad;/
+  
   if (this.checkIt('konqueror')) {
     this.type = "Konqueror";
     this.OS = "Linux";

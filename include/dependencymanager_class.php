@@ -12,6 +12,7 @@ class DependencyManager {
   static private $formats = array("browsers" => array("ie6" => "\n<!--[if IE 6]>\n%s\n<![endif]-->\n",
                                                       "ie7" => "\n<!--[if IE 7]>\n%s\n<![endif]-->\n",
                                                       "ie8" => "\n<!--[if IE 8]>\n%s\n<![endif]-->\n",
+                                                      "ie9" => "\n<!--[if IE 9]>\n%s\n<![endif]-->\n",
                                                       ),
                                   "types" => array("placemark" => "<!--\n%s-->\n"),
                                  );

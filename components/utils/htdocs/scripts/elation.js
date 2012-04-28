@@ -1184,7 +1184,7 @@ elation.extend('JSON', new function() {
   }
   
   this.JSON = function(parms, text) {
-    if (elation.utils.isEmptyObj(text))
+    if (typeof text != 'string' && elation.utils.isEmptyObj(text))
       return;
     
 		var key = (typeof JSON[parms[0]] == 'function' ? parms[0] : parms[1]);

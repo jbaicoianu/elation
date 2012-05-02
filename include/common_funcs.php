@@ -948,3 +948,38 @@ function hexdump($data, $width=16) {
   }
   print "<pre>" . $dump . "</pre>";
 }
+function object_strip_nulls(&$obj) {
+  foreach ($obj as $k=>$v) {
+    if ($v === null) {
+      unset($obj->{$k});
+    } else if (is_array($obj->{$k})) {
+      array_strip_nulls($obj->{$k});
+      if (count($obj->{$k}) == 0) {
+        unset($obj->{$k});
+      }
+    } else if (is_object($obj->{$k})) {
+      object_strip_nulls($obj->{$k});
+    }
+  }
+}
+function array_strip_nulls(&$arr) {
+  foreach ($arr as $k=>$v) {
+    if ($v === null) {
+      unset($arr[$k]);
+    } else if (is_array($arr[$k])) {
+      array_strip_nulls($arr[$k]);
+      if (count($arr[$k]) == 0) {
+        unset($arr[$k]);
+      }
+    } else if (is_object($arr->{$k})) {
+      object_strip_nulls($arr[$k]);
+    }
+  }
+}
+function strip_nulls(&$ptr) {
+  if (is_array($ptr)) {
+    array_strip_nulls($ptr);
+  } else if (is_object($ptr)) {
+    object_strip_nulls($ptr);
+  } 
+}

@@ -222,6 +222,7 @@ class Logger {
 
     $timestats = array("page" => any($webapp->components->pagecfg["pagename"], $webapp->request["path"]), "total" => Profiler::GetTime("WebApp"));
     if (($time = Profiler::GetTime("QPMWrapper:Query()")) != NULL) $timestats["qpm"] = $time;
+    if (($time = Profiler::GetTime("QPMThriftWrapper:Query()")) != NULL) $timestats["qpm"] += $time;
     if (($time = Profiler::GetTime("QPMWrapper:Query() - first byte")) != NULL) $timestats["qpmfirstbyte"] = $time;
     if (($time = Profiler::GetTime("DBWrapper:Query()")) != NULL) $timestats["db"] = $time;
     if (($time = Profiler::GetTime("WebApp::TimeToDisplay")) != NULL) $timestats["firstbyte"] = $time;

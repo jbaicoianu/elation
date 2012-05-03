@@ -170,7 +170,7 @@ class App {
         print $this->tplmgr->PostProcess($output["content"], true);
       } else {
         print $this->tplmgr->PostProcess($output["content"]);
-        $showprofiler = !empty($this->request["args"]["timing"]) || array_get($this->cfg->servers, "profiler.display");
+        $showprofiler = !empty($this->request["args"]["timing"]) || ($output["type"] == "text/html" && array_get($this->cfg->servers, "profiler.display"));
         if ($showprofiler)
           print Profiler::Display();
       }

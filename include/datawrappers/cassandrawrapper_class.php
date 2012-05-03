@@ -58,20 +58,24 @@ if (dir_exists_in_path('thrift/')) {
       return true;
     }
     
-    function QueryFetch($queryid, $table, $where=array(), $extras=NULL) {
+    function QueryFetch($queryid, $fulltable, $where=array(), $extras=NULL) {
+      $keyspace = $this->keyspace;
+      $table = $fulltable;
+      if (strpos($fulltable, ".") !== false)
+        list($keyspace, $table) = explode(".", $fulltable, 2);
+      Profiler::StartTimer("CassandraWrapper:QueryFetch()", 1);
+      Profiler::StartTimer("CassandraWrapper:QueryFetch($fulltable)", 2);
+      $ret = null;
+
       if ($this->Open()) {
         try {
-          $keyspace = $this->keyspace;
-          if (strpos($table, ".") !== false)
-            list($keyspace, $table) = explode(".", $table, 2);
-
           // If we failed init, bail
           if ($this->flag_failed_init) 
-            return null;
+            throw new Exception("Initialization failed, skipping query");
       
           $consistency = any($extras["consistency"], $this->consistency, cassandra_ConsistencyLevel::ONE);
           $key = $queryid->hash;
-          Logger::Warn("Cassandra fetch: $keyspace.$table#" . $queryid->hash . " (consistency $consistency)");
+          Logger::Notice("Cassandra fetch: $keyspace.$table#" . $queryid->hash . " (consistency $consistency)");
 
           // Prepare query
           $column_parent = new cassandra_ColumnParent();
@@ -101,7 +105,7 @@ if (dir_exists_in_path('thrift/')) {
                 $arr_result[$key] = $this->supercolumns_or_columns_to_array($data);
               }
             }
-            return $arr_result;
+            $ret = $arr_result;
           } else {
             if ($this->version <= 0.6) {
               $resp = $this->supercolumns_or_columns_to_array($this->client->get_slice($keyspace, $key, $column_parent, $predicate, $consistency));
@@ -109,17 +113,19 @@ if (dir_exists_in_path('thrift/')) {
               $resp = $this->supercolumns_or_columns_to_array($this->client->get_slice($key, $column_parent, $predicate, $consistency));
             }
             if (!empty($extras["orderby"])) {
-              return $this->SortResults($resp, $extras["orderby"], $extras["reverse"]);
+              $ret = $this->SortResults($resp, $extras["orderby"], $extras["reverse"]);
             } else {
-              return $resp;
+              $ret = $resp;
             }
-            //return $this->supercolumns_or_columns_to_array($resp);
+            //$ret = $this->supercolumns_or_columns_to_array($resp);
           }
         } catch (TException $tx) {
           $this->Debug($tx->why." ".$tx->getMessage());
-          return null;
         }
       }
+      Profiler::StopTimer("CassandraWrapper:QueryFetch()");
+      Profiler::StopTimer("CassandraWrapper:QueryFetch($fulltable)");
+      return $ret;
     }
     /**
      * Execute an insert query (1 record)
@@ -128,14 +134,23 @@ if (dir_exists_in_path('thrift/')) {
      * @param array $values
      * @return int
      */
-    function QueryInsert($queryid, $table, $values, $extra=NULL) {
+    function QueryInsert($queryid, $fulltable, $values, $extra=NULL) {
+      $keyspace = $this->keyspace;
+      $table = $fulltable;
+      if (strpos($fulltable, ".") !== false)
+        list($keyspace, $table) = explode(".", $fulltable, 2);
+
+      Profiler::StartTimer("CassandraWrapper:QueryInsert()", 1);
+      Profiler::StartTimer("CassandraWrapper:QueryInsert($fulltable)", 2);
       $consistency = any($extras["consistency"], $this->consistency, cassandra_ConsistencyLevel::ONE);
-      Logger::Warn("Cassandra insert: $table#" . $queryid->hash . " (consistency $consistency)");
+      Logger::Notice("Cassandra insert: $table#" . $queryid->hash . " (consistency $consistency)");
+      $ret = false;
       if ($this->Open()) {
-        $keyspace = $this->keyspace;
-        if (strpos($table, ".") !== false)
-          list($keyspace, $table) = explode(".", $table, 2);
         try {
+          // If we failed init, bail
+          if ($this->flag_failed_init) 
+            throw new Exception("Initialization failed, skipping query");
+      
           $timestamp = $this->getTimestamp();
           $mutations = array($queryid->hash => array($table => $this->array_to_supercolumns_or_columns($values, $timestamp)));
           //print_pre($mutations);
@@ -146,12 +161,15 @@ if (dir_exists_in_path('thrift/')) {
           } else {
             $this->client->batch_mutate($mutations, $consistency);
           }
+          $ret = true;
         } catch (TException $e) {
           $this->Debug($e->why . " " . $e->getMessage());
-          return false;
+          $ret = false;
         }
-        return true;
       }
+      Profiler::StopTimer("CassandraWrapper:QueryInsert()");
+      Profiler::StopTimer("CassandraWrapper:QueryInsert($fulltable)");
+      return $ret;
     }
     /**
      * Execute an update query
@@ -175,14 +193,22 @@ if (dir_exists_in_path('thrift/')) {
      * @param array $bind_vars
      * @return int
      */
-    function &QueryDelete($queryid, $table, $where, $bind=NULL, $extras=NULL) {
+    function &QueryDelete($queryid, $fulltable, $where, $bind=NULL, $extras=NULL) {
+      $keyspace = $this->keyspace;
+      $table = $fulltable;
+      if (strpos($fulltable, ".") !== false)
+        list($keyspace, $table) = explode(".", $fulltable, 2);
+      Profiler::StartTimer("CassandraWrapper:QueryDelete()", 1);
+      Profiler::StartTimer("CassandraWrapper:QueryDelete($fulltable)", 2);
       $consistency = any($extras["consistency"], $this->consistency, cassandra_ConsistencyLevel::ONE);
+      $ret = false;
       if ($this->Open()) {
-        $keyspace = $this->keyspace;
-        if (strpos($table, ".") !== false)
-          list($keyspace, $table) = explode(".", $table, 2);
-        Logger::Warn("Cassandra delete: $table#" . $queryid->hash . " (consistency $consistency)");
+        Logger::Notice("Cassandra delete: $table#" . $queryid->hash . " (consistency $consistency)");
         try {
+          // If we failed init, bail
+          if ($this->flag_failed_init) 
+            throw new Exception("Initialization failed, skipping query");
+
           $timestamp = $this->getTimestamp();
           $deletion = new cassandra_Deletion(array("timestamp" => $timestamp));
           if (is_array($where)) {
@@ -202,12 +228,15 @@ if (dir_exists_in_path('thrift/')) {
           } else {
             $this->client->batch_mutate($mutations, $consistency);
           }
+          $ret = true;
         } catch (TException $e) {
           $this->Debug($e->why . " " . $e->getMessage());
-          return false;
+          $ret = false;
         }
-        return true;
       }
+      Profiler::StopTimer("CassandraWrapper:QueryDelete()");
+      Profiler::StopTimer("CassandraWrapper:QueryDelete($fulltable)");
+      return $ret;
     }
     function &QueryCreate($queryid, $table, $columns=NULL) { 
       // Initialize

@@ -366,7 +366,7 @@ class SessionManager
       $_SESSION["persist"]["has_db_record"] = true;
       $pdata_serialize = serialize($_SESSION["persist"]);
       $ip = $_SERVER['REMOTE_ADDR'];
-      Logger::Warn("Creating session in database");
+      Logger::Notice("Creating session in database");
       $result = DataManager::QueryInsert($this->sessionsource . "#{$this->fluid}",
                                    $this->sessiontable,
                                    array($this->fluid => array("fl_uid"=>$this->fluid, "data"=>$pdata_serialize, "ip_addr"=>$ip)));
@@ -453,8 +453,8 @@ class SessionManager
     $user = User::singleton();
     $user->save();
     Profiler::StopTimer("SessionManager::write - save user");
+    strip_nulls($pdata);
     // compare the persist data before and after for changes
-    $pdata = $_SESSION["persist"];
     $pdata_serialize = serialize($pdata);
 
     //Logger::Warn($pdata_serialize);

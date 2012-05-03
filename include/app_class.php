@@ -170,7 +170,8 @@ class App {
         print $this->tplmgr->PostProcess($output["content"], true);
       } else {
         print $this->tplmgr->PostProcess($output["content"]);
-        if (!empty($this->request["args"]["timing"]))
+        $showprofiler = !empty($this->request["args"]["timing"]) || array_get($this->cfg->servers, "profiler.display");
+        if ($showprofiler)
           print Profiler::Display();
       }
       Profiler::StopTimer("WebApp::TimeToDisplay");

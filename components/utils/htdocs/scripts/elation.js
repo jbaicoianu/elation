@@ -1188,8 +1188,10 @@ elation.extend('JSON', new function() {
       return;
     
 		var key = (typeof JSON[parms[0]] == 'function' ? parms[0] : parms[1]);
-    
-		return (key == 'parse' ? JSON.parse(text) : JSON.stringify(text));
+
+		if (typeof JSON[key] == 'function') {
+			return JSON[key](text);
+		}
   }
 });
 elation.extend('cookie', {

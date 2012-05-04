@@ -453,6 +453,7 @@ class SessionManager
     $user = User::singleton();
     $user->save();
     Profiler::StopTimer("SessionManager::write - save user");
+    $pdata = $_SESSION["persist"];
     strip_nulls($pdata);
     // compare the persist data before and after for changes
     $pdata_serialize = serialize($pdata);

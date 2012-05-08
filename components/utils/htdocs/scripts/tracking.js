@@ -297,6 +297,10 @@ elation.extend('googleanalytics', function(args) {
           break;
         case '/home':
             this.pageURL = 'virt_home/'+cobrand;
+            var infobox = elation.ui.infobox.get("glimpsewelcomepopup");
+            if(infobox){
+              this.pageURL += '/welcome';
+            }
         break;
         case '/profile':
             var browse_page = elation.browse.page(0);

@@ -11,7 +11,7 @@
   <title>[[page.pretitle]][[page.title:{$pageTitle|default:"Untitled Page"}]][[page.appendtitle]]</title>
   
   {config}
-    {dependency type="javascript" url="//ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"}
+    {dependency type="javascript" url="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"}
     
     {dependency type="component" name="utils.initjquery"}
     {dependency type="component" name="utils.elation"}

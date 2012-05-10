@@ -559,6 +559,7 @@
 									case 'application/xhtml+xml':
 									case 'application/rss+xml':
 									case 'application/x-javascript':
+									case 'application/javascript':
 										if(( empty( $this->browserAgent )) or ( empty( $this->browserVersion ))) {
 											// trust that they know what they are doing
 										} else {

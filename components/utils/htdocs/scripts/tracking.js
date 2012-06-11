@@ -308,7 +308,7 @@ elation.extend('googleanalytics', function(args) {
             var loggedin_userid = browse_page.args.userid;
             var username = elation.user.user.nickname, userid, type = '/me', cat;
             if(typeof list.catalog != 'undefined'){
-              cat = '/catalogs';
+              cat = '/sets';
             } else {
               cat = '/likes';
             }
@@ -342,11 +342,10 @@ elation.extend('googleanalytics', function(args) {
                          + cat
                          + type
             if(typeof list.catalog != 'undefined'){
-              this.pageURL += '/?catalog='+list.catalog;
+              this.pageURL += '/?set='+list.catalog;
             }
           break;
         case '/catalog':
-
         break;
         default:
           //node page

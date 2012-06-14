@@ -438,7 +438,7 @@ elation.extend("ajax", new function() {
             
             if (obj.callback) {
               try {
-                elation.ajax.executeCallback(obj.callback, xmlhttp.responseText);
+                //elation.ajax.executeCallback(obj.callback, xmlhttp.responseText);
               } catch(e) {
                 console.log('ajax callback execution delayed: ' + e.message);
                 

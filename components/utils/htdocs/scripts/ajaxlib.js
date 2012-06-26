@@ -434,7 +434,9 @@ elation.extend("ajax", new function() {
             var dom = xmlhttp.responseXML.firstChild;
             var results = [];
             
-            processResponse.call(elation.ajax, elation.ajax.translateXML(dom), ajaxlibobj);
+            if(typeof dom != 'undefined' || dom != null){
+              processResponse.call(elation.ajax, elation.ajax.translateXML(dom), ajaxlibobj);
+            }
             
             if (ajaxlibobj.callback) {
               try {

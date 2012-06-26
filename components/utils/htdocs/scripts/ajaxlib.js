@@ -169,15 +169,15 @@ elation.extend("ajax", new function() {
 
   this.processResponse = function(responses, nobj) { 
     // If there's no obj variable, this isn't being called from a closure so use the function argument instead
-    if (typeof obj == 'undefined') { 
-      obj = nobj;
+    if (typeof ajaxlibobj == 'undefined') { 
+      var ajaxlibobj = nobj;
     }
     if (
       (typeof elation.search != 'undefined' && typeof elation.search.backbutton != 'undefined') && 
       (typeof search != 'undefined' && search.urlhash) && 
-      (typeof obj != 'undefined' && obj.url == '' && !elation.utils.isTrue(obj.ignore))
+      (typeof ajaxlibobj != 'undefined' && ajaxlibobj.url == '' && !elation.utils.isTrue(ajaxlibobj.ignore))
     ) {
-      elation.search.backbutton.add(responses, obj);
+      elation.search.backbutton.add(responses, ajaxlibobj);
     }
     
     // Used to keep track of registered dependencies, etc. while all responses are processed
@@ -247,11 +247,11 @@ elation.extend("ajax", new function() {
     execute_scripts();  // no timer makes priceslider happy!  no ugly delay.
     
     // If caller passed in a callback, execute it
-    if (typeof obj != 'undefined' && obj.callback) {
+    if (typeof ajaxlibobj != 'undefined' && ajaxlibobj.callback) {
       try {
-        elation.ajax.executeCallback(obj.callback, common.data);
+        elation.ajax.executeCallback(ajaxlibobj.callback, common.data);
       } catch(e) {
-        batch.callback(function() { elation.ajax.executeCallback(obj.callback, common.data); });
+        batch.callback(function() { elation.ajax.executeCallback(ajaxlibobj.callback, common.data); });
       }
     }
   }
@@ -399,7 +399,7 @@ elation.extend("ajax", new function() {
     return ret;   
   }
 
-  this._go = function(obj) { 
+  this._go = function(ajaxlibobj) { 
     var docroot = this.docroot;
 
     // Need to assign these to local variables so the subfunction can access them
@@ -407,21 +407,21 @@ elation.extend("ajax", new function() {
     var processResponse = this.processResponse;
     var timeouttimer = false;
 
-    if (obj.history) {
-      this.setHistory(obj.args);
+    if (ajaxlibobj.history) {
+      this.setHistory(ajaxlibobj.args);
 
       if (this.iframe) {
-        this.iframe.src = "/ajax-blank.htm?" + obj.args + "#" + obj.url;
+        this.iframe.src = "/ajax-blank.htm?" + ajaxlibobj.args + "#" + ajaxlibobj.url;
         // We'll get back to the processing once the iframe has loaded.  Bail out early here.
         return;
       }
     }
-    if (!obj.cache) {
-      obj.args = (obj.args && obj.args.length > 0 ? obj.args + "&" : "") + "_ajaxlibreqid=" + (parseInt(new Date().getTime().toString().substring(0, 10)) + parseFloat(Math.random()));
+    if (!ajaxlibobj.cache) {
+      ajaxlibobj.args = (ajaxlibobj.args && ajaxlibobj.args.length > 0 ? ajaxlibobj.args + "&" : "") + "_ajaxlibreqid=" + (parseInt(new Date().getTime().toString().substring(0, 10)) + parseFloat(Math.random()));
     }
 
-    if (obj.timeout && obj.timeoutcallback) {
-      timeouttimer = window.setTimeout(function() { obj.failurecallback = false; xmlhttp.abort(); obj.timeoutcallback(); }, obj.timeout || 5000);
+    if (ajaxlibobj.timeout && ajaxlibobj.timeoutcallback) {
+      timeouttimer = window.setTimeout(function() { ajaxlibobj.failurecallback = false; xmlhttp.abort(); ajaxlibobj.timeoutcallback(); }, ajaxlibobj.timeout || 5000);
     }
 
     readystatechange = function() {
@@ -434,28 +434,28 @@ elation.extend("ajax", new function() {
             var dom = xmlhttp.responseXML.firstChild;
             var results = [];
             
-            processResponse.call(elation.ajax, elation.ajax.translateXML(dom), obj);
+            processResponse.call(elation.ajax, elation.ajax.translateXML(dom), ajaxlibobj);
             
-            if (obj.callback) {
+            if (ajaxlibobj.callback) {
               try {
-                //elation.ajax.executeCallback(obj.callback, xmlhttp.responseText);
+                elation.ajax.executeCallback(ajaxlibobj.callback, xmlhttp.responseText);
               } catch(e) {
                 console.log('ajax callback execution delayed: ' + e.message);
                 
                 // fixes weird ass msie error about not enough information
                 setTimeout(function() {
-                  elation.ajax.executeCallback(obj.callback, xmlhttp.responseText);
+                  elation.ajax.executeCallback(ajaxlibobj.callback, xmlhttp.responseText);
                 },1000);
               }
             }
           } else if (xmlhttp.responseText) {
-            if (obj.callback) {
-              elation.ajax.executeCallback(obj.callback, xmlhttp.responseText);
+            if (ajaxlibobj.callback) {
+              elation.ajax.executeCallback(ajaxlibobj.callback, xmlhttp.responseText);
             }
           }
         } else {
-          if (obj.failurecallback) {
-            elation.ajax.executeCallback(obj.failurecallback);
+          if (ajaxlibobj.failurecallback) {
+            elation.ajax.executeCallback(ajaxlibobj.failurecallback);
           }
         }
         setTimeout('elation.ajax.Go()', 0);
@@ -463,25 +463,25 @@ elation.extend("ajax", new function() {
     }
 
     try {
-      switch (obj.method.toUpperCase()) {
+      switch (ajaxlibobj.method.toUpperCase()) {
         case "POST":
-          xmlhttp.open(obj.method, obj.url, true);
+          xmlhttp.open(ajaxlibobj.method, ajaxlibobj.url, true);
           xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
           xmlhttp.setRequestHeader("X-Ajax", "1");
           xmlhttp.onreadystatechange = readystatechange;
-          xmlhttp.send(obj.args);
+          xmlhttp.send(ajaxlibobj.args);
           break;
         
         case "SCRIPT":
-          var url = (obj.url.match(/^https?:/) ? obj.url : this.host + obj.url);
-          if (obj.args) url += '?' + elation.utils.encodeURLParams(obj.args);
+          var url = (ajaxlibobj.url.match(/^https?:/) ? ajaxlibobj.url : this.host + ajaxlibobj.url);
+          if (ajaxlibobj.args) url += '?' + elation.utils.encodeURLParams(ajaxlibobj.args);
           elation.file.get('javascript', url);
           break;
           
         // wont return payload, lower overhead (maybe?)
         case "IMAGE":
-          var url = (obj.url.match(/^https?:/) ? obj.url : this.host + obj.url),
-              url = (obj.args ? url+'?'+obj.args : url),
+          var url = (ajaxlibobj.url.match(/^https?:/) ? ajaxlibobj.url : this.host + ajaxlibobj.url),
+              url = (ajaxlibobj.args ? url+'?'+ajaxlibobj.args : url),
               img = elation.html.create({
                 tag: 'img',
                 style: {
@@ -501,7 +501,7 @@ elation.extend("ajax", new function() {
         
         // defaults to GET method
         default:
-          xmlhttp.open(obj.method, obj.url + "?" + obj.args, true);
+          xmlhttp.open(ajaxlibobj.method, ajaxlibobj.url + "?" + ajaxlibobj.args, true);
           xmlhttp.setRequestHeader("X-Ajax", "1");
           xmlhttp.onreadystatechange = readystatechange;
           xmlhttp.send(null);
@@ -511,8 +511,8 @@ elation.extend("ajax", new function() {
       if (typeof console != 'undefined') {
         console.log(e);
       }
-      if (obj.failurecallback) {
-        elation.ajax.executeCallback(obj.failurecallback, e);
+      if (ajaxlibobj.failurecallback) {
+        elation.ajax.executeCallback(ajaxlibobj.failurecallback, e);
       }
       return false;
     }

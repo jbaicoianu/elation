@@ -88,7 +88,7 @@ elation.extend('googleanalytics', function(args) {
 
 	if (this.GAalerts) {
     $TF('body').append(
-      '<div id="ga_tagbox" style="position:fixed;left:0;top:0;border:1px dotted black;padding:5px;background-color:#eef;text-align:left;display:none;z-index:10000"></div>'
+      '<div id="ga_tagbox" style="position:fixed;left:0;top:0;border:1px dotted black;padding:5px;background-color:#eef;text-align:left;display:none;z-index:10000;color:#000;"></div>'
     );
     $TF('#ga_tagbox').css('opacity', 0.9).click(function() {$TF(this).css('display', 'none')});
   }
@@ -223,14 +223,18 @@ elation.extend('googleanalytics', function(args) {
     }
 
 
-    if(this.pagetype == 'browse_homepage' || this.pagetype == 'browse_merchant' || this.pagetype == 'browse_brand' || this.pagetype == 'browse_profile'
-        || this.pagetype == 'browse_sets') {
+    if(this.pagetype == 'browse_homepage' 
+        || this.pagetype == 'browse_merchant' 
+        || this.pagetype == 'browse_brand' 
+        || this.pagetype == 'browse_profile'
+        || this.pagetype == 'browse_sets'
+        || this.pagetype == 'browse_catalogs') {
       //var cobrand = 'glimpse';
       var cobrand = googleAnalytics.cobrand;
       var page = elation.browse.page(0).subpage;
       var browseby = elation.browse.page(0).args.browseby;
       var list = elation.browse.page(0).getCurrentNode();
-      if(typeof browseby == 'undefined' && list.nodeid == '0' && page != '/profile') {
+      if(typeof browseby == 'undefined' && list.nodeid == '0' && page != '/profile' && page != '/catalogs') {
         var page = '/home';
       }
       switch (page) {
@@ -345,7 +349,9 @@ elation.extend('googleanalytics', function(args) {
               this.pageURL += '/?set='+list.catalog;
             }
           break;
-        case '/catalog':
+        case '/catalogs':
+            this.pageURL = 'virt_results/'+cobrand;
+            this.pageURL += '/catalogs/all';
         break;
         default:
           //node page

@@ -16,8 +16,25 @@ class Component_html extends Component {
   public function controller_header($args) {
     if (empty($this->shown["header"])) { // Only allow header once per page
       $this->shown["header"] = true;
+      $agents = array('mac', 'windows', 'linux', 'unix', 'android', 'ios',
+                      'ipad', 'iphone', 'ipod', 'mobile', 'webkit', 
+                      'chrome', 'firefox', 'msie', 'opera', 'safari');
+      
+      $useragent = strtolower($_SERVER['HTTP_USER_AGENT']);
+      $classes = '';
+      
+      for ($i = 1; $i <= count($agents); $i++) {
+        if (strpos($useragent, $agents[$i])) {
+          $classes .= ' ' . $agents[$i];
+        }
+      }
+      
+      $args["classes"] = $classes;
+      $args["agent"] = $useragent;
+      
       return $this->GetTemplate("./header.tpl", $args);
     }
+    
     return "";
   }
 

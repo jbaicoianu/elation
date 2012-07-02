@@ -45,4 +45,6 @@
   {component name="tracking.autotrack"}
   <script type="text/javascript">if (elation.onloads) elation.onloads.init();</script>
 </head>
-<body{if !empty($pagecfg.pagename)} class="tf_page_{$pagecfg.pagename}"{/if}>
+<body class="{if !empty($pagecfg.pagename)}tf_page_{$pagecfg.pagename}{/if}{if $classes}{$classes}{/if}">
+
+<script>console.log('{$agent}');</script>

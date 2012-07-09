@@ -391,6 +391,22 @@ elation.extend('googleanalytics', function(args) {
         this.pageTracker._trackPageview(pageurl);
       } catch (err) {if (this.GAalerts) this.displayTag("trackPageview Error: "+err.description)}
     }
+    var data = {};
+    var browsepage = elation.browse.page(0); 
+    if(browsepage.args.traffic_src == 'glimpselink'){
+      if(browsepage.currentnode.merchant && browsepage.currentnode.node){
+        data.impression_name = browsepage.currentnode.merchant+'-'+browsepage.currentnode.node;
+        data.impression_type = 'store_node';
+      } else if(browsepage.currentnode.merchant){
+        data.impression_name = browsepage.currentnode.merchant;
+        data.impression_type = 'store';
+      } else if(browsepage.currentnode.node){
+        data.impression_name = browsepage.currentnode.node;
+        data.impression_type = 'node';
+      }
+    data.cat = 'glimpse final landing';
+    elation.events.fire('glimpse_with_facebook_popup',data);
+    }
   };
 
   this.trackEvent = function(args) {

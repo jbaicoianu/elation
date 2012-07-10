@@ -230,9 +230,59 @@ web_recompact() {
   web_compact
 }
 
+system_package() {
+  VERSION=$1
+  INSTALLDIR=debian/package/elation-$VERSION
+  
+  if [ -z "$VERSION" ]; then
+    echo "Usage: $0 system package <version>"
+  else
+    echo Installing in $INSTALLDIR
+    [ ! -d "$INSTALLDIR/DEBIAN" ] && mkdir -p "$INSTALLDIR/DEBIAN" 
+    [ ! -d "$INSTALLDIR/etc/elation" ] && mkdir -p "$INSTALLDIR/etc/elation" 
+    [ ! -d "$INSTALLDIR/usr/bin" ] && mkdir -p "$INSTALLDIR/usr/bin" 
+    [ ! -d "$INSTALLDIR/usr/share/elation" ] && mkdir -p "$INSTALLDIR/usr/share/elation" 
+    [ ! -d "$INSTALLDIR/usr/share/php" ] && mkdir -p "$INSTALLDIR/usr/share/php" 
+    [ ! -d "$INSTALLDIR/var/lib/elation" ] && mkdir -p "$INSTALLDIR/var/lib/elation" 
+
+    cp elation $INSTALLDIR/usr/bin
+    cp -r components config htdocs include lib README templates tests util $INSTALLDIR/usr/share/elation
+    cp include/elation.php $INSTALLDIR/usr/share/php
+    cp -r config/* $INSTALLDIR/etc/elation
+    echo
+    # Evaluate shell variables in control file
+    CONTROLFILE="echo \"$(cat debian/control)\""
+    eval "$CONTROLFILE" |tee $INSTALLDIR/DEBIAN/control
+
+    cd debian/package/
+    fakeroot dpkg-deb --build elation-$VERSION
+    if [ -e elation-$VERSION.deb ]; then
+      mv elation-$VERSION.deb ../..
+      echo done
+    else
+      error "Failed to create file: elation-$VERSION.deb"
+    fi
+    cd ../..
+    if [ -d $INSTALLDIR ]; then
+      echo .
+      #rm -r $INSTALLDIR
+    fi
+  fi
+}
+
 # Begin main execution
 
 case "$ACTION" in
+  system)
+    case "$SUBACTION" in
+      package)
+        system_package $3
+        ;;
+      *)
+        echo "Usage: $0 $ACTION [package]"
+        ;;
+    esac
+    ;;
   db)
     case "$SUBACTION" in
       init)

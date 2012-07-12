@@ -115,4 +115,8 @@ class ConnectionWrapper {
     }
     return $ret;
   }
+
+  public function GetConfig() {
+    return $this->cfg;
+  }
 }

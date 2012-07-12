@@ -396,12 +396,14 @@ class SessionManager
     $pandora = PandoraLog::singleton();
     if ($pandora->getFlag() == false) {
       // if pandora logging is not turned on, return
+      Profiler::StopTimer("Pandora");
       return;
     }
     // exclude the internal server crawls and testings
     $exclude_user_agents = array("im2-");
     for ($i=0; $i<count($exclude_user_agents); $i++) {
       if ( (strpos($_SERVER['HTTP_USER_AGENT'], $exclude_user_agents[$i]) !== false) ) {
+        Profiler::StopTimer("Pandora");
       	return;
       }
     }

@@ -107,7 +107,8 @@ class DataManager {
               $sourcewrapper->SetCacheServer($cacheobj, any($sourcecfg["cachepolicy"], true));
           }
           array_set($this->sources, $sourcetype.".".$sourcename, $sourcewrapper);
-          Logger::Notice("Added source '$sourcetype.$sourcename': " . $sourcecfg["host"]);
+          $sourcelocation = (isset($sourcecfg["host"]) ? $sourcecfg["host"] : $sourcecfg["file"]);
+          Logger::Notice("Added source '$sourcetype.$sourcename': " . $sourcelocation);
           Profiler::StopTimer(" - $sourcetype($sourcename)");
         }
       } else {
@@ -364,7 +365,7 @@ class DataManager {
    * @param array $where
    * @return integer $count
    */
-  static function &QueryCount($id, $table, $where, $extra=NULL) {
+  static function &QueryCount($id, $table, $where=NULL, $extra=NULL) {
     Profiler::StartTimer("DataManager::QueryCount()");
     Profiler::StartTimer("DataManager::QueryCount($id)", 3);
     $qstart = microtime(true);
@@ -558,7 +559,7 @@ class DataManager {
   static function &fetch($id, $table, $where=NULL, $extra=NULL) {
     return self::QueryFetch($id, $table, $where, $extra);
   }
-  static function &count($id, $table, $where, $extra=NULL) {
+  static function &count($id, $table, $where=NULL, $extra=NULL) {
     return self::QueryCount($id, $table, $where, $extra);
   }
 

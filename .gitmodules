@@ -3,7 +3,4 @@
 	url = git://github.com/jbaicoianu/elation-component-deepzoom.git
 [submodule "components/games"]
 	path = components/games
-	url = git://github.com/jbaicoianu/elation-component-games.git
-[submodule "components/gamess"]
-	path = components/gamess
-	url = git://github.com/jbaicoianu/elation-component-games.git
+	url = git@github.com:jbaicoianu/elation-component-games.git

@@ -198,7 +198,7 @@ elation.extend("component", new function() {
       }
     }
   }
-  this.add = function(type, classdef) {
+  this.add = function(type, classdef, extendclass) {
     // At the top level, a component is just a function which checks to see if
     // an instance with the given name exists already.  If it doesn't we create
     // it, and then we return a reference to the specified instance.
@@ -209,8 +209,10 @@ elation.extend("component", new function() {
       }
       if (!component.obj[name]) {
         component.obj[name] = new component.base(type);
-        container.setAttribute(elation.component.namespace+':'+elation.component.attrs.componentname, name);
         component.objcount++;
+        if (container) {
+          container.setAttribute(elation.component.namespace+':'+elation.component.attrs.componentname, name);
+        }
       }
       if (component.obj[name] && container) {
         component.obj[name].componentinit(type, name, container, args, events);
@@ -222,10 +224,18 @@ elation.extend("component", new function() {
     };
     component.objcount = 0;
     component.obj = {}; // this is where we store all the instances of this type of component
-    component.base = function() { }
+    (function() { 
+      var elation = {};
+      window.elation.utils.arrayset(elation, type, null);
+      var namehack = "elation." + type + " = function () { }; component.base = elation." + type;
+      eval(namehack); // FIXME - weirdness to force usable names while console.logging components
+    })();
     component.base.prototype = new this.base(type);
+    if (extendclass) {
+      component.base.prototype.extend(new extendclass());
+    }
     if (classdef) {
-      component.base.prototype.extend(classdef);
+      component.base.prototype.extend((typeof classdef == 'function' ? new classdef() : classdef));
     }
     elation.extend(type, component); // inject the newly-created component wrapper into the main elation object
   }
@@ -612,7 +622,7 @@ elation.extend('html.create', function(parms, classname, style, additional, appe
         append = parms.append,
         before = parms.before;
   
-  var element = document.createElement(tag || parms);
+  var element = document.createElement(tag || parms || 'div');
   
   if (id)
     element.id = id;
@@ -690,6 +700,21 @@ elation.extend("html.styleget", function(el, styles) {
     }
   }
   return ret;
+});
+
+// Cross-browser transform wrapper
+elation.extend("html.transform", function(el, transform, origin, transition) {
+  if (transition) { // Set transition first, if supplied
+    el.style.webkitTransition = el.style.MozTransition = el.style.msTransition = el.style.transition = transition;
+  }
+
+  if (transform) {
+    el.style.webkitTransform = el.style.MozTransform = el.style.msTransform = el.style.transform = transform;
+  }
+
+  if (origin) { // Optionally, set transform origin
+    el.style.webkitTransformOrigin = el.style.MozTransformOrigin = el.style.msTransformOrigin = el.style.transformOrigin = origin;
+  }
 });
 elation.extend("html.stylecopy", function(dst, src, styles) {
   if (typeof styles == 'string') {
@@ -848,7 +873,7 @@ elation.extend("utils.arrayset", function(obj, element, value) {
     ptr[x[x.length-1]] = value;
   }
 });
-elation.extend("utils.arrayget", function(obj, name) {
+elation.extend("utils.arrayget", function(obj, name, defval) {
   var ptr = obj;
   var x = name.split(".");
   for (var i = 0; i < x.length; i++) {
@@ -858,7 +883,10 @@ elation.extend("utils.arrayget", function(obj, name) {
     }
     ptr = ptr[x[i]];
   }
-  return (typeof ptr == "undefined" ? null : ptr);
+  if (typeof ptr == "undefined" || ptr === null) {
+    return (typeof defval == "undefined" ? null : defval);
+  }
+  return ptr;
 });
 elation.extend("utils.arraymin", function(array) {
 	var value=ret=0;
@@ -931,8 +959,18 @@ elation.extend("utils.isEmpty", function(obj) {
   return true;
 });
 elation.extend("utils.isArray", function(obj) {
-  var objclass = Object.prototype.toString.call(obj);
-  return objclass === '[object Array]' || objclass === '[object NodeList]';
+  var objclass = Object.prototype.toString.call(obj),
+      allow = {
+        '[object Array]': true,
+        '[object NodeList]': true,
+        '[object HTMLCollection]': true
+      };
+  
+  if (elation.browser.type == 'msie' && objclass == '[object Object]') {
+    return !elation.utils.isNull(elation.utils.arrayget(obj, 'length'));
+  } else {
+    return allow[objclass] || false;
+  }
 });
 //
 // runs through direct children of obj and 
@@ -2060,6 +2098,9 @@ elation.extend("utils.escapeHTML", function(str) {
    return div.innerHTML;
 });
 
+elation.extend("utils.isnumeric", function(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+});
 tr_size = elation.log_size;
 
 /* Return first non-empty value from list of args, or null if all are empty

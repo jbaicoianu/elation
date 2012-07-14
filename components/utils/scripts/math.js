@@ -23,3 +23,6 @@ elation.extend("utils.math.lcm", function(t1, t2) {
   cm = t1 * t2 / f;
   return cm;
 });
+elation.extend("utils.math.clamp", function(val, min, max) {
+  return Math.max(Math.min(val, max), min);
+}

@@ -59,16 +59,7 @@ elation.extend("events", {
       var eventObj = original_events[i],
       
           // break reference to eventObj so original doesn't get overwritten
-          event = {
-            type: type, 
-            target: target ? target : eventObj.target,
-            data: data ? data : null,
-            origin: eventObj.origin,
-            custom_event: eventObj.custom_event,
-            preventDefault: eventObj.preventDefault,
-            cancelBubble: eventObj.cancelBubble,
-            stopPropogation: eventObj.stopPropogation
-          };
+          event = elation.events.clone(eventObj, {type: type, target: target, data: data});
       
       if (!event.origin)
         continue;
@@ -110,7 +101,7 @@ elation.extend("events", {
       origin: fn,
       custom_event: custom_event_name,
       preventDefault: function() { return; },
-      stopPropagation: function() { return; },
+      stopPropagation: function() { this.cancelBubble = true; return; },
       cancelBubble: false
     };
     
@@ -133,6 +124,16 @@ elation.extend("events", {
       elation.events.events[custom_event_name].push(event);
     }
     */
+  },
+  _unregister: function(element, type, fn) {
+    if (elation.events.events[type]) {
+      for (var i = 0; i < elation.events.events[type].length; i++) {
+        var ev = elation.events.events[type][i];
+        if (ev.type == type && ev.target == element && ev.origin == fn) {
+          elation.events.events[type].splice(i--);
+        }
+      }
+    }
   },
   
 	// syntax: add(element || [ elements ], "type1,type2,type3", function || object);
@@ -212,8 +213,11 @@ elation.extend("events", {
 		if (!elements || !types || !fn || typeof types != "string")
 			return;
 		
-		var	elements = (!elation.utils.isNull(elements.nodeName) || elements == window) ? [ elements ] : elements,
-				types = types.split(',');
+		//var	elements = (!elation.utils.isNull(elements.nodeName) || elements == window) ? [ elements ] : elements;
+		if (!elation.utils.isArray(elements)) {
+			elements = [elements];
+		}
+		var types = types.split(',');
 		
 		for (var e=0; e<elements.length; e++) {
 			var element = elements[e];
@@ -224,6 +228,8 @@ elation.extend("events", {
 			for (var i=0; i<types.length; i++) {
 				var type = types[i];
 				
+				elation.events._unregister(element, type, fn);
+
 				if (element.removeEventListener) {
 					if (typeof fn == "object" && fn.handleEvent) {
 						element.removeEventListener(type, element[type+fn], false);
@@ -344,53 +350,17 @@ elation.extend("events", {
 		}
     
 		return c;
-	}
+	},
+
+  clone: function(ev,  overrides) {
+    var attrs = ['type', 'bubbles', 'cancelable', 'view', 'detail', 'screenX', 'screenY', 'clientX', 'clientY', 'ctrlKey', 'shiftKey', 'altKey', 'metaKey', 'button', 'relatedTarget', 'target', 'element', 'data', 'origin'];
+    var newev = {};
+    for (var i = 0; i < attrs.length; i++) {
+      var foo = any(overrides[attrs[i]], ev[attrs[i]]);
+      if (foo !== null) {
+        newev[attrs[i]] = foo;
+      }
+    }
+    return elation.events.fix(newev);
+  }
 });
-
-/* backup - original elation add/remove funcs
-add: function(obj, type, fn) {
-  if (obj) {
-    var types = type.split(',');
-    for (var i = 0; i < types.length; i++) {
-      var type = types[i];
-      if (obj.addEventListener) {
-        if (type == 'mousewheel' && elation.browser.type != 'safari') type = 'DOMMouseScroll';
-        if (typeof fn == "object" && fn.handleEvent) {
-          obj[type+fn] = function(e) { fn.handleEvent(e); }
-          obj.addEventListener( type, obj[type+fn], false );
-        } else {
-          obj.addEventListener( type, fn, false );
-        }
-      } else if (obj.attachEvent) {
-        if (typeof fn == "object" && fn.handleEvent) {
-          obj[type+fn] = function() { fn.handleEvent(elation.events.fix(window.event)); }
-        } else {
-          obj["e"+type+fn] = fn;
-          obj[type+fn] = function() { obj["e"+type+fn]( elation.events.fix(window.event) ); }
-        }
-        obj.attachEvent( "on"+type, obj[type+fn]);
-      }
-    }
-  }
-  return this;
-},
-
-remove: function( obj, type, fn ) {
-  var types = type.split(',');
-  for (var i = 0; i < types.length; i++) {
-    var type = types[i];
-    if (obj.removeEventListener) {
-      if (typeof fn == "object" && fn.handleEvent) {
-        obj.removeEventListener( type, obj[type+fn], false );
-        delete obj[type+fn];
-      } else {
-        obj.removeEventListener( type, fn, false );
-      }
-    } else if (obj.detachEvent) {
-      obj.detachEvent( "on"+type, obj[type+fn] );
-      obj[type+fn] = null;
-      obj["e"+type+fn] = null;
-    }
-  }
-},
-*/

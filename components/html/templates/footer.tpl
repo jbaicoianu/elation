@@ -28,7 +28,9 @@
           'filters':			'{$filters|escape:javascript}',
           'version':			'{$version|escape:javascript}',
           'store_name':   '{$store_name|escape:javascript}',
-          'alpha':        '{$alpha|escape:javascript}'
+          'alpha':        '{$alpha|escape:javascript}',
+          'browse_nodename':     '{$browse->nodename|escape:javascript}',
+          'browse_nodetype':     '{$browse->nodetype|escape:javascript}'
         {rdelim});
         {if $is_new_user}
            var date = new Date();

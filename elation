@@ -177,13 +177,77 @@ web_init() {
 }
 
 web_compact() {
-	echo -n "Minifying Javascript: "
-	find htdocs/scripts/ -name "*.js" -follow -exec sh -c 'FILE={}; FNAME=`basename $FILE`; DESTDIR=tmp/minified/`dirname $FILE |sed s/htdocs\//`; (([ ! -d "$DESTDIR" ] && mkdir -p $DESTDIR); cat {} |./util/jsmin.py >$DESTDIR/$FNAME && echo -n ".")  || echo -n "!" ' \;
+  MINIFIEDBASE="tmp/minified"
+  MINIFIEDBASEREGEX="tmp\/minified"
 
-  echo done
-	echo -n "Minifying CSS: "
-	find htdocs/css/ -name "*.css" -follow -exec sh -c 'FILE={}; FNAME=`basename $FILE`; DESTDIR=tmp/minified/`dirname $FILE |sed s/htdocs\//`; (([ ! -d "$DESTDIR" ] && mkdir -p $DESTDIR); cat {} |./util/cssmin.py >$DESTDIR/$FNAME && echo -n ".")  || echo -n "!" ' \;
-  echo done
+  if [ -d "htdocs/scripts-orig" ]; then
+    CHANGEDSCRIPTS=$(find -L htdocs/scripts-orig/ -name "*.js" -newer $MINIFIEDBASE/scripts/)
+    if [ ! -z "$CHANGEDSCRIPTS" ]; then
+      echo -n "Minifying Javascript (incremental): "
+      for I in $CHANGEDSCRIPTS; do BASENAME=`echo $I |sed "s/htdocs\/scripts-orig\//$MINIFIEDBASEREGEX\/scripts\//"`; cat $I |./util/jsmin.py > $BASENAME && echo -n "."; done
+      echo " done"
+      touch $MINIFIEDBASE/scripts
+    else
+      echo "No JavaScript changes"
+    fi
+  else
+  	echo -n "Minifying Javascript: "
+  	find htdocs/scripts/ -name "*.js" -follow -exec sh -c 'FILE={}; FNAME=`basename $FILE`; DESTDIR=tmp/minified/`dirname $FILE |sed s/htdocs\//`; (([ ! -d "$DESTDIR" ] && mkdir -p $DESTDIR); cat {} |./util/jsmin.py >$DESTDIR/$FNAME && echo -n ".")  || echo -n "!" ' \;
+    echo " done"
+  fi
+
+  if [ -d "htdocs/css-orig" ]; then
+    CHANGEDCSS=$(find -L htdocs/css-orig/ -name "*.css" -newer $MINIFIEDBASE/css/)
+    if [ ! -z "$CHANGEDCSS" ]; then
+    	echo -n "Minifying CSS (incremental): "
+      for I in $CHANGEDCSS; do BASENAME=`echo $I |sed "s/htdocs\/css-orig\/$MINIFIEDBASEREGEX\/css\//"`; cat $I |./util/cssmin.py > $BASENAME && echo -n "."; done
+      echo " done"
+      touch $MINIFIEDBASE/css
+    else
+      echo "No CSS changes"
+    fi
+  else
+  	echo -n "Minifying CSS: "
+  	find htdocs/css/ -name "*.css" -follow -exec sh -c 'FILE={}; FNAME=`basename $FILE`; DESTDIR=tmp/minified/`dirname $FILE |sed s/htdocs\//`; (([ ! -d "$DESTDIR" ] && mkdir -p $DESTDIR); cat {} |./util/cssmin.py >$DESTDIR/$FNAME && echo -n ".")  || echo -n "!" ' \;
+    echo " done"
+  fi
+
+  echo -n Swapping out compacted directories:
+  cd htdocs
+  if [ ! -L htdocs/scripts ] && [ "$(ls -A ../$MINIFIEDBASE/scripts)" ]; then
+    mv scripts scripts-orig && ln -s ../$MINIFIEDBASE/scripts && echo -n ' scripts' || echo -n ' !scripts!'
+  fi
+  if [ ! -L htdocs/css ] && [ "$(ls -A ../$MINIFIEDBASE/css)" ]; then
+    mv css css-orig && ln -s ../$MINIFIEDBASE/css && echo -n ' css' || echo -n ' !css!'
+  fi
+  echo 
+  cd ..
+}
+web_uncompact() {
+  if [ -d htdocs/scripts-orig ]; then
+    rm htdocs/scripts && mv htdocs/scripts-orig htdocs/scripts
+    rm -r tmp/minified/scripts
+  else
+    echo "Scripts not minified"
+  fi
+  if [ -d htdocs/css-orig ]; then
+    rm htdocs/css && mv htdocs/css-orig htdocs/css
+    rm -r tmp/minified/css
+  else
+    echo "CSS not minified"
+  fi
+  if [ -d tmp/minified ]; then
+    if [ ! "$(ls -A tmp/minified)" ]; then
+      echo "Removing empty tmp/minified directory"
+      rmdir tmp/minified
+    else
+      echo "Couldn't remove tmp/minified (not empty)"
+    fi
+  fi
+}
+web_recompact() {
+  web_uncompact
+  web_compact
 }
 
 system_package() {
@@ -260,8 +324,14 @@ case "$ACTION" in
       compact)
         web_compact
         ;;
+      uncompact)
+        web_uncompact
+        ;;
+      recompact)
+        web_recompact
+        ;;
       *)
-        echo "Usage: $0 $ACTION [create|init|compact]"
+        echo "Usage: $0 $ACTION [create|init|compact|uncompact|recompact]"
         ;;
     esac
     ;;

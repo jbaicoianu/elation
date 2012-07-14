@@ -967,7 +967,7 @@ class ConfigManager extends Base {
     return $ret;
   }
   public static function merge(&$newcfg) {
-    return self::$instance->ConfigMerge(self::$instance->current, $newcfg);
+    return self::singleton()->ConfigMerge(self::$instance->current, $newcfg);
   }
 }
 

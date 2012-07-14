@@ -106,6 +106,7 @@ class WebApp extends App {
       else
         $req["referer"]["args"] = array();
     }  
+    $req["ajax"] = (!empty($_SERVER["HTTP_X_AJAX"]) || (!empty($_SERVER["HTTP_X_REQUESTED_WITH"]) && $_SERVER["HTTP_X_REQUESTED_WITH"] == "XMLHttpRequest"));
 
     if (!empty($_SERVER["PHP_AUTH_USER"]))
       $req["user"] = $_SERVER["PHP_AUTH_USER"];

@@ -382,11 +382,11 @@ class DependencyMeta extends Dependency {
   function Display($locations, $extras=NULL) {
     $ret = '';
     if (!empty($this->meta["name"]) && !empty($this->meta["content"]))
-      $ret .= sprintf('<meta name="%s" content="%s" />'."\n", $this->meta["name"], $this->meta["content"]);
+      $ret .= sprintf('<meta name="%s" content="%s" />'."\n", $this->meta["name"], htmlspecialchars($this->meta["content"]));
     else if (!empty($this->meta["property"]) && !empty($this->meta["content"]))
-      $ret .= sprintf('<meta property="%s" content="%s" />'."\n", $this->meta["property"], $this->meta["content"]);
+      $ret .= sprintf('<meta property="%s" content="%s" />'."\n", $this->meta["property"], htmlspecialchars($this->meta["content"]));
     else if (!empty($this->meta["httpequiv"]) && !empty($this->meta["content"]))
-      $ret .= sprintf('<meta http-equiv="%s" content="%s" />'."\n", $this->meta["httpequiv"], $this->meta["content"]);
+      $ret .= sprintf('<meta http-equiv="%s" content="%s" />'."\n", $this->meta["httpequiv"], htmlspecialchars($this->meta["content"]));
     return $ret;
   }
 }

@@ -81,6 +81,8 @@ class Component_html extends Component {
     $args['filters'] .= $analytics->qpmreq->filter['freeshipping'] ? '1' : '0';
     $args['alpha'] = $analytics->alpha;
 
+    $args['browse'] = $analytics->browse;
+
     $session = SessionManager::singleton();
     $args['is_new_user'] = $session->is_new_user;
     $args['is_new_session'] = $session->is_new_session;

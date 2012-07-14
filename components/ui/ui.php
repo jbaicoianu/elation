@@ -89,6 +89,7 @@ class Component_ui extends Component {
       $vars["items"][] = "[select items]";
     }
     $vars["autosubmit"] = !empty($args["autosubmit"]);
+    $vars["tabindex"] = $args["tabindex"];
     return $this->GetComponentResponse("./select.tpl", $vars);
   }
   function controller_input($args) {

@@ -229,8 +229,10 @@ class TemplateManager extends Smarty {
 
     Profiler::StartTimer("TemplateManager::PostProcess()");
 
+    $matchregex = "/\[\[(\w[^\[\]{}:|]*)(?:[:|](.*?))?\]\]/";
+
     if (!is_array($output)) { // FIXME - we should probably still postprocess if we're returning XML
-      if (preg_match_all("/\[\[(\w[^\[\]{}:|]*)(?:[:|](.*?))?\]\]/", $output, $matches, PREG_SET_ORDER)) {
+      if (preg_match_all($matchregex, $output, $matches, PREG_SET_ORDER)) {
         $search = $replace = array();
         foreach ($matches as $m) {
           $search[] = $m[0];
@@ -259,6 +261,15 @@ class TemplateManager extends Smarty {
 						
         if (($pos = array_search("[[dependencies]]", $search)) !== false) {
           $replace[$pos] = DependencyManager::display();
+
+          // Sometimes dependencies also use postprocessing variables, so parse those and add them to the list too
+          // FIXME - could be cleaner, this is copy-pasta of the first parsing pass above
+          if (preg_match_all($matchregex, $replace[$pos], $submatches, PREG_SET_ORDER)) {
+            foreach ($submatches as $sm) {
+              $search[] = $sm[0];
+              $replace[] = (!empty($this->varreplace[$sm[1]]) ? htmlspecialchars($this->varreplace[$sm[1]]) : (!empty($sm[2]) ? $sm[2] : ""));
+            }
+          }
         }
         $output = str_replace($search, $replace, $output);
       }

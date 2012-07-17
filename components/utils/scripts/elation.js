@@ -702,6 +702,11 @@ elation.extend("html.styleget", function(el, styles) {
   return ret;
 });
 
+elation.extend("html.css", function(el, styles) {
+  for (var k in styles) {
+    el.style[k] = styles[k];
+  }
+});
 // Cross-browser transform wrapper
 elation.extend("html.transform", function(el, transform, origin, transition) {
   if (transition) { // Set transition first, if supplied

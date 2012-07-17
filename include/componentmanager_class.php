@@ -430,7 +430,8 @@ class ComponentResponse implements ArrayAccess {
       case 'html':
       case 'fhtml':
       default:
-        $framecomponent = any(ConfigManager::get("page.frame"), "html.page");
+        $cfg = ConfigManager::singleton();
+        $framecomponent = any(ConfigManager::get("page.frame"), array_get($cfg->servers, "page.frame"), "html.page");
         // If framecomponent is false/0, just return the raw content
         $ret = array("text/html", (empty($framecomponent) ? $this->data["content"] : ComponentManager::fetch($framecomponent, array("content" => $this), "inline")));
         //$ret = array("text/html", $tplmgr->GetTemplate($this->template, NULL, $this->data));

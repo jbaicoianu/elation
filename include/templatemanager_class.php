@@ -59,7 +59,8 @@ class TemplateManager extends Smarty {
   public static function singleton($args=NULL) { $name = __CLASS__; if (!self::$instance) { self::$instance = new $name($args); } return self::$instance;  }
 
 
-  function TemplateManager($root=".") {
+  function __construct($root=".") {
+    parent::__construct();
     if (!empty($root))
       $this->Init($root);
   }

@@ -959,6 +959,9 @@ class ConfigManager extends Base {
      return $ret;
    }
 
+  public static function set($key, $value) {
+    array_set(self::$instance->current, $key, $value);
+  }
   public static function get($key, $default=NULL) {
     $ret = self::$instance->GetSetting($key);
     if ($ret === NULL && $default !== NULL) {

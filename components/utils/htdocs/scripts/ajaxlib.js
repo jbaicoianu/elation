@@ -110,10 +110,10 @@ elation.extend("ajax", new function() {
 
   this.Go = function() {
     if (this.urlqueue.length > 0) {
-      obj = this.urlqueue.shift();
+      ajaxlibobj = this.urlqueue.shift(); // FIXME - global scope leakage; upfront apprently relies on this but should be fixed
       //this._get(url);
-      if (!this._go(obj))
-        this.urlqueue.unshift(obj);
+      if (!this._go(ajaxlibobj))
+        this.urlqueue.unshift(ajaxlibobj);
     }
   }
   
@@ -170,7 +170,7 @@ elation.extend("ajax", new function() {
   this.processResponse = function(responses, nobj) { 
     // If there's no obj variable, this isn't being called from a closure so use the function argument instead
     if (typeof ajaxlibobj == 'undefined') { 
-      var ajaxlibobj = nobj;
+      ajaxlibobj = nobj; // FIXME - global scope leakage; upfront apprently relies on this but should be fixed
     }
     if (
       (typeof elation.search != 'undefined' && typeof elation.search.backbutton != 'undefined') && 

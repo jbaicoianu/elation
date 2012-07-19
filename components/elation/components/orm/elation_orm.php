@@ -8,69 +8,70 @@ class Component_elation_orm extends Component {
     if (!User::authorized("orm"))
       throw new Exception("not allowed");
 */
-    $ret = $this->GetComponentResponse("./orm.tpl");
     /*
     $user = User::singleton();
     if (!($user->isLoggedIn() && $user->HasRole("ORM"))) // display the access violation message
-      $ret->SetTemplate("access_violation.tpl");
+      $vars->SetTemplate("access_violation.tpl");
     */
 
     if (!empty($args["ormaction"]) && !empty($args["model"])) {
-      $ret["model"] = $args["model"];
-      $ret["ormcfg"] = new OrmModel($args["model"]);
+      $vars["model"] = $args["model"];
+      $vars["ormcfg"] = new OrmModel($args["model"]);
       if ($args["ormaction"] == "create" && !empty($args["classname"])) {
-        $ormclass = new OrmClass($ret["ormcfg"]->classes->{$args["classname"]});
+        $ormclass = new OrmClass($vars["ormcfg"]->classes->{$args["classname"]});
         //$sql = $ormclass->getCreateSql();
 
-        $sqlkey = "db." . $ormclass->table . ".create:nocache";
-/*
-        print_pre($ormclass->table);
-        print_pre($ormclass->getColumns());
-*/
+        $sqlkey = "db." . $args["model"] . "." . $ormclass->table . ".create:nocache";
+        /*
         $outlet = Outlet::getInstance();
         $pdo = $outlet->getConnection()->getPDO();
         if ($pdo) {
-          $ret["sql"] = $ormclass->getCreateSQL();
+          $vars["sql"] = $ormclass->getCreateSQL();
           try {
-            $pdo->query($ret["sql"]);
-            $ret["success"] = "Table '{$ormclass->table}' created successfully";
+            $pdo->query($vars["sql"]);
+            $vars["success"] = "Table '{$ormclass->table}' created successfully";
           } catch(Exception $e) {
-            $ret["error"] = $e->getMessage();
+            $vars["error"] = $e->getMessage();
           }
         }
-        /*
-        $data = DataManager::singleton();
-        $data->QueryCreate($sqlkey, $ormclass->table, $ormclass->getColumns($sql));
         */
+        $data = DataManager::singleton();
+        try {
+          $data->QueryCreate($sqlkey, $ormclass->table, $ormclass->getColumns($sql));
+          $vars["success"] = true;
+        } catch (Exception $e) {
+          $vars["success"] = false;
+          $vars["error"] = $e->getMessage();
+        }
       }
     }
 
-    return $ret;
+    return $this->GetComponentResponse("./orm.tpl", $vars);
   }
   function controller_models($args) {
-    $ret = $this->GetComponentResponse("./orm_models.tpl");
 /*
     $user = User::singleton();
     if (!($user->isLoggedIn() && $user->HasRole("ORM"))) // display the access violation message
       $ret->SetTemplate("access_violation.tpl");
 */
     $orm = OrmManager::singleton();
-    $ret["models"] = $orm->getModels();
-    $ret["model"] = $args["model"];
+    $vars["models"] = $orm->getModels();
+    $vars["model"] = $args["model"];
 
-    return $ret;
+    return $this->GetComponentResponse("./orm_models.tpl", $vars);
   }
   function controller_view($args) {
-    $ret = $this->GetComponentResponse("./orm_view.tpl");
-    $ret["ormcfg"] = $args["ormcfg"];
+    $vars["ormcfg"] = $args["ormcfg"];
+    $vars["model"] = $args["model"];
 
-    return $ret;
+    return $this->GetComponentResponse("./orm_view.tpl", $vars);
   }
   function controller_view_class($args) {
-    $ret = $this->GetComponentResponse("./orm_view_class.tpl");
-    $ret["ormclass"] = new OrmClass($args["ormcfg"]);
-    $ret["sql"] = $ret["ormclass"]->getCreateSQL();
-    return $ret;
+    $vars["ormclass"] = new OrmClass($args["ormcfg"]);
+    $vars["model"] = $args["model"];
+    $vars["classname"] = $args["classname"];
+    $vars["sql"] = $vars["ormclass"]->getCreateSQL();
+    return $this->GetComponentResponse("./orm_view_class.tpl", $vars);
   }
   function component_generate($args, $output="text") {
     // Only return this data when run from the commandline

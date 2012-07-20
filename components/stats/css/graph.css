@@ -1,0 +1,80 @@
+#infovis {
+  position: absolute;
+  top: 0;
+  bottom: 4em;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  background: #ddd;
+  z-index: 1;
+}
+.infovis_label {
+  border: 1px solid black;
+  background: white;
+  color: black;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  padding: .2em;
+}
+.tf_stats_graph_legend {
+  margin-top: 1em;
+  z-index: 11;
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin-left: 12em;
+}
+.tf_stats_graph_legend ul li {
+  width: 8em;
+  display: inline-block;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+.tf_stats_graph_legend .legend_colorkey {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  margin-right: .6em;
+  border: 1px solid black;
+  vertical-align: middle;
+}
+
+#infovis-label {
+  color: black;
+  white-space: nowrap;
+}
+#infovis-label div.node div div {
+  -webkit-transform: rotate(30deg);
+  -moz-transform: rotate(30deg);
+}
+.infovis_label {
+  min-height: 4em;
+}
+.infovis_label dl dt {
+  width: 8em;
+  float: left;
+  clear: left;
+  white-space: nowrap;
+  overflow: ellipsis;
+}
+.infovis_label dl dd {
+  white-space: nowrap;
+  float: left;
+}
+.infovis_label strong {
+  display: block;
+  border-bottom: 1px solid black;
+
+}
+.infovis_label dl .tf_state_active {
+  font-weight: bold;
+}
+#stats_user_graph {
+  padding: 1em;
+  z-index: 10;
+  position: absolute;
+  top: 0;
+  left: 0;
+}

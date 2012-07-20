@@ -1,0 +1,11 @@
+#queries {
+  width: 98%;
+  height: 80em;
+  margin: 0 auto;
+}
+.tip {
+  border: 1px solid black;
+  border-radius: 5px;
+  background: white;
+  padding: .5em;
+}

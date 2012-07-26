@@ -438,4 +438,69 @@ class Component_elation extends Component {
     }
     return $this->GetComponentResponse("./404.tpl", $args);
   }
+  /**
+   * Perform a multi-part request.  Format:
+   * [
+   *    {"component": <componentname>, "args": { ... }},
+   *    ...
+   * ]
+   *
+   * Supported parameters:
+   *   - component : name of component to call
+   *   - args      : associative array of arguments for this component.  supports basic variable subtitution.
+   *   - output    : output type for this component (js,xml,ajax,json,data; defaults to "data")
+   *   - target    : if using .json or .ajax output types, the id to inject this content into on the client side
+   *   - assign    : make the output of this component available for variable substitution in args
+   * 
+   */
+  public function controller_multirequest($args, $output) {
+    /*
+     * Example request:
+     *
+     * [
+     *    {"component":"browse","args":{},"assign":"browse"},
+     *    {"component":"utils.list","args":{"itemcomponent":"browse.node","itemclass":"tf_browse_node","items":"$browse.node.products"},"output":"snip"}
+     * ]
+     *
+     */
+    $vars = array();
+    if (!empty($args["requests"])) {
+      $requests = (is_string($args["requests"]) ? json_decode($args["requests"], true) : $args["requests"]);
+      foreach ($requests as $k=>$req) {
+        if (!empty($req["component"])) {
+          $componentargs = any($req["args"], array());
+          // Perform variable substitution if requested.  
+          // Any arg that starts with a $ is treated as a variable reference
+          foreach ($componentargs as $argname=>$argval) {
+            if ($argval[0] == '$') {
+              $argreplace = array_get($args, substr($argval, 1));
+              if (!empty($argreplace)) {
+                $componentargs[$argname] = $argreplace;
+              }
+            }
+          }
+          $componentoutput = any($req["output"], "data");
+          $componentresponse = ComponentManager::fetch($req["component"], $componentargs, $componentoutput);
+          if (!empty($req["assign"])) {
+            // assign component output back into args array
+            $args[$req["assign"]] = $componentresponse;
+          }
+          if ($output == "ajax" || $output == "json") {
+            // special handling for ajaxlib response type
+            if (!empty($req["target"]) && $componentoutput != "data") {
+              $vars[$req["target"]] = $componentresponse;
+            } else {
+              $varkey = any($req["target"], $req["assign"], $k);
+              $vars["data"][$varkey] = $componentresponse;
+            }
+          } else {
+            // standard handling is to return each component response in order
+            $vars["responses"][$k] = $componentresponse;
+          }
+        }
+      }
+    }
+    // no default HTML template....should there be?
+    return $this->GetComponentResponse(null, $vars);
+  }
 }  

@@ -69,8 +69,23 @@ elation.extend("ajax", new function() {
     if (this.xmlhttpReady())
       this.Go();
   }
+  this.get = function(url, params, args) {
+    this.Get(url, params, args);
+  }
+  this.post = function(form, params, args) {
+    this.Post(form, params, args);
+  }
   this.Get = function (url, params, args) {
-    // FIXME - handle generating url using params array
+    switch (typeof params) {
+      case 'object':
+        params = elation.utils.encodeURLParams(params);
+      default:
+        if (params[0] == '?' || params[0] == '&')
+          params =  params.substr(1);
+          
+        url += (url.indexOf('?') < 0 ? '?' : '&') + params;
+    }
+    
     var req = this.parseURL(url);
     this.ProcessRequest(req, args);
   }

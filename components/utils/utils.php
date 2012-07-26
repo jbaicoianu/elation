@@ -12,18 +12,6 @@ class Component_utils extends Component {
     $vars["args"] = $args;
     return $this->GetTemplate("./status.tpl", $vars);
   }
-  function controller_multiplex($args) {
-    $vars = array();
-    
-    unset($args['_ajaxlibreqid']);
-    
-    foreach ($args as $k=>$v) {
-      $vars[$k] = $v;
-    }
-    $vars['test'] = Browse::Browse();
-    //print_pre($args);
-    return $vars;
-  }
   function controller_list($args) {
     $listitems = any($args["items"], array());
     if ($listitems instanceOf Collection) {

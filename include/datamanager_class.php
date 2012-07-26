@@ -532,7 +532,7 @@ class DataManager {
     return $ret;
   }
   static function sanitize($id) {
-    return preg_replace("/[^a-zA-Z0-9_\-.\/ ]/", "_", $id);
+    return preg_replace("/[^a-zA-Z0-9_\-.\/ ]/", "_", (is_array($id) ? implode("_", $id) : $id));
   }
 
 

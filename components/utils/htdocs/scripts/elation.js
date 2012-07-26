@@ -299,6 +299,20 @@ elation.extend('onloads',new function() {
   }
 });
 
+/**
+ * elation.bind(ctx, fn) - used to preserve "this" for callbacks, etc. 
+ * by binding a function to a specific object context 
+ * */
+elation.extend("bind", function(ctx, fn) {
+  if (typeof fn == 'function') {
+    return function() {
+      fn.call(ctx);
+    };
+  } else if (typeof ctx == 'function') {
+    return ctx;
+  }
+});
+
 elation.extend("html.window.width", function() {
   return window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth;
 });

@@ -777,6 +777,8 @@ abstract class BaseFacebook
    * @return string The response text
    */
   protected function makeRequest($url, $params, $ch=null) {
+    Profiler::StartTimer("Facebook::makeRequest()", 1);
+    Profiler::StartTimer("Facebook::makeRequest($url)", 3);
     if (!$ch) {
       $ch = curl_init();
     }
@@ -822,6 +824,8 @@ abstract class BaseFacebook
       throw $e;
     }
     curl_close($ch);
+    Profiler::StopTimer("Facebook::makeRequest()");
+    Profiler::StopTimer("Facebook::makeRequest($url)");
     return $result;
   }
 

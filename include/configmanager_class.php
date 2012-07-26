@@ -19,6 +19,7 @@ class ConfigManager extends Base {
    * constructor
    */
   public function __construct($rootdir=null, $autoload=true) {
+    Profiler::StartTimer("ConfigManager::Init", 2);
     $this->rootdir = $rootdir;
     // init the locations
     $this->locations = $this->getLocations();
@@ -26,6 +27,7 @@ class ConfigManager extends Base {
     if ($autoload && $this->locations !== NULL && !empty($this->locations["config"])) {
       $this->servers = $this->LoadServers($this->locations["config"] . "/servers.ini");
     }
+    Profiler::StopTimer("ConfigManager::Init");
   }
 
   protected static $instance;

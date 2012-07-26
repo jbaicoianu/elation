@@ -226,10 +226,12 @@ elation\:args {
   bottom: 0;
   right: 0;
   background: rgba(255,255,255,.8);
+  color: black;
   border: 1px solid black;
   white-space: nowrap;
   overflow-y: auto;
   max-height: 20em;
+  z-index: 1000;
 }
 #tf_debug_profiler table {
   margin: 1em 2em 1em 1em;

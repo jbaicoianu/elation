@@ -369,6 +369,10 @@ if (!function_exists("array_unset")) {
         $keypartlast = $keypart;
         $ptrlast =& $ptr;
         $ptr =& $ptr[$keypart];
+      } else if (is_object($ptr)) {
+        $keypartlast = $keypart;
+        $ptrlast =& $ptr;
+        $ptr =& $ptr->{$keypart};
       } else {
         $ret = false;
         break;
@@ -394,6 +398,13 @@ if (!function_exists("array_get")) {
       if (is_array($ptr)) {
         if (isset($ptr[$keypart])) {
           $ptr =& $ptr[$keypart];
+        } else {
+          $ret = false;
+          break;
+        }
+      } else if (is_object($ptr)) {
+        if (isset($ptr->{$keypart})) {
+          $ptr =& $ptr->{$keypart};
         } else {
           $ret = false;
           break;

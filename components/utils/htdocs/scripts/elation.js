@@ -94,6 +94,7 @@ elation.extend("component", new function() {
   };
   this.registry = [];
   this.init = function(root) {
+    console.log('#### component init');
     var argsattr = this.namespace+':'+this.attrs.componentargs;
     // Find all elements which have a <namespace>:<componenttype> attribute
 
@@ -130,7 +131,7 @@ elation.extend("component", new function() {
       }
     } else if (typeof $TF != 'undefined') {
       try {
-        var elements = $TF("["+this.namespace+"\\:"+this.attrs.componenttype+"]");
+        var elements = $TF("["+this.namespace+"\\:"+this.attrs.componenttype+"]", root);
       } catch(e) {
         var elements = [];
       }

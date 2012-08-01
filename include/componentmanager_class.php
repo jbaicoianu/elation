@@ -140,7 +140,8 @@ class ComponentManager extends Component {
       }
     }
 
-    if (is_array($ret['content'])) {
+    if (($outputtype == "ajax" || $outputtype == "fhtml") && is_array($ret['content'])) {
+      // Legacy handling for ajaxlib responses
       $ret['content'] = new ComponentResponse(NULL, $ret['content']);
       $outputtype = "ajax";
     }

@@ -26,7 +26,9 @@ class Component_utils extends Component {
       $vars["chunksize"] = ceil(count($listitems) / $vars["chunks"]);
     }
     $vars["itemcomponent"] = any($args["itemcomponent"], "utils.listitem");
-    $vars["listitems"] = array_chunk($listitems, $vars["chunksize"], true);
+    if (is_array($listitems)) {
+      $vars["listitems"] = array_chunk($listitems, $vars["chunksize"], true);
+    }
     $vars["hidecontainer"] = any($args["hidecontainer"], false);
     $vars["hideitemcontainer"] = any($args["hideitemcontainer"], false);
     return $this->GetComponentResponse("./list.tpl", $vars);

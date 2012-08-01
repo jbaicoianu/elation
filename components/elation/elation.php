@@ -479,8 +479,10 @@ class Component_elation extends Component {
               }
             }
           }
+          
           $componentoutput = any($req["output"], "data");
           $componentresponse = ComponentManager::fetch($req["component"], $componentargs, $componentoutput);
+          
           if (!empty($req["assign"])) {
             // assign component output back into args array
             $args[$req["assign"]] = $componentresponse;
@@ -489,6 +491,9 @@ class Component_elation extends Component {
             // special handling for ajaxlib response type
             if (!empty($req["target"]) && $componentoutput != "data") {
               $vars[$req["target"]] = $componentresponse;
+            } else if ($componentoutput == "snip" || $componentoutput == "html" || $componentoutput == "xhtml") {
+              $varkey = any($req["target"], $req["assign"], $k);
+              $vars["xhtml"][$varkey] = $componentresponse;
             } else {
               $varkey = any($req["target"], $req["assign"], $k);
               $vars["data"][$varkey] = $componentresponse;

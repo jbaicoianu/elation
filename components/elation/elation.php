@@ -464,40 +464,53 @@ class Component_elation extends Component {
      *
      */
     $vars = array();
+    $isajax = ($output == "ajax" || $output == "json");
     if (!empty($args["requests"])) {
       $requests = (is_string($args["requests"]) ? json_decode($args["requests"], true) : $args["requests"]);
-      foreach ($requests as $k=>$req) {
-        if (!empty($req["component"])) {
-          $componentargs = any($req["args"], array());
-          // Perform variable substitution if requested.  
-          // Any arg that starts with a $ is treated as a variable reference
-          foreach ($componentargs as $argname=>$argval) {
-            if ($argval[0] == '$') {
-              $argreplace = array_get($args, substr($argval, 1));
-              if (!empty($argreplace)) {
-                $componentargs[$argname] = $argreplace;
+      if (is_array($requests)) {
+        $cmanager = ComponentManager::singleton();
+
+        foreach ($requests as $k=>$req) {
+          if (!empty($req["component"])) {
+            $componentargs = any($req["args"], array());
+            // Perform variable substitution if requested.  
+            // Any arg that starts with a $ is treated as a variable reference
+            foreach ($componentargs as $argname=>$argval) {
+              if ($argval[0] == '$') {
+                $argreplace = array_get($args, substr($argval, 1));
+                if (!empty($argreplace)) {
+                  $componentargs[$argname] = $argreplace;
+                } else {
+                  $componentargs[$argname] = "";
+                }
               }
             }
-          }
-          $componentoutput = any($req["output"], "data");
-          $componentresponse = ComponentManager::fetch($req["component"], $componentargs, $componentoutput);
-          if (!empty($req["assign"])) {
-            // assign component output back into args array
-            $args[$req["assign"]] = $componentresponse;
-          }
-          if ($output == "ajax" || $output == "json") {
-            // special handling for ajaxlib response type
-            if (!empty($req["target"]) && $componentoutput != "data") {
-              $vars[$req["target"]] = $componentresponse;
-            } else {
-              $varkey = any($req["target"], $req["assign"], $k);
-              $vars["data"][$varkey] = $componentresponse;
+            $componentoutput = any($req["output"], ($isajax && !empty($req["target"]) ? "snip" : "data"));
+            //$componentresponse = ComponentManager::fetch($req["component"], $componentargs, $componentoutput);
+            $path = "/" . str_replace(".", "/", $req["component"]);
+            $response = $cmanager->Dispatch($path, $componentargs, $componentoutput);
+            $componentresponse = $response["content"];
+            if (!empty($req["assign"])) {
+              // assign component output back into args array
+              $args[$req["assign"]] = $componentresponse;
             }
-          } else {
-            // standard handling is to return each component response in order
-            $vars["responses"][$k] = $componentresponse;
+            if ($isajax) {
+              // special handling for ajaxlib response type
+              if (!empty($req["target"]) && $componentoutput != "data") {
+                $vars[$req["target"]] = $componentresponse;
+              } else {
+                $varkey = any($req["target"], $req["assign"], $k);
+                $vars["data"][$varkey] = $componentresponse;
+              }
+            } else {
+              // standard handling is to return each component response in order
+              $vars["responses"][$k] = $componentresponse;
+            }
           }
         }
+      } else {
+        // JSON parse failed
+        // TODO - return some sort of error code
       }
     }
     // no default HTML template....should there be?

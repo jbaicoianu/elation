@@ -32,7 +32,7 @@ class ComponentManager extends Component {
 
   function Dispatch($page=NULL, $args=NULL, $output="html", $legacy=true) {
     // FIXME - legacy flag determines whether to apply legacy ajaxlib handling
-    $outputtype = any($args["_output"], (!empty($_SERVER["HTTP_X_AJAX"]) ? "ajax" : $output), "html");
+    $outputtype = any($args["_output"], ($legacy && !empty($_SERVER["HTTP_X_AJAX"]) ? "ajax" : $output), "html");
 
     $alternateret = $this->HandleDispatchArgs($args);
 

@@ -130,7 +130,7 @@ elation.extend("server", function() {
     if (typeof json == 'object')
       json = elation.JSON.stringify(json);
     
-    this.Get('/elation/multirequest.ajax?requests=' + elation.utils.friendlyurl.encode(json), null, { 
+    this.Get('/elation/multirequest.ajax', { 'requests': json }, { 
       callback: callback
     });
   }

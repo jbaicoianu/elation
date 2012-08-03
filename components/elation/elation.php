@@ -488,7 +488,7 @@ class Component_elation extends Component {
             $componentoutput = any($req["output"], ($isajax && !empty($req["target"]) ? "snip" : "data"));
             //$componentresponse = ComponentManager::fetch($req["component"], $componentargs, $componentoutput);
             $path = "/" . str_replace(".", "/", $req["component"]);
-            $response = $cmanager->Dispatch($path, $componentargs, $componentoutput);
+            $response = $cmanager->Dispatch($path, $componentargs, $componentoutput, false);
             $componentresponse = $response["content"];
             if (!empty($req["assign"])) {
               // assign component output back into args array

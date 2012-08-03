@@ -30,9 +30,11 @@ class ComponentManager extends Component {
     $this->Component("", $parent);
   }
 
-  function Dispatch($page=NULL, $args=NULL, $output="html") {
-    $alternateret = $this->HandleDispatchArgs($args);
+  function Dispatch($page=NULL, $args=NULL, $output="html", $legacy=true) {
+    // FIXME - legacy flag determines whether to apply legacy ajaxlib handling
     $outputtype = any($args["_output"], (!empty($_SERVER["HTTP_X_AJAX"]) ? "ajax" : $output), "html");
+
+    $alternateret = $this->HandleDispatchArgs($args);
 
     if ($args === NULL) {
       $args = $_REQUEST;
@@ -140,8 +142,8 @@ class ComponentManager extends Component {
       }
     }
 
-    if (($outputtype == "ajax" || $outputtype == "fhtml") && is_array($ret['content'])) {
-      // Legacy handling for ajaxlib responses
+    if ($legacy && ($outputtype == "ajax" || $outputtype == "fhtml") && is_array($ret['content'])) {
+      // FIXME - Legacy handling for ajaxlib responses
       $ret['content'] = new ComponentResponse(NULL, $ret['content']);
       $outputtype = "ajax";
     }

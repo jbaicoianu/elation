@@ -485,19 +485,25 @@ class Component_elation extends Component {
                 }
               }
             }
+
             $componentoutput = any($req["output"], ($isajax && !empty($req["target"]) ? "snip" : "data"));
             //$componentresponse = ComponentManager::fetch($req["component"], $componentargs, $componentoutput);
             $path = "/" . str_replace(".", "/", $req["component"]);
             $response = $cmanager->Dispatch($path, $componentargs, $componentoutput, false);
             $componentresponse = $response["content"];
+            
             if (!empty($req["assign"])) {
               // assign component output back into args array
               $args[$req["assign"]] = $componentresponse;
             }
+            
             if ($isajax) {
               // special handling for ajaxlib response type
               if (!empty($req["target"]) && $componentoutput != "data") {
                 $vars[$req["target"]] = $componentresponse;
+              } else if ($componentoutput == "snip" || $componentoutput == "html" || $componentoutput == "xhtml") {
+                $varkey = any($req["target"], $req["assign"], $k);
+                $vars["xhtml"][$varkey] = $componentresponse;
               } else {
                 $varkey = any($req["target"], $req["assign"], $k);
                 $vars["data"][$varkey] = $componentresponse;

@@ -130,7 +130,7 @@ elation.extend("component", new function() {
       }
     } else if (typeof $TF != 'undefined') {
       try {
-        var elements = $TF("["+this.namespace+"\\:"+this.attrs.componenttype+"]");
+        var elements = $TF("["+this.namespace+"\\:"+this.attrs.componenttype+"]", root);
       } catch(e) {
         var elements = [];
       }
@@ -628,6 +628,29 @@ elation.extend("utils.encodeURLParams", function(obj) {
   
   return ret;
 });
+
+elation.extend("utils.decodeURLParams", function(parms) {
+  var value,
+      ret = {};
+  
+  if (typeof parms == "object") {
+    ret = parms;
+  } else if (parms) {
+    var properties = parms.split('&');
+    
+    for (var i=0; i<properties.length; i++) {
+      var property = properties[i],
+          split = property.split('='),
+          key = split[0],
+          value = split[1];
+      
+      ret[key] = value;
+    }
+  }
+  
+  return ret;
+});
+
 elation.extend("utils.flattenURLParams", function(obj, prefix) {
   var ret = {};
   for (var k in obj) {
@@ -733,21 +756,22 @@ elation.extend("utils.merge", function(entities, mergeto) {
       if (entities[i] !== null) {
         if (entities[i] instanceof Array) {
           if (mergeto[i] instanceof Array) {
-            //console.log('concat array: ' + i + ' (' + mergeto[i].length + ' + ' + entities[i].length + ')');
+            //console.log('# concat array: ' + i + ' (' + mergeto[i].length + ' + ' + entities[i].length + ')');
             mergeto[i] = mergeto[i].concat(entities[i]);
           } else {
-            //console.log('assign array: ', i, typeof mergeto[i]);
+            //console.log('# assign array: ', i, typeof mergeto[i]);
             mergeto[i] = entities[i];
           }
         } else if (entities[i] instanceof Object) {
           if (mergeto[i] instanceof Object) {
-            //console.log('merge object: ', i);
+            //console.log('# merge object: ', i);
             elation.utils.merge(entities[i], mergeto[i]);
           } else {
-            //console.log('assign object: ', i, typeof mergeto[i]);
+            //console.log('# assign object: ', i, typeof mergeto[i]);
             mergeto[i] = entities[i];
           }
         } else {
+          //console.log('# merge property: ', i, entities[i]);
           mergeto[i] = entities[i];
         }
       }

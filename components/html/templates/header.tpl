@@ -20,6 +20,7 @@
     {dependency type="component" name="tplmgr.tplmgr"}
     {dependency type="component" name="utils.panel"}
     {dependency type="component" name="utils.ajaxlib"}
+    {dependency type="component" name="utils.server"}
     {dependency type="component" name="utils.events"}
     {dependency type="component" name="utils.dependencies"}
     {dependency type="component" name="utils.ui"}

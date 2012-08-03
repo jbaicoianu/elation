@@ -50,7 +50,38 @@
   XMLHttpRequest objects for parallelized data retrieval
 */
 
-elation.extend("ajax", new function() {
+elation.extend("host", new function() {
+  this.make = function() {
+    return (new elation.server());
+  }
+  this.execute = function(type, p1, p2, p3) {
+    var ajaxlib = this.make();
+    ajaxlib[type](p1, p2, p3);
+    return ajaxlib;
+  }
+ 	this.Queue = function(obj) {
+    return this.execute('Queue', obj);
+  }
+ 	this.Get = function(url, params, args) {
+    return this.execute('Get', url, params, args);
+  }
+ 	this.Post = function(form, params, args) {
+    return this.execute('Post', form, params, args);
+  }
+  this.multirequest = function(json, callback) {
+    return this.execute('multirequest', json, callback);
+  }
+  this.queue = function(obj) {
+    return this.Get(obj);
+  }
+  this.get = function(url, params, args) {
+    return this.Get(url, params, args);
+  }
+  this.post = function(form, params, args) {
+    return this.Post(form, params, args);
+  }
+});
+elation.extend("server", function() {
 	this.Queue = function (obj) {
     // if args is object, convert to string.  this might not be the best place to put this.
     if (elation.utils.arrayget(obj, 'args') && typeof obj.args == 'object')
@@ -94,6 +125,14 @@ elation.extend("ajax", new function() {
     // FIXME - handle merging params array into form request
     var req = this.parseForm(form);
     this.ProcessRequest(req, args);
+  }
+  this.multirequest = function(json, callback) {
+    if (typeof json == 'object')
+      json = elation.JSON.stringify(json);
+    
+    this.Get('/elation/multirequest.ajax?requests=' + elation.utils.friendlyurl.encode(json), null, { 
+      callback: callback
+    });
   }
   this.Inject = function(targetid, url, params, args) {
     if (!args)
@@ -184,6 +223,7 @@ elation.extend("ajax", new function() {
   }
 
   this.processResponse = function(responses, nobj) { 
+    //console.log('responses',responses);
     // If there's no obj variable, this isn't being called from a closure so use the function argument instead
     if (typeof ajaxlibobj == 'undefined') { 
       ajaxlibobj = nobj; // FIXME - global scope leakage; upfront apprently relies on this but should be fixed
@@ -200,6 +240,7 @@ elation.extend("ajax", new function() {
     var common = { 
       inlinescripts: [],
       data: {},
+      xhtml: {},
       dependencies: {}
     };
 		
@@ -207,6 +248,7 @@ elation.extend("ajax", new function() {
       var type = responses[i].type || 'xhtml';
       
       if (typeof this.responsehandlers[type] == 'function') {
+        //console.log('handler', type, this, typeof this.responsehandlers[type], this.responsehandlers);
         this.responsehandlers[type](responses[i], common);
       } else {
         console.log('No handler for type ' + type);
@@ -265,9 +307,9 @@ elation.extend("ajax", new function() {
     // If caller passed in a callback, execute it
     if (typeof ajaxlibobj != 'undefined' && ajaxlibobj.callback) {
       try {
-        elation.ajax.executeCallback(ajaxlibobj.callback, common.data);
+        elation.ajax.executeCallback(ajaxlibobj.callback, common);
       } catch(e) {
-        batch.callback(function() { elation.ajax.executeCallback(ajaxlibobj.callback, common.data); });
+        batch.callback(function() { elation.ajax.executeCallback(ajaxlibobj.callback, common); });
       }
     }
   }
@@ -308,6 +350,9 @@ elation.extend("ajax", new function() {
       elation.ui.notify.show(name, content);
     },
     'xhtml': function(response, common) {
+      if (response['name']) 
+        common.xhtml[response['name']] = response['_content'];
+      
       if (response['target'] && response['_content']) {
         var targetel = document.getElementById(response['target']);
         
@@ -343,6 +388,7 @@ elation.extend("ajax", new function() {
 			}
     },
     'data': function(response, common) {
+      //console.log('data', response, common);
       if (response['name'] && response['_content']) {
         common.data[response['name']] = elation.JSON.parse(response['_content']);
 				
@@ -412,6 +458,7 @@ elation.extend("ajax", new function() {
         }
       }
     }
+    //console.log('ret',ret);
     return ret;   
   }
 
@@ -422,6 +469,7 @@ elation.extend("ajax", new function() {
     var xmlhttp = this.xmlhttp;
     var processResponse = this.processResponse;
     var timeouttimer = false;
+    var self = this;
 
     if (ajaxlibobj.history) {
       this.setHistory(ajaxlibobj.args);
@@ -439,7 +487,7 @@ elation.extend("ajax", new function() {
     if (ajaxlibobj.timeout && ajaxlibobj.timeoutcallback) {
       timeouttimer = window.setTimeout(function() { ajaxlibobj.failurecallback = false; xmlhttp.abort(); ajaxlibobj.timeoutcallback(); }, ajaxlibobj.timeout || 5000);
     }
-
+    
     readystatechange = function() {
       if (xmlhttp.readyState == 4) {
         if (timeouttimer)
@@ -451,24 +499,7 @@ elation.extend("ajax", new function() {
             var results = [];
             
             if(typeof dom != 'undefined' || dom != null){
-              processResponse.call(elation.ajax, elation.ajax.translateXML(dom), ajaxlibobj);
-            }
-            
-            if (ajaxlibobj.callback) {
-              try {
-                elation.ajax.executeCallback(ajaxlibobj.callback, xmlhttp.responseText);
-              } catch(e) {
-                console.log('ajax callback execution delayed: ' + e.message);
-                
-                // fixes weird ass msie error about not enough information
-                setTimeout(function() {
-                  elation.ajax.executeCallback(ajaxlibobj.callback, xmlhttp.responseText);
-                },1000);
-              }
-            }
-          } else if (xmlhttp.responseText) {
-            if (ajaxlibobj.callback) {
-              elation.ajax.executeCallback(ajaxlibobj.callback, xmlhttp.responseText);
+              processResponse.call(self, self.translateXML(dom), ajaxlibobj);
             }
           }
         } else {
@@ -476,7 +507,7 @@ elation.extend("ajax", new function() {
             elation.ajax.executeCallback(ajaxlibobj.failurecallback);
           }
         }
-        setTimeout('elation.ajax.Go()', 0);
+        setTimeout(function() { self.Go(); }, 0);
       }
     }
 
@@ -525,6 +556,7 @@ elation.extend("ajax", new function() {
           xmlhttp.send(null);
           break;
       }
+      
     } catch (e) {
       if (typeof console != 'undefined') {
         console.log(e);
@@ -534,6 +566,9 @@ elation.extend("ajax", new function() {
       }
       return false;
     }
+    
+    delete self;
+    
     return true;
   }
 
@@ -675,7 +710,7 @@ iframe = new Object();
       args[i] = arguments[i];
 		
     var callback = args.shift();
-		
+		//console.log('executeCallback', callback, args, arguments);
     if (callback) {
       if (callback.constructor.toString().indexOf("Array") != -1 && callback.length == 2) {
         // If array is passed, use first element as thisObject, and second element as function reference

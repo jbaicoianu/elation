@@ -19,6 +19,7 @@ class Component_deepzoom extends Component {
         $response["fileext"] = $pinfo["extension"];
         $response["filename"] = $response["imgname"] . "." . $response["fileext"];
         $response["filepath"] = $this->imagedir . "/originals/" . $response["filename"];
+        $response["tilesize"] = any($args["tilesize"], 256);
         if (!file_exists($response["filepath"])) {
           print "Downloading file...";
           flush();
@@ -31,12 +32,12 @@ class Component_deepzoom extends Component {
 
         
         if (!file_exists($response["xmlpath"])) {
-          $converter = new Oz_Deepzoom_ImageCreator(256, 1, any($args["outputext"], $response["fileext"]));
+          $converter = new Oz_Deepzoom_ImageCreator($response["tilesize"], 1, any($args["outputext"], $response["fileext"]));
           $converter->create( realpath($response["filepath"]), $this->imagedir . '/' . $response["imgname"] . '.xml', true);
         }
       }
       if (file_exists($response["xmlpath"])) {
-        //$defaultdomain = "{random}.tiles.supcrit.net/elation";
+        //$defaultdomain = "{random}.tiles.supcrit.com/elation";
         $defaultdomain = $this->root->request["host"];
         $img = new SimpleXMLElement(file_get_contents($response["xmlpath"]));
         if (!empty($img)) {
@@ -53,8 +54,13 @@ class Component_deepzoom extends Component {
     //return $this->GetTemplate("./deepzoom.tpl", $vars);
     return $response;
   }
+  function controller_canvas($args, $output="inline") {
+    $vars["img"] = any($args["img"], "bluemarble_surface");
+    return $this->GetComponentResponse("./canvas.tpl", $vars);
+  }
   function controller_imagelist($args, $output="inline") {
     $vars["images"] = array();
+    $vars["deepzoompath"] = any($args["deepzoompath"], "/deepzoom");
     if ($dh = opendir($this->imagedir)) {
       while ($file = readdir($dh)) {
         if (preg_match("/^(.*)\.xml$/", $file, $m)) {

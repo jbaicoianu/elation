@@ -2,7 +2,7 @@
 include_once("lib/profiler.php");
 
 class Component_deepzoom_mandelbrot extends Component {
-    public $maxiterations = 200; // people are assholes
+    public $maxiterations = 500; // people are assholes
     public $maxsize = array(1000000, 1000000);
     public $framemin = array(-1.5, -1);
     public $framemax = array(0.5, 1);

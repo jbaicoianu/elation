@@ -67,3 +67,27 @@
 }
 
 
+
+.deepzoom_help {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 100;
+}
+.deepzoom_help li {
+  width: 64px;
+  height: 64px;
+  display: inline-block;
+}
+.deepzoom_help li.deepzoom_help_pan {
+  background: url(/media/deepzoom/logos/instruction-pan-mouse.png);
+}
+.deepzoom_help li.deepzoom_help_zoom {
+  background: url(/media/deepzoom/logos/instruction-zoom-mouse.png);
+}
+.mobile .deepzoom_help li.deepzoom_help_pan {
+  background: url(/media/deepzoom/logos/instruction-pan-touch.png);
+}
+.mobile .deepzoom_help li.deepzoom_help_zoom {
+  background: url(/media/deepzoom/logos/instruction-zoom-touch.png);
+}

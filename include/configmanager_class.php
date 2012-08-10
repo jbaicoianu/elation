@@ -9,25 +9,36 @@ include_once("include/base_class.php");
  * @subpackage Config
  */
 class ConfigManager extends Base {
-  public $servers;
-  public $configs;
+  public $servers; // server configs, from ini
+  public $configs; // site configs, from db
+
+  public $activerole;
 
   public $rootdir;
   public $locations;
+  public $apcenabled;
+  public $fullservers = array(); // merged but unprocessed server config
+
+  public $servermapping;
+  public $servergroups;
 
   /**
    * constructor
    */
   public function __construct($rootdir=null, $autoload=true) {
-    Profiler::StartTimer("ConfigManager::Init", 2);
+    Profiler::StartTimer("ConfigManager::constructor", 3);
     $this->rootdir = $rootdir;
     // init the locations
     $this->locations = $this->getLocations();
+    $this->apcenabled = ini_get("apc.enabled");
     // load servers
     if ($autoload && $this->locations !== NULL && !empty($this->locations["config"])) {
-      $this->servers = $this->LoadServers($this->locations["config"] . "/servers.ini");
+      $this->LoadSettings($this->locations["config"] . "/servers.ini");
+      $this->activerole = $this->GetRoleFromHostname();
+      $this->servers = $this->GetRoleSettings($this->activerole);
+      $this->locations = $this->getlocations();
     }
-    Profiler::StopTimer("ConfigManager::Init");
+    Profiler::StopTimer("ConfigManager::constructor");
   }
 
   protected static $instance;
@@ -90,6 +101,96 @@ class ConfigManager extends Base {
     return $locations;
   }
 
+  public function GetMappings() {
+    $mappings = array();
+    if (is_array($this->fullservers["mapping"])) {
+      // Old servers.ini format used [mapping] which was a list of servers and the roles they map to
+      $mappings = $this->fullservers["mapping"];
+    } else if (is_array($this->fullservers["groups"])) {
+      // New format uses [groups] which is a list of roles, and the servers they contain
+      $mappings = array();
+      foreach ($this->fullservers["groups"] as $groupname=>$serverstr) {
+        $servers = explode(" ", $serverstr);
+        foreach ($servers as $server) {
+          if ($server[0] != "@") {
+            $mappings[$server] = $groupname;
+          }
+        }
+      }
+    }
+    return $mappings;
+  }
+  public function LoadSettings($cfgfile) {
+    $settings = array();
+    Profiler::StartTimer("ConfigManager::LoadSettings()", 2);
+    if (file_exists($cfgfile)) {
+      $mtime = filemtime($cfgfile);
+      if (!empty($mtime)) {
+        // NOTE - This uses APC directly, since the datamanager object requires this function to execute before initializing
+        $apckey = $cfgfile . ":" . $mtime;
+        if ($this->apcenabled && ($apccontents = apc_fetch($apckey)) != false) {
+          $settings = unserialize($apccontents);
+        } else {
+          $settings = parse_ini_file($cfgfile, true);
+          if ($this->apcenabled && !empty($settings)) {
+            apc_store($apckey, serialize($settings));
+          }
+        }
+      }
+    }
+    Profiler::StopTimer("ConfigManager::LoadSettings()");
+    $this->fullservers = array_merge_recursive($this->fullservers, $settings);
+    if (!empty($settings["groups"])) {
+      $this->servergroups = $settings["groups"];
+    }
+    return $settings;
+  }
+  public function GetRoleSettings($role, &$servercfg=null) {
+    Profiler::StartTimer("ConfigManager::GetRoleSettings()", 3);
+    $toplevel = ($servercfg === null);
+    $rolecfgfile = $this->locations["config"] . "/servers/{$role}.ini";
+    if (empty($this->fullservers[$role]) && file_exists($rolecfgfile)) {
+      $this->LoadSettings($rolecfgfile);
+    }
+    if (!empty($this->fullservers[$role])) {
+      // Pull in all included configs
+      if (!empty($this->fullservers[$role]["include"])) {
+        Profiler::StartTimer("ConfigManager::GetRoleSettings() - includes", 3);
+        $includes = explode(" ", $this->fullservers[$role]["include"]);
+        foreach ($includes as $include) { 
+          $this->GetRoleSettings($include, $servercfg);
+        }
+        Profiler::StopTimer("ConfigManager::GetRoleSettings() - includes");
+      }
+
+      $servercfg["role"] = $role;
+      // Apply role settings
+      array_set_multi($servercfg, $this->fullservers[$role]);
+    } else {
+      Logger::Error("Could not find definition for role '$role'");
+    }
+    if ($toplevel && !empty($servercfg["sources"])) {
+      // If this is a top-level call to this function, resolve the source dependencies
+      // FIXME - if this were done at runtime, it might reduce the number of db connections the app establishes
+      foreach ($servercfg["sources"] as $sourcetype=>$sources) {
+        foreach ($sources as $sourcename=>$source) {
+          if (!empty($source["source"])) {
+            $foo = array_get($servercfg["sources"], $source["source"]);
+            $servercfg["sources"][$sourcetype][$sourcename] = array_merge($foo, $source);
+          }
+        }
+      }
+    }
+    Profiler::StopTimer("ConfigManager::GetRoleSettings()");
+    return $servercfg;
+  }
+
+  public function GetRoleFromHostname() {
+    $this->hostname = $hostname = trim(implode("", file("/etc/hostname")));
+    $mapping = $this->GetMappings();
+    return any($mapping[$this->hostname], "live"); // default to live so the site will work even if something is messed up
+  }
+
   /**
    * Load server settings from specified ini file
    *
@@ -106,10 +207,9 @@ class ConfigManager extends Base {
       $mtime = filemtime($cfgfile);
       if (!empty($mtime)) {
         // NOTE - This uses APC directly, since the datamanager object requires this function to execute before initializing
-        $apcenabled = ini_get("apc.enabled");
-        $apckey = "servers.ini.$mtime";
+        $apckey = $cfgfile . "." . $mtime;
         //print "check apc for '$apckey'<br />";
-        if ($apcenabled && ($apccontents = apc_fetch($apckey)) != false) {
+        if ($this->apcenabled && ($apccontents = apc_fetch($apckey)) != false) {
           //print "found in apc, unserialize ($apccontents)<br />";
           $servers = unserialize($apccontents);
         } else {
@@ -136,7 +236,7 @@ class ConfigManager extends Base {
             array_set_multi($servers, $settings[$hostname]);
           }
 
-          if ($apcenabled) {
+          if ($this->apcenabled) {
             apc_store($apckey, serialize($servers));
           }
         }
@@ -1111,3 +1211,5 @@ class ConfigMerged extends Config {
     }
   }
 }
+
+

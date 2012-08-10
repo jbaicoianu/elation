@@ -16,12 +16,13 @@ class MemcacheWrapper extends ConnectionWrapper {
     $this->cache = new Memcache();
 
     // add to the list
-    if (!empty($this->cfg["servers"])) {
+    $servers = any($this->cfg["servers"], $this->cfg["host"]);
+    if (!empty($servers)) {
       // If it's a string, assume it's space-separated
-      if (is_string($this->cfg["servers"])) {
-        $this->cfg["servers"] = explode(" ", $this->cfg["servers"]);
+      if (is_string($servers)) {
+        $servers = explode(" ", $servers);
       }
-      foreach ($this->cfg["servers"] as $server) {
+      foreach ($servers as $server) {
         list($host, $port) = explode(":", $server);
         if (empty($port)) 
           $port = 11211; // default memcache port

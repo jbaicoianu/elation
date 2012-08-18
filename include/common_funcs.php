@@ -10,7 +10,7 @@
  * @return string
  */
 function print_pre($obj, $buffer=false, $tag="pre") {
-  $buf = "<$tag>print_pre: " . print_r($obj, true) . "</$tag>";
+  $buf = "<$tag>print_pre: " . print_r($obj, true) . "</$tag>" . PHP_EOL;
   if (!$buffer)
     print $buf;
   return $buf;

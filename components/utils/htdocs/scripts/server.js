@@ -167,6 +167,7 @@ elation.extend("server", function() {
     if (this.urlqueue.length > 0) {
       ajaxlibobj = this.urlqueue.shift(); // FIXME - global scope leakage; upfront apprently relies on this but should be fixed
       //this._get(url);
+      
       if (!this._go(ajaxlibobj))
         this.urlqueue.unshift(ajaxlibobj);
     }
@@ -223,9 +224,9 @@ elation.extend("server", function() {
   }
 
   this.processResponse = function(responses, nobj) { 
-    //console.log('responses',responses);
+    //console.log('processResponse '+responses);
     // If there's no obj variable, this isn't being called from a closure so use the function argument instead
-    if (typeof ajaxlibobj == 'undefined') { 
+    if (typeof nobj != 'undefined') { 
       ajaxlibobj = nobj; // FIXME - global scope leakage; upfront apprently relies on this but should be fixed
     }
     if (
@@ -350,6 +351,7 @@ elation.extend("server", function() {
       elation.ui.notify.show(name, content);
     },
     'xhtml': function(response, common) {
+      //console.log('processResponse xhtml: '+response['_content']);
       if (response['name']) 
         common.xhtml[response['name']] = response['_content'];
       
@@ -388,7 +390,7 @@ elation.extend("server", function() {
 			}
     },
     'data': function(response, common) {
-      //console.log('data', response, common);
+      //console.log('processResponse data');
       if (response['name'] && response['_content']) {
         common.data[response['name']] = elation.JSON.parse(response['_content']);
 				

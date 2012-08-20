@@ -300,7 +300,7 @@ class SessionManager
       "ip_addr"             => $_SERVER['REMOTE_ADDR'],
       "user_agent"          => $_SERVER['HTTP_USER_AGENT'],
       "referrer_url"        => $_SERVER['HTTP_REFERER'],
-      "landing_page_url"    => "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
+      "landing_page_url"    => "http" . (!empty($_SERVER["HTTPS"]) ? "s" : "") . "://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
       "referrer_id"         => $webapp->request["args"]["rid"],
       "widget_id"           => $webapp->request["args"]["wid"],
       "user_registration_id"=> "$pandoraUserTypeNum.$userid",

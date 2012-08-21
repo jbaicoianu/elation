@@ -35,10 +35,16 @@ function print_stack($buffer=false, $tag="pre") {
   $output = "";
   $backtrace = debug_backtrace();
 
+  $spacing = 40;
+
   foreach($backtrace as $traceEntry) {
-    $output .= PHP_EOL . $traceEntry['function'] . "()";
-    $output .= PHP_EOL . "\t at " . $traceEntry['file'];
-    $output .= ':' . $traceEntry['line'];
+    $newline = PHP_EOL . $traceEntry['class'] . $traceEntry['type'] . $traceEntry['function'] . "()";
+    if(strlen($newline) > $spacing) {
+      $spacing = strlen($newline) + 10;
+    }
+    $newline = str_pad($newline, $spacing);
+    $newline .= $traceEntry['file'] . ':' . $traceEntry['line'];
+    $output .= $newline;
   }
 
   return print_pre($output, $buffer, $tag);

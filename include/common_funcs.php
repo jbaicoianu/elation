@@ -43,7 +43,7 @@ function print_stack($buffer=false, $tag="pre") {
       $spacing = strlen($newline) + 10;
     }
     $newline = str_pad($newline, $spacing);
-    $newline .= $traceEntry['file'] . ':' . $traceEntry['line'];
+    $newline .= " from " . $traceEntry['file'] . ':' . $traceEntry['line'];
     $output .= $newline;
   }
 

@@ -382,10 +382,16 @@ abstract class BaseFacebook
       // the JS SDK puts a code in with the redirect_uri of ''
       if (array_key_exists('code', $signed_request)) {
         $code = $signed_request['code'];
-        $access_token = $this->getAccessTokenFromCode($code, '');
-        if ($access_token) {
+        $access_token_response = $this->getAccessTokenResponseFromCode($code, '');
+        if($access_token_response) {
+          $access_token = $access_token_response['access_token'];
+          $expires = $access_token_response['expires'];
+          $expires_at = $this->calculateExpirationTime($expires);
+
           $this->setPersistentData('code', $code);
           $this->setPersistentData('access_token', $access_token);
+          $this->setPersistentData('access_token_expires_at', $expires_at);
+
           return $access_token;
         }
       }
@@ -399,10 +405,17 @@ abstract class BaseFacebook
 
     $code = $this->getCode();
     if ($code && $code != $this->getPersistentData('code')) {
-      $access_token = $this->getAccessTokenFromCode($code);
-      if ($access_token) {
+      
+      $access_token_response = $this->getAccessTokenResponseFromCode($code);
+        if($access_token_response) {
+          $access_token = $access_token_response['access_token'];
+          $expires = $access_token_response['expires'];
+          $expires_at = $this->calculateExpirationTime($expires);
+
         $this->setPersistentData('code', $code);
         $this->setPersistentData('access_token', $access_token);
+        $this->setPersistentData('access_token_expires_at', $expires_at);
+        // TODO: save 'expires' to persistent data
         return $access_token;
       }
 
@@ -449,7 +462,8 @@ abstract class BaseFacebook
       return $this->user;
     }
 
-    return $this->user = $this->getUserFromAvailableData();
+    $this->user = $this->getUserFromAvailableData();
+    return $this->user;
   }
 
   /**
@@ -694,12 +708,36 @@ abstract class BaseFacebook
    *               false if an access token could not be generated.
    */
   protected function getAccessTokenFromCode($code, $redirect_uri = null) {
+    $response_params = $this->getAccessTokenResponseFromCode($code, $redirect_uri);
+
+    if($response_params) {
+      // TODO: We lose the expire's token here.  Capture it somehow to compare against
+      if (!isset($response_params['access_token'])) {
+        return false;
+      }
+
+      return $response_params['access_token'];
+    }
+    return false;
+  }
+
+  /**
+   *
+   *
+   */
+  protected function getAccessTokenResponseFromCode($code, $redirect_uri = null) {
     if (empty($code)) {
       return false;
     }
 
     if ($redirect_uri === null) {
       $redirect_uri = $this->getCurrentUrl();
+    }
+
+    $expires_at = $this->getPersistentData('access_token_expires_at');
+    if(intval($expires_at) > time()) {
+      print_pre("Not Expired");
+      return $this->getPersistentData('access_token');
     }
 
     try {
@@ -724,11 +762,11 @@ abstract class BaseFacebook
 
     $response_params = array();
     parse_str($access_token_response, $response_params);
-    if (!isset($response_params['access_token'])) {
-      return false;
-    }
 
-    return $response_params['access_token'];
+    if($response_params['access_token'] && $response_params['expires']) {
+      return $response_params;
+    }
+    return false;
   }
 
   /**
@@ -849,6 +887,7 @@ abstract class BaseFacebook
    * @return string The response text
    */
   protected function makeRequest($url, $params, $ch=null) {
+
     if (!$ch) {
       $ch = curl_init();
     }
@@ -894,6 +933,7 @@ abstract class BaseFacebook
       throw $e;
     }
     curl_close($ch);
+
     return $result;
   }
 
@@ -1219,6 +1259,15 @@ abstract class BaseFacebook
     }
 
     return $metadata;
+  }
+
+  /**
+   * Calculate the time when the access token will expire
+   * @param number of seconds before expiration
+   * @return int timestamp of expiration time
+  **/
+  protected function calculateExpirationTime($expires) {
+    return time() + intval($expires);
   }
 
   /**

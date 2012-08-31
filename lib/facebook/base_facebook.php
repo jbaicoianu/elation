@@ -736,7 +736,6 @@ abstract class BaseFacebook
 
     $expires_at = $this->getPersistentData('access_token_expires_at');
     if(intval($expires_at) > time()) {
-      print_pre("Not Expired");
       return $this->getPersistentData('access_token');
     }
 

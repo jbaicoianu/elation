@@ -23,6 +23,32 @@ function print_ln($obj, $buffer=false, $quiet=false) {
     return $buf;
 }
 
+/**
+ * Print out a simpler backtrace than debug_print_backtrace and faster
+ * @param boolean $buffer should not print
+ * @param string $tag name of tag to surround output in
+ * @return string
+ * @see debug_backtrace
+ * @see print_pre
+ **/
+function print_stack($buffer=false, $tag="pre") {
+  $output = "";
+  $backtrace = debug_backtrace();
+
+  $spacing = 40;
+
+  foreach($backtrace as $traceEntry) {
+    $newline = PHP_EOL . $traceEntry['class'] . $traceEntry['type'] . $traceEntry['function'] . "()";
+    if(strlen($newline) > $spacing) {
+      $spacing = strlen($newline) + 10;
+    }
+    $newline = str_pad($newline, $spacing);
+    $newline .= " from " . $traceEntry['file'] . ':' . $traceEntry['line'];
+    $output .= $newline;
+  }
+
+  return print_pre($output, $buffer, $tag);
+}
 
 /**
  * Function: any

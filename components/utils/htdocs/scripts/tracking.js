@@ -228,13 +228,17 @@ elation.extend('googleanalytics', function(args) {
         || this.pagetype == 'browse_brand' 
         || this.pagetype == 'browse_profile'
         || this.pagetype == 'browse_sets'
-        || this.pagetype == 'browse_catalogs') {
+        || this.pagetype == 'browse_catalogs'
+        || this.pagetype == 'browse_catalogs_merchants'
+        || this.pagetype == 'browse_catalogs_users') {
       //var cobrand = 'glimpse';
       var cobrand = googleAnalytics.cobrand;
       var page = elation.browse.page(0).subpage;
       var browseby = elation.browse.page(0).args.browseby;
       var list = elation.browse.page(0).getCurrentNode();
-      if(typeof browseby == 'undefined' && list.nodeid == '0' && page != '/profile' && page != '/catalogs') {
+      if(typeof browseby == 'undefined' && list.nodeid == '0' 
+          && page != '/profile' && page != '/catalogs'
+          && page != '/catalogs/merchants' && page != '/catalogs/users') {
         var page = '/home';
       }
       switch (page) {
@@ -349,6 +353,14 @@ elation.extend('googleanalytics', function(args) {
               this.pageURL += '/?set='+list.catalog;
             }
           break;
+        case '/catalogs/users':
+          this.pageURL = 'virt_results/'+cobrand;
+          this.pageURL += '/catalogs/users';
+        break;
+        case '/catalogs/merchants':
+          this.pageURL = 'virt_results/'+cobrand;
+          this.pageURL += '/catalogs/merchants';
+        break;
         case '/catalogs':
             this.pageURL = 'virt_results/'+cobrand;
             this.pageURL += '/catalogs/all';

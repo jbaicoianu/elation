@@ -238,7 +238,8 @@ elation.extend('googleanalytics', function(args) {
       var list = elation.browse.page(0).getCurrentNode();
       if(typeof browseby == 'undefined' && list.nodeid == '0' 
           && page != '/profile' && page != '/catalogs'
-          && page != '/catalogs/merchants' && page != '/catalogs/users') {
+          && page != '/catalogs/merchants' && page != '/catalogs/users'
+          && elation.browse.page(0).catalogissue == false) {
         var page = '/home';
       }
       switch (page) {

@@ -74,8 +74,12 @@ class ComponentManager extends Component {
 
     if(!empty($contenturls[$page]) || !empty($contenturls[$page_noextension])) {
       // Check for config-mapped URL first
-      $pagevars = any($contenturls[$page], $contenturls[$page_noextension]);
-      $pagecfg["pagename"] = any($pagevars["pagename"], $pagevars["name"]);
+      $args = $this->ApplyOverrides($args, $applysettings);
+
+      // use name from contenturls to re-get config in case ApplyOverrides changed any values
+      $tmppagevars = any($contenturls[$page], $contenturls[$page_noextension]);
+      $pagevars = ConfigManager::get("page.content." . $tmppagevars["name"], $tmppagevars);
+      $pagecfg["pagename"] = any($pagevars["pagename"], $pagevars["name"], $tmppagevars["name"]);
       $pagecfg["pagegroup"] = $pagevars["pagegroup"];
 
       $ext = substr($page, strlen($page_noextension)+1);
@@ -95,7 +99,6 @@ class ComponentManager extends Component {
       if (!empty($pagevars["ads"])) {
         $pagecfg["ads"] = $pagevars["ads"];
       }
-      $args = $this->ApplyOverrides($args, $applysettings);
 
       if (!empty($pagevars["component"]) && self::has($pagevars["component"])) {
         $componentargs = (!empty($pagevars["vars"]) ? array_merge($pagevars["vars"], $args) : $args);

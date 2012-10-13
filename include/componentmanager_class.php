@@ -74,22 +74,24 @@ class ComponentManager extends Component {
 
     if(!empty($contenturls[$page]) || !empty($contenturls[$page_noextension])) {
       // Check for config-mapped URL first
-      $args = $this->ApplyOverrides($args, $applysettings);
 
       // use name from contenturls to re-get config in case ApplyOverrides changed any values
       $tmppagevars = any($contenturls[$page], $contenturls[$page_noextension]);
       $pagevars = ConfigManager::get("page.content." . $tmppagevars["name"], $tmppagevars);
-      $pagecfg["pagename"] = any($pagevars["pagename"], $pagevars["name"], $tmppagevars["name"]);
-      $pagecfg["pagegroup"] = $pagevars["pagegroup"];
 
       $ext = substr($page, strlen($page_noextension)+1);
       if (!empty($ext)) {
         $outputtype = $ret["type"] = $pagecfg["type"] = $ext;
       }
 
+      // page-specific overrides
       if(!empty($pagevars["options"])) {
         $cfg->ConfigMerge($cfg->current, $pagevars["options"]);
       }
+
+      // URL overrides
+      $args = $this->ApplyOverrides($args, $applysettings);
+
       if (!empty($pagevars["layout"])) {
         $layoutcfg = ConfigManager::get("page.layout." . $pagevars["layout"]);
         if (!empty($layoutcfg)) {
@@ -99,6 +101,10 @@ class ComponentManager extends Component {
       if (!empty($pagevars["ads"])) {
         $pagecfg["ads"] = $pagevars["ads"];
       }
+
+      // determine pagename after overrides have been processed
+      $pagecfg["pagename"] = any($pagevars["pagename"], $pagevars["name"], $tmppagevars["name"]);
+      $pagecfg["pagegroup"] = $pagevars["pagegroup"];
 
       if (!empty($pagevars["component"]) && self::has($pagevars["component"])) {
         $componentargs = (!empty($pagevars["vars"]) ? array_merge($pagevars["vars"], $args) : $args);
@@ -232,7 +238,6 @@ class ComponentManager extends Component {
         }
       }
     }
-    //print_pre($ret);
     return $ret;
   }
 

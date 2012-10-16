@@ -92,6 +92,9 @@ class ComponentManager extends Component {
       // URL overrides
       $args = $this->ApplyOverrides($args, $applysettings);
 
+      // reload pagevars after merging overrides
+      $pagevars = ConfigManager::get("page.content." . $tmppagevars["name"], $tmppagevars);
+
       if (!empty($pagevars["layout"])) {
         $layoutcfg = ConfigManager::get("page.layout." . $pagevars["layout"]);
         if (!empty($layoutcfg)) {

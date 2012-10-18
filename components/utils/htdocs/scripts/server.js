@@ -55,6 +55,10 @@ elation.extend("host", new function() {
     return (new elation.server());
   }
   this.execute = function(type, p1, p2, p3) {
+    //console.log('execute ',typeof p3);
+    if (type != 'multirequest' && typeof p3 == 'function')
+      p3 = { callback: p3 };
+    
     var ajaxlib = this.make();
     ajaxlib[type](p1, p2, p3);
     return ajaxlib;
@@ -119,6 +123,7 @@ elation.extend("server", function() {
       }
     }
     var req = this.parseURL(url);
+    //console.log(req, args, url);
     this.ProcessRequest(req, args);
   }
   this.Post = function (form, params, args) {

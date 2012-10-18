@@ -49,9 +49,11 @@ class OrmManager {
     if (!$me->outlet) return;
     $models = explode(",", $model);
     //print_pre($models);
+    $ret = array();
     foreach ($models as $model) {
       $ormmodel = new OrmModel($model);
       $ormmodel->LoadModel();
+      $ret[$model] = $ormmodel;
       if (!empty($ormmodel->classes)) {
         $foo = object_to_array($ormmodel->classes);
         try {
@@ -63,6 +65,7 @@ class OrmManager {
     }
     $me->outlet->createClasses();
     $me->outlet->createProxies();
+    return $ret;
   }
   function Select($type, $where=NULL, $params=array()) {
     if ($this instanceOf OrmManager)

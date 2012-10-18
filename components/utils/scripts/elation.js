@@ -77,6 +77,7 @@ elation.extend("checkhash", new function() {
     });
   }
   
+/*
   //(function(self) {
   if (typeof $TF != 'undefined') {
     $TF(document).ready(function() {
@@ -85,6 +86,7 @@ elation.extend("checkhash", new function() {
       }, 500);
     });
   }
+*/
   //})(this);
 });
 
@@ -154,19 +156,31 @@ elation.extend("component", new function() {
               // FIXME - IE seems to drop the namespace, might be related to above FIXME, so look for a child named "args"
               if (element.children[j].nodeName.toLowerCase() == argsattr || element.children[j].nodeName.toLowerCase() == "args") { 
                 var argtext = element.children[j].textContent || element.children[j].innerText;
+                var argname = (element.children[j].attributes['name'] ? element.children[j].attributes['name'].value : false);
                 try {
                   var content = element.children[j].innerHTML.trim();
-                  if (content.length > 0) {
-                    componentargs = JSON.parse(content);
-                    element.removeChild(element.children[j]);
-                    if (componentargs == null) { // empty JSON could cause errors later, so reset null to an empty hash
-                      componentargs = {};
+
+                  // if elation:name parameter is specified, merge this data into the appropriate place
+                  var mergeto = componentargs;
+                  if (argname) {
+                    var tmpmergeto = elation.utils.arrayget(componentargs, argname);
+                    if (tmpmergeto === null) { // requested key is new, create it and get a reference to the new object
+                      elation.utils.arrayset(componentargs, argname, {});
+                      mergeto = elation.utils.arrayget(componentargs, argname);
+                    } else {
+                      mergeto = tmpmergeto; // key already exists, store reference
                     }
                   }
-                  //break; // only one args array per block, bail out when we find one so we don't waste time with the rest
+                  if (content.length > 0) {
+                    var newcomponentargs = JSON.parse(content);
+                    element.removeChild(element.children[j]);
+                    if (componentargs != null) { // empty JSON could cause errors later, so reset null to an empty hash
+                      elation.utils.merge(newcomponentargs, mergeto);
+                    }
+                  }
                 } catch(e) {
                   // Probably JSON syntax error
-                  console.log("Could not parse " + argsattr + ": " + argtext);
+                  console.log("Could not parse " + argsattr + ": " + argtext + ": " + e.stack);
                 }
               } else if (element.children[j].nodeName == eventsattr.toUpperCase() || element.children[j].nodeName == "events") { 
                 try {
@@ -438,6 +452,21 @@ elation.extend('onloads',new function() {
   }
 });
 //elation.onloads.init();
+
+/** 
+ * elation.bind(ctx, fn) - used to preserve "this" for callbacks, etc.
+ * by binding a function to a specific object context
+ * */ 
+elation.extend("bind", function(ctx, fn) {
+  if (typeof fn == 'function') {
+    return (typeof fn.bind == 'function' ? 
+        fn.bind(ctx) :                           // modern browsers have fn.bind() built-in
+        function() { fn.apply(ctx, arguments); } // older browsers just need a closure to carry the context through
+      );
+  } else if (typeof ctx == 'function') {
+    return ctx;
+  }
+});
 
 elation.extend("html.dimensions", function(element, ignore_size) {
 	if (typeof element != 'object' || element === window) {
@@ -1057,9 +1086,9 @@ elation.extend("utils.getParent", function(element, tag, classname, all_occurren
 elation.extend("utils.isin", function(parent, element) {
   if (!parent || !element)
     return false;
-  
- 	while (!elation.utils.isNull(element) && element != parent && element != document.body)
+  while (!elation.utils.isNull(element) && element != parent && element != document.body) {
     element = element.offsetParent;
+  }
   
   return (parent == element);
 });

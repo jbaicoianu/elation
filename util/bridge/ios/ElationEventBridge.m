@@ -54,11 +54,16 @@
 - (BOOL) subscribe:(NSString *)events webView:(UIWebView *)webView {
   // Register event subscription for a specific UIWebView
   NSString *jscmd = [NSString stringWithFormat:@"elation.native.subscribe('%@');", events];
-  @try {
-    [webView stringByEvaluatingJavaScriptFromString:jscmd];
-  }
-  @catch (NSException *e) {
+  if (webView.loading) {
+    // TODO - queue any subscription requests made while the page was loading so they can be sent when it finishes
     return NO;
+  } else {
+    @try {
+      [webView stringByEvaluatingJavaScriptFromString:jscmd];
+    }
+    @catch (NSException *e) {
+      return NO;
+    }
   }
   return YES;
 }
@@ -87,4 +92,9 @@
   }
   return YES;
 }
+/*
+- (void)webViewDidFinishLoad:(UIWebView *)webView {
+  // TODO - when the page reloads, we should call subscribe with any queued event names
+}
+*/
 @end

@@ -23,6 +23,8 @@
  *   @end
  */
 
+#import "ElationEventBridge.h"
+
 @implementation ElationEventBridge
 + (ElationEventBridge *) defaultBridge {
     static ElationEventBridge *instance;

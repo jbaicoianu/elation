@@ -31,8 +31,9 @@ class DependencyManager {
     
     //self::$dependencies[$args["type"]][] = Dependency::create($args["type"], $args);
     $dep = Dependency::create($args["type"], $args);
-    if (!isset(self::$dependencies[$priority][$browser][$args["type"]][$dep->id()])) {
-      self::$dependencies[$priority][$browser][$args["type"]][$dep->id()] = $dep;
+    $depid = $dep->id();
+    if (!isset(self::$dependencies[$priority][$browser][$args["type"]][$depid])) {
+      self::$dependencies[$priority][$browser][$args["type"]][$depid] = $dep;
       if (Logger::$enabled && !$silent) {
         Logger::Notice("Added {$args["type"]} dependency ({$browser}): '{$dep->content()}'");
       }

@@ -8,7 +8,6 @@
  *   // Then any class can add notification observers to watch for the "elation-event" notification
  *   @implementation MyClass 
  *   - (id) init {
- *
  *     [[NSNotificationCenter defaultCenter] addObserver:self
  *         selector:@selector(handleElationEvent:) 
  *         name:@"elation-event"];
@@ -16,7 +15,7 @@
  *   - (void) handleElationEvent:(NSNotification *) notification {
  *     NSDictionary *event = notification.userInfo;
  *     if ([event.type isEqualToString:@"user_login"]) {
- *       NSDictionary *user = [event data];
+ *       NSDictionary *user = event.data;
  *       ...
  *     }
  *   }
@@ -36,11 +35,11 @@
     return instance;
 }
 
-- (BOOL) attachWebView:(UIWebView *)webView {
+- (void) attachWebView:(UIWebView *)webView {
   [self.webViews addObject:webView];
   webView.delegate = self;
 }
-- (BOOL) attachWebView:(UIWebView *)webView subscribe:(NSString *)events {
+- (void) attachWebView:(UIWebView *)webView subscribe:(NSString *)events {
   [self attachWebView:webView];
   [self subscribe:webView events:events]
 }
@@ -50,12 +49,28 @@
   for (id webView in self.webViews) {
     [self subscribe:events webView:webView]
   }
+  return YES;
 }
 - (BOOL) subscribe:(NSString *)events webView:(UIWebView *)webView {
   // Register event subscription for a specific UIWebView
   NSString *jscmd = [NSString stringWithFormat:@"elation.native.subscribe('%@');", events];
   if (webView.loading) {
-    // TODO - queue any subscription requests made while the page was loading so they can be sent when it finishes
+    // queue any subscription requests made while the UIWebView was still loading
+    // they will be sent when the webViewDidFinishLoad event is fired
+    NSUInteger idx = [self.webViews indexOfObject:webView];
+    if (idx != NSNotFound) {
+      // NSMutableDictionary doesn't like integer keys, so convert to numeric
+      NSNumber *nidx = [NSNumber numberWithInt:idx]; 
+      NSString *queuedevents = [self.queues objectForKey:nidx];
+      if (queuedevents == nil) {
+        // no events queued yet
+        queuedevents = events;
+      } else {
+        // if we already have queued events, append them with a comma separator
+        queuedevents = [queuedevents stringByAppendingFormat:",%@", events ];
+      }
+      [self.queues setObject:queuedevents forKey:nidx];
+    }
     return NO;
   } else {
     @try {
@@ -85,16 +100,23 @@
       }
     }
     // post the notification to the notification center
-    [[NSNotificationCenter defaultCenter] postNotificationName:kElationEventBridgeNotificationName object:nil userInfo:event];
+    [[NSNotificationCenter defaultCenter] postNotificationName:kElationEventBridgeNotificationName object:webView userInfo:event];
 
     // prevent default handling
     return NO;
   }
   return YES;
 }
-/*
 - (void)webViewDidFinishLoad:(UIWebView *)webView {
-  // TODO - when the page reloads, we should call subscribe with any queued event names
+  // when the page reloads, call [self subscribe] with any queued event names
+  NSUInteger idx = [self.webViews indexOfObject:webView];
+  if (idx != NSNotFound) {
+    // NSMutableDictionary doesn't like integer keys, so convert to numeric
+    NSNumber *nidx = [NSNumber numberWithInt:idx]; 
+    NSString *queuedEvents = [self.queues objectForKey:nidx];
+    if (queuedEvents != nil && [queuedEvents length] > 0) {
+      [self subscribe:queuedEvents webView:webView];
+    }
+  }
 }
-*/
 @end

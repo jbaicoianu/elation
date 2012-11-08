@@ -25,4 +25,18 @@ elation.extend("utils.math.lcm", function(t1, t2) {
 });
 elation.extend("utils.math.clamp", function(val, min, max) {
   return Math.max(Math.min(val, max), min);
-}
+});
+elation.extend("utils.math.arraysub", function(a1, a2) {
+  var ret = [];
+  for (var i = 0; i < a1.length; i++) {
+    ret[i] = a1[i] - a2[i];
+  }
+  return ret;
+});
+elation.extend("utils.math.arrayadd", function(a1, a2) {
+  var ret = [];
+  for (var i = 0; i < a1.length; i++) {
+    ret[i] = a1[i] + a2[i];
+  }
+  return ret;
+});

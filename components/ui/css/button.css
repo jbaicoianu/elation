@@ -1,4 +1,4 @@
-button.ui_button {
+.ui_button {
   cursor: pointer;
   border: 1px solid #bbb;
   border-radius: .2em;
@@ -15,8 +15,9 @@ button.ui_button {
     rgb(240,240,240) 10%,
     rgb(204,204,204) 90%
   );
+  -webkit-user-select: none;
 }
-button.ui_button:hover {
+.ui_button:hover {
   border: 1px solid #999;
   background: -webkit-gradient(
     linear,
@@ -31,7 +32,8 @@ button.ui_button:hover {
     rgb(214,214,214) 90%
   );
 }
-button.ui_button:active {
+.ui_button:active,
+.ui_button.state_active {
   border: 1px solid #c0c0c0;
   background: -webkit-gradient(
     linear,
@@ -46,24 +48,24 @@ button.ui_button:active {
     rgb(250,250,250) 90%
   );
 }
-button.ui_button_sprite_twostate_hover,
-button.ui_button_sprite_twostate_active,
-button.ui_button_sprite_threestate {
+.ui_button_sprite_twostate_hover,
+.ui_button_sprite_twostate_active,
+.ui_button_sprite_threestate {
   background-repeat: no-repeat;
   cursor: pointer;
   border: 0 none;
   border-radius: 0;
 }
-button.ui_button_sprite_twostate_hover:hover {
+.ui_button_sprite_twostate_hover:hover {
   background-position: 100% 0;
   border: 0 none;
 }
-button.ui_button_sprite_threestate:hover {
+.ui_button_sprite_threestate:hover {
   background-position: 50% 0;
   border: 0 none;
 }
-button.ui_button_sprite_twostate_active:active,
-button.ui_button_sprite_threestate:active {
+.ui_button_sprite_twostate_active:active,
+.ui_button_sprite_threestate:active {
   background-position: 100% 0;
   border: 0 none;
 }

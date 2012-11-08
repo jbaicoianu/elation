@@ -5,8 +5,9 @@ elation.component.add('ui.button', {
     this.title = this.args.title || false;
     this.draggable = this.args.draggable || false;
     this.label = this.args.label || container.innerHTML;
-
+    elation.html.addclass(this.container, 'ui_button');
     this.create();
+    elation.events.add(this.container, 'click', this);
   },
   create: function() {
     //this.element = document.createElement(this.tag);
@@ -36,6 +37,16 @@ elation.component.add('ui.button', {
     this.label = label;
     if (this.container)
       this.container.innerHTML = label;
+  },
+  setActive: function(active) {
+    if (active) {
+      elation.html.addclass(this.container, 'state_active');
+    } else {
+      elation.html.removeclass(this.container, 'state_active');
+    }
+  },
+  click: function(ev) {
+    elation.events.fire({type: 'ui_button_click', element: this});
   }
 });
 

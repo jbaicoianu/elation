@@ -53,9 +53,8 @@
 elation.extend("ajax", new function() {
 	this.Queue = function (obj) {
     // if args is object, convert to string.  this might not be the best place to put this.
-    if (elation.utils.arrayget(obj, 'args') && typeof obj.args == 'object')
-      obj.args = elation.utils.encodeURLParams(obj.args);
-    
+    if (elation.utils.arrayget(obj, 'args'))
+      obj.args = (obj.args instanceof FormData ? obj.args : elation.utils.encodeURLParams(obj.args));
     if (obj.constructor.toString().indexOf("Array") != -1) {
       for (var i = 0; i < obj.length; i++) {
         if (!obj[i].method) obj[i].method = "GET";
@@ -76,7 +75,7 @@ elation.extend("ajax", new function() {
     this.Post(form, params, args);
   }
   this.Get = function(url, params, args) {
-    if (params) {
+    if (params && !(params instanceof FormData)) {
       switch (typeof params) {
         case 'object':
           params = elation.utils.encodeURLParams(params);
@@ -432,7 +431,7 @@ elation.extend("ajax", new function() {
         return;
       }
     }
-    if (!ajaxlibobj.cache) {
+    if (!ajaxlibobj.cache && !(ajaxlibobj.args instanceof FormData)) {
       ajaxlibobj.args = (ajaxlibobj.args && ajaxlibobj.args.length > 0 ? ajaxlibobj.args + "&" : "") + "_ajaxlibreqid=" + (parseInt(new Date().getTime().toString().substring(0, 10)) + parseFloat(Math.random()));
     }
 
@@ -484,9 +483,16 @@ elation.extend("ajax", new function() {
       switch (ajaxlibobj.method.toUpperCase()) {
         case "POST":
           xmlhttp.open(ajaxlibobj.method, ajaxlibobj.url, true);
-          xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+          if (typeof ajaxlibobj.contenttype == 'undefined') {
+            xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+          } else if (ajaxlibobj.contenttype !== false) {
+            xmlhttp.setRequestHeader('Content-Type', ajaxlibobj.contenttype);
+          }
           xmlhttp.setRequestHeader("X-Ajax", "1");
           xmlhttp.onreadystatechange = readystatechange;
+          if (ajaxlibobj.progress) {
+            xmlhttp.upload.onprogress = ajaxlibobj.progress;
+          }
           xmlhttp.send(ajaxlibobj.args);
           break;
         
@@ -527,7 +533,7 @@ elation.extend("ajax", new function() {
       }
     } catch (e) {
       if (typeof console != 'undefined') {
-        console.log(e);
+        console.log(e.stack);
       }
       if (ajaxlibobj.failurecallback) {
         elation.ajax.executeCallback(ajaxlibobj.failurecallback, e);

@@ -305,9 +305,11 @@ elation.extend('onloads',new function() {
  * */
 elation.extend("bind", function(ctx, fn) {
   if (typeof fn == 'function') {
-    return function() {
-      fn.call(ctx);
-    };
+    return (typeof fn.bind == 'function' ?
+      fn.bind(ctx) :                           // modern browsers have fn.bind() built-in
+      function() { fn.apply(ctx, arguments); } // older browsers just need a closure to carry the context through
+    );
+
   } else if (typeof ctx == 'function') {
     return ctx;
   }

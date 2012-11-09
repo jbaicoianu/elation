@@ -88,7 +88,7 @@ elation.extend("host", new function() {
 elation.extend("server", function() {
 	this.Queue = function (obj) {
     // if args is object, convert to string.  this might not be the best place to put this.
-    if (elation.utils.arrayget(obj, 'args') && typeof obj.args == 'object')
+    if (elation.utils.arrayget(obj, 'args') && typeof obj.args == 'object' && !(obj.args instanceof FormData))
       obj.args = elation.utils.encodeURLParams(obj.args);
     
     if (obj.constructor.toString().indexOf("Array") != -1) {
@@ -487,7 +487,7 @@ elation.extend("server", function() {
         return;
       }
     }
-    if (!ajaxlibobj.cache) {
+    if (!ajaxlibobj.cache && !(ajaxlibobj.args instanceof FormData)) {
       ajaxlibobj.args = (ajaxlibobj.args && ajaxlibobj.args.length > 0 ? ajaxlibobj.args + "&" : "") + "_ajaxlibreqid=" + (parseInt(new Date().getTime().toString().substring(0, 10)) + parseFloat(Math.random()));
     }
 
@@ -522,9 +522,16 @@ elation.extend("server", function() {
       switch (ajaxlibobj.method.toUpperCase()) {
         case "POST":
           xmlhttp.open(ajaxlibobj.method, ajaxlibobj.url, true);
-          xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+          if (typeof ajaxlibobj.contenttype == 'undefined') {
+            xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+          } else if (ajaxlibobj.contenttype !== false) {
+            xmlhttp.setRequestHeader('Content-Type', ajaxlibobj.contenttype);
+          }
           xmlhttp.setRequestHeader("X-Ajax", "1");
           xmlhttp.onreadystatechange = readystatechange;
+          if (ajaxlibobj.progress) {
+            xmlhttp.upload.onprogress = ajaxlibobj.progress;
+          }
           xmlhttp.send(ajaxlibobj.args);
           break;
         

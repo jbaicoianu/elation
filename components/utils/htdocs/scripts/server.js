@@ -76,7 +76,7 @@ elation.extend("host", new function() {
     return this.execute('multirequest', json, callback);
   }
   this.queue = function(obj) {
-    return this.Get(obj);
+    return this.Queue(obj);
   }
   this.get = function(url, params, args) {
     return this.Get(url, params, args);

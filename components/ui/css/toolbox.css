@@ -1,0 +1,18 @@
+.ui_toolbox {
+  list-style: none;
+  margin: 0;
+  padding: .5em;
+}
+.ui_toolbox_tool {
+  display: inline-block;
+/*
+  width: 2em;
+  line-height: 2em;
+  text-align: center;
+  vertical-align: middle;
+  border: 1px solid black;
+  border-radius: 2px;
+  background: #ddd;
+*/
+  margin: .1em;
+}

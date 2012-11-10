@@ -1,0 +1,22 @@
+.ui_colorpicker {
+  position: relative;
+  display: inline-block;
+  min-width: 1em;
+  vertical-align: middle; 
+  -webkit-user-select: none;
+}
+.ui_colorpicker_swatch {
+  display: inline-block;
+  min-height: 1em;
+  min-width: 1em;
+  margin: .5em;
+  border: 1px solid black;
+  vertical-align: middle; 
+}
+.ui_colorpicker canvas {
+  border: 1px solid #000000;
+  position: absolute;
+  bottom: -128px;
+  left: 0;
+  cursor: crosshair;
+}

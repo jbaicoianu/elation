@@ -508,10 +508,14 @@ elation.extend("server", function() {
             if(typeof dom != 'undefined' || dom != null){
               processResponse.call(self, self.translateXML(dom), ajaxlibobj);
             }
+          } else {
+            if (ajaxlibobj.callback) {
+              elation.ajax.executeCallback(ajaxlibobj.callback, xmlhttp.responseText, this);
+            }
           }
         } else {
           if (ajaxlibobj.failurecallback) {
-            elation.ajax.executeCallback(ajaxlibobj.failurecallback);
+            elation.ajax.executeCallback(ajaxlibobj.failurecallback, this);
           }
         }
         setTimeout(function() { self.Go(); }, 0);
@@ -527,7 +531,7 @@ elation.extend("server", function() {
           } else if (ajaxlibobj.contenttype !== false) {
             xmlhttp.setRequestHeader('Content-Type', ajaxlibobj.contenttype);
           }
-          xmlhttp.setRequestHeader("X-Ajax", "1");
+          //xmlhttp.setRequestHeader("X-Ajax", "1");
           xmlhttp.onreadystatechange = readystatechange;
           if (ajaxlibobj.progress) {
             xmlhttp.upload.onprogress = ajaxlibobj.progress;
@@ -565,7 +569,7 @@ elation.extend("server", function() {
         // defaults to GET method
         default:
           xmlhttp.open(ajaxlibobj.method, ajaxlibobj.url + "?" + ajaxlibobj.args, true);
-          xmlhttp.setRequestHeader("X-Ajax", "1");
+          //xmlhttp.setRequestHeader("X-Ajax", "1");
           xmlhttp.onreadystatechange = readystatechange;
           xmlhttp.send(null);
           break;
@@ -576,7 +580,7 @@ elation.extend("server", function() {
         console.log(e);
       }
       if (ajaxlibobj.failurecallback) {
-        elation.ajax.executeCallback(ajaxlibobj.failurecallback, e);
+        elation.ajax.executeCallback(ajaxlibobj.failurecallback, this, e);
       }
       return false;
     }

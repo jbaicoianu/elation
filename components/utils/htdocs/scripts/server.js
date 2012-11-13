@@ -308,7 +308,7 @@ elation.extend("server", function() {
     // If caller passed in a callback, execute it
     if (typeof ajaxlibobj != 'undefined' && ajaxlibobj.callback) {
       try {
-        elation.ajax.executeCallback(ajaxlibobj.callback, common);
+        elation.ajax.executeCallback(ajaxlibobj.callback, common, this);
       } catch(e) {
         batch.callback(function() { elation.ajax.executeCallback(ajaxlibobj.callback, common); });
       }

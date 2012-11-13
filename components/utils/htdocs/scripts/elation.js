@@ -95,6 +95,7 @@ elation.extend("component", new function() {
   this.registry = [];
   this.init = function(root) {
     var argsattr = this.namespace+':'+this.attrs.componentargs;
+    
     // Find all elements which have a <namespace>:<componenttype> attribute
 
     if (typeof root == 'undefined') {

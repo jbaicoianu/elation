@@ -351,7 +351,8 @@ elation.extend('googleanalytics', function(args) {
                          + cat
                          + type
             if(typeof list.catalog != 'undefined'){
-              this.pageURL += '/?set='+list.catalog;
+              //this.pageURL += '/?set='+list.catalog;
+              this.pageURL = undefined;
             }
           break;
         case '/catalogs/users':

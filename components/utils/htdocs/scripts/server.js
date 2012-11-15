@@ -88,7 +88,7 @@ elation.extend("host", new function() {
 elation.extend("server", function() {
 	this.Queue = function (obj) {
     // if args is object, convert to string.  this might not be the best place to put this.
-    if (elation.utils.arrayget(obj, 'args') && typeof obj.args == 'object' && !(obj.args instanceof FormData))
+    if (elation.utils.arrayget(obj, 'args') && typeof obj.args == 'object' && !(typeof FormData != 'undefined' && obj.args instanceof FormData))
       obj.args = elation.utils.encodeURLParams(obj.args);
     
     if (obj.constructor.toString().indexOf("Array") != -1) {
@@ -487,7 +487,7 @@ elation.extend("server", function() {
         return;
       }
     }
-    if (!ajaxlibobj.cache && !(ajaxlibobj.args instanceof FormData)) {
+    if (!ajaxlibobj.cache && !(typeof FormData != 'undefined' && ajaxlibobj.args instanceof FormData)) {
       ajaxlibobj.args = (ajaxlibobj.args && ajaxlibobj.args.length > 0 ? ajaxlibobj.args + "&" : "") + "_ajaxlibreqid=" + (parseInt(new Date().getTime().toString().substring(0, 10)) + parseFloat(Math.random()));
     }
 

@@ -54,7 +54,7 @@ elation.extend("ajax", new function() {
 	this.Queue = function (obj) {
     // if args is object, convert to string.  this might not be the best place to put this.
     if (elation.utils.arrayget(obj, 'args'))
-      obj.args = (obj.args instanceof FormData ? obj.args : elation.utils.encodeURLParams(obj.args));
+      obj.args = (typeof FormData != 'undefined' && obj.args instanceof FormData ? obj.args : elation.utils.encodeURLParams(obj.args));
     if (obj.constructor.toString().indexOf("Array") != -1) {
       for (var i = 0; i < obj.length; i++) {
         if (!obj[i].method) obj[i].method = "GET";
@@ -75,7 +75,7 @@ elation.extend("ajax", new function() {
     this.Post(form, params, args);
   }
   this.Get = function(url, params, args) {
-    if (params && !(params instanceof FormData)) {
+    if (params && !(typeof FormData != 'undefined' && params instanceof FormData)) {
       switch (typeof params) {
         case 'object':
           params = elation.utils.encodeURLParams(params);
@@ -431,7 +431,7 @@ elation.extend("ajax", new function() {
         return;
       }
     }
-    if (!ajaxlibobj.cache && !(ajaxlibobj.args instanceof FormData)) {
+    if (!ajaxlibobj.cache && !(typeof FormData != 'undefined' && ajaxlibobj.args instanceof FormData)) {
       ajaxlibobj.args = (ajaxlibobj.args && ajaxlibobj.args.length > 0 ? ajaxlibobj.args + "&" : "") + "_ajaxlibreqid=" + (parseInt(new Date().getTime().toString().substring(0, 10)) + parseFloat(Math.random()));
     }
 

@@ -1,4 +1,4 @@
-var elation = new function(selector, parent, first) {
+var elation = window.elation = new function(selector, parent, first) {
   if (typeof selector == 'string' && typeof elation.find == 'function')
     elation.find(selector, parent, first);
   

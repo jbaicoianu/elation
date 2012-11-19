@@ -2270,3 +2270,29 @@ elation.extend("utils.parseXML", function(imgxml, leaf) {
   }
   return root;
 });
+elation.extend("utils.dateformat", function(format, date) {
+  if (!(date instanceof Date)) date = new Date();
+  var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    
+  var parts = {
+    j: date.getDate(),
+    n: date.getMonth(),
+    Y: date.getFullYear(),
+    G: date.getHours(),
+    M: date.getMinutes(),
+    s: date.getSeconds(),
+    w: date.getDay()
+  };
+  parts.m = (parts.n < 10 ? "0" : "") + parts.n;
+  parts.d = (parts.j < 10 ? "0" : "") + parts.j;
+  parts.H = (parts.G < 10 ? "0" : "") + parts.G;
+  parts.D = days[parts.w];
+  parts.M = months[parts.n];
+  
+  var ret = "";
+  for (var i = 0; i < format.length; i++) {
+    ret += (parts[format[i]] ? parts[format[i]] : format[i]);
+  } 
+  return ret;
+});

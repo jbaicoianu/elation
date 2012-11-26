@@ -1,0 +1,12 @@
+.ui_droptarget {
+  outline: 2px solid transparent;
+}
+.ui_droptarget.state_active {
+  outline: 2px solid yellow !important;
+}
+.ui_droptarget.state_droppable {
+  outline: 2px solid lime !important;
+}
+.ui_droptarget.state_undroppable {
+  outline: 2px solid red !important;
+}

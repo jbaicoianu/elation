@@ -1,0 +1,18 @@
+.ui_slider input[type='range'] {
+  width: 100%;
+}
+.ui_slider_track {
+  width: 100%;
+  border: 1px solid black;
+  height: .4em;
+  position: relative;
+  margin: 1em 0;
+}
+.ui_slider_handle {
+  width: .25em;
+  border: 1px solid black;
+  background: grey;
+  height: 1.2em;
+  position: absolute;
+  top: -.4em;
+}

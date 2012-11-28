@@ -100,8 +100,8 @@ ul#tf_debug_log li.logDebug {
   border: 2px solid orange;
   border-radius: 8px;
   -moz-border-radius: 8px;
-  -webkit-box-shadow: 5px 5px 5px #888;
-  -moz-box-shadow: 5px 5px 5px #888;
+  -webkit-box-shadow: 5px 5px 5px rgba(0,0,0,.5);
+  -moz-box-shadow: 5px 5px 5px rgba(0,0,0,.5);
   background: white;
 }
 #tf_window_top {

@@ -367,6 +367,12 @@ abstract class BaseFacebook
    *                could not be determined.
    */
   protected function getUserAccessToken() {
+
+  	$expires_at = $this->getPersistentData('access_token_expires_at');
+    if(intval($expires_at) > time()) {
+      return $this->getPersistentData('access_token');
+    }
+
     // first, consider a signed request if it's supplied.
     // if there is a signed request, then it alone determines
     // the access token.
@@ -732,11 +738,6 @@ abstract class BaseFacebook
 
     if ($redirect_uri === null) {
       $redirect_uri = $this->getCurrentUrl();
-    }
-
-    $expires_at = $this->getPersistentData('access_token_expires_at');
-    if(intval($expires_at) > time()) {
-      return $this->getPersistentData('access_token');
     }
 
     try {

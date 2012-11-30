@@ -222,7 +222,6 @@ elation.extend('googleanalytics', function(args) {
         break;
     }
 
-
     if(this.pagetype == 'browse_homepage' 
         || this.pagetype == 'browse_merchant' 
         || this.pagetype == 'browse_brand' 
@@ -242,7 +241,15 @@ elation.extend('googleanalytics', function(args) {
           && elation.browse.page(0).catalogissue == false) {
         var page = '/home';
       }
+      if( elation.browse.page(0).args.filter.query != '' ) {
+	 var page = '/search';
+	}	
       switch (page) {
+	case '/search':
+		this.pageURL = '/virt_results/'
+				+ cobrand+'/search/?qry='
+				+ elation.browse.page(0).args.filter.query;
+	break;
         case '/merchant':
           //store page
           if(browseby == 'brands'){

@@ -65,6 +65,7 @@ elation.extend("events", {
       } else if (typeof event.origin.handleEvent != 'undefined') {
         event.origin.handleEvent(event);
       }
+      
       events.push(event);
     }
 
@@ -96,29 +97,31 @@ elation.extend("events", {
     var events = this.events[type];
     
     if (element && fn) {
-      for (var i=0; i<events.length; i++) {
+      for (var i in events) {
         var item = events[i],
             target = item.target,
             origin = item.origin;
         
         if (element == target && origin == fn)
-          events.slice(i,1);
+          events.splice(i,1);
       }
     } else if (element) {
-      for (var i=0; i<events.length; i++) {
+      for (var i in events) {
         var item = events[i],
             target = item.target;
         
-        if (element == target)
-          events.slice(i,1);
+        if (element == target) {
+          events.splice(i,1);
+        }
       }
     } else if (fn) {
-      for (var i=0; i<events.length; i++) {
+      for (var i in events) {
         var item = events[i],
             origin = item.origin;
         
-        if (origin == fn)
-          events.slice(i,1);
+        if (origin == fn) {
+          events.splice(i,1);
+        }
       }
     } else if (type) {
       delete this.events[type];
@@ -250,7 +253,7 @@ elation.extend("events", {
 			for (var i=0; i<types.length; i++) {
 				var type = types[i];
 				
-        elation.events.unregister(element, type, fn);
+        //elation.events.unregister(element, type, fn);
         
 				if (element.removeEventListener) {
 					if (typeof fn == "object" && fn.handleEvent) {

@@ -241,9 +241,11 @@ elation.extend('googleanalytics', function(args) {
           && elation.browse.page(0).catalogissue == false) {
         var page = '/home';
       }
-      if( elation.browse.page(0).args.filter.query != '' ) {
-	 var page = '/search';
-	}	
+      if(   elation.browse.page(0).args.filter !== null 
+	      && typeof elation.browse.page(0).args.filter.query != 'undefined' 
+	      && elation.browse.page(0).args.filter.query != '' ) {
+	      var page = '/search';
+      }
       switch (page) {
 	case '/search':
 		this.pageURL = '/virt_results/'

@@ -964,7 +964,7 @@ function is_64bit() {
 
 function array_merge_recursive_distinct($arr1, $arr2) {
   foreach($arr2 as $key => $value) {
-    if(array_key_exists($key, $arr1) && is_array($value))
+    if(is_array($arr1) && array_key_exists($key, $arr1) && is_array($value))
       $arr1[$key] = array_merge_recursive_distinct($arr1[$key], $arr2[$key]);
     else
       $arr1[$key] = $value;

@@ -4,3 +4,6 @@
 [submodule "components/pandora"]
 	path = components/pandora
 	url = /data/elation/components/pandora/
+[submodule "components/space"]
+	path = components/space
+	url = git@github.com:jbaicoianu/elation-component-space.git

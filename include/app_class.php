@@ -36,7 +36,7 @@ class App {
     Profiler::StartTimer("WebApp::TimeToDisplay", 1);
 
     // disable notices by default.  This should probably be a config option...
-    //error_reporting(error_reporting() ^ E_NOTICE); 
+    error_reporting(error_reporting() ^ E_NOTICE); 
 
     register_shutdown_function(array($this, 'shutdown'));
     ob_start();
@@ -154,39 +154,47 @@ class App {
 
       $this->session->quit();
 
-      // Load settings from servers.ini
-      $contegargs = (isset($this->cfg->servers["conteg"]) ? $this->cfg->servers["conteg"] : array());
-      // And also from site config
-      $contegcfg = ConfigManager::get("conteg");
-      if (is_array($contegcfg)) {
-        $contegargs = array_merge($contegargs, $contegcfg);
+      $headers = headers_list();
+      $isRedirect = false;
+      foreach ($headers as $header) {
+        list ($k, $v) = explode(": ", $header, 2);
+         if ($k == "Location") $isRedirect = true;
       }
-
-      if (empty($contegargs["type"])) {
-        $contegargs["type"] = any($this->request["contenttype"], $output["responsetype"]);
-      }
-      // Merge type-specific policy settings from config if applicable
-      if (isset($contegargs["policy"]) && is_array($contegargs["policy"][$contegargs["type"]])) {
-        $contegargs = array_merge($contegargs, $contegargs["policy"][$contegargs["type"]]);
-      }
-
-      if (empty($contegargs["modified"])) { // Set modified time to mtime of base directory if not set
-        $contegargs["modified"] = filemtime($this->rootdir);
-      }
-
-      //header('Content-type: ' . any($output["type"], "text/html"));
-      if ($output["type"] == "ajax" || $output["type"] == "jsonp") {
-        print $this->tplmgr->PostProcess($output["content"], true);
-      } else {
-        print $this->tplmgr->PostProcess($output["content"]);
-        if (!empty($this->request["args"]["timing"])) {
-          print Profiler::Display();
+      if (!$isRedirect) {
+        // Load settings from servers.ini
+        $contegargs = (isset($this->cfg->servers["conteg"]) ? $this->cfg->servers["conteg"] : array());
+        // And also from site config
+        $contegcfg = ConfigManager::get("conteg");
+        if (is_array($contegcfg)) {
+          $contegargs = array_merge($contegargs, $contegcfg);
         }
+
+        if (empty($contegargs["type"])) {
+          $contegargs["type"] = any($this->request["contenttype"], $output["responsetype"]);
+        }
+        // Merge type-specific policy settings from config if applicable
+        if (isset($contegargs["policy"]) && is_array($contegargs["policy"][$contegargs["type"]])) {
+          $contegargs = array_merge($contegargs, $contegargs["policy"][$contegargs["type"]]);
+        }
+
+        if (empty($contegargs["modified"])) { // Set modified time to mtime of base directory if not set
+          $contegargs["modified"] = filemtime($this->rootdir);
+        }
+
+        //header('Content-type: ' . any($output["type"], "text/html"));
+        if ($output["type"] == "ajax" || $output["type"] == "jsonp") {
+          print $this->tplmgr->PostProcess($output["content"], true);
+        } else {
+          print $this->tplmgr->PostProcess($output["content"]);
+          if (!empty($this->request["args"]["timing"])) {
+            print Profiler::Display();
+          }
+        }
+        Profiler::StopTimer("WebApp::TimeToDisplay");
+        Profiler::StartTimer("WebApp::Display() - Conteg", 1);
+        //new Conteg($contegargs);
+        Profiler::StopTimer("WebApp::Display() - Conteg");
       }
-      Profiler::StopTimer("WebApp::TimeToDisplay");
-      Profiler::StartTimer("WebApp::Display() - Conteg", 1);
-      new Conteg($contegargs);
-      Profiler::StopTimer("WebApp::Display() - Conteg");
       if (Profiler::$log) {
         Profiler::Log(DependencyManager::$locations["tmp"], $this->components->pagecfg["pagename"]);
       }

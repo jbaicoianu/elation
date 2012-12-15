@@ -1,29 +1,33 @@
+if (typeof window == 'undefined') var window = {}; // compatibility for nodejs/worker threads
 var elation = window.elation = new function(selector, parent, first) {
   if (typeof selector == 'string' && typeof elation.find == 'function')
     elation.find(selector, parent, first);
   
   this.extend = function(name, func, clobber, inheritfrom) {
 		var ptr = this,
+				xptr = (typeof exports != 'undefined' ? exports : {}),
 				parts = name.split("."),
 				i;
 		
 		for (i = 0; i < parts.length-1; i++) {
 			if (typeof ptr[parts[i]] == 'undefined')
-				ptr[parts[i]] = {};
+				ptr[parts[i]] = xptr[parts[i]] = {};
 			
-			ptr = ptr[parts[i]];
+			ptr = xptr = ptr[parts[i]];
 		}
 		
 		if (typeof ptr[parts[i]] == 'undefined' || clobber == true) {
-			ptr[parts[i]] = func;
+			ptr[parts[i]] = xptr[parts[i]] = func;
 		} else {
 			console.log("elation: tried to clobber existing component '" + name + "'");
 		}
 		if (typeof inheritfrom == 'function') {
-			ptr.prototype = new inheritfrom;
-			ptr.prototype.constructor = ptr;
+			ptr.prototype = xptr.prototype = new inheritfrom;
+			ptr.prototype.constructor = xptr.prototype.constructor = ptr;
 		}
+	  if (typeof exports != 'undefined') exports.extend = this.extend;
 	}
+
 }
 
 /*
@@ -998,7 +1002,7 @@ elation.extend("utils.isArray", function(obj) {
         '[object HTMLCollection]': true
       };
   
-  if (elation.browser.type == 'msie' && objclass == '[object Object]') {
+  if (elation.browser && elation.browser.type == 'msie' && objclass == '[object Object]') {
     return !elation.utils.isNull(elation.utils.arrayget(obj, 'length'));
   } else {
     return allow[objclass] || false;
@@ -2139,13 +2143,13 @@ tr_size = elation.log_size;
 * Empty string, null and undefined are considered 'empty' and skipped over
 * Numeric 0 is considered non-empty and returned
 */
-function any() {
+elation.extend("utils.any", function() {
 	var arg;
 	for (var i=0; i<arguments.length; i++) {
 		if (((arg=arguments[i]) !== null) && (arg !== "") && (typeof arg !== "undefined")) return arg;
 	}
 	return null;
-}
+})
 
 /* JavaScript timing - Displays execution time of code blocks
 * usage:

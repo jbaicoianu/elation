@@ -1,3 +1,4 @@
+if (typeof require == 'function') var elation = require("utils/elation");
 elation.extend("events", {
   events: {},
   
@@ -356,7 +357,7 @@ elation.extend("events", {
     var attrs = ['type', 'bubbles', 'cancelable', 'view', 'detail', 'screenX', 'screenY', 'clientX', 'clientY', 'ctrlKey', 'shiftKey', 'altKey', 'metaKey', 'button', 'relatedTarget', 'target', 'element', 'data', 'origin'];
     var newev = {};
     for (var i = 0; i < attrs.length; i++) {
-      var foo = any(overrides[attrs[i]], ev[attrs[i]]);
+      var foo = elation.utils.any(overrides[attrs[i]], ev[attrs[i]]);
       if (foo !== null) {
         newev[attrs[i]] = foo;
       }

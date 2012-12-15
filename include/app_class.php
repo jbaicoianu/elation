@@ -36,7 +36,7 @@ class App {
     Profiler::StartTimer("WebApp::TimeToDisplay", 1);
 
     // disable notices by default.  This should probably be a config option...
-    //error_reporting(error_reporting() ^ E_NOTICE); 
+    error_reporting(error_reporting() ^ E_NOTICE); 
 
     register_shutdown_function(array($this, 'shutdown'));
     ob_start();

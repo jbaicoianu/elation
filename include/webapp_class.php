@@ -259,4 +259,20 @@ class WebApp extends App {
     return $req;
   }
 
+  public static function redirect($url, $code=302) {
+    if (ob_get_contents()) ob_end_clean();
+    global $webapp;
+    array_set($webapp->sitecfg, "conteg.http_status", $code);
+    switch ($code) {
+      case 301:
+        header("HTTP/1.1 301 Moved Permanently"); 
+        break;
+      case 302:
+        header("HTTP/1.1 302 Moved Temporarily"); 
+        break;
+    }
+    header("Location: $url");
+    header("Connection: close");
+    print "Redirecting to <a href=\"$url\">$url</a>\n";
+  }
 }

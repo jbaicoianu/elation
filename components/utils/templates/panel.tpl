@@ -16,7 +16,7 @@
     {/foreach}
     {if $panel.cfg.simple != 1}</ul>{/if}
   </div>
-  {if $panel.cfg.simple != 1}
+  {if $panel.cfg.simple != 1 && $panel.json_include}
     <script type="text/javascript">
       //<!--
       $TF(document).ready(function() {ldelim}

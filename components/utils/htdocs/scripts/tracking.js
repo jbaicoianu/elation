@@ -223,6 +223,7 @@ elation.extend('googleanalytics', function(args) {
     }
 
     if(this.pagetype == 'browse_homepage' 
+        || this.pagetype == 'browse_node' 
         || this.pagetype == 'browse_merchant' 
         || this.pagetype == 'browse_brand' 
         || this.pagetype == 'browse_profile'

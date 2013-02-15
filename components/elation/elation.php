@@ -505,8 +505,26 @@ class Component_elation extends Component {
                 $varkey = any($req["target"], $req["assign"], $k);
                 $vars["xhtml"][$varkey] = $componentresponse;
               } else {
-                $varkey = any($req["target"], $req["assign"], $k);
-                $vars["data"][$varkey] = $componentresponse;
+                if (!$req["ignore"]) {
+                  // dont include ignored responses in XHR return data
+                  $varkey = any($req["target"], $req["assign"], $k);
+                  
+                  if ($req["expose"]) {
+                    // only include in XHR response properties that match EXPOSE comma seperated string
+                    $inclusion_properties = explode(",", $req["expose"]);
+                    $allow = array();
+                    
+                    for ($i = 0; $i < count($inclusion_properties); $i++) {
+                      $property = $inclusion_properties[$i];
+                      $allow[$property] = $componentresponse[$property];
+                    }
+                    
+                    $vars["data"][$varkey] = $allow;
+                  } else {
+                    // send everything
+                    $vars["data"][$varkey] = $componentresponse;
+                  }
+                }
               }
             } else {
               // standard handling is to return each component response in order

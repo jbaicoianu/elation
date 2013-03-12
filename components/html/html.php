@@ -31,6 +31,16 @@ class Component_html extends Component {
       
       $args["classes"] = $classes;
       $args["agent"] = $useragent;
+      $dependencies = ConfigManager::get("dependencies.load");
+      foreach($dependencies as $dependency) {
+        if(!empty($dependency["enabled"])) {
+          $dependency_args = array(); 
+          foreach($dependency["args"]as $dependency_name=>$dependency_arg) {
+            $dependency_args[$dependency_name] = $dependency_arg;
+          }
+          DependencyManager::add($dependency_args);
+        }
+      }
       
       return $this->GetTemplate("./header.tpl", $args);
     }

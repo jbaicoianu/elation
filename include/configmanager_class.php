@@ -106,10 +106,10 @@ class ConfigManager extends Base {
     if (is_array($this->fullservers["mapping"])) {
       // Old servers.ini format used [mapping] which was a list of servers and the roles they map to
       $mappings = $this->fullservers["mapping"];
-    } else if (is_array($this->fullservers["groups"])) {
-      // New format uses [groups] which is a list of roles, and the servers they contain
+    } else if (is_array($this->fullservers["clusters"])) {
+      // New format uses [clusters] which is a list of clusters, and the servers they contain
       $mappings = array();
-      foreach ($this->fullservers["groups"] as $groupname=>$serverstr) {
+      foreach ($this->fullservers["clusters"] as $groupname=>$serverstr) {
         $servers = explode(" ", $serverstr);
         foreach ($servers as $server) {
           if ($server[0] != "@") {
@@ -140,7 +140,9 @@ class ConfigManager extends Base {
     }
     Profiler::StopTimer("ConfigManager::LoadSettings()");
     $this->fullservers = array_merge_recursive($this->fullservers, $settings);
-    if (!empty($settings["groups"])) {
+    if (!empty($settings["clusters"])) {
+      $this->servergroups = $settings["clusters"];
+    } else if (!empty($settings["groups"])) {
       $this->servergroups = $settings["groups"];
     }
     return $settings;
@@ -148,7 +150,7 @@ class ConfigManager extends Base {
   public function GetRoleSettings($role, &$servercfg=null) {
     Profiler::StartTimer("ConfigManager::GetRoleSettings()", 3);
     $toplevel = ($servercfg === null);
-    $rolecfgfile = $this->locations["config"] . "/servers/{$role}.ini";
+    $rolecfgfile = $this->locations["config"] . "/clusters/{$role}.ini";
     if (empty($this->fullservers[$role]) && file_exists($rolecfgfile)) {
       $this->LoadSettings($rolecfgfile);
     }

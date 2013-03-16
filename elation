@@ -39,7 +39,7 @@ component_get_classname() {
 component_exists() {
   COMPONENTNAME=$1
 
-  if [ -e $(component_get_dir $COMPONENTNAME)/$(component_get_classname $COMPONENTNAME).php ]; then 
+  if [ -d $(component_get_dir $COMPONENTNAME)/ ]; then 
     RET=0
   else 
     RET=1

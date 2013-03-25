@@ -4,7 +4,7 @@ elation.extend("events", {
   
   fire: function(type, data, target, element, fn) {
     if (typeof type == 'object') {
-      data = elation.utils.arrayget(type, 'data') || data;
+      data = elation.utils.any(elation.utils.arrayget(type, 'data'), data);
       target = elation.utils.arrayget(type, 'target') || target;
       element = elation.utils.arrayget(type, 'element') || element;
       fn = elation.utils.arrayget(type, 'fn') || fn;
@@ -363,5 +363,11 @@ elation.extend("events", {
       }
     }
     return elation.events.fix(newev);
+  },
+
+  handleEvent: function(ev) {
+    if (typeof this[ev.type] == 'function') {
+      this[ev.type](ev);
+    }
   }
 });

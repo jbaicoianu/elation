@@ -1,0 +1,28 @@
+.ui_window h1.ui_window_titlebar {
+  position: relative;
+  cursor: default;
+  -webkit-user-select: none;
+}
+.ui_window.state_active {
+  z-index: 100;
+}
+.ui_window:hover h1.ui_window_titlebar {
+  background: rgba(255,255,255,.1);
+}
+.ui_window.state_active h1.ui_window_titlebar {
+  background: rgba(225,225,255,.1);
+}
+.ui_window h1.ui_window_titlebar:hover {
+  cursor: -webkit-grab;
+  cursor: -moz-grab;
+}
+.ui_window h1.ui_window_titlebar.state_dragging {
+  cursor: -webkit-grabbing;
+  cursor: -moz-grabbing;
+}
+.ui_window h1.ui_window_titlebar button.ui_window_close {
+  position: relative;
+  float: right;
+  right: .5em;
+  top: .5em;
+}

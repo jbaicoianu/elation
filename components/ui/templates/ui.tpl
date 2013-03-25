@@ -10,6 +10,14 @@
     <h2>ui.list</h2>
     {component name="ui.list" id="list1" events=$events.list1 items=$listitems}
   </li>
+  <li>
+    <h2>ui.tabs</h2>
+    {component name="ui.tabs" id="tabs1" events=$events.tabs1 items=$tabitems}
+  </li>
+  <li>
+    <h2>ui.treeview</h2>
+    {component name="ui.treeview" id="treeview1" events=$events.treeview1 items=$treeviewitems}
+  </li>
 </ul>
 {component name="html.footer"}
 {dependency name="ui"}

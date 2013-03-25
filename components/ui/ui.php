@@ -25,6 +25,54 @@ class Component_ui extends Component {
     );
     $vars["listitems"] = array(
     );
+    $vars["tabitems"] = array(
+      array(
+        "label" => "Tab One",
+        "name" => "tab_one",
+        "tooltip" => "This is Tab One"
+      ),
+      array(
+        "label" => "Tab Two",
+        "name" => "tab_two",
+        "tooltip" => "This is Tab Two"
+      ),
+      array(
+        "label" => "Tab Three",
+        "name" => "tab_three",
+        "tooltip" => "This is Tab Three"
+      ),
+    );
+    $vars["treeviewitems"] = array(
+      array(
+        "label" => "Item One",
+        "name" => "item_one",
+        "tooltip" => "This is Item One"
+      ),
+      array(
+        "label" => "Item Two",
+        "name" => "item_two",
+        "tooltip" => "This is Item Two",
+        "items" => array(
+          array(
+            "label" => "Child one",
+            "name" => "item_two_child_one"
+          ),
+          array(
+            "label" => "Child two",
+            "name" => "item_two_child_two"
+          ),
+          array(
+            "label" => "Child three",
+            "name" => "item_two_child_three"
+          )
+        )
+      ),
+      array(
+        "label" => "Item Three",
+        "name" => "item_three",
+        "tooltip" => "This is Item Three"
+      ),
+    );
     return $this->GetComponentResponse("./ui.tpl", $vars);
   }
   public function controller_button($args) {

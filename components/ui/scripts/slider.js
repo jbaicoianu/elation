@@ -22,7 +22,8 @@ elation.component.add("ui.slider", function() {
   this.setposition = function(pos, skipevent) {
     //this.slider.value = pos;
     this.position = elation.utils.math.clamp(pos, this.minpos, this.maxpos);
-    this.handle.style.left = (this.track.offsetWidth * this.position / 100) + 'px';
+    //console.log(this.track.offsetWidth * ((this.position) / (this.maxpos - this.minpos)), this.position, this.maxpos, this.minpos);
+    this.handle.style.left = (this.track.offsetWidth * ((this.position) / (this.maxpos - this.minpos))) + 'px';
     if (!skipevent) {
       elation.events.fire({type: 'ui_slider_change', element: this, data: this.position});
     }
@@ -42,7 +43,7 @@ elation.component.add("ui.slider", function() {
     var diff = [newpos[0] - this.dragging[0], newpos[1] - this.dragging[1]];
     this.dragging = newpos;
     var abspos = this.handle.offsetLeft + diff[0];
-    var sliderpos = abspos / (this.track.offsetWidth / 100);
+    var sliderpos = abspos / (this.track.offsetWidth / (this.maxpos - this.minpos));
     this.setposition(sliderpos);
   }
   this.mouseup = function(ev) {
@@ -50,7 +51,7 @@ elation.component.add("ui.slider", function() {
     elation.events.remove(window, 'mousemove,mouseup', this);
   }
   this.mousewheel = function(ev) {
-    console.log(this.position, ev.wheelDeltaY, this.position + ev.wheelDeltaY / 120);
+    //console.log(this.position, ev.wheelDeltaY, this.position + ev.wheelDeltaY / 120);
     this.setposition(this.position + ev.wheelDeltaY / 120);
   }
 });

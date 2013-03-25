@@ -27,7 +27,14 @@ var elation = window.elation = new function(selector, parent, first) {
 		}
 	  if (typeof exports != 'undefined') exports.extend = this.extend;
 	}
-
+  this.implement = function(obj, iface, ifaceargs) {
+		if (typeof iface == 'function') {
+      var foo = new iface(ifaceargs);
+      for (var k in foo) {
+        obj[k] = foo[k];
+      }
+		}
+  }
 }
 
 /*
@@ -361,6 +368,14 @@ elation.extend("component", new function() {
 
       return ret;
     }
+    this.reparent = function(newparent) {
+      if (this.container && this.container.parentNode && this.container.parentNode !== newparent) {
+        this.container.parentNode.removeChild(this.container);
+      }
+      if (newparent) {
+        newparent.appendChild(this.container);
+      }
+    }
     this.handleEvent = function(ev) {
       if (typeof this[ev.type] == 'function') {
         this[ev.type](ev);
@@ -612,16 +627,28 @@ elation.extend("html.hasclass", function(element, className) {
   }
 });
 
-elation.extend("html.addclass", function(element, className) {
-  if (element && !elation.html.hasclass(element, className)) {
-    element.className += (element.className ? " " : "") + className;
+elation.extend("html.addclass", function(elements, className) {
+  if (!elation.utils.isArray(elements)) {
+    elements = [elements];
+  }
+  for (var i = 0; i < elements.length; i++) {
+    if (elements[i] && !elation.html.hasclass(elements[i], className)) {
+      elements[i].className += (elements[i].className ? " " : "") + className;
+    }
   }
 }); 
 
-elation.extend("html.removeclass", function(element, className) {
+elation.extend("html.removeclass", function(elements, className) {
   var re = new RegExp("(^| )" + className + "( |$)", "g");
-  if (element && element.className && element.className.match(re)) {
-    element.className = element.className.replace(re, " ");
+  if (elements) {
+    if (!elation.utils.isArray(elements)) {
+      elements = [elements];
+    }
+    for (var i = 0; i < elements.length; i++) {
+      if (elements[i] && elements[i].className && elements[i].className.match(re)) {
+        elements[i].className = elements[i].className.replace(re, " ");
+      }
+    }
   } 
 });
 
@@ -673,8 +700,9 @@ elation.extend('html.create', function(parms, classname, style, additional, appe
     element.innerHTML = content;
   
   if (additional)
-    for (var property in additional)
+    for (var property in additional) {
       element[property] = additional[property];
+    }
   
 	if (append)
 		if (before)
@@ -1007,6 +1035,9 @@ elation.extend("utils.isArray", function(obj) {
   } else {
     return allow[objclass] || false;
   }
+});
+elation.extend("utils.isString", function(obj) {
+  return (typeof obj == "string");
 });
 //
 // runs through direct children of obj and 

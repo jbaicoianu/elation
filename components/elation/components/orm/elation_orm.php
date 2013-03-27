@@ -98,4 +98,15 @@ class Component_elation_orm extends Component {
     );
     return $this->GetComponentResponse("./thrift.tpl", $vars);
   }
+  function controller_model($args) {
+    $vars["model"] = any($args["model"], "space");
+    $foo = OrmManager::LoadModel($vars["model"]);
+    $vars["classes"] = $foo[$vars["model"]]->classes;
+    return $this->GetComponentResponse("./model.tpl", $vars);
+  }
+  function controller_class($args) {
+    $vars["classname"] = any($args["classname"], "unnamed");
+    $vars["classdef"] = any($args["classdef"], array());
+    return $this->GetComponentResponse("./class.tpl", $vars);
+  }
 }

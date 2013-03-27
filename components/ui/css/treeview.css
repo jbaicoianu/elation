@@ -5,9 +5,16 @@
 .ui_treeview ul {
   background: rgba(0,0,0,.8);
   list-style: none;
-  padding-left: 1em;
+  border-left: .1em solid white;
+  margin: 0 0 0 .3em;
+  padding-left: .8em;
   -webkit-user-select: none;
   -webkit-tap-highlight-color: rgba(0,0,0,0); 
+}
+.ui_treeview>ul {
+  border-left: 0;
+  margin-left: 0;
+  padding-left: 0;
 }
 .ui_treeview ul li:before {
   content: '├';
@@ -16,6 +23,12 @@
   clear: left;
   padding-right: .5em;
   color: white;
+}
+.ui_treeview ul li:last-child>ul {
+  border-left: 0;
+}
+.ui_treeview>ul>li:first-child:last-child:before {
+  content: '-';
 }
 .ui_treeview ul li.state_disabled:before,
 .ui_treeview ul li.state_disabled,

@@ -163,6 +163,7 @@ class App {
       if (!$isRedirect) {
         // Load settings from servers.ini
         $contegargs = (isset($this->cfg->servers["conteg"]) ? $this->cfg->servers["conteg"] : array());
+        $contegargs["charset"] = "UTF-8"; // FIXME - shouldn't be hardcoded, but we should also replace Conteg...
         // And also from site config
         $contegcfg = ConfigManager::get("conteg");
         if (is_array($contegcfg)) {
@@ -192,7 +193,7 @@ class App {
         }
         Profiler::StopTimer("WebApp::TimeToDisplay");
         Profiler::StartTimer("WebApp::Display() - Conteg", 1);
-        //new Conteg($contegargs);
+        new Conteg($contegargs);
         Profiler::StopTimer("WebApp::Display() - Conteg");
       }
       if (Profiler::$log) {

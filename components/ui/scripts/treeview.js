@@ -6,7 +6,6 @@ elation.component.add("ui.treeview", function() {
     if (elation.utils.isEmpty(attrs.children)) attrs.children = 'items';
 
     if (this.args.items) {
-console.log('foofle', this.args.items);
       this.add(this.args.items, this.container, attrs);
     }
   }

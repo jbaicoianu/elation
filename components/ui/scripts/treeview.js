@@ -15,6 +15,7 @@ elation.component.add("ui.treeview", function() {
     var ul = elation.html.create({tag: 'ul', append: root});
     for (var k in items) {
       var li = elation.html.create({tag: 'li', append: ul});
+      if (!attrs['label']) attrs['label'] = k;
       var tvitem = elation.ui.treeviewitem(null, li, {item: items[k], attrs: attrs});
       elation.events.add(tvitem, 'ui_treeviewitem_hover,ui_treeviewitem_select', this);
       if (items[k][attrs.children]) {
@@ -43,8 +44,12 @@ elation.component.add("ui.treeviewitem", function() {
     this.attrs = this.args.attrs || {};
     if (!this.attrs.label) this.attrs.label = 'label';
 
-    if (this.value && this.value[this.attrs.label]) {
-      this.container.innerHTML = this.value[this.attrs.label];
+    if (this.value) {
+      if (this.attrs.itemtemplate) {
+        this.container.innerHTML = elation.template.get(this.attrs.itemtemplate, this.value);
+      } else if (this.value[this.attrs.label]) {
+        this.container.innerHTML = this.value[this.attrs.label];
+      }
 
       if (!elation.utils.isEmpty(this.attrs.disabled) && !elation.utils.isEmpty(this.value[this.attrs.disabled])) {
         elation.html.addclass(this.container, "state_disabled");

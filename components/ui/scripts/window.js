@@ -26,10 +26,13 @@ elation.component.add('ui.window', function() {
   }
   this.mousemove = function(ev) {
     var newpos = [ev.clientX, ev.clientY];
+    var diff = [this.dragstartpos[0] - newpos[0], this.dragstartpos[1] - newpos[1]];
     // limit left side offset to prevent windows from getting lost
     //this.container.style.left = Math.max(newpos[0] + this.dragdims.x - this.dragstartpos[0], this.dragdims.w * -.9) + 'px';
     //this.container.style.top = (newpos[1] + this.dragdims.y - this.dragstartpos[1]) + 'px';
-    this.offsetpos = [Math.max(newpos[0] + this.dragdims.x - this.dragstartpos[0], this.dragdims.w * -.9), (newpos[1] + this.dragdims.y - this.dragstartpos[1])];
+    //this.offsetpos = [Math.max(newpos[0] + this.dragdims.x - this.dragstartpos[0], this.dragdims.w * -.9), (newpos[1] + this.dragdims.y - this.dragstartpos[1])];
+    this.offsetpos = [this.offsetpos[0] - diff[0], this.offsetpos[1] - diff[1]];
+    this.dragstartpos = newpos;
     elation.html.transform(this.container, 'translate(' + this.offsetpos[0] + 'px, ' + this.offsetpos[1] + 'px)');
   }
   this.mouseup = function(ev) {

@@ -2,6 +2,9 @@ elation.component.add('ui.select', {
   init: function() {
     elation.events.add(this.container, "change", this);
     this.value = this.container.value;
+    if (this.args.items) {
+      this.setItems(this.args.items, this.args.selected);
+    }
   },
   setItems: function(items, selected) {
     if (items instanceof Array) {

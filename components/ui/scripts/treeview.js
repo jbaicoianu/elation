@@ -14,12 +14,17 @@ elation.component.add("ui.treeview", function() {
 
     var ul = elation.html.create({tag: 'ul', append: root});
     for (var k in items) {
-      var li = elation.html.create({tag: 'li', append: ul});
-      if (!attrs['label']) attrs['label'] = k;
-      var tvitem = elation.ui.treeviewitem(null, li, {item: items[k], attrs: attrs});
-      elation.events.add(tvitem, 'ui_treeviewitem_hover,ui_treeviewitem_select', this);
-      if (items[k][attrs.children]) {
-        this.add(items[k][attrs.children], li, attrs);
+      var visible = true;
+      if (attrs['visible']) {
+        visible = elation.utils.arrayget(items[k], attrs['visible']);
+      }
+      if (visible) {
+        var li = elation.html.create({tag: 'li', append: ul});
+        var tvitem = elation.ui.treeviewitem(null, li, {item: items[k], attrs: attrs});
+        elation.events.add(tvitem, 'ui_treeviewitem_hover,ui_treeviewitem_select', this);
+        if (items[k][attrs.children]) {
+          this.add(items[k][attrs.children], li, attrs);
+        }
       }
     }
   }

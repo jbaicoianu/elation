@@ -16,6 +16,9 @@
   margin-left: 0;
   padding-left: 0;
 }
+.ui_treeview ul li {
+  position: relative;
+}
 .ui_treeview ul li:before {
   content: '├';
   display: inline-block;

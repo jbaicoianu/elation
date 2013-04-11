@@ -7,6 +7,10 @@
     {component name="ui.button" label="load page 2" id="button2" events=$events.button2}
   </li>
   <li>
+    <h2>ui.buttonbar</h2>
+    {component name="ui.buttonbar" id="buttonbar1" items=$buttonbaritems}
+  </li>
+  <li>
     <h2>ui.list</h2>
     {component name="ui.list" id="list1" events=$events.list1 items=$listitems}
   </li>

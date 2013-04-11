@@ -73,6 +73,17 @@ class Component_ui extends Component {
         "tooltip" => "This is Item Three"
       ),
     );
+    $vars["buttonbaritems"] = array(
+      array(
+        "label" => "Button 1",
+      ),
+      array(
+        "label" => "Button 2",
+      ),
+      array(
+        "label" => "Button 3"
+      )
+    );
     return $this->GetComponentResponse("./ui.tpl", $vars);
   }
   public function controller_button($args) {

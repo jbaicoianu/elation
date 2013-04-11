@@ -1,13 +1,19 @@
 elation.component.add("ui.treeview", function() {
   this.init = function() {
     elation.html.addclass(this.container, 'ui_treeview');
+
+    if (this.args.items) {
+      this.setItems(this.args.items);
+    }
+  }
+  this.setItems = function(items) {
     var attrs = this.args.attrs || {};
     if (elation.utils.isEmpty(attrs.name)) attrs.name = 'name';
     if (elation.utils.isEmpty(attrs.children)) attrs.children = 'items';
 
-    if (this.args.items) {
-      this.add(this.args.items, this.container, attrs);
-    }
+    this.container.innerHTML = '';
+
+    this.add(items, this.container, attrs);
   }
   this.add = function(items, root, attrs) {
     if (!root) root = this.container;

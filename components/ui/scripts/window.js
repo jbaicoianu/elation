@@ -11,6 +11,21 @@ elation.component.add('ui.window', function() {
     elation.html.removeclass(elation.find('.ui_window.state_active'), 'state_active');
     elation.html.addclass(this.container, 'state_active');
   }
+  this.close = function() {
+    if (this.container.parentNode) {
+      this.container.parentNode.removeChild(this.container);
+    }
+  }
+  this.center = function() {
+    var dim = elation.html.dimensions(this.container);
+    var realx = (window.innerWidth - dim.w) / 2;
+    var realy = (window.innerHeight - dim.h) / 2;
+    this.setOffset(realx, realy);
+  }
+  this.setOffset = function(x, y) {
+    this.offsetpos = [x, y];
+    elation.html.transform(this.container, 'translate(' + this.offsetpos[0] + 'px, ' + this.offsetpos[1] + 'px)');
+  }
   this.setcontent = function(newcontent) {
     if (newcontent instanceof HTMLElement) {
       if (this.content) {
@@ -47,9 +62,8 @@ elation.component.add('ui.window', function() {
     //this.container.style.left = Math.max(newpos[0] + this.dragdims.x - this.dragstartpos[0], this.dragdims.w * -.9) + 'px';
     //this.container.style.top = (newpos[1] + this.dragdims.y - this.dragstartpos[1]) + 'px';
     //this.offsetpos = [Math.max(newpos[0] + this.dragdims.x - this.dragstartpos[0], this.dragdims.w * -.9), (newpos[1] + this.dragdims.y - this.dragstartpos[1])];
-    this.offsetpos = [this.offsetpos[0] - diff[0], this.offsetpos[1] - diff[1]];
     this.dragstartpos = newpos;
-    elation.html.transform(this.container, 'translate(' + this.offsetpos[0] + 'px, ' + this.offsetpos[1] + 'px)');
+    this.setOffset(this.offsetpos[0] - diff[0], this.offsetpos[1] - diff[1]);
   }
   this.mouseup = function(ev) {
     elation.events.remove(window, 'mousemove', this);

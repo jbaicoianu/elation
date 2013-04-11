@@ -1,3 +1,6 @@
+.ui_window {
+  position: fixed;
+}
 .ui_window h1.ui_window_titlebar {
   position: relative;
   cursor: default;

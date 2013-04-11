@@ -11,6 +11,22 @@ elation.component.add('ui.window', function() {
     elation.html.removeclass(elation.find('.ui_window.state_active'), 'state_active');
     elation.html.addclass(this.container, 'state_active');
   }
+  this.setcontent = function(newcontent) {
+    if (newcontent instanceof HTMLElement) {
+      if (this.content) {
+        this.container.removeChild(this.content);
+      }
+      if (newcontent.parentNode) newcontent.parentNode.removeChild(content);
+    
+      this.container.appendChild(newcontent);
+      this.content = newcontent;
+    } else {
+      if (!this.content) {
+        this.content = elation.html.create({tag: 'div', classname: 'ui_window_content', append: this.container});
+      }
+      this.content.innerHTML = newcontent;
+    }
+  }
   this.mousedown = function(ev) {
     // focus window
     this.setactive();

@@ -2334,3 +2334,21 @@ elation.extend("utils.dateformat", function(format, date) {
   } 
   return ret;
 });
+elation.extend('utils.isIdentical', function(a, b, sortArrays) {
+  // https://github.com/prettycode/Object.identical.js
+  function sort(object) {
+    if (sortArrays === true && Array.isArray(object)) {
+      return object.sort();
+    } else if (typeof object !== "object" || object === null) {
+      return object;
+    }
+
+    return Object.keys(object).sort().map(function(key) {
+      return {
+        key: key,
+        value: sort(object[key])
+      };
+    });
+  }
+  return JSON.stringify(sort(a)) === JSON.stringify(sort(b));
+});

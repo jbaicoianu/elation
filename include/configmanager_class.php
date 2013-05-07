@@ -9,7 +9,7 @@ include_once("include/base_class.php");
  * @subpackage Config
  */
 class ConfigManager extends Base {
-  public $servers; // server configs, from ini
+  public $servers = array(); // server configs, from ini
   public $configs; // site configs, from db
 
   public $activerole;
@@ -35,7 +35,8 @@ class ConfigManager extends Base {
     if ($autoload && $this->locations !== NULL && !empty($this->locations["config"])) {
       $this->LoadSettings($this->locations["config"] . "/servers.ini");
       $this->activerole = $this->GetRoleFromHostname();
-      $this->servers = $this->GetRoleSettings($this->activerole);
+      $this->GetRoleSettings("default");
+      $this->GetRoleSettings($this->activerole);
       $this->locations = $this->getlocations();
     }
     Profiler::StopTimer("ConfigManager::constructor");
@@ -139,7 +140,7 @@ class ConfigManager extends Base {
       }
     }
     Profiler::StopTimer("ConfigManager::LoadSettings()");
-    $this->fullservers = array_merge_recursive($this->fullservers, $settings);
+    $this->fullservers = array_merge_recursive_distinct($this->fullservers, $settings);
     if (!empty($settings["clusters"])) {
       $this->servergroups = $settings["clusters"];
     } else if (!empty($settings["groups"])) {
@@ -156,16 +157,22 @@ class ConfigManager extends Base {
     }
     if (!empty($this->fullservers[$role])) {
       // Pull in all included configs
+      $includes = array();
       if (!empty($this->fullservers[$role]["include"])) {
-        Profiler::StartTimer("ConfigManager::GetRoleSettings() - includes", 3);
         $includes = explode(" ", $this->fullservers[$role]["include"]);
+      }
+      if (!empty($this->fullservers[$role]["role"])) {
+        array_push($includes, $this->fullservers[$role]["role"]);
+      }
+      if (!empty($includes)) {
+        Profiler::StartTimer("ConfigManager::GetRoleSettings() - includes", 3);
         foreach ($includes as $include) { 
           $this->GetRoleSettings($include, $servercfg);
         }
         Profiler::StopTimer("ConfigManager::GetRoleSettings() - includes");
       }
 
-      $servercfg["role"] = $role;
+      //$servercfg["role"] = $role;
       // Apply role settings
       array_set_multi($servercfg, $this->fullservers[$role]);
     } else {
@@ -184,6 +191,9 @@ class ConfigManager extends Base {
       }
     }
     Profiler::StopTimer("ConfigManager::GetRoleSettings()");
+    if (!empty($servercfg)) {
+      $this->servers = array_merge_recursive_distinct($this->servers, $servercfg);
+    }
     return $servercfg;
   }
 
@@ -203,6 +213,7 @@ class ConfigManager extends Base {
   function LoadServers($cfgfile, $assign=true) {
     //Profiler::StartTimer("ConfigManager::LoadServers()");
     $servers = array();
+
 
     $this->hostname = $hostname = trim(implode("", file("/etc/hostname")));
     if (file_exists($cfgfile)) {
@@ -489,8 +500,8 @@ class ConfigManager extends Base {
       $valid = true;
       $i = 1;
       foreach ($keys as $key) {
-        $wholecfg = ($wholecfg && array_key_exists($key, $wholecfg)) ? $wholecfg[$key] : null;
-        $cobrandcfg = ($cobrandcfg && array_key_exists($key, $cobrandcfg)) ? $cobrandcfg[$key] : null;
+        $wholecfg = ($wholecfg && is_array($wholecfg) && array_key_exists($key, $wholecfg)) ? $wholecfg[$key] : null;
+        $cobrandcfg = ($cobrandcfg && is_array($cobrandcfg) && array_key_exists($key, $cobrandcfg)) ? $cobrandcfg[$key] : null;
         if ($i==$num_keys) {
           // can't add if the wholecfg is still an array or if the
           if (is_array($wholecfg)) {
@@ -757,7 +768,7 @@ class ConfigManager extends Base {
     $over = array();
 
     if (empty($role))
-      $role = $this->servers["role"];
+      $role = $this->activerole; //$this->servers["role"];
 
     if (!$skipcache && !empty($this->heirarchies[$role][$name])) {
       //print_pre("got it already");
@@ -1050,7 +1061,7 @@ class Config {
   public function __construct($name=NULL, $role=NULL) {
     if ($role === NULL) {
       $cfg = ConfigManager::singleton();
-      $role = $cfg->servers["role"];
+      $role = $cfg->activerole; //$cfg->servers["role"];
     }
     if ($name !== NULL) {
       $this->Load($name, $role);

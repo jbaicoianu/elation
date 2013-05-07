@@ -56,6 +56,7 @@ class Component_utils extends Component {
     $vars["panel"]["args"] = any($args["panelargs"], array());
     $vars["panel"]["info"] = array("type",$vars["panel"]["type"],"id"=>$vars["panel"]["id"],"name"=>$vars["panel"]["name"]);
     $vars["panel"]["json_include"] = any($vars["panel"]["cfg"]["json_include"], 0);
+    $vars["panel"]["noclear"] = any($vars["panel"]["cfg"]["noclear"], 0);
 
     // If the apicomponent option is set for this panel, execute the specified component
     if (!empty($vars["panel"]["cfg"]["apicomponent"])) {

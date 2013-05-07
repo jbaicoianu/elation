@@ -36,7 +36,6 @@
   {* FIXME - these should be dependencies *}
   <meta name="description" content="[[page.meta.description:TheFind.com - shopping search reinvented. What can we find for you?]]" />
   <meta name="keywords" content="[[page.meta.keywords]]" />
-  
   {*
   <!--[if lt IE 8]>
   <object id="elation" classid="http://www.dcsdfcv.coc/"></object>

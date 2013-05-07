@@ -31,7 +31,7 @@ elation.extend('googleanalytics', function(args) {
 
   var self = this;
   var ignoredOrganics=['www.thefind.com', 'thefind', 'thefind.com', 'the find', 'glimpse', 'glimpse.com', 'www.glimpse.com', 'local.thefind.com', 'green.thefind.com', 'ww1.glimpse.com', 'shoptrue.com', 'shoptrue', 'coupons.thefind.com', 'shop.glimpse.com', 'ww1.thefind.com', 'www.shoptrue.com', 'reviews.thefind.com', 'visual.thefind.com', 'prices.thefind.com'];
-  $TF.each(ignoredOrganics, function() {self.pageTracker._addIgnoredOrganic(this)});
+  $TF.each(ignoredOrganics, function(key, value) {self.pageTracker._addIgnoredOrganic(value)});
 
   var domainName = document.domain.match(/(\.(.+)\.com$)/gi);
   if(domainName == null) {
@@ -230,7 +230,8 @@ elation.extend('googleanalytics', function(args) {
         || this.pagetype == 'browse_sets'
         || this.pagetype == 'browse_catalogs'
         || this.pagetype == 'browse_catalogs_merchants'
-        || this.pagetype == 'browse_catalogs_users') {
+        || this.pagetype == 'browse_catalogs_users'
+        || this.pagetype == 'browse_mergelikes') {
       //var cobrand = 'glimpse';
       var cobrand = googleAnalytics.cobrand;
       var page = elation.browse.page(0).subpage;
@@ -239,6 +240,7 @@ elation.extend('googleanalytics', function(args) {
       if(typeof browseby == 'undefined' && list.nodeid == '0' 
           && page != '/profile' && page != '/catalogs'
           && page != '/catalogs/merchants' && page != '/catalogs/users'
+          && page != '/friends'
           && elation.browse.page(0).catalogissue == false) {
         var page = '/home';
       }
@@ -376,6 +378,10 @@ elation.extend('googleanalytics', function(args) {
         case '/catalogs':
             this.pageURL = 'virt_results/'+cobrand;
             this.pageURL += '/catalogs/all';
+        break;
+        case '/friends':
+            this.pageURL = 'virt_results/'+cobrand;
+            this.pageURL += '/browse_mergelikes';
         break;
         default:
           //node page

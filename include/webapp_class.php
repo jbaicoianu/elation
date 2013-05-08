@@ -53,19 +53,30 @@ class WebApp extends App {
 
     $req = @parse_url($page); // FIXME - PHP sucks and throws a warning here on malformed URLs, with no way to catch as an exception
 
+    // GET args
     if (!empty($req["query"]))
       parse_str($req["query"], $req["args"]);
     else
       $req["args"] = array();
 
+    // POST data, 
     if (!empty($post)) {
       if (get_magic_quotes_gpc ()) {
         $post = array_map('stripslashes_deep', $post);
       }
       $req["args"] = array_merge($req["args"], $post);
     }
-    $req["friendly"] = false;
+
+    // application/json POST data
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && $_SERVER["CONTENT_TYPE"] == "application/json") {
+      $postdata = json_decode(file_get_contents("php://input"), true);
+      if (!empty($postdata) && is_array($postdata)) {
+        $req["args"] = array_merge($req["args"], $postdata);
+      }
+    }
+
     // Parse friendly URLs
+    $req["friendly"] = false;
     if (preg_match_all("/\/([^-\/]+)-([^\/]+)/", $req["path"], $m, PREG_SET_ORDER)) {
       $req["friendly"] = true;
       $friendlyargs = array();

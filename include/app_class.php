@@ -387,11 +387,17 @@ class App {
           if (!empty($subincluded_config))
             ConfigManager::merge($subincluded_config);
         }
-        unset($included_config["include"]);
+        unset($included_config["include"]);    
       }
 
       if (!empty($included_config))
         ConfigManager::merge($included_config);
+    }
+
+    if ($this->debug) {
+      $subincluded_config =& $this->cfg->GetConfig("classes.debug", false, $this->cfg->servers["role"]);
+      if (!empty($subincluded_config))
+        ConfigManager::merge($subincluded_config);
     }
   }
 }

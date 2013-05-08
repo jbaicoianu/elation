@@ -10,7 +10,7 @@
  * @return string
  */
 function print_pre($obj, $buffer=false, $tag="pre") {
-  $buf = "<$tag>print_pre: " . print_r($obj, true) . "</$tag>";
+  $buf = "<$tag>print_pre: " . print_r($obj, true) . "</$tag>" . PHP_EOL;
   if (!$buffer)
     print $buf;
   return $buf;
@@ -23,6 +23,32 @@ function print_ln($obj, $buffer=false, $quiet=false) {
     return $buf;
 }
 
+/**
+ * Print out a simpler backtrace than debug_print_backtrace and faster
+ * @param boolean $buffer should not print
+ * @param string $tag name of tag to surround output in
+ * @return string
+ * @see debug_backtrace
+ * @see print_pre
+ **/
+function print_stack($buffer=false, $tag="pre") {
+  $output = "";
+  $backtrace = debug_backtrace();
+
+  $spacing = 40;
+
+  foreach($backtrace as $traceEntry) {
+    $newline = PHP_EOL . $traceEntry['class'] . $traceEntry['type'] . $traceEntry['function'] . "()";
+    if(strlen($newline) > $spacing) {
+      $spacing = strlen($newline) + 10;
+    }
+    $newline = str_pad($newline, $spacing);
+    $newline .= " from " . $traceEntry['file'] . ':' . $traceEntry['line'];
+    $output .= $newline;
+  }
+
+  return print_pre($output, $buffer, $tag);
+}
 
 /**
  * Function: any
@@ -938,7 +964,7 @@ function is_64bit() {
 
 function array_merge_recursive_distinct($arr1, $arr2) {
   foreach($arr2 as $key => $value) {
-    if(array_key_exists($key, $arr1) && is_array($value))
+    if(is_array($arr1) && array_key_exists($key, $arr1) && is_array($value))
       $arr1[$key] = array_merge_recursive_distinct($arr1[$key], $arr2[$key]);
     else
       $arr1[$key] = $value;

@@ -65,6 +65,7 @@ elation.extend("events", {
       } else if (typeof event.origin.handleEvent != 'undefined') {
         event.origin.handleEvent(event);
       }
+      
       events.push(event);
     }
 
@@ -84,6 +85,46 @@ elation.extend("events", {
           this._register(element, type, fn);
         else
           this.events[type] = [];
+    }
+  },
+  
+  unregister: function(element, type, fn) {
+    if (typeof element == 'string') {
+      var type = element,
+          element = null;
+    }
+    
+    var events = this.events[type];
+    
+    if (element && fn) {
+      for (var i in events) {
+        var item = events[i],
+            target = item.target,
+            origin = item.origin;
+        
+        if (element == target && origin == fn)
+          events.splice(i,1);
+      }
+    } else if (element) {
+      for (var i in events) {
+        var item = events[i],
+            target = item.target;
+        
+        if (element == target) {
+          events.splice(i,1);
+        }
+      }
+    } else if (fn) {
+      for (var i in events) {
+        var item = events[i],
+            origin = item.origin;
+        
+        if (origin == fn) {
+          events.splice(i,1);
+        }
+      }
+    } else if (type) {
+      delete this.events[type];
     }
   },
   
@@ -212,6 +253,8 @@ elation.extend("events", {
 			for (var i=0; i<types.length; i++) {
 				var type = types[i];
 				
+        //elation.events.unregister(element, type, fn);
+        
 				if (element.removeEventListener) {
 					if (typeof fn == "object" && fn.handleEvent) {
 						element.removeEventListener(type, element[type+fn], false);
@@ -334,51 +377,3 @@ elation.extend("events", {
 		return c;
 	}
 });
-
-/* backup - original elation add/remove funcs
-add: function(obj, type, fn) {
-  if (obj) {
-    var types = type.split(',');
-    for (var i = 0; i < types.length; i++) {
-      var type = types[i];
-      if (obj.addEventListener) {
-        if (type == 'mousewheel' && elation.browser.type != 'safari') type = 'DOMMouseScroll';
-        if (typeof fn == "object" && fn.handleEvent) {
-          obj[type+fn] = function(e) { fn.handleEvent(e); }
-          obj.addEventListener( type, obj[type+fn], false );
-        } else {
-          obj.addEventListener( type, fn, false );
-        }
-      } else if (obj.attachEvent) {
-        if (typeof fn == "object" && fn.handleEvent) {
-          obj[type+fn] = function() { fn.handleEvent(elation.events.fix(window.event)); }
-        } else {
-          obj["e"+type+fn] = fn;
-          obj[type+fn] = function() { obj["e"+type+fn]( elation.events.fix(window.event) ); }
-        }
-        obj.attachEvent( "on"+type, obj[type+fn]);
-      }
-    }
-  }
-  return this;
-},
-
-remove: function( obj, type, fn ) {
-  var types = type.split(',');
-  for (var i = 0; i < types.length; i++) {
-    var type = types[i];
-    if (obj.removeEventListener) {
-      if (typeof fn == "object" && fn.handleEvent) {
-        obj.removeEventListener( type, obj[type+fn], false );
-        delete obj[type+fn];
-      } else {
-        obj.removeEventListener( type, fn, false );
-      }
-    } else if (obj.detachEvent) {
-      obj.detachEvent( "on"+type, obj[type+fn] );
-      obj[type+fn] = null;
-      obj["e"+type+fn] = null;
-    }
-  }
-},
-*/

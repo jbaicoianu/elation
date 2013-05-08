@@ -31,6 +31,7 @@ if (dir_exists_in_path('thrift/')) {
       $this->version = $this->cfg["version"];
     }
     function Open() {
+      Profiler::StartTimer("CassandraWrapper:Open()", 1);
       try {
         $this->socket = new TSocket($this->cfg["host"], $this->cfg["port"]);
         //$this->transport = new TBufferedTransport($this->socket, 1024, 1024);
@@ -41,8 +42,10 @@ if (dir_exists_in_path('thrift/')) {
         //$this->client->set_keyspace($this->keyspace);
       } catch (TException $e) {
         $this->Debug($e->why . " " . $e->getMessage());
+        Profiler::StopTimer("CassandraWrapper:Open()");
         return false;
       }
+      Profiler::StopTimer("CassandraWrapper:Open()");
       return true;
     }
 
@@ -59,6 +62,9 @@ if (dir_exists_in_path('thrift/')) {
     }
     
     function QueryFetch($queryid, $fulltable, $where=array(), $extras=NULL) {
+      Profiler::StartTimer("CassandraWrapper:Query()", 1);
+      Profiler::StartTimer("CassandraWrapper:Query({$this->name})", 2);
+
       $keyspace = $this->keyspace;
       $table = $fulltable;
       if (strpos($fulltable, ".") !== false)
@@ -123,6 +129,8 @@ if (dir_exists_in_path('thrift/')) {
           $this->Debug($tx->why." ".$tx->getMessage());
         }
       }
+      Profiler::StopTimer("CassandraWrapper:Query()");
+      Profiler::StopTimer("CassandraWrapper:Query($this->name)");
       Profiler::StopTimer("CassandraWrapper:QueryFetch()");
       Profiler::StopTimer("CassandraWrapper:QueryFetch($fulltable)");
       return $ret;
@@ -135,6 +143,9 @@ if (dir_exists_in_path('thrift/')) {
      * @return int
      */
     function QueryInsert($queryid, $fulltable, $values, $extra=NULL) {
+      Profiler::StartTimer("CassandraWrapper:Query()", 1);
+      Profiler::StartTimer("CassandraWrapper:Query({$this->name})", 2);
+
       $keyspace = $this->keyspace;
       $table = $fulltable;
       if (strpos($fulltable, ".") !== false)
@@ -167,6 +178,8 @@ if (dir_exists_in_path('thrift/')) {
           $ret = false;
         }
       }
+      Profiler::StopTimer("CassandraWrapper:Query()");
+      Profiler::StopTimer("CassandraWrapper:Query($this->name)");
       Profiler::StopTimer("CassandraWrapper:QueryInsert()");
       Profiler::StopTimer("CassandraWrapper:QueryInsert($fulltable)");
       return $ret;
@@ -194,6 +207,9 @@ if (dir_exists_in_path('thrift/')) {
      * @return int
      */
     function &QueryDelete($queryid, $fulltable, $where, $bind=NULL, $extras=NULL) {
+      Profiler::StartTimer("CassandraWrapper:Query()", 1);
+      Profiler::StartTimer("CassandraWrapper:Query({$this->name})", 2);
+
       $keyspace = $this->keyspace;
       $table = $fulltable;
       if (strpos($fulltable, ".") !== false)
@@ -234,11 +250,15 @@ if (dir_exists_in_path('thrift/')) {
           $ret = false;
         }
       }
+      Profiler::StopTimer("CassandraWrapper:Query()");
+      Profiler::StopTimer("CassandraWrapper:Query($this->name)");
       Profiler::StopTimer("CassandraWrapper:QueryDelete()");
       Profiler::StopTimer("CassandraWrapper:QueryDelete($fulltable)");
       return $ret;
     }
     function &QueryCreate($queryid, $table, $columns=NULL) { 
+      Profiler::StartTimer("CassandraWrapper:Query()", 1);
+      Profiler::StartTimer("CassandraWrapper:Query({$this->name})", 2);
       // Initialize
       $result = 0;
 
@@ -268,6 +288,8 @@ if (dir_exists_in_path('thrift/')) {
         }
       }
 
+      Profiler::StopTimer("CassandraWrapper:Query()");
+      Profiler::StopTimer("CassandraWrapper:Query($this->name)");
       return $result;
     }
     /**
@@ -279,6 +301,8 @@ if (dir_exists_in_path('thrift/')) {
      * @return integer $count
      */
     function &QueryCount($queryid, $table, $where, $extra=NULL) {
+      Profiler::StartTimer("CassandraWrapper:Query()", 1);
+      Profiler::StartTimer("CassandraWrapper:Query({$this->name})", 2);
       $count = 0;
       if ($this->Open()) {
         try {
@@ -307,6 +331,8 @@ if (dir_exists_in_path('thrift/')) {
           $this->Debug($tx->why." ".$tx->getMessage());
         }
       }
+      Profiler::StopTimer("CassandraWrapper:Query()");
+      Profiler::StopTimer("CassandraWrapper:Query($this->name)");
       return $count;
     }
 

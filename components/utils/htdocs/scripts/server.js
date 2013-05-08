@@ -55,6 +55,10 @@ elation.extend("host", new function() {
     return (new elation.server());
   }
   this.execute = function(type, p1, p2, p3) {
+    //console.log('execute ',typeof p3);
+    if (type != 'multirequest' && typeof p3 == 'function')
+      p3 = { callback: p3 };
+    
     var ajaxlib = this.make();
     ajaxlib[type](p1, p2, p3);
     return ajaxlib;
@@ -72,7 +76,7 @@ elation.extend("host", new function() {
     return this.execute('multirequest', json, callback);
   }
   this.queue = function(obj) {
-    return this.Get(obj);
+    return this.Queue(obj);
   }
   this.get = function(url, params, args) {
     return this.Get(url, params, args);
@@ -84,7 +88,7 @@ elation.extend("host", new function() {
 elation.extend("server", function() {
 	this.Queue = function (obj) {
     // if args is object, convert to string.  this might not be the best place to put this.
-    if (elation.utils.arrayget(obj, 'args') && typeof obj.args == 'object')
+    if (elation.utils.arrayget(obj, 'args') && typeof obj.args == 'object' && !(typeof FormData != 'undefined' && obj.args instanceof FormData))
       obj.args = elation.utils.encodeURLParams(obj.args);
     
     if (obj.constructor.toString().indexOf("Array") != -1) {
@@ -119,6 +123,7 @@ elation.extend("server", function() {
       }
     }
     var req = this.parseURL(url);
+    //console.log(req, args, url);
     this.ProcessRequest(req, args);
   }
   this.Post = function (form, params, args) {
@@ -167,6 +172,7 @@ elation.extend("server", function() {
     if (this.urlqueue.length > 0) {
       ajaxlibobj = this.urlqueue.shift(); // FIXME - global scope leakage; upfront apprently relies on this but should be fixed
       //this._get(url);
+      
       if (!this._go(ajaxlibobj))
         this.urlqueue.unshift(ajaxlibobj);
     }
@@ -223,9 +229,9 @@ elation.extend("server", function() {
   }
 
   this.processResponse = function(responses, nobj) { 
-    //console.log('responses',responses);
+    //console.log('processResponse '+responses);
     // If there's no obj variable, this isn't being called from a closure so use the function argument instead
-    if (typeof ajaxlibobj == 'undefined') { 
+    if (typeof nobj != 'undefined') { 
       ajaxlibobj = nobj; // FIXME - global scope leakage; upfront apprently relies on this but should be fixed
     }
     if (
@@ -307,7 +313,7 @@ elation.extend("server", function() {
     // If caller passed in a callback, execute it
     if (typeof ajaxlibobj != 'undefined' && ajaxlibobj.callback) {
       try {
-        elation.ajax.executeCallback(ajaxlibobj.callback, common);
+        elation.ajax.executeCallback(ajaxlibobj.callback, common, this);
       } catch(e) {
         batch.callback(function() { elation.ajax.executeCallback(ajaxlibobj.callback, common); });
       }
@@ -350,6 +356,7 @@ elation.extend("server", function() {
       elation.ui.notify.show(name, content);
     },
     'xhtml': function(response, common) {
+      //console.log('processResponse xhtml: '+response['_content']);
       if (response['name']) 
         common.xhtml[response['name']] = response['_content'];
       
@@ -388,7 +395,7 @@ elation.extend("server", function() {
 			}
     },
     'data': function(response, common) {
-      //console.log('data', response, common);
+      //console.log('processResponse data');
       if (response['name'] && response['_content']) {
         common.data[response['name']] = elation.JSON.parse(response['_content']);
 				
@@ -480,7 +487,7 @@ elation.extend("server", function() {
         return;
       }
     }
-    if (!ajaxlibobj.cache) {
+    if (!ajaxlibobj.cache && !(typeof FormData != 'undefined' && ajaxlibobj.args instanceof FormData)) {
       ajaxlibobj.args = (ajaxlibobj.args && ajaxlibobj.args.length > 0 ? ajaxlibobj.args + "&" : "") + "_ajaxlibreqid=" + (parseInt(new Date().getTime().toString().substring(0, 10)) + parseFloat(Math.random()));
     }
 
@@ -501,10 +508,14 @@ elation.extend("server", function() {
             if(typeof dom != 'undefined' || dom != null){
               processResponse.call(self, self.translateXML(dom), ajaxlibobj);
             }
+          } else {
+            if (ajaxlibobj.callback) {
+              elation.ajax.executeCallback(ajaxlibobj.callback, xmlhttp.responseText, this);
+            }
           }
         } else {
           if (ajaxlibobj.failurecallback) {
-            elation.ajax.executeCallback(ajaxlibobj.failurecallback);
+            elation.ajax.executeCallback(ajaxlibobj.failurecallback, this);
           }
         }
         setTimeout(function() { self.Go(); }, 0);
@@ -515,9 +526,16 @@ elation.extend("server", function() {
       switch (ajaxlibobj.method.toUpperCase()) {
         case "POST":
           xmlhttp.open(ajaxlibobj.method, ajaxlibobj.url, true);
-          xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-          xmlhttp.setRequestHeader("X-Ajax", "1");
+          if (typeof ajaxlibobj.contenttype == 'undefined') {
+            xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+          } else if (ajaxlibobj.contenttype !== false) {
+            xmlhttp.setRequestHeader('Content-Type', ajaxlibobj.contenttype);
+          }
+          //xmlhttp.setRequestHeader("X-Ajax", "1");
           xmlhttp.onreadystatechange = readystatechange;
+          if (ajaxlibobj.progress) {
+            xmlhttp.upload.onprogress = ajaxlibobj.progress;
+          }
           xmlhttp.send(ajaxlibobj.args);
           break;
         
@@ -551,7 +569,7 @@ elation.extend("server", function() {
         // defaults to GET method
         default:
           xmlhttp.open(ajaxlibobj.method, ajaxlibobj.url + "?" + ajaxlibobj.args, true);
-          xmlhttp.setRequestHeader("X-Ajax", "1");
+          //xmlhttp.setRequestHeader("X-Ajax", "1");
           xmlhttp.onreadystatechange = readystatechange;
           xmlhttp.send(null);
           break;
@@ -562,7 +580,7 @@ elation.extend("server", function() {
         console.log(e);
       }
       if (ajaxlibobj.failurecallback) {
-        elation.ajax.executeCallback(ajaxlibobj.failurecallback, e);
+        elation.ajax.executeCallback(ajaxlibobj.failurecallback, this, e);
       }
       return false;
     }

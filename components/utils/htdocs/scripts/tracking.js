@@ -222,22 +222,37 @@ elation.extend('googleanalytics', function(args) {
         break;
     }
 
-
     if(this.pagetype == 'browse_homepage' 
+        || this.pagetype == 'browse_node' 
         || this.pagetype == 'browse_merchant' 
         || this.pagetype == 'browse_brand' 
         || this.pagetype == 'browse_profile'
         || this.pagetype == 'browse_sets'
-        || this.pagetype == 'browse_catalogs') {
+        || this.pagetype == 'browse_catalogs'
+        || this.pagetype == 'browse_catalogs_merchants'
+        || this.pagetype == 'browse_catalogs_users') {
       //var cobrand = 'glimpse';
       var cobrand = googleAnalytics.cobrand;
       var page = elation.browse.page(0).subpage;
       var browseby = elation.browse.page(0).args.browseby;
       var list = elation.browse.page(0).getCurrentNode();
-      if(typeof browseby == 'undefined' && list.nodeid == '0' && page != '/profile' && page != '/catalogs') {
+      if(typeof browseby == 'undefined' && list.nodeid == '0' 
+          && page != '/profile' && page != '/catalogs'
+          && page != '/catalogs/merchants' && page != '/catalogs/users'
+          && elation.browse.page(0).catalogissue == false) {
         var page = '/home';
       }
+      if(   elation.browse.page(0).args.filter !== null 
+	      && typeof elation.browse.page(0).args.filter.query != 'undefined' 
+	      && elation.browse.page(0).args.filter.query != '' ) {
+	      var page = '/search';
+      }
       switch (page) {
+	case '/search':
+		this.pageURL = '/virt_results/'
+				+ cobrand+'/search/?qry='
+				+ elation.browse.page(0).args.filter.query;
+	break;
         case '/merchant':
           //store page
           if(browseby == 'brands'){
@@ -346,9 +361,18 @@ elation.extend('googleanalytics', function(args) {
                          + cat
                          + type
             if(typeof list.catalog != 'undefined'){
-              this.pageURL += '/?set='+list.catalog;
+              //this.pageURL += '/?set='+list.catalog;
+              this.pageURL = undefined;
             }
           break;
+        case '/catalogs/users':
+          this.pageURL = 'virt_results/'+cobrand;
+          this.pageURL += '/catalogs/users';
+        break;
+        case '/catalogs/merchants':
+          this.pageURL = 'virt_results/'+cobrand;
+          this.pageURL += '/catalogs/merchants';
+        break;
         case '/catalogs':
             this.pageURL = 'virt_results/'+cobrand;
             this.pageURL += '/catalogs/all';

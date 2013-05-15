@@ -26,7 +26,8 @@ class Component_elation extends Component {
     return Profiler::Display(E_ALL);
   }
   function controller_settings(&$args, $output="inline") {
-    $cfg = $this->root->cfg->FlattenConfig($this->root->cfg->LoadServers($this->root->locations["config"] . "/servers.ini", false));
+    //$cfg = $this->root->cfg->FlattenConfig($this->root->cfg->LoadServers($this->root->locations["config"] . "/servers.ini", false));
+    $cfg = $this->root->cfg->FlattenConfig($this->root->cfg->GetRoleSettings($this->root->cfg->role));
     
     $vars["tfdev"] = (!empty($_COOKIE["tf-dev"]) ? json_decode($_COOKIE["tf-dev"], true) : array());
 

@@ -12,7 +12,7 @@ class ConfigManager extends Base {
   public $servers = array(); // server configs, from ini
   public $configs; // site configs, from db
 
-  public $activerole;
+  public $role;
 
   public $rootdir;
   public $locations;
@@ -33,11 +33,13 @@ class ConfigManager extends Base {
     $this->apcenabled = ini_get("apc.enabled");
     // load servers
     if ($autoload && $this->locations !== NULL && !empty($this->locations["config"])) {
+      $this->role = $this->GetRoleFromHostname();
       $this->LoadSettings($this->locations["config"] . "/servers.ini");
-      $this->activerole = $this->GetRoleFromHostname();
       $this->GetRoleSettings("default");
-      $this->GetRoleSettings($this->activerole);
+      $this->GetRoleSettings($this->role);
       $this->locations = $this->getlocations();
+
+      //$this->LoadServers(true);
     }
     Profiler::StopTimer("ConfigManager::constructor");
   }
@@ -102,6 +104,11 @@ class ConfigManager extends Base {
     return $locations;
   }
 
+  /**
+   * Get the server->cluster mapping information from the config
+   *
+   * @return array server mappings
+   */
   public function GetMappings() {
     $mappings = array();
     if (is_array($this->fullservers["mapping"])) {
@@ -121,6 +128,13 @@ class ConfigManager extends Base {
     }
     return $mappings;
   }
+
+  /**
+   * Load settings from a specified config file
+   *
+   * @param string $cfgfile ini file to load from
+   * @return array server mappings
+   */
   public function LoadSettings($cfgfile) {
     $settings = array();
     Profiler::StartTimer("ConfigManager::LoadSettings()", 2);
@@ -148,6 +162,13 @@ class ConfigManager extends Base {
     }
     return $settings;
   }
+
+  /**
+   * Get the server settings for a specific role
+   *
+   * @param string $role server role
+   * @return array server config
+   */
   public function GetRoleSettings($role, &$servercfg=null) {
     Profiler::StartTimer("ConfigManager::GetRoleSettings()", 3);
     $toplevel = ($servercfg === null);
@@ -160,9 +181,6 @@ class ConfigManager extends Base {
       $includes = array();
       if (!empty($this->fullservers[$role]["include"])) {
         $includes = explode(" ", $this->fullservers[$role]["include"]);
-      }
-      if (!empty($this->fullservers[$role]["role"])) {
-        array_push($includes, $this->fullservers[$role]["role"]);
       }
       if (!empty($includes)) {
         Profiler::StartTimer("ConfigManager::GetRoleSettings() - includes", 3);
@@ -180,7 +198,7 @@ class ConfigManager extends Base {
     }
     if ($toplevel && !empty($servercfg["sources"])) {
       // If this is a top-level call to this function, resolve the source dependencies
-      // FIXME - if this were done at runtime, it might reduce the number of db connections the app establishes
+      // FIXME - if this were done at query time, it might reduce the number of db connections the app establishes
       foreach ($servercfg["sources"] as $sourcetype=>$sources) {
         foreach ($sources as $sourcename=>$source) {
           if (!empty($source["source"])) {
@@ -191,16 +209,29 @@ class ConfigManager extends Base {
       }
     }
     Profiler::StopTimer("ConfigManager::GetRoleSettings()");
+
     if (!empty($servercfg)) {
       $this->servers = array_merge_recursive_distinct($this->servers, $servercfg);
+      if (!empty($this->servers["role"])) {
+        $this->role = $this->servers["role"];
+      }
     }
     return $servercfg;
   }
 
-  public function GetRoleFromHostname() {
-    $this->hostname = $hostname = trim(implode("", file("/etc/hostname")));
+
+  /**
+   * Map a server's hostname to its role
+   *
+   * @param string $hostname hostname to look up, or fall back on /etc/hostname
+   * @return array server config
+   */
+  public function GetRoleFromHostname($hostname=null) {
+    if ($hostname === null) {
+      $this->hostname = $hostname = trim(implode("", file("/etc/hostname")));
+    }
     $mapping = $this->GetMappings();
-    return any($mapping[$this->hostname], "live"); // default to live so the site will work even if something is messed up
+    return any($mapping[$hostname], "live"); // default to live so the site will work even if something is messed up
   }
 
   /**
@@ -210,12 +241,19 @@ class ConfigManager extends Base {
    * @return array server config block (also stored as $this->servers)
    */
 
-  function LoadServers($cfgfile, $assign=true) {
+  function LoadServers($assign=true) {
     //Profiler::StartTimer("ConfigManager::LoadServers()");
     $servers = array();
 
+    // FIXME - array_merge_recursive is bad here, we should merge directly from $this->fullservers[$role] here
+    /*
+    $this->LoadSettings($this->locations["config"] . "/servers.ini");
+    $servers = array_merge_recursive($servers, $this->GetRoleSettings("default"));
+    $servers = array_merge_recursive($servers, $this->GetRoleSettings($this->role));
+    $this->locations = $this->getlocations();
+    */
 
-    $this->hostname = $hostname = trim(implode("", file("/etc/hostname")));
+    /*
     if (file_exists($cfgfile)) {
       $mtime = filemtime($cfgfile);
       if (!empty($mtime)) {
@@ -237,7 +275,7 @@ class ConfigManager extends Base {
           }
 
           // set the role
-          $servers["role"] = ($settings["mapping"][$hostname]) ? $settings["mapping"][$hostname] : "live"; // default to live so the site will work if /etc/hostname is missing
+          //$servers["role"] = ($settings["mapping"][$hostname]) ? $settings["mapping"][$hostname] : "live"; // default to live so the site will work if /etc/hostname is missing
           // If our host is part of a grouping, load those settings up
           if (!empty($settings["mapping"]) && !empty($settings["mapping"][$hostname]) && !empty($settings[$settings["mapping"][$hostname]])) {
             Logger::Info("$hostname is currently in the '" . $settings["mapping"][$hostname] . "' group");
@@ -254,17 +292,17 @@ class ConfigManager extends Base {
           }
         }
       }
-
-      if ($assign)
-        $this->servers =& $servers;
-      //Profiler::StopTimer("ConfigManager::LoadServers()");
-
-      if (isset($this->servers["logger"]["enabled"]) && empty($this->servers["logger"]["enabled"]))
-        Logger::$enabled = false;
-      if (isset($this->servers["profiler"]["enabled"]) && empty($this->servers["profiler"]["enabled"]))
-        Profiler::$enabled = false;
     }
+    */
 
+    if ($assign)
+      $this->servers =& $servers;
+    //Profiler::StopTimer("ConfigManager::LoadServers()");
+
+    if (isset($this->servers["logger"]["enabled"]) && empty($this->servers["logger"]["enabled"]))
+      Logger::$enabled = false;
+    if (isset($this->servers["profiler"]["enabled"]) && empty($this->servers["profiler"]["enabled"]))
+      Profiler::$enabled = false;
     // Update locations to reflect any new settings we got from the ini file
     $this->locations = $this->getLocations();
 
@@ -374,7 +412,7 @@ class ConfigManager extends Base {
     Profiler::StartTimer("ConfigManager::Load()");
 /*
     $ret = array();
-    $role = any($role, $this->servers["role"], "");
+    $role = any($role, $this->role, "");
     $ret = $this->GetCobrandidAndRevision($name, $role);
     if (!empty($ret)) {
       $result_config = DataManager::Query("db.config.cobrand_config.{$name}.{$role}:nocache",
@@ -768,7 +806,7 @@ class ConfigManager extends Base {
     $over = array();
 
     if (empty($role))
-      $role = $this->activerole; //$this->servers["role"];
+      $role = $this->role;
 
     if (!$skipcache && !empty($this->heirarchies[$role][$name])) {
       //print_pre("got it already");
@@ -1061,7 +1099,7 @@ class Config {
   public function __construct($name=NULL, $role=NULL) {
     if ($role === NULL) {
       $cfg = ConfigManager::singleton();
-      $role = $cfg->activerole; //$cfg->servers["role"];
+      $role = $cfg->role;
     }
     if ($name !== NULL) {
       $this->Load($name, $role);

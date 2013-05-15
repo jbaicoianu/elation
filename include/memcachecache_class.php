@@ -121,7 +121,7 @@ class MemcacheCache extends Cache {
     }
 
     foreach($this->servers as $host => $params) {
-      Logger::Info("Added memcache server - %s:%s (persist=%d)", $host, $params["port"], $params["persist"]);
+      //Logger::Info("Added memcache server - %s:%s (persist=%d)", $host, $params["port"], $params["persist"]);
       $this->cache_obj->addServer($host, $params["port"], $params["persist"]);
     }
   }

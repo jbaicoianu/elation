@@ -31,7 +31,7 @@ class MemcacheWrapper extends ConnectionWrapper {
         $this->servers[$host] = $params = array("port"    => $port,
                                                 "timeout" => $timeout,
                                                 "persist" => $persist);
-        Logger::Info("Added memcache server - %s:%s (persist=%d)", $host, $params["port"], $params["persist"]);
+        //Logger::Info("Added memcache server - %s:%s (persist=%d)", $host, $params["port"], $params["persist"]);
 
         $this->cache->addServer($host, $params["port"], $params["persist"]);
         //Profiler::StopTimer("MemcacheCache::addServers()");

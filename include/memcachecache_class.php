@@ -87,8 +87,12 @@ class MemcacheCache extends Cache {
     $persist = ($this->cfg["persist"]) ? true : false;
 
     // add to the list
-    if (!empty($this->cfg["servers"])) {
-      foreach ($this->cfg["servers"] as $server) {
+    $servers = any($this->cfg["servers"], $this->cfg["host"]);
+    if (!empty($servers)) {
+      if (is_string($servers)) {
+        $servers = explode(" ", $servers);
+      }
+      foreach ($servers as $server) {
         list($host, $port) = explode(":", $server);
         if (empty($port)) 
           $port = 11211; // default memcache port
@@ -117,7 +121,7 @@ class MemcacheCache extends Cache {
     }
 
     foreach($this->servers as $host => $params) {
-      Logger::Info("Added memcache server - %s:%s (persist=%d)", $host, $params["port"], $params["persist"]);
+      //Logger::Info("Added memcache server - %s:%s (persist=%d)", $host, $params["port"], $params["persist"]);
       $this->cache_obj->addServer($host, $params["port"], $params["persist"]);
     }
   }

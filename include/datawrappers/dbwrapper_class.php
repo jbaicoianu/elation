@@ -14,7 +14,11 @@ class DBWrapper extends ConnectionWrapper {
     $this->ConnectionWrapper($name, $cfg, $lazy);
     if (!empty($this->cfg["shardcfg"])) {
       $this->shards = $this->ParseShards($this->cfg["shardcfg"]);
-      //$this->hasher = new HashDispenser(count($this->cfg["servers"]), count($this->shards), 16);
+    } else if (!empty($this->cfg["bucketcfg"])) {
+      $this->shards = $this->ParseShards($this->cfg["bucketcfg"]);
+    }
+
+    if (!empty($this->shards)) {
       $this->hasher = new SimpleHasher($this->shards);
     }
   }

@@ -33,8 +33,8 @@ class ConfigManager extends Base {
     $this->apcenabled = ini_get("apc.enabled");
     // load servers
     if ($autoload && $this->locations !== NULL && !empty($this->locations["config"])) {
-      $this->role = $this->GetRoleFromHostname();
       $this->LoadSettings($this->locations["config"] . "/servers.ini");
+      $this->role = $this->GetRoleFromHostname();
       $this->GetRoleSettings("default");
       $this->GetRoleSettings($this->role);
       $this->locations = $this->getlocations();

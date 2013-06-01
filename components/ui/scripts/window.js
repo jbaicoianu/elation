@@ -1,7 +1,7 @@
 elation.component.add('ui.window', function() {
   this.init = function() {
     elation.html.addclass(this.container, "ui_window");
-    this.titlebar = elation.html.create({tag: 'h1', classname: 'ui_window_titlebar', content: this.args.title || '', append: this.container});
+    this.titlebar = elation.html.create({tag: 'h2', classname: 'ui_window_titlebar', content: this.args.title || '', append: this.container});
     //this.closebutton = elation.html.create({tag: 'button', classname: 'ui_window_close', content: 'x', append: this.titlebar});
     elation.events.add(this.container, 'mousedown', this);
     this.offsetpos = [0, 0];
@@ -31,7 +31,7 @@ elation.component.add('ui.window', function() {
       if (this.content) {
         this.container.removeChild(this.content);
       }
-      if (newcontent.parentNode) newcontent.parentNode.removeChild(content);
+      if (newcontent.parentNode) newcontent.parentNode.removeChild(newcontent);
     
       this.container.appendChild(newcontent);
       this.content = newcontent;
@@ -66,8 +66,8 @@ elation.component.add('ui.window', function() {
     this.setOffset(this.offsetpos[0] - diff[0], this.offsetpos[1] - diff[1]);
   }
   this.mouseup = function(ev) {
-    elation.events.remove(window, 'mousemove', this);
+    elation.events.remove(window, 'mousemove,mouseup', this);
     elation.html.removeclass(this.titlebar, 'state_dragging');
-    this.dragstartpos = this.dragoffset = false;
+    //this.dragstartpos = [0,0];
   }
 });

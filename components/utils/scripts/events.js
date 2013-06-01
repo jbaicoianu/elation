@@ -3,11 +3,16 @@ elation.extend("events", {
   events: {},
   
   fire: function(type, data, target, element, fn) {
+    var extras = {};
     if (typeof type == 'object') {
       data = elation.utils.any(elation.utils.arrayget(type, 'data'), data);
       target = elation.utils.arrayget(type, 'target') || target;
       element = elation.utils.arrayget(type, 'element') || element;
       fn = elation.utils.arrayget(type, 'fn') || fn;
+
+      if (type.clientX) extras.clientX = type.clientX;
+      if (type.clientY) extras.clientY = type.clientY;
+
       type = elation.utils.arrayget(type, 'type');
     }
 
@@ -24,7 +29,7 @@ elation.extend("events", {
       this.events[type] = [];
       return;
     }
-    
+
     // gather all the events associated with this event type
     // filter by [element] and/or [fn] if present
     for (var i=0; i<list.length; i++) {
@@ -40,37 +45,26 @@ elation.extend("events", {
       }
     }
     
-    /*
-    for (var i=events.length-1; i>=0; i--) {
-      var event = events[i];
-      event.data = data;
-      if (event.origin) {
-        if (typeof event.origin == 'function')
-          event.origin(event);
-        else if (typeof event.origin.handleEvent != 'undefined')
-          event.origin.handleEvent(event);
-      }
-      if (event.cancelBubble) {
-        break;
-      }
-    */
-
     // fire each event
     for (var i=0; i<original_events.length; i++) {
       var eventObj = original_events[i],
-      
           // break reference to eventObj so original doesn't get overwritten
-          event = elation.events.clone(eventObj, {type: type, target: target, data: data});
-      
+          event = elation.events.clone(eventObj, {type: type, target: target, data: data, timeStamp: new Date().getTime()});
+
+      for (var k in extras) event[k] = extras[k];
+
       if (!event.origin)
         continue;
       
+      var cont = true;
       if (typeof event.origin == 'function')
-        event.origin(event);
+        cont = event.origin(event);
       else if (typeof event.origin.handleEvent != 'undefined')
-        event.origin.handleEvent(event);
-      
+        cont = event.origin.handleEvent(event);
       events.push(event);
+      if (cont === false || event.cancelBubble) {
+        break;
+      }
     }
     
     // return all event objects that were fired
@@ -84,11 +78,12 @@ elation.extend("events", {
     for (var i=0; i<types.length; i++) {
       type = types[i];
       
-      if (!this.events[type])
+      if (!this.events[type]) {
         if (fn || element)
           this._register(element, type, fn);
         else
           this.events[type] = [];
+      }
     }
   },
   
@@ -131,7 +126,7 @@ elation.extend("events", {
       for (var i = 0; i < elation.events.events[type].length; i++) {
         var ev = elation.events.events[type][i];
         if (ev.type == type && ev.target == element && ev.origin == fn) {
-          elation.events.events[type].splice(i--);
+          elation.events.events[type].splice(i--, 1);
         }
       }
     }
@@ -252,16 +247,16 @@ elation.extend("events", {
 	},
   
   fix: function(event) {
-    this.preventDefault = function() {
+    event.preventDefault = function() {
       this.returnValue = false;
     }
     
-    this.stopPropagation = function() {
+    event.stopPropagation = function() {
       this.cancelBubble = true;
     }
 
-    event.preventDefault = this.preventDefault;
-    event.stopPropagation = this.stopPropagation;
+    //event.preventDefault = this.preventDefault;
+    //event.stopPropagation = this.stopPropagation;
     
     return event;
   },
@@ -354,7 +349,7 @@ elation.extend("events", {
 	},
 
   clone: function(ev,  overrides) {
-    var attrs = ['type', 'bubbles', 'cancelable', 'view', 'detail', 'screenX', 'screenY', 'clientX', 'clientY', 'ctrlKey', 'shiftKey', 'altKey', 'metaKey', 'button', 'relatedTarget', 'target', 'element', 'data', 'origin'];
+    var attrs = ['type', 'bubbles', 'cancelable', 'view', 'detail', 'screenX', 'screenY', 'clientX', 'clientY', 'ctrlKey', 'shiftKey', 'altKey', 'metaKey', 'button', 'relatedTarget', 'target', 'element', 'data', 'origin', 'timeStamp'];
     var newev = {};
     for (var i = 0; i < attrs.length; i++) {
       var foo = elation.utils.any(overrides[attrs[i]], ev[attrs[i]]);
@@ -369,5 +364,13 @@ elation.extend("events", {
     if (typeof this[ev.type] == 'function') {
       this[ev.type](ev);
     }
+  },
+
+  schedule: function(args) {
+    /*
+    elation.events.schedule({ev: foo, in: 2000});
+    elation.events.schedule({ev: foo, every: 200});
+    elation.events.schedule({ev: foo, at: Date().getTime() + 3600});
+    */
   }
 });

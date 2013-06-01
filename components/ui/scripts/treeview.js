@@ -11,8 +11,15 @@ elation.component.add("ui.treeview", function() {
     if (elation.utils.isEmpty(attrs.name)) attrs.name = 'name';
     if (elation.utils.isEmpty(attrs.children)) attrs.children = 'items';
 
+    //console.log('new items', items, this);
+    // FIXME - this is inefficient.  instead of removing and readding everything, we should just find the diffs
+    if (this.items) {
+      for (var k in this.items) {
+        this.items[k].remove();
+      }
+    }
+    this.items = [];
     this.container.innerHTML = '';
-
     this.add(items, this.container, attrs);
   }
   this.add = function(items, root, attrs) {
@@ -27,6 +34,13 @@ elation.component.add("ui.treeview", function() {
       if (visible) {
         var li = elation.html.create({tag: 'li', append: ul});
         var tvitem = elation.ui.treeviewitem(null, li, {item: items[k], attrs: attrs});
+        // maintain selected item
+        if (this.selected && this.selected.value === items[k]) {
+          elation.html.addclass(li, 'state_selected');
+          tvitem.lastclick = this.selected.lastclick;
+          this.selected = tvitem;
+        }
+        this.items.push(tvitem);
         elation.events.add(tvitem, 'ui_treeviewitem_hover,ui_treeviewitem_select', this);
         if (items[k][attrs.children]) {
           this.add(items[k][attrs.children], li, attrs);
@@ -70,6 +84,10 @@ elation.component.add("ui.treeviewitem", function() {
       elation.events.add(this.value, "mouseover,mouseout,click", this);
     }
   }
+  this.remove = function() {
+    elation.events.remove(this.container, "mouseover,mouseout,click", this);
+    elation.events.remove(this.value, "mouseover,mouseout,click", this);
+  }
   this.hover = function() {
     elation.html.addclass(this.container, 'state_hover');
     elation.events.fire({type: 'ui_treeviewitem_hover', element: this});
@@ -101,7 +119,14 @@ elation.component.add("ui.treeviewitem", function() {
   this.mouseup = function(ev) {
   }
   this.click = function(ev) {
+    if (this.lastclick && ev.timeStamp - this.lastclick < 250) {
+      console.log('doubleclick');
+    }
+    this.lastclick = ev.timeStamp;
     this.select();
     ev.stopPropagation();
+  }
+  this.doubleclick = function(ev) {
+    console.log('doubleclicky');
   }
 });

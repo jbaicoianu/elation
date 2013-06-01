@@ -1,9 +1,11 @@
 .ui_treeview {
+/*
   background: black;
   color: white;
+*/
 }
 .ui_treeview ul {
-  background: rgba(0,0,0,.8);
+  /*background: rgba(0,0,0,.8);*/
   list-style: none;
   border-left: .1em solid white;
   margin: 0 0 0 .3em;
@@ -18,6 +20,7 @@
 }
 .ui_treeview ul li {
   position: relative;
+  white-space: nowrap;
 }
 .ui_treeview ul li:before {
   content: '├';

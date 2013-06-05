@@ -98,6 +98,14 @@ class DataManager {
             $sourcecfg = array_merge_recursive($sourcecfg, $group);
           }
           
+          // If this source references another source, load those settings underneath, and override with my own
+          if (!empty($sourcecfg["source"])) {
+            $othercfg = array_get($this->cfg->servers["sources"], $sourcecfg["source"]);
+            if (!empty($othercfg)) {
+              $sourcecfg = array_merge_recursive_distinct($othercfg, $sourcecfg);
+            }
+          }
+
           $classname = $sourcetype . "wrapper";
           $sourcewrapper = new $classname($sourcename, $sourcecfg, true);
           if (!empty($sourcecfg["cache"]) && $sourcecfg["cache"] != "none") {

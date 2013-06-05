@@ -124,6 +124,7 @@ class Component_utils extends Component {
     $vars["id"] = $args["id"];
     $vars["selectname"] = $args["selectname"];
     $vars["class"] = $args["class"];
+    $vars["label"] = $args["label"];
     $vars["items"] = any($args["items"], array());
     if (is_string($vars["items"])) {
       $tmp = explode(";", $vars["items"]);

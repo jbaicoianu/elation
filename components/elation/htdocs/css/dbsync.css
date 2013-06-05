@@ -1,0 +1,48 @@
+.dbsync_serverpair {
+  clear: left;
+  margin: 1em;
+  border-top: 1px solid black;
+}
+.dbsync_serverpair ul {
+  list-style: none;
+}
+.dbsync_serverpair .dbsync_diff {
+  width: 30em;
+  float: left;
+}
+.dbsync_serverpair {
+}
+.dbsync_server_list {
+}
+.dbsync_server_list li {
+  display: inline-block;
+  width: 12em;
+  white-space: nowrap;
+}
+.dbsync_list .dbsync_valid {
+  background: #9f9;
+}
+.dbsync_list .dbsync_stale {
+  background: #ff9;
+}
+.dbsync_list .dbsync_missing {
+  background: #f99;
+}
+.dbsync_list {
+  white-space: nowrap;
+}
+.dbsync_list h2 {
+  display: inline-block;
+  font-size: 1em;
+  font-weight: normal;
+  width: 30em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin: 0;
+}
+.dbsync_list ul {
+  display: inline-block;
+  margin: 0;
+}
+

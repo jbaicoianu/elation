@@ -33,13 +33,7 @@ class ConfigManager extends Base {
     $this->apcenabled = ini_get("apc.enabled");
     // load servers
     if ($autoload && $this->locations !== NULL && !empty($this->locations["config"])) {
-      $this->LoadSettings($this->locations["config"] . "/servers.ini");
-      $this->role = $this->GetRoleFromHostname();
-      $this->GetRoleSettings("default");
-      $this->GetRoleSettings($this->role);
-      $this->locations = $this->getlocations();
-
-      //$this->LoadServers(true);
+      $this->LoadServers(true);
     }
     Profiler::StopTimer("ConfigManager::constructor");
   }
@@ -196,26 +190,7 @@ class ConfigManager extends Base {
     } else {
       Logger::Error("Could not find definition for role '$role'");
     }
-    if ($toplevel && !empty($servercfg["sources"])) {
-      // If this is a top-level call to this function, resolve the source dependencies
-      // FIXME - if this were done at query time, it might reduce the number of db connections the app establishes
-      foreach ($servercfg["sources"] as $sourcetype=>$sources) {
-        foreach ($sources as $sourcename=>$source) {
-          if (!empty($source["source"])) {
-            $foo = array_get($servercfg["sources"], $source["source"]);
-            $servercfg["sources"][$sourcetype][$sourcename] = array_merge($foo, $source);
-          }
-        }
-      }
-    }
     Profiler::StopTimer("ConfigManager::GetRoleSettings()");
-
-    if (!empty($servercfg)) {
-      $this->servers = array_merge_recursive_distinct($this->servers, $servercfg);
-      if (!empty($this->servers["role"])) {
-        $this->role = $this->servers["role"];
-      }
-    }
     return $servercfg;
   }
 
@@ -245,14 +220,14 @@ class ConfigManager extends Base {
     //Profiler::StartTimer("ConfigManager::LoadServers()");
     $servers = array();
 
-    // FIXME - array_merge_recursive is bad here, we should merge directly from $this->fullservers[$role] here
-    /*
+    // new method
     $this->LoadSettings($this->locations["config"] . "/servers.ini");
-    $servers = array_merge_recursive($servers, $this->GetRoleSettings("default"));
-    $servers = array_merge_recursive($servers, $this->GetRoleSettings($this->role));
+    $this->role = $this->GetRoleFromHostname();
+    $servers = array_merge_recursive_distinct($servers, $this->GetRoleSettings("default"));
+    $servers = array_merge_recursive_distinct($servers, $this->GetRoleSettings($this->role));
     $this->locations = $this->getlocations();
-    */
 
+    // DISABLED - old method, had better caching of combined role config
     /*
     if (file_exists($cfgfile)) {
       $mtime = filemtime($cfgfile);
@@ -295,14 +270,21 @@ class ConfigManager extends Base {
     }
     */
 
-    if ($assign)
+    if ($assign) {
       $this->servers =& $servers;
+
+      if (!empty($this->servers["role"])) { // ini file specified overridden role
+        $this->role = $this->servers["role"];
+      }
+    }
     //Profiler::StopTimer("ConfigManager::LoadServers()");
 
+    // set logger/profiler settings
     if (isset($this->servers["logger"]["enabled"]) && empty($this->servers["logger"]["enabled"]))
       Logger::$enabled = false;
     if (isset($this->servers["profiler"]["enabled"]) && empty($this->servers["profiler"]["enabled"]))
       Profiler::$enabled = false;
+
     // Update locations to reflect any new settings we got from the ini file
     $this->locations = $this->getLocations();
 
@@ -317,6 +299,7 @@ class ConfigManager extends Base {
       }
     }
 
+    // Merge any settings which are overridden by a dev cookie
     if (!empty($_COOKIE["tf-dev"])) {
       $tfdev = json_decode($_COOKIE["tf-dev"], true);
 

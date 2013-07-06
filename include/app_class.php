@@ -82,7 +82,7 @@ class App {
           $this->debug = $_SESSION["debug"];
         }
         $this->cobrand = $this->GetRequestedConfigName($this->request);
-        $this->cfg->GetConfig($this->cobrand, true, $this->cfg->servers["role"]);
+        $this->cfg->GetConfig($this->cobrand, true, $this->cfg->role);
         $this->ApplyConfigOverrides();
         $this->locations = DependencyManager::$locations = $this->cfg->locations;
 
@@ -356,11 +356,11 @@ class App {
     }
 
     if(!empty($this->request["args"]["cobrandoverride"])) {
-      $included_config =& $this->cfg->GetConfig($this->request["args"]["cobrandoverride"], false, $this->cfg->servers["role"]);
+      $included_config =& $this->cfg->GetConfig($this->request["args"]["cobrandoverride"], false, $this->cfg->role);
       if (!empty($included_config))
         ConfigManager::merge($included_config);
     }
-    $rolename = any($this->request["args"]["_role"], $this->cfg->servers['role']);
+    $rolename = any($this->request["args"]["_role"], $this->cfg->role);
     $rolecfg = ConfigManager::get("roles.{$rolename}.options");
     if (!empty($rolecfg)) {
       Logger::Info("Using overridden role cfg 'roles.{$rolename}'");
@@ -368,7 +368,7 @@ class App {
     }
 
     if ($this->request["ssl"]) {
-      $included_config = $this->cfg->GetConfig("classes.secure", false, $this->cfg->servers["role"]);
+      $included_config = $this->cfg->GetConfig("classes.secure", false, $this->cfg->role);
       if (!empty($included_config))
         ConfigManager::merge($included_config);
     }
@@ -383,7 +383,7 @@ class App {
       if (!empty($included_config["include"])) { // These includes sure do get hairy.  This allows for browsers.*.options.include to call in different classes
         $includes = explode(",", $included_config["include"]);
         foreach ($includes as $include) {
-          $subincluded_config =& $this->cfg->GetConfig($include, false, $this->cfg->servers["role"]);
+          $subincluded_config =& $this->cfg->GetConfig($include, false, $this->cfg->role);
           if (!empty($subincluded_config))
             ConfigManager::merge($subincluded_config);
         }
@@ -395,7 +395,7 @@ class App {
     }
 
     if ($this->debug) {
-      $subincluded_config =& $this->cfg->GetConfig("classes.debug", false, $this->cfg->servers["role"]);
+      $subincluded_config =& $this->cfg->GetConfig("classes.debug", false, $this->cfg->role);
       if (!empty($subincluded_config))
         ConfigManager::merge($subincluded_config);
     }

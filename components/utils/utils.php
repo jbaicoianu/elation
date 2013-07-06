@@ -41,7 +41,6 @@ class Component_utils extends Component {
 
   function controller_panel($args, $output="inline") {
     $ret = "";
-    
     $vars["placementname"] = $args["placement"]; // FIXME - we currently don't do anything with placements
     $vars["panel"]["parent"] = any($args["parent"], "");
     if (!empty($vars["panel"]["parent"]) && !empty($args["panelname"]))
@@ -124,6 +123,7 @@ class Component_utils extends Component {
     $vars["id"] = $args["id"];
     $vars["selectname"] = $args["selectname"];
     $vars["class"] = $args["class"];
+    $vars["label"] = $args["label"];
     $vars["items"] = any($args["items"], array());
     if (is_string($vars["items"])) {
       $tmp = explode(";", $vars["items"]);

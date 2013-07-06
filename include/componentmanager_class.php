@@ -178,6 +178,7 @@ class ComponentManager extends Component {
       "referrer_url"  => $_SERVER['HTTP_REFERER'],
       "page_url"      => "http://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
       "page_type"     => $pagecfg["pagename"],
+      "ip_addr"       => $_SERVER['REMOTE_ADDR']
     );
 
     if (!ConfigManager::get("tracking.pandora", true)) {

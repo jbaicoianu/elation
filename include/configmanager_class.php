@@ -9,25 +9,33 @@ include_once("include/base_class.php");
  * @subpackage Config
  */
 class ConfigManager extends Base {
-  public $servers;
-  public $configs;
+  public $servers = array(); // server configs, from ini
+  public $configs; // site configs, from db
+
+  public $role;
 
   public $rootdir;
   public $locations;
+  public $apcenabled;
+  public $fullservers = array(); // merged but unprocessed server config
+
+  public $servermapping;
+  public $servergroups;
 
   /**
    * constructor
    */
   public function __construct($rootdir=null, $autoload=true) {
-    Profiler::StartTimer("ConfigManager::Init", 2);
+    Profiler::StartTimer("ConfigManager::constructor", 3);
     $this->rootdir = $rootdir;
     // init the locations
     $this->locations = $this->getLocations();
+    $this->apcenabled = ini_get("apc.enabled");
     // load servers
     if ($autoload && $this->locations !== NULL && !empty($this->locations["config"])) {
-      $this->servers = $this->LoadServers($this->locations["config"] . "/servers.ini");
+      $this->LoadServers(true);
     }
-    Profiler::StopTimer("ConfigManager::Init");
+    Profiler::StopTimer("ConfigManager::constructor");
   }
 
   protected static $instance;
@@ -91,25 +99,143 @@ class ConfigManager extends Base {
   }
 
   /**
+   * Get the server->cluster mapping information from the config
+   *
+   * @return array server mappings
+   */
+  public function GetMappings() {
+    $mappings = array();
+    if (is_array($this->fullservers["mapping"])) {
+      // Old servers.ini format used [mapping] which was a list of servers and the roles they map to
+      $mappings = $this->fullservers["mapping"];
+    } else if (is_array($this->fullservers["clusters"])) {
+      // New format uses [clusters] which is a list of clusters, and the servers they contain
+      $mappings = array();
+      foreach ($this->fullservers["clusters"] as $groupname=>$serverstr) {
+        $servers = explode(" ", $serverstr);
+        foreach ($servers as $server) {
+          if ($server[0] != "@") {
+            $mappings[$server] = $groupname;
+          }
+        }
+      }
+    }
+    return $mappings;
+  }
+
+  /**
+   * Load settings from a specified config file
+   *
+   * @param string $cfgfile ini file to load from
+   * @return array server mappings
+   */
+  public function LoadSettings($cfgfile) {
+    $settings = array();
+    Profiler::StartTimer("ConfigManager::LoadSettings()", 2);
+    if (file_exists($cfgfile)) {
+      $mtime = filemtime($cfgfile);
+      if (!empty($mtime)) {
+        // NOTE - This uses APC directly, since the datamanager object requires this function to execute before initializing
+        $apckey = $cfgfile . ":" . $mtime;
+        if ($this->apcenabled && ($apccontents = apc_fetch($apckey)) != false) {
+          $settings = unserialize($apccontents);
+        } else {
+          $settings = parse_ini_file($cfgfile, true);
+          if ($this->apcenabled && !empty($settings)) {
+            apc_store($apckey, serialize($settings));
+          }
+        }
+      }
+    }
+    Profiler::StopTimer("ConfigManager::LoadSettings()");
+    $this->fullservers = array_merge_recursive_distinct($this->fullservers, $settings);
+    if (!empty($settings["clusters"])) {
+      $this->servergroups = $settings["clusters"];
+    } else if (!empty($settings["groups"])) {
+      $this->servergroups = $settings["groups"];
+    }
+    return $settings;
+  }
+
+  /**
+   * Get the server settings for a specific role
+   *
+   * @param string $role server role
+   * @return array server config
+   */
+  public function GetRoleSettings($role, &$servercfg=null) {
+    Profiler::StartTimer("ConfigManager::GetRoleSettings()", 3);
+    $toplevel = ($servercfg === null);
+    $rolecfgfile = $this->locations["config"] . "/clusters/{$role}.ini";
+    if (empty($this->fullservers[$role]) && file_exists($rolecfgfile)) {
+      $this->LoadSettings($rolecfgfile);
+    }
+    if (!empty($this->fullservers[$role])) {
+      // Pull in all included configs
+      $includes = array();
+      if (!empty($this->fullservers[$role]["include"])) {
+        $includes = explode(" ", $this->fullservers[$role]["include"]);
+      }
+      if (!empty($includes)) {
+        Profiler::StartTimer("ConfigManager::GetRoleSettings() - includes", 3);
+        foreach ($includes as $include) { 
+          $this->GetRoleSettings($include, $servercfg);
+        }
+        Profiler::StopTimer("ConfigManager::GetRoleSettings() - includes");
+      }
+
+      //$servercfg["role"] = $role;
+      // Apply role settings
+      array_set_multi($servercfg, $this->fullservers[$role]);
+    } else {
+      Logger::Error("Could not find definition for role '$role'");
+    }
+    Profiler::StopTimer("ConfigManager::GetRoleSettings()");
+    return $servercfg;
+  }
+
+
+  /**
+   * Map a server's hostname to its role
+   *
+   * @param string $hostname hostname to look up, or fall back on /etc/hostname
+   * @return array server config
+   */
+  public function GetRoleFromHostname($hostname=null) {
+    if ($hostname === null) {
+      $this->hostname = $hostname = trim(implode("", file("/etc/hostname")));
+    }
+    $mapping = $this->GetMappings();
+    return any($mapping[$hostname], "live"); // default to live so the site will work even if something is messed up
+  }
+
+  /**
    * Load server settings from specified ini file
    *
    * @param string $cfgfile ini file to load from
    * @return array server config block (also stored as $this->servers)
    */
 
-  function LoadServers($cfgfile, $assign=true) {
+  function LoadServers($assign=true) {
     //Profiler::StartTimer("ConfigManager::LoadServers()");
     $servers = array();
 
-    $this->hostname = $hostname = trim(implode("", file("/etc/hostname")));
+    // new method
+    $this->LoadSettings($this->locations["config"] . "/servers.ini");
+    $this->role = $this->GetRoleFromHostname();
+    $servers = array_merge_recursive_distinct($servers, $this->GetRoleSettings("default"));
+    $servers = array_merge_recursive_distinct($servers, $this->GetRoleSettings($this->role));
+    $this->locations = $this->getlocations();
+
+    // DISABLED - old method, had better caching of combined role config
+    /*
     if (file_exists($cfgfile)) {
       $mtime = filemtime($cfgfile);
       if (!empty($mtime)) {
         // NOTE - This uses APC directly, since the datamanager object requires this function to execute before initializing
-        $apcenabled = ini_get("apc.enabled");
-        $apckey = "servers.ini.$mtime";
+        $apckey = $cfgfile . "." . $mtime;
         //print "check apc for '$apckey'<br />";
-        if ($apcenabled && ($apccontents = apc_fetch($apckey)) != false) {
+        if ($this->apcenabled && ($apccontents = apc_fetch($apckey)) != false) {
           //print "found in apc, unserialize ($apccontents)<br />";
           $servers = unserialize($apccontents);
         } else {
@@ -124,7 +250,7 @@ class ConfigManager extends Base {
           }
 
           // set the role
-          $servers["role"] = ($settings["mapping"][$hostname]) ? $settings["mapping"][$hostname] : "live"; // default to live so the site will work if /etc/hostname is missing
+          //$servers["role"] = ($settings["mapping"][$hostname]) ? $settings["mapping"][$hostname] : "live"; // default to live so the site will work if /etc/hostname is missing
           // If our host is part of a grouping, load those settings up
           if (!empty($settings["mapping"]) && !empty($settings["mapping"][$hostname]) && !empty($settings[$settings["mapping"][$hostname]])) {
             Logger::Info("$hostname is currently in the '" . $settings["mapping"][$hostname] . "' group");
@@ -136,21 +262,28 @@ class ConfigManager extends Base {
             array_set_multi($servers, $settings[$hostname]);
           }
 
-          if ($apcenabled) {
+          if ($this->apcenabled) {
             apc_store($apckey, serialize($servers));
           }
         }
       }
-
-      if ($assign)
-        $this->servers =& $servers;
-      //Profiler::StopTimer("ConfigManager::LoadServers()");
-
-      if (isset($this->servers["logger"]["enabled"]) && empty($this->servers["logger"]["enabled"]))
-        Logger::$enabled = false;
-      if (isset($this->servers["profiler"]["enabled"]) && empty($this->servers["profiler"]["enabled"]))
-        Profiler::$enabled = false;
     }
+    */
+
+    if ($assign) {
+      $this->servers =& $servers;
+
+      if (!empty($this->servers["role"])) { // ini file specified overridden role
+        $this->role = $this->servers["role"];
+      }
+    }
+    //Profiler::StopTimer("ConfigManager::LoadServers()");
+
+    // set logger/profiler settings
+    if (isset($this->servers["logger"]["enabled"]) && empty($this->servers["logger"]["enabled"]))
+      Logger::$enabled = false;
+    if (isset($this->servers["profiler"]["enabled"]) && empty($this->servers["profiler"]["enabled"]))
+      Profiler::$enabled = false;
 
     // Update locations to reflect any new settings we got from the ini file
     $this->locations = $this->getLocations();
@@ -166,6 +299,7 @@ class ConfigManager extends Base {
       }
     }
 
+    // Merge any settings which are overridden by a dev cookie
     if (!empty($_COOKIE["tf-dev"])) {
       $tfdev = json_decode($_COOKIE["tf-dev"], true);
 
@@ -261,7 +395,7 @@ class ConfigManager extends Base {
     Profiler::StartTimer("ConfigManager::Load()");
 /*
     $ret = array();
-    $role = any($role, $this->servers["role"], "");
+    $role = any($role, $this->role, "");
     $ret = $this->GetCobrandidAndRevision($name, $role);
     if (!empty($ret)) {
       $result_config = DataManager::Query("db.config.cobrand_config.{$name}.{$role}:nocache",
@@ -387,8 +521,8 @@ class ConfigManager extends Base {
       $valid = true;
       $i = 1;
       foreach ($keys as $key) {
-        $wholecfg = ($wholecfg && array_key_exists($key, $wholecfg)) ? $wholecfg[$key] : null;
-        $cobrandcfg = ($cobrandcfg && array_key_exists($key, $cobrandcfg)) ? $cobrandcfg[$key] : null;
+        $wholecfg = ($wholecfg && is_array($wholecfg) && array_key_exists($key, $wholecfg)) ? $wholecfg[$key] : null;
+        $cobrandcfg = ($cobrandcfg && is_array($cobrandcfg) && array_key_exists($key, $cobrandcfg)) ? $cobrandcfg[$key] : null;
         if ($i==$num_keys) {
           // can't add if the wholecfg is still an array or if the
           if (is_array($wholecfg)) {
@@ -655,7 +789,7 @@ class ConfigManager extends Base {
     $over = array();
 
     if (empty($role))
-      $role = $this->servers["role"];
+      $role = $this->role;
 
     if (!$skipcache && !empty($this->heirarchies[$role][$name])) {
       //print_pre("got it already");
@@ -948,7 +1082,7 @@ class Config {
   public function __construct($name=NULL, $role=NULL) {
     if ($role === NULL) {
       $cfg = ConfigManager::singleton();
-      $role = $cfg->servers["role"];
+      $role = $cfg->role;
     }
     if ($name !== NULL) {
       $this->Load($name, $role);
@@ -1111,3 +1245,5 @@ class ConfigMerged extends Config {
     }
   }
 }
+
+

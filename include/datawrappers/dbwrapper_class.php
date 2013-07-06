@@ -12,31 +12,33 @@ class DBWrapper extends ConnectionWrapper {
   protected $transactionLevel = 0;
   function DBWrapper($name, $cfg, $lazy=false) {
     $this->ConnectionWrapper($name, $cfg, $lazy);
-    if (!empty($this->cfg["buckets"])) {
-      //$this->hasher = new HashDispenser(count($this->cfg["servers"]), count($this->cfg["buckets"]), 16);
-      $this->hasher = new SimpleHasher($this->cfg["buckets"]);
+    if (!empty($this->cfg["shardcfg"])) {
+      $this->shards = $this->ParseShards($this->cfg["shardcfg"]);
+    } else if (!empty($this->cfg["bucketcfg"])) {
+      $this->shards = $this->ParseShards($this->cfg["bucketcfg"]);
+    }
+
+    if (!empty($this->shards)) {
+      $this->hasher = new SimpleHasher($this->shards);
     }
   }
   function Open($servernum=0) {
     Profiler::StartTimer("DBWrapper:Open()", 1);
     Profiler::StartTimer("DBWrapper:Open({$this->name})", 2);
 
-    $servers = $this->cfg["servers"];
-    // Establish database connection
-    if ($servernum == 0 && !empty($this->cfg["host"])) {
-      //Profiler::StartTimer("DBWrapper:Open() - dbconnect");
-      if (!empty($this->cfg["username"])) {
-        $servers[0] = $this->cfg;
-      } else {
-        Logger::Error("Could not connect to database username is not set.");
-      }
-      //Profiler::StopTimer("DBWrapper:Open() - dbconnect");
+    if (!empty($this->cfg["servers"])) {
+      $servers = $this->cfg["servers"];
     } else {
-      if (!isset($servers[$servernum]["username"]))
-        $servers[$servernum]["username"] = any($this->cfg["username"], "");
-      if (!isset($servers[$servernum]["password"]))
-        $servers[$servernum]["password"] = any($this->cfg["password"], "");
+      $tmpservers = explode(" ", $this->cfg["host"]);
+      foreach ($tmpservers as $s) {
+        $servers[] = array("host" => $s);
+      }
     }
+    // Establish database connection
+    if (!isset($servers[$servernum]["username"]))
+      $servers[$servernum]["username"] = any($this->cfg["username"], "");
+    if (!isset($servers[$servernum]["password"]))
+      $servers[$servernum]["password"] = any($this->cfg["password"], "");
 
     if (isset($servers[$servernum])) {
       $this->conn[$servernum] = new Database($servers[$servernum]);
@@ -133,6 +135,8 @@ class DBWrapper extends ConnectionWrapper {
    */
   function &QueryInsert($queryid, $table, $values, $extra=NULL) {
     $servers = $this->HashToServer($queryid);
+Logger::Error("INSERT THE THING");
+Logger::Error($servers);
     $failed = false;
     Profiler::StartTimer("DBWrapper:QueryInsert()");
     foreach ($servers as $server) {
@@ -296,7 +300,7 @@ class DBWrapper extends ConnectionWrapper {
     $ret = false;
     //print_pre($queryid);
     //print_pre($table);
-    if (empty($this->cfg["buckets"])) {
+    if (empty($this->shards)) {
       if (!$this->LazyOpen(0)) {
         Logger::Info("Database connection '{$this->name}' marked as failed, skipping CREATE query");
         return false;
@@ -308,10 +312,10 @@ class DBWrapper extends ConnectionWrapper {
     } else {
       $tables = array();
       $ret = true;
-      foreach ($this->cfg["buckets"] as $bucket) {
+      foreach ($this->shards as $bucket) {
         //$brick = $this->hasher->lookupShard($i);
 
-        //$fmt = "%s_%0" . strlen($this->cfg["buckets"]) . "d";
+        //$fmt = "%s_%0" . strlen($this->shards) . "d";
         $fmt = "%s_%s";
         $tablename = sprintf($fmt, $table, $bucket["name"]);
         $sql = sprintf("CREATE TABLE %s %s", $tablename, $columnsql);
@@ -507,10 +511,38 @@ class DBWrapper extends ConnectionWrapper {
     }
   }
 
+  function ParseShards($shardcfg) {
+    $cfgmgr = ConfigManager::singleton();
+    $locations = $cfgmgr->locations;
+    $fname = $locations["config"] . '/' . $shardcfg;
+    $shards = false;
+    if (file_exists($fname)) {
+      $lines = file($fname);
+      $bucketnum = 0;
+      $filever = (strpos($lines[0], "bucket:") ? 1 : 2);
+      foreach ($lines as $line) {
+        $bucketinfo = sscanf($line, "%s %d %d\n");
+        $shards[$bucketnum++] = array("name" => $bucketinfo[0], "servers" => array($bucketinfo[1], $bucketinfo[2]));
+      }
+    }
+    return $shards;
+  }
+
+  /**
+   * Get a list of which servers which can service the specified queryid
+   * This is where the sharded database logic is triggered
+   */
   function HashToServer($queryid) {
-    if (empty($this->cfg["buckets"])) {
-      return array(array(0, NULL));
-    } else if (!empty($this->cfg["servers"])) {
+    if (empty($this->shards)) {
+      // No sharding; if multiple hosts are specified, return them all (application double-write support)
+      $tmpservers = explode(" ", $this->cfg["host"]);
+      $ret = array();
+      for ($i = 0; $i < count($tmpservers); $i++) {
+        $ret[] = array($i, NULL);
+      }
+      return $ret;
+    } else {
+      // sharded db tables; map the query's hash to servers and table names
       if (!empty($queryid->hash)) {
         $hashon = $queryid->hash;
       } else {

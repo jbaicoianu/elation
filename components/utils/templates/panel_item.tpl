@@ -3,7 +3,7 @@
 {else}
   {if !empty($panelitem.label) || !empty($panelitem.icon)}
     {if !empty($panelitem.link)}
-      <a href="{$panelitem.link|escape:html}"{if $panelitem.nofollow} rel="nofollow"{/if}>
+      <a href="{$panelitem.link|escape:html}"{if $panelitem.nofollow} rel="nofollow"{/if}{if $panelitem.target} target="{$panelitem.target}"{/if}>
     {/if}
     {if !empty($panelitem.icon)}
       {img class="tf_utils_panel_icon" src=$panelitem.icon alt=`$panelitem.label|escape:html`}

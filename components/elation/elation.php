@@ -26,7 +26,8 @@ class Component_elation extends Component {
     return Profiler::Display(E_ALL);
   }
   function controller_settings(&$args, $output="inline") {
-    $cfg = $this->root->cfg->FlattenConfig($this->root->cfg->LoadServers($this->root->locations["config"] . "/servers.ini", false));
+    //$cfg = $this->root->cfg->FlattenConfig($this->root->cfg->LoadServers($this->root->locations["config"] . "/servers.ini", false));
+    $cfg = $this->root->cfg->FlattenConfig($this->root->cfg->GetRoleSettings($this->root->cfg->role));
     
     $vars["tfdev"] = (!empty($_COOKIE["tf-dev"]) ? json_decode($_COOKIE["tf-dev"], true) : array());
 
@@ -41,7 +42,8 @@ class Component_elation extends Component {
       $diff_orig = array_diff_assoc_recursive($args["settings"], $cfg);
       $diff_curr = array_diff_assoc_recursive($args["settings"], $this->root->cfg->FlattenConfig($this->root->cfg->servers));
 
-      $vars["tfdev"]["serveroverrides"] = $diff_orig;
+      //$vars["tfdev"]["serveroverrides"] = $diff_orig;
+      $vars["tfdev"]["serveroverrides"] = $diff_curr;
       setcookie("tf-dev", json_encode($vars["tfdev"]), time() + 86400*365, "/"); // dev cookie persists for a year
       
       if (!empty($diff_curr)) {
@@ -539,5 +541,102 @@ class Component_elation extends Component {
     }
     // no default HTML template....should there be?
     return $this->GetComponentResponse(null, $vars);
+  }
+
+  /* Sharded database sync tool */
+  function controller_dbsync($args) {
+    ini_set('memory_limit', '1024M');
+
+    $hosts = explode(",", any($args["hosts"], "t00,t01,t1000,t1001"));
+    $basedir = "/home/james/dbsync/test";
+    $width = 200;
+
+    $vars["buckets"] = array("" => "");
+    for ($i = 0; $i < 256; $i++) {
+      $bucket = sprintf("%02x", $i);
+      $vars["buckets"][$bucket] = $bucket;
+    }
+
+    $vars["bucket"] = any($args["bucket"], false);
+    $vars["prefix"] = any($args["prefix"], "");
+    if (!empty($vars["bucket"])) {
+      $lists = array();
+      for ($i = 0; $i < count($hosts) - 1; $i++) {
+        for ($j = $i+1; $j < count($hosts); $j++) {
+          $file1 = $basedir . "/" . (!empty($vars["prefix"]) ? $vars["prefix"] . "-" : "") . "dump-userlists-" . $vars["bucket"] . "-" . $hosts[$i] . ".tsv.gz";
+          $file2 = $basedir . "/" . (!empty($vars["prefix"]) ? $vars["prefix"] . "-" : "") . "dump-userlists-" . $vars["bucket"] . "-" . $hosts[$j] . ".tsv.gz";
+          $cmd = "zdiff -t -y --width=$width --suppress-common-lines $file1 $file2";
+          
+          $output = shell_exec($cmd);
+          if (!empty($output)) {
+            $this->processdbdiff($lists, $hosts[$i], $hosts[$j], $output, $width);
+          }
+        }
+      }
+      $output = "";
+      $vars["sync"] = array();
+      foreach ($lists as $k=>$v) {
+        $latest = 0;
+        $besthost = false;
+        ksort($lists[$k]);
+        foreach ($lists[$k] as $server=>$obj) {
+          if ($obj && $obj[1][4] > $latest) {
+            $latest = $obj[1][4];
+          }
+        }
+        foreach ($hosts as $server) {
+          $obj = $lists[$k][$server];
+          $status = "missing";
+          if ($obj) {
+            $status = ($obj[1][4] == $latest ? "valid" : "stale");
+          }
+          $lists[$k][$server][0] = $status;
+          if ($besthost === false && $status == "valid") {
+            $besthost = $server;
+          }
+        }
+        foreach ($hosts as $host) {
+          if ($host != $besthost && $lists[$k][$host][0] != 'valid') {
+            $vars["sync"][$besthost][$k][] = $host;
+          }
+        }
+        ksort($lists[$k]);
+      }
+      $vars["lists"] = $lists;
+    }
+    return $this->GetComponentResponse("./dbsync.tpl", $vars);
+  }
+  function processdbdiff(&$lists, $firstserver, $secondserver, $str, $width) {
+    $halfwidth = $width / 2;
+    $lines = explode("\n", $str);
+    $statusnames = array(
+      "<" => "added",
+      "|" => "changed",
+      ">" => "missing"
+    );
+    $diff = array();
+    foreach ($lines as $l) {
+      $status = $statusnames[$l[$halfwidth-1]];
+      $first = preg_replace("/ +/", "\t", trim(substr($l, 0, $halfwidth-1)));
+      $second = preg_replace("/ +/", "\t", trim(substr($l, $halfwidth+2)));
+      $firstdata = explode("\t", $first);
+      $seconddata = explode("\t", $second);
+      $firstname = sprintf("%s.%s.%s", $firstdata[0], $firstdata[1], $firstdata[2]);
+      $secondname = sprintf("%s.%s.%s", $seconddata[0], $seconddata[1], $seconddata[2]);
+      
+//print_pre("'" . $first . "' !!!" . $status . "!!! '" . $second . "'");
+      if (empty($first) && !empty($second)) {
+        //$lists[$secondname][$firstserver] = false;
+        $lists[$secondname][$secondserver] = array("added", $seconddata);
+      } else if (empty($second) && !empty($first)) {
+        $lists[$firstname][$firstserver] = array("added", $firstdata);
+        //$lists[$firstname][$secondserver] = false;
+      } else if (!empty($first) && !empty($second)) {
+        $lists[$firstname][$firstserver] = array("changed", $firstdata);
+        $lists[$firstname][$secondserver] = array("changed", $seconddata);
+      }
+    }
+    ksort($lists);
+    return $lists;
   }
 }  

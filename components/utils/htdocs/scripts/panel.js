@@ -44,7 +44,6 @@ elation.extend('panel', new function(options) {
               panel.jsobj.init();
           }
         }
-
         if (panel.cfg.navigation == "true") {
           panel.container = document.getElementById(panel.cfg.targetid);
           this.lis = $TF('div.tf_utils_panel_' + name + ' ul li');;
@@ -74,6 +73,13 @@ elation.extend('panel', new function(options) {
           }
           
           panel.item = this.get_item(panel, $TF('div.tf_utils_panel_' + name + ' ul li.selected')[0]);
+        }
+        if (panel.cfg.animation) {
+          var type = panel.cfg.animation;
+          
+          console.log(type, panel.container);
+          elation.html.addClass(panel.container, 'animation_'+type+'_init');
+          elation.html.addClass(panel.container, 'animation_'+type);
         }
       }
       
@@ -117,8 +123,10 @@ elation.extend('panel', new function(options) {
 		if (item.name == panel.item.name)
 			return;
 		
-    
-		this.load_tab_content(panel, target, item);
+    if (panel.cfg.animation) 
+      elation.html.removeClass(panel.container, 'animation_'+panel.cfg.animation);
+		
+    this.load_tab_content(panel, target, item);
 	}
 	
 	this.load_tab_content = function(panel, target, item) {
@@ -213,8 +221,15 @@ elation.extend('panel', new function(options) {
 			
 			if (!panel.cfg.nocache) {
 			// if cached copy exists use that
-			if (panel.content[item.name]) 
-				return panel.container.innerHTML = panel.content[item.name];
+			if (panel.content[item.name]) {
+          if (panel.cfg.animation) {
+            setTimeout(function() {
+              elation.html.addClass(panel.container, 'animation_'+panel.cfg.animation);
+              panel.container.innerHTML = panel.content[item.name];
+            }, 200);
+          }
+				return;
+      }
 		} else {
 			// tab fade-in effect
 			//if (elation.browser && elation.browser.type != 'msie')
@@ -271,6 +286,11 @@ elation.extend('panel', new function(options) {
 					//		.animate({ opacity: 1 }, 'fast')
 					//		.animate({ opacity: 'auto' }, 0);
 					
+          if (panel.cfg.animation) {
+            setTimeout(function() {
+              elation.html.addClass(panel.container, 'animation_'+panel.cfg.animation);
+            }, 200);
+          }
           if (panel.jsobj && typeof panel.jsobj.success == 'function') {
             panel.jsobj.success(response);
           } 

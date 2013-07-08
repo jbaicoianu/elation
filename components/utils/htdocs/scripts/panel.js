@@ -77,7 +77,6 @@ elation.extend('panel', new function(options) {
         if (panel.cfg.animation) {
           var type = panel.cfg.animation;
           
-          console.log(type, panel.container);
           elation.html.addClass(panel.container, 'animation_'+type+'_init');
           elation.html.addClass(panel.container, 'animation_'+type);
         }

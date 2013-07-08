@@ -199,6 +199,16 @@ elation.extend('googleanalytics', function(args) {
       case 'merchant-register':
         pageurl += '/upfront/email/';
         break;
+      case 'info':
+      case 'browse':
+        pageurl += '/'+pagetype;
+        pageurl += '/'+this.category
+                + '/'+this.subcategory
+                //+ '/?qry='+query
+                + '?flt='+this.filters
+                + '&pgn='+this.pagenum
+                + '&ver='+this.version;
+        break;
       case 'browse_homepage':
         //pageurl = "/virt_result"
                 //+ "/glimpse"

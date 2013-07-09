@@ -5,7 +5,7 @@ import getopt
 import time
 import threading
 
-import _mysql # using _mysql C API wrapper functions is singificantly faster/less memory intensive than MySQLdb
+import _mysql # using _mysql C API wrapper functions is significantly faster/less memory intensive than MySQLdb
 
 #import gc
 #gc.set_debug(gc.DEBUG_STATS)

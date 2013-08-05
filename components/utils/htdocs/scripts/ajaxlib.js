@@ -321,10 +321,15 @@ elation.extend("ajax", new function() {
             }
             var infobox = elation.ui.infobox.target(targetel);
             
-            if (infobox)
+            if (infobox) {
               infobox.animate_inject(response['_content'], targetel);
-            else
-              targetel.innerHTML = response['_content'];
+            } else if (targetel) {
+              try { 
+                targetel.innerHTML = response['_content']; 
+              } catch(e) {
+                console.log('ajaxlib injection error: '+e.message); 
+              }
+            }
           }
           
           register_inline_scripts(common, targetel);
@@ -392,7 +397,9 @@ elation.extend("ajax", new function() {
     },
     'args': function(response, common) {
       // FIXME: need to ask James what is being sent as responsetype == args
-    }
+    },
+    'options': function(response, common) { },
+    'tracking': function(response, common) { }
   }
 
 

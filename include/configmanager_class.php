@@ -136,7 +136,7 @@ class ConfigManager extends Base {
     //Profiler::StartTimer("ConfigManager::LoadServers()");
     $servers = array();
 
-    $this->hostname = $hostname = trim(implode("", file("/etc/hostname")));
+    $this->hostname = $hostname = php_uname("n");
     if (file_exists($cfgfile)) {
       $mtime = filemtime($cfgfile);
       if (!empty($mtime)) {
@@ -159,7 +159,7 @@ class ConfigManager extends Base {
           }
 
           // set the role
-          $servers["role"] = ($settings["mapping"][$hostname]) ? $settings["mapping"][$hostname] : "live"; // default to live so the site will work if /etc/hostname is missing
+          $servers["role"] = ($settings["mapping"][$hostname]) ? $settings["mapping"][$hostname] : "live"; // default to live so the site will work if hostname couldn't be determined
           // If our host is part of a grouping, load those settings up
           if (!empty($settings["mapping"]) && !empty($settings["mapping"][$hostname]) && !empty($settings[$settings["mapping"][$hostname]])) {
             Logger::Info("$hostname is currently in the '" . $settings["mapping"][$hostname] . "' group");

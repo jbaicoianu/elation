@@ -22,6 +22,13 @@ class ConfigManager extends Base {
   public $servermapping;
   public $servergroups;
 
+  //handles reading and writing local config changes
+  public $localConfig;
+  //array of roles that are allowed to use local config
+  public $localConfig_allowedRoles = array(
+    'elation'
+  );
+
   /**
    * constructor
    */
@@ -35,7 +42,30 @@ class ConfigManager extends Base {
     if ($autoload && $this->locations !== NULL && !empty($this->locations["config"])) {
       $this->LoadServers(true);
     }
+    //load localconfig manager if enabled and role=elation
+    if ($this->isLocalConfigEnabled() ) {
+      $dir = $this->locations['config'] . '/' . $this->servers['config']['manager']['localconfigdir'];
+      $filename = $this->servers['config']['manager']['localconfigfile'];
+      $this->localConfig = new LocalConfigManager($dir, $filename, $this->apcenabled);
+    }
     Profiler::StopTimer("ConfigManager::constructor");
+  }
+
+  //is local config enabled tests for a given role if localconfig is available
+  //if role is not provided use ConfigManager::role instead
+  public function isLocalConfigEnabled($role = false) {
+    if(!$role) {
+      $role = $this->role;
+    }
+    return in_array( $role, $this->localConfig_allowedRoles )
+      && !empty( $this->servers['config']['manager']['localconfig'] );
+  }
+
+  //tests if a role is allowed to use the localconfig manager
+  public function isRoleAllowedForLocalConfig($role) {
+    //print_pre('isRole allowed called with: '.$role);
+    $val = in_array($role, $this->localConfig_allowedRoles);
+    //print_pre('returning: '.$val);
   }
 
   protected static $instance;
@@ -391,8 +421,9 @@ class ConfigManager extends Base {
    * @param string $name name of config to load
    * @return array
    */
-  function Load($name, $role=NULL) {
+  function Load($name, $role=NULL, $skipLocalConfig = false) {
     Profiler::StartTimer("ConfigManager::Load()");
+    //print_pre("Load called with name=$name and role=$role");
 /*
     $ret = array();
     $role = any($role, $this->role, "");
@@ -418,6 +449,12 @@ class ConfigManager extends Base {
     $config = new Config($name, $role);
     $this->configs[$name] = $ret = any($config->config, array());
 
+    //if there are localconfig values stored, load them over the data already pulled out of the cache/db
+    if( !$skipLocalConfig && $this->localConfig && $this->isLocalConfigEnabled($role) 
+        && $this->localConfig->areThereLocalConfigFor($role, $name) ) {
+      $this->configs[$name] = $ret = $this->localConfig->mergeLocalVals($role, $name, $ret);
+    }
+
     Profiler::StopTimer("ConfigManager::Load()");
     return $ret;
   }
@@ -429,11 +466,11 @@ class ConfigManager extends Base {
    * @param array $newcfg new configuration object to compare with
    * @return array
    */
-  function Update($name, $newcfg, $role="", $deletecfg=null) {
+  function Update($name, $newcfg, $role="", $deletecfg=null, $skipLocalConfig = false) {
     $ret = false;
     $updaterevision = false;
 
-    $this->Load($name, $role);
+    $this->Load($name, $role, $skipLocalConfig);
     $oldcfg = $this->configs[$name];
     $cobrandid = $oldcfg["cobrandid"];
     $oldrevision = $oldcfg["revision"];
@@ -503,18 +540,169 @@ class ConfigManager extends Base {
   }
 
   /**
+   * localconfig update a config array from ConfigManager::Load() with localconfig applied
+   *
+   * @param array $cmd the update command to run. Data: action, type, val, role, cobrand, ...
+   * @param array $oldcfg config array to be modified
+   * @return bool success
+   */
+  function localUpdate($cmd, &$oldcfg) {
+    //walk the config array and make the update
+    $arrayKeys = explode('.', $cmd['name']);
+    $maxKeyLevel = count($arrayKeys);
+    $currentKeyLevel = 1;
+    $success = true;
+    $configPtr =& $oldcfg;
+    foreach($arrayKeys as $key) {
+      if($currentKeyLevel == $maxKeyLevel) {
+        //do the update, we're at the end of the walk
+        if(is_array($configPtr[$key] || !isset($configPtr[$key]))) {
+          $success = false;
+          continue;
+        } else {
+          $configPtr[$key] = $cmd['val'];
+        }
+      } else {
+        //middle of the walk, grab the next key and got
+        if( isset($configPtr[$key]) ) {
+          $configPtr =& $configPtr[$key];
+        } else {
+          $success = false;
+          continue;
+        }
+      }
+      $currentKeyLevel++;
+    }
+    unset($configPtr);
+
+    if(!$success) {
+      print_pre("Warning, localconfig updates could not be applied to ".
+        "cobrand {$cmd['cobrand']} for config {$cmd['name']}");
+    } else {
+      //invalidate cache
+      //unset($oldcfg["revision"]);
+      //$cobrandid = $oldcfg["cobrandid"];
+      //$this->UpdateRevision($cobrandid, $cmd['role']);
+      //DataManager::CacheClear("db.config.version.{$name}.{$role}");
+      //DataManager::CacheClear("db.config.cobrand_config.{$cmd['cobrand']}.{$cmd['role']}");
+    }
+    return $success;
+  }
+
+  /**
+   * localconfig delete
+   *
+   * takes a stored delete command from localconfig and applied is to a config array from
+   *  ConfigManager::Load
+   * @param array $cmd the update command to run. Data: action, type, val, role, cobrand, ...
+   * @param array $oldcfg config array to be modified
+   * @return bool success
+   */
+  function localDelete($cmd, &$oldcfg) {
+    //walk the config array and make the update
+    $arrayKeys = explode('.', $cmd['name']);
+    $maxKeyLevel = count($arrayKeys);
+    $currentKeyLevel = 1;
+    $success = true;
+    $configPtr =& $oldcfg;
+    foreach($arrayKeys as $key) {
+      if($currentKeyLevel == $maxKeyLevel) {
+        //do the update, we're at the end of the walk
+        if(is_array($configPtr[$key] || !isset($configPtr[$key]))) {
+          $success = false;
+          continue;
+        } else {
+          unset($configPtr[$key]);
+        }
+      } else {
+        //middle of the walk, grab the next key and go
+        if( isset($configPtr[$key]) ) {
+          $configPtr =& $configPtr[$key];
+        } else {
+          $success = false;
+          continue;
+        }
+      }
+      $currentKeyLevel++;
+    }
+    unset($configPtr);
+
+    if(!$success) {
+      print_pre("Warning, localconfig delete could not be applied to ".
+        "cobrand {$cmd['cobrand']} for config {$cmd['name']}");
+    } else {
+      //invalidate cache
+      //unset($oldcfg["revision"]);
+      //$cobrandid = $oldcfg["cobrandid"];
+      //$this->UpdateRevision($cobrandid, $cmd['role']);
+      //DataManager::CacheClear("db.config.version.{$name}.{$role}");
+      //DataManager::CacheClear("db.config.cobrand_config.{$cmd['cobrand']}.{$cmd['role']}");
+    }
+    return $success;
+  }
+
+  /**
+   * function ConfigManager::localCreate
+   *
+   * for a localconfig create command apply it to a config array from ConfigManager::Load()
+   * @param array $cmd the update command to run. Data: action, type, val, role, cobrand, ...
+   * @param array $oldcfg config array to be modified
+   * @return bool success
+   */
+  function localCreate($cmd, &$oldcfg) {
+      //walk the config array and make the update
+    $arrayKeys = explode('.', $cmd['name']);
+    $maxKeyLevel = count($arrayKeys);
+    $currentKeyLevel = 1;
+    $success = true;
+    $configPtr =& $oldcfg;
+    foreach($arrayKeys as $key) {
+      if($currentKeyLevel == $maxKeyLevel) {
+        //do the create, we're at the end of the walk
+        if(is_array($configPtr[$key] || !isset($configPtr[$key]))) {
+          $success = false;
+          continue;
+        } else {
+          $configPtr[$key] = $cmd['val'];
+        }
+      } else {
+        //middle of the walk, grab the next key and got
+        if( !isset($configPtr[$key]) ) {
+          $configPtr[$key] = array();
+        }
+        $configPtr =& $configPtr[$key];
+      }
+      $currentKeyLevel++;
+    }
+    unset($configPtr);
+
+    if(!$success) {
+      print_pre("Warning, localconfig create could not be applied to ".
+        "cobrand {$cmd['cobrand']} for config {$cmd['name']}");
+    } else {
+      //invalidate cache
+      //unset($oldcfg["revision"]);
+      //$cobrandid = $oldcfg["cobrandid"];
+      //$this->UpdateRevision($cobrandid, $cmd['role']);
+      //DataManager::CacheClear("db.config.version.{$name}.{$role}");
+      //DataManager::CacheClear("db.config.cobrand_config.{$cmd['cobrand']}.{$cmd['role']}");
+    }
+    return $success;
+  }
+
+  /**
    * Add a key/value pair to the specified cobrand
    *
    * @param string $name name of config to add to
    * @param array $newcfg new key/value pair to add
    * @return array
    */
-  function AddConfigValue($name, $newcfg, $role="") {
+  function AddConfigValue($name, $newcfg, $role="", $skipLocalConfig = false) {
     $ret = false;
     if (!empty($newcfg["key"]) && isset($newcfg["value"])) {
       // check to see if there is a violation (single value vs. tree hiararchy)
-      $wholecfg = $this->GetConfig($name, false, $role);
-      $cobrandcfg = $this->Load($name, $role);
+      $wholecfg = $this->GetConfig($name, false, $role, $skipLocalConfig);
+      $cobrandcfg = $this->Load($name, $role, $skipLocalConfig);
       $cobrandid = $cobrandcfg["cobrandid"];
       $keys = explode(".", $newcfg["key"]);
       $num_keys = count($keys);
@@ -558,6 +746,7 @@ class ConfigManager extends Base {
     }
     return $ret;
   }
+
 
     /**
      * Remove a key/value pair from the specified cobrand
@@ -646,7 +835,7 @@ class ConfigManager extends Base {
    * @param string $name Name of config to load
    * @return array
    */
-  function &GetConfig($name, $setcurrent=true, $role="", $skipcache=false) {
+  function &GetConfig($name, $setcurrent=true, $role="", $skipcache=false, $skipLocalConfig = false) {
     Profiler::StartTimer("ConfigManager::GetConfig()", 2);
     $ret = array();
 
@@ -718,7 +907,7 @@ class ConfigManager extends Base {
       if (!empty($this->configs[$name])) {
         $config = $this->configs[$name];
       } else {
-        $config = $this->Load($name, $role);
+        $config = $this->Load($name, $role, $skipLocalConfig);
       }
 
       if (!empty($config)) {
@@ -727,7 +916,7 @@ class ConfigManager extends Base {
           $includes = explode(",", $config["include"]);
 
           foreach ($includes as $inc) {
-            $included_config =& $this->GetConfig($inc, false, $role, $skipcache);
+            $included_config =& $this->GetConfig($inc, false, $role, $skipcache, $skipLocalConfig);
             if (!empty($included_config)) {
               $this->ConfigMerge($ret, $included_config);
             }
@@ -742,7 +931,7 @@ class ConfigManager extends Base {
           $includes = explode(",", $config["override"]);
 
           foreach ($includes as $inc) {
-            $included_config =& $this->GetConfig($inc, false, $role, $skipcache);
+            $included_config =& $this->GetConfig($inc, false, $role, $skipcache, $skipLocalConfig);
             if (!empty($included_config)) {
               $this->ConfigMerge($ret, $included_config);
             }
@@ -1246,4 +1435,390 @@ class ConfigMerged extends Config {
   }
 }
 
+/**
+ * Class LocalConfigManager
+ * When enabled all config modifications to allowed roles (ConfigManager::$localConfig_allowedRoles) 
+ * are stored in a local file until committed using the localConfig admin tool
+ * config file settings used by ConfigManager class and passed into this constructor:
+ *   config.manager.localconfig 1 or 0 enables or disables the localconfig. Even if localConfig
+ *     is enabled, the current server mapped role must still be on the allowed roles list
+ *   config.manager.localconfigfile The file to store/retrieve stored config changes
+ *   config.manager.localconfigdir The directory to look in: config/<localconfigdir>
+ **/
+class LocalConfigManager {
+  public $directory; //directory to look for localconfig file
+  public $filename; //name of localconfig file to store updates
+  public $apcenabled;
+  public $storedCommands; //array of commands to run on the config, ordered from 1st to last
+  public $allowedCommands = array(
+    'create',
+    'update',
+    'delete'
+  );
+
+  /**
+   * LocalConfigManager::constructor
+   * Initialize LocalConfigManager object for use with the 
+   * @param $directory string path to look for localconfig file
+   * @param $filename string the filename of the file to store/read updates to the config
+   * @param $apcenabled bool
+   */
+  public function __construct($directory, $filename, $apcenabled = false) {
+    $this->apcenabled = $apcenabled;
+    $this->directory = $directory;
+    $this->filename = $filename;
+    $this->storedCommands = array();
+
+    //check if path exists in filename
+    if(!file_exists($this->directory)) {
+      //unfortunately php doesn't seem to have permission on newdev to create directories
+      //so probably not needed to be able to dynamically change the directory
+      //that local config uses. Better to make it hard coded and check that directory into 
+      //svn. or just dump the file in the component/config dir? Ask james which for pref
+      print_pre('localconfig directory does not exist: '.$this->directory);
+    }
+    $this->load_commands();
+  }
+
+  /**
+   * LocalConfigManager::getLocalConfigFileName
+   *
+   * returns the path/filename of the file used to store localconfig serialized values
+   * @return string
+   **/
+  public function getLocalConfigFileName() {
+    return $this->directory . DIRECTORY_SEPARATOR . $this->filename;
+  }
+
+  /**
+   * LocalConfigManager::load_commands
+   *
+   * fetch any serialized data stored in the localconfig file, unserialize it, and
+   * stores the array of commands in this->storedCommands
+   * @return void
+   **/
+  public function load_commands() {
+    $serializedData = false;
+  
+    //before loading the file see if it's stored in apc
+    $name = $this->getLocalConfigFileName();
+    if (file_exists($name)) {
+      $mtime = filemtime($name);
+      if (!empty($mtime)) {
+        $apckey = $name . ':' . $mtime;
+        if ($this->apcenabled && ($apccontents = apc_fetch($apckey)) != false) {
+          $serializedData = $apccontents;
+        }
+        //if not in the apc retrieve from file
+        if(!$serializedData) {
+          $serializedData = file_get_contents($name);
+          if ($this->apcenabled && !empty($serializedData)) {
+            apc_store($apckey, $serializedData);
+          } 
+        }
+        if($serializedData) {
+          $this->storedCommands = unserialize($serializedData);
+        }
+      }
+    }
+    if(empty($this->storedCommands)) {
+      $this->storedCommands = array();
+    }
+  }
+
+  /**
+   * LocalConfigManager::store_commands
+   *
+   * serialized this->storedCommands and writes them to the localconfig file (overwrites any content)
+   * @return void //todo return status of the write to enable better error handling
+   **/
+  public function store_commands() {
+    $name = $this->directory . '/' . $this->filename;
+    $serializedData = serialize($this->storedCommands);
+    if(!file_exists($name)) {
+      touch($name);
+    }
+    
+    $mtime = filemtime($name);
+    if (!empty($mtime)) {
+      $apckey = $name . ":" . $mtime;
+      apc_store($apckey, $serializedData);
+    }
+    $status = file_put_contents($name, $serializedData);
+    if($status === false) {
+      //handle failure to write to file better
+      print_pre('failed to write data to ' . $name);
+    }
+  }
+
+  /**
+   * LocalConfigManager::isValidAction
+   *
+   * determines if an action is valid by comparing to an array of valid actions in this->allowedCommands
+   * @param $action string action for/from a command to test
+   * @return bool
+   * TODO: use this function more, I think I skipped this test a few too many times
+   **/
+  public function isValidAction($action) {
+    return in_array($action, $this->allowedCommands);
+  }
+
+  /**
+   * LocalConfigManager::add_command
+   * add a new command to the array of stored commands
+   * @param $role string must be in the list of allowed roles
+   * @param $action string must be in the list of allowed commands
+   * @param $cobrand string cobrand string example: thefind
+   * @param $details array config array of command's information (key, val, type)
+   * @return bool success of adding command
+   **/
+  public function add_command($role, $action, $cobrand, $details){
+    //ensure params are not empty, exluding val
+    //check that action is valid
+    $success = true;
+    if( !empty($action) && !empty($cobrand) && !empty($details) && $this->isValidAction($action) ) {
+      foreach($details as $cfg) {
+        array_push($this->storedCommands, array(
+          'role' => $role,
+          'action' => $action,
+          'cobrand' => $cobrand,
+          'name' => $cfg['key'],
+          'val' => $cfg['val'],
+          'type' => $cfg['type']
+        ));
+      }
+      $this->store_commands();
+    }
+    return $success;
+  }
+
+  /**
+   * LocalConfigManager::getCommandsByRoleCobrand
+   *
+   * returns only the stored commands that match given a role and a cobrand name.
+   * This is used by configManager::Load a specific cobrand/role
+   * @param $role string Role name example: 'elation'
+   * @param $cobrand mixed array for multiple or string. Cobrand name example: 'thefind'
+   * @return array of commands that matched
+   **/
+  public function getCommandsByRoleCobrand($role, $cobrand) {
+    $ret = array();
+    if(!is_array($cobrand)) {
+      $cobrand = array($cobrand);
+    }
+    foreach($this->storedCommands as $command) {
+      if($command['role'] == $role && in_array($command['cobrand'], $cobrand) ) {
+        array_push($ret, $command);
+      }
+    }
+    return $ret;
+  }
+
+  /**
+   * LocalConfigManager::areThereLocalConfigFor
+   *
+   * Test if there are modifications for a role/cobarnd stored
+   * @param $role string Role name example: 'elation'
+   * @param $cobrand mixed array for multiple or string Cobrand name example: 'thefind'
+   * @return bool
+   **/
+  public function areThereLocalConfigFor($role, $cobrand) {
+    $ret = false;
+    if(!is_array($cobrand)) {
+      $cobrand = array($cobrand);
+    }
+    foreach($this->storedCommands as $command) {
+      if($command['role'] == $role && in_array($command['cobrand'], $cobrand) ) {
+        $ret = true;
+        continue;
+      }
+    }
+    return $ret;
+  }  
+
+  /**
+   * LocalConfigManager::applyCommand
+   *
+   * given a command, inspect the action and call the appropriate handler function to apply
+   * locally stored localconfig values to the config array passed in.
+   * @param $cmd array command, should probably be an object and not an array, lazy for now
+   * @param &$oldcfg array config array (not flattened). changes are applied to this parameter
+   * @return void
+   **/
+  public function applyCommand($cmd, &$oldcfg) {
+    $cfg = ConfigManager::singleton();
+    switch($cmd['action']) {
+      case 'create':
+          $cfg->localCreate($cmd, $oldcfg);
+        break;
+
+      case 'update':
+          $cfg->localUpdate($cmd, $oldcfg);
+        break;
+
+      case 'delete':
+          $cfg->localDelete($cmd, $oldcfg);
+        break;
+    }
+  }
+
+  /**
+   * LocalConfigManager::mergeLocalVals
+   *
+   * Given a config array apply any localconfig values and returned the merged array
+   * @param $role string
+   * @param $cobrand mixed array or string of cobrandname(s)
+   * @param $oldcfg array config array (not flattened)
+   * @return array merge of $oldcfg passed in and any localconfig values that match role/cobrand and action
+   **/
+  public function mergeLocalVals($role, $cobrand, $oldcfg) {
+    $localCommands = $this->getCommandsByRoleCobrand($role, $cobrand);
+    foreach($localCommands as $command) {
+      $this->applyCommand($command, $oldcfg);
+    }
+    return $oldcfg;
+  }
+
+  /**
+   * LocalConfigManager::mergeAdminSelectResults
+   * 
+   * Used by the admin select controller when searching for cobrand configs.
+   * This function applies local config stored mofidications on the results set
+   * NOTE: this function skips over configs that have been created using localconfig because it's
+   *  currently not possible to know if the created config would have been in the result set
+   *  adding this feature would require a rewrite of how the select functionality works
+   * @param &$results array the result set to modify
+   * @param $role string
+   * @param $cobrand array of cobrandnames in the resultset
+   * @return bool success
+   **/
+  public function mergeAdminSelectResults(&$results, $role, $cobrand) {
+    $localCommands = $this->getCommandsByRoleCobrand($role, $cobrand);
+    //order of the commands matter, use for outer loop
+    foreach($localCommands as $command) {  
+      foreach($results as $key => &$result) {  
+        if($command['name'] == $result->name && $command['cobrand'] == $result->cobrandname) {
+          //apply command
+          switch($command['action']) {
+            case 'update':
+              $result->value = $command['val'];
+              $result->type = $command['type'];
+              break;
+            case 'delete':
+              unset($results[$key]);
+              break;
+            //case 'create':
+              //break;
+            //ignore create case, no current way to know if a localconfig created config
+              //would have matched the search
+              //limitation of how the admin search is done, needs a redesign to work
+              //properly with localconfig. Too much effort for this stage of development.
+          }
+        }
+      }
+    }
+    //if there were any deletes reindex the array, otherwise breaks in js
+    $results = array_values($results);
+  }
+
+  /**
+   * LocalConfigManager::commitCommands
+   * 
+   * Given a set of indexes to commit, commit them using ConfigManager then delete them from the stored commands
+   * @param $indexes array [1,4,5]
+   * @return bool success
+   **/
+  public function commitCommands($indexes) {
+    $cfg = ConfigManager::singleton();
+    $status = true;
+    $commandsToRun = array();
+    if(!empty($indexes)) {
+      foreach($this->storedCommands as $key => $value) {
+        if(in_array($key, $indexes)) {
+          $commandsToRun[] = $this->storedCommands[$key];
+        }
+      }
+      foreach($commandsToRun as $cmd) {
+        $setcurrent = true;
+        $skipcache = true;
+        $skipLocalConfig = true;
+        //load an unmodified version of the cobrand, otherwise the localconfig changes will have already been applied
+        //and committing the commands won't work outside of this session, as they'll already have been
+        //temporarily applied by the localconfig calls in getConfig()/Load(). To make the commits
+        //be applied to the db pass the $skipLocalConfig flag
+        $cfg->GetConfig($cmd['cobrand'], $setcurrent, $cmd['role'], $skipcache, $skipLocalConfig);
+        switch($cmd['action']) {
+          case 'update':
+            $skipLocalConfig = true;
+            $newcfg = array(
+              $cmd['name'] => array(
+                'value' => $cmd['val'],
+                'type' => $cmd['type']
+              )
+            );
+            $status = $cfg->Update($cmd['cobrand'], $newcfg, $cmd['role'], null, $skipLocalConfig);
+            if(!$status) print_pre('Update failed for '.print_r($cmd, true));
+            break;
+          case 'delete':
+            $keys = explode('.', $cmd['name']);
+            $depth = count($keys);
+            $currentDepth = 1;
+            $deleteConfig = array();
+            $arrayPtr =& $deleteConfig;
+            foreach($keys as $key) {
+              if($currentDepth == $depth) {
+                $arrayPtr[$key] = 1;
+              } else {
+                $arrayPtr[$key] = array();
+              }
+              $arrayPtr =& $arrayPtr[$key];
+              $currentDepth++;
+            }
+            unset($arrayPtr);
+            $status = $cfg->Update($cmd['cobrand'], array(), $cmd['role'], $deleteConfig, $skipLocalConfig);
+            if(!$status) print_pre('Delete failed for '.print_r($cmd, true));
+            break;
+          case 'create':
+            $skipLocalConfig = true;
+            $status = $cfg->AddConfigValue($cmd['cobrand'], array(
+              'key' => $cmd['name'], 
+              'value' => $cmd['val'], 
+              'type' => $cmd['type']
+            ), $cmd['role'], $skipLocalConfig);
+            if(!$status) print_pre('create failed for '.print_r($cmd, true));
+            break;
+        }
+      }
+      $this->deleteCommands($indexes);
+    } else {
+      $status = false;
+    }
+
+    return $status;
+  }
+
+  /**
+   * LocalConfigManager::deleteCommands
+   * 
+   * Given a set of indexes to remove, deletes them from the set of stored commands
+   * @param $indexes array [1,4,5]
+   * @return bool success
+   **/
+  public function deleteCommands($indexes) {
+    $status = true;
+    if(!empty($indexes)) {
+      foreach($this->storedCommands as $key => $value) {
+        if(in_array($key, $indexes)) {
+          unset($this->storedCommands[$key]);
+        }
+      }
+      $this->storedCommands = array_values($this->storedCommands);
+      $this->store_commands();
+    } else {
+      $status = false;
+    }
+    return $status;
+  }
+
+}
 

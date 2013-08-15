@@ -82,7 +82,8 @@ class App {
           $this->debug = $_SESSION["debug"];
         }
         $this->cobrand = $this->GetRequestedConfigName($this->request);
-        $this->cfg->GetConfig($this->cobrand, true, $this->cfg->role);
+        $skipCache = $this->cfg->isLocalConfigEnabled();
+        $this->cfg->GetConfig($this->cobrand, true, $this->cfg->role, $skipCache);
         $this->ApplyConfigOverrides();
         $this->locations = DependencyManager::$locations = $this->cfg->locations;
 

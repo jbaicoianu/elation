@@ -844,7 +844,11 @@ class ConfigManager extends Base {
     }
 
     $cachewrapper = null;
-    $cachekey = "config.$role.$name";
+    if($this->isLocalConfigEnabled()) {
+      $cachekey = "localconfig.".md5($this->localConfig->directory).".$role.$name";
+    } else {
+      $cachekey = "config.$role.$name";
+    }
     $data = DataManager::singleton();
     $cachewrapper =& $data->caches["apc"]["default"];
     $allversions = $this->GetAllRevisions($role);
@@ -1493,12 +1497,12 @@ class LocalConfigManager {
   /**
    * LocalConfigManager::load_commands
    *
-   * fetch any serialized data stored in the localconfig file, unserialize it, and
+   * fetch any json data stored in the localconfig file, unserialize it, and
    * stores the array of commands in this->storedCommands
    * @return void
    **/
   public function load_commands() {
-    $serializedData = false;
+    $encodedData = false;
   
     //before loading the file see if it's stored in apc
     $name = $this->getLocalConfigFileName();
@@ -1507,34 +1511,35 @@ class LocalConfigManager {
       if (!empty($mtime)) {
         $apckey = $name . ':' . $mtime;
         if ($this->apcenabled && ($apccontents = apc_fetch($apckey)) != false) {
-          $serializedData = $apccontents;
+          $encodedData = $apccontents;
         }
         //if not in the apc retrieve from file
-        if(!$serializedData) {
-          $serializedData = file_get_contents($name);
-          if ($this->apcenabled && !empty($serializedData)) {
-            apc_store($apckey, $serializedData);
+        if(!$encodedData) {
+          $encodedData = file_get_contents($name);
+          if ($this->apcenabled && !empty($encodedData)) {
+            apc_store($apckey, $encodedData);
           } 
         }
-        if($serializedData) {
-          $this->storedCommands = unserialize($serializedData);
+        if($encodedData) {
+          $this->storedCommands = json_decode($encodedData, true);
         }
       }
     }
-    if(empty($this->storedCommands)) {
+    if(!is_array($this->storedCommands)) {
       $this->storedCommands = array();
+      //print_pre('setting stored commands to empty array');
     }
   }
 
   /**
    * LocalConfigManager::store_commands
    *
-   * serialized this->storedCommands and writes them to the localconfig file (overwrites any content)
+   * json encode this->storedCommands and writes them to the localconfig file (overwrites any content)
    * @return void //todo return status of the write to enable better error handling
    **/
   public function store_commands() {
     $name = $this->directory . '/' . $this->filename;
-    $serializedData = serialize($this->storedCommands);
+    $encodedData = json_encode($this->storedCommands);
     if(!file_exists($name)) {
       touch($name);
     }
@@ -1542,9 +1547,9 @@ class LocalConfigManager {
     $mtime = filemtime($name);
     if (!empty($mtime)) {
       $apckey = $name . ":" . $mtime;
-      apc_store($apckey, $serializedData);
+      apc_store($apckey, $encodedData);
     }
-    $status = file_put_contents($name, $serializedData);
+    $status = file_put_contents($name, $encodedData);
     if($status === false) {
       //handle failure to write to file better
       print_pre('failed to write data to ' . $name);

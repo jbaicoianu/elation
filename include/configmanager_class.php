@@ -1549,10 +1549,10 @@ class LocalConfigManager {
       $apckey = $name . ":" . $mtime;
       apc_store($apckey, $encodedData);
     }
-    $status = file_put_contents($name, $encodedData);
+    $status = @file_put_contents($name, $encodedData);
     if($status === false) {
       //handle failure to write to file better
-      print_pre('failed to write data to ' . $name);
+      //print_pre('failed to write data to ' . $name);
     }
   }
 

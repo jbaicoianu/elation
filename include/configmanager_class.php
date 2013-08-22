@@ -203,7 +203,7 @@ class ConfigManager extends Base {
    */
   public function GetRoleFromHostname($hostname=null) {
     if ($hostname === null) {
-      $this->hostname = $hostname = trim(implode("", file("/etc/hostname")));
+      $this->hostname = $hostname = php_uname("n");
     }
     $mapping = $this->GetMappings();
     return any($mapping[$hostname], "live"); // default to live so the site will work even if something is messed up

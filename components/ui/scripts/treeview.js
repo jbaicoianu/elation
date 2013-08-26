@@ -1,16 +1,20 @@
 elation.component.add("ui.treeview", function() {
   this.init = function() {
     elation.html.addclass(this.container, 'ui_treeview');
+    this.items = [];
 
     if (this.args.items) {
       this.setItems(this.args.items);
     }
   }
-  this.setItems = function(items) {
+  this.getDefaultAttributes = function() {
     var attrs = this.args.attrs || {};
     if (elation.utils.isEmpty(attrs.name)) attrs.name = 'name';
     if (elation.utils.isEmpty(attrs.children)) attrs.children = 'items';
-
+    return attrs;
+  }
+  this.setItems = function(items) {
+    var attrs = this.getDefaultAttributes();
     //console.log('new items', items, this);
     // FIXME - this is inefficient.  instead of removing and readding everything, we should just find the diffs
     if (this.items) {
@@ -26,7 +30,13 @@ elation.component.add("ui.treeview", function() {
     if (!root) root = this.container;
 
     var ul = elation.html.create({tag: 'ul', append: root});
-    for (var k in items) {
+
+    // alphabetize the keys
+    var keys = Object.keys(items);
+    keys.sort();
+
+    for (var i = 0; i < keys.length; i++) {
+      var k = keys[i];
       var visible = true;
       if (attrs['visible']) {
         visible = elation.utils.arrayget(items[k], attrs['visible']);
@@ -47,6 +57,19 @@ elation.component.add("ui.treeview", function() {
         }
       }
     }
+  }
+  this.sort = function(items, sortby) {
+    var attrs = this.getDefaultAttributes();
+    if (elation.utils.isNull(items)) items = this.items;
+    if (elation.utils.isNull(sortby)) sortby = attrs.name;
+    items.sort(function(a, b) {
+      var na = a.value[sortby],
+          nb = b.value[sortby];
+      if (na === nb) return 0;
+      else if (na < nb) return -1;
+      else if (na > nb) return 1;
+    });
+    return items;
   }
   this.ui_treeviewitem_hover = function(ev) {
     if (this.hover && this.hover != ev.target) {

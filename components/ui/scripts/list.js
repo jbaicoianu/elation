@@ -12,6 +12,13 @@ elation.component.add('ui.list', {
   setItems: function(items) {
     console.log('list set items', items);
     this.items = items;
+    this.refresh();
+  },
+  addItem: function(item) {
+    this.items.push(item);
+    this.refresh();
+  },
+  refresh: function() {
     var html = '';
     for (var i = 0; i < this.items.length; i++) {
       html += '<li>' + this.items[i] + '</li>';

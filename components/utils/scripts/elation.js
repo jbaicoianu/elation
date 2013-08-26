@@ -16,7 +16,7 @@ var elation = window.elation = new function(selector, parent, first) {
 			ptr = xptr = ptr[parts[i]];
 		}
 		
-		if (typeof ptr[parts[i]] == 'undefined' || clobber == true) {
+		if (typeof ptr[parts[i]] == 'undefined' || ptr[parts[i]] === null || clobber == true) {
 			ptr[parts[i]] = xptr[parts[i]] = func;
 		} else {
 			console.log("elation: tried to clobber existing component '" + name + "'");
@@ -269,7 +269,7 @@ elation.extend("component", new function() {
     if (typeof componentclass == 'function') {
       return componentclass.call(componentclass, id, container, args, events);
     } 
-    console.log("elation: tried to instantiate unknown component type '" + type + "', id '" + id + "'", componentclass);
+    console.error("elation: tried to instantiate unknown component type '" + type + "', id '" + id + "'", componentclass);
   }
   this.get = function(id, type, container, args, events) {
     var componentclass = elation.utils.arrayget(elation, type);
@@ -280,6 +280,17 @@ elation.extend("component", new function() {
       this.add(type);
       return this.create(id, type, container, args, events);
     }
+  }
+  this.load = function(componentname, callback) {
+    // Loads the dependency script/css for the specified component, and execute callback if supplied
+    var componentbase = componentname.replace('.', '/');
+    var root = elation.file.root()
+    var batch = new elation.file.batch();
+    batch.add(root + '/scripts/' + componentbase + '.js', 'javascript');
+    //batch.add(root + '/css/' + componentbase + '.css', 'css');
+    // FIXME - batch loading seems to not load css files reliably
+    elation.file.get('css', root + '/css/' + componentbase + '.css');
+    if (callback) batch.callback(callback);
   }
   this.info = function(type) {
     var componentclass = elation.utils.arrayget(elation, type);
@@ -521,8 +532,8 @@ elation.extend("html.dimensions", function(element, ignore_size) {
     }
   } catch(e) { console.log('html.dimensions: '+e.message); }
   
-	if (elation.browser.type == 'safari')
-		top += elation.html.getscroll(1);
+	if (document.body.scrollTop == window.scrollY)
+		top += window.scrollY;
 	
   return {
 		0 : left,
@@ -1508,7 +1519,6 @@ elation.extend('file.get', function(type, file, func) {
     element.rel = "stylesheet";
     element.href = file;
   }
-  
   if (func)
     element.onload = func;
   
@@ -1537,13 +1547,7 @@ elation.extend('file.batch', function() {
 		if (this.files.length == 0)
 			this.done(true);
 	}
-	
-	this.done = function(url) {
-		if (url)
-			for (var i=0; i<this.files.length; i++) 
-				if (!this.files[i].loaded && this.files[i].type != 'css') 
-					return;
-		
+  this.executecallbacks = function() {
 		for (var i=0; i<this.callbacks.length; i++) 
 			switch (typeof this.callbacks[i]) {
 				case "string":
@@ -1556,6 +1560,15 @@ elation.extend('file.batch', function() {
 			}
 		
 		this.callbacks = [];
+  }
+	
+	this.done = function(url) {
+		if (url)
+			for (var i=0; i<this.files.length; i++) 
+				if (!this.files[i].loaded && this.files[i].type != 'css') 
+					return;
+		
+    setTimeout(elation.bind(this, this.executecallbacks), 0);
 	}
 });
 
@@ -1737,6 +1750,71 @@ elation.extend('file.dependencies', new function() {
 		
 		return file;
 	}
+});
+elation.extend('file.root', function() {
+  // Determines the base URL for the currently active Elation instance
+  var scripts = elation.find('script');
+  var re = /^(.*?)\/scripts\/utils\/elation.js$/;
+  for (var i = 0; i < scripts.length; i++) {
+    var matches = scripts[i].src.match(re);
+    if (matches !== null) {
+      return matches[1];
+    }
+  }
+  return '';
+});
+elation.extend('require', function(modules, callback) {
+  if (!elation.utils.isArray(modules)) modules = [modules];
+  if (!this.requireactivebatch) {
+    this.requireactivebatch = new elation.require.batch();
+  }
+  this.requireactivebatch.addrequires(modules);
+  if (callback) {
+    this.requireactivebatch.addcallback(callback);
+  }
+});
+elation.extend('require.batch', function(modules, callback) {
+  this.pending = [];
+  this.done = [];
+  this.callbacks = [];
+  
+  this.init = function() {
+  }
+  this.addrequires = function(requires) {
+    for (var i = 0; i < requires.length; i++) {
+      this.pushqueue(requires[i]);
+    }
+  }
+  this.addcallback = function(callback) {
+    this.callbacks.push(callback);
+  }
+  this.pushqueue = function(module) {
+    var existing = elation.utils.arrayget(this, module);
+    if (existing === null) {
+      if (this.pending.indexOf(module) == -1) {
+        elation.utils.arrayset(this, module, false); // prevent us from trying to load this module again
+        this.pending.push(module);
+        elation.file.get('javascript', '/scripts/' + module.replace(/\./g, '/') + '.js', elation.bind(this, function() { this.finished(module); }));
+        elation.file.get('css', '/css/' + module.replace(/\./g, '/') + '.css');
+      }
+    }
+  }
+  this.finished = function(module) {
+    //console.log('Finished loading file:', module);
+    var idx = this.pending.indexOf(module);
+    if (idx != -1) {
+      this.pending.splice(idx, 1);
+    }
+    if (this.pending.length == 0) {
+      var callbacks = this.callbacks;
+      this.callbacks = [];
+      while (callbacks.length > 0) {
+        callback = callbacks.pop();
+        callback();
+      }
+    }
+  }
+  this.init();
 });
 
 elation.extend('ui.gradient', function(element, first, last) {

@@ -26,6 +26,9 @@ elation.component.add('ui.window', function() {
     this.offsetpos = [x, y];
     elation.html.transform(this.container, 'translate(' + this.offsetpos[0] + 'px, ' + this.offsetpos[1] + 'px)');
   }
+  this.settitle = function(newtitle) {
+    this.titlebar.innerHTML = newtitle;
+  }
   this.setcontent = function(newcontent) {
     if (newcontent instanceof HTMLElement) {
       if (this.content) {
@@ -46,7 +49,7 @@ elation.component.add('ui.window', function() {
     // focus window
     this.setactive();
 
-    if (ev.target == this.titlebar) {
+    if (ev.button == 0 && ev.target == this.titlebar) {
       // titlebar dragging
       elation.html.addclass(this.titlebar, 'state_dragging');
       this.dragstartpos = [ev.clientX, ev.clientY];
@@ -66,8 +69,10 @@ elation.component.add('ui.window', function() {
     this.setOffset(this.offsetpos[0] - diff[0], this.offsetpos[1] - diff[1]);
   }
   this.mouseup = function(ev) {
-    elation.events.remove(window, 'mousemove,mouseup', this);
-    elation.html.removeclass(this.titlebar, 'state_dragging');
-    //this.dragstartpos = [0,0];
+    if (ev.button == 0) {
+      elation.events.remove(window, 'mousemove,mouseup', this);
+      elation.html.removeclass(this.titlebar, 'state_dragging');
+      //this.dragstartpos = [0,0];
+    }
   }
 });

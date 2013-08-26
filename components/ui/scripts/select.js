@@ -19,6 +19,7 @@ elation.component.add('ui.select', {
       option.value = items[i];
       if (selected && selected == option.value) {
         option.selected = "selected";
+        this.value = option.value;
       }
       option.innerHTML = items[i];
       this.container.appendChild(option);

@@ -333,7 +333,6 @@ elation.extend("ajax", new function() {
           }
           
           register_inline_scripts(common, targetel);
-					
           /* repositions infobox after ajax injection, use responsetype ["infobox"] if applicable */
           if (elation.ui && elation.ui.infobox && infobox && infobox.args.reposition) {
             common.inlinescripts.push("elation.ui.infobox.position('"+infobox.name+"', true);");

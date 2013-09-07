@@ -62,7 +62,7 @@ class DBWrapper extends ConnectionWrapper {
     return ($this->conn[$servernum] !== NULL && $this->conn[$servernum]->isConnected());
   }
 
-  function &Query($queryid, $query, $args=NULL) {
+  function Query($queryid, $query, $args=NULL) {
     $servers = $this->HashToServer($queryid);
     Profiler::StartTimer("DBWrapper:Query()", 1);
     Profiler::StartTimer("DBWrapper:Query({$this->name})");

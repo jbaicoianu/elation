@@ -46,7 +46,7 @@ class Component extends Base {
         $componentclassname = "Component_" . str_replace(".", "_", $componentname);
 
         if (method_exists($this, "controller_" . $name)) {
-          $ret = $this->CreateComponent($name, "ComponentFunction", array(&$this, "controller_" . $name), $this->path, &$args);
+          $ret = $this->CreateComponent($name, "ComponentFunction", array($this, "controller_" . $name), $this->path, $args);
         } else {
           $componentdir = $this->GetComponentDirectory();
           if (!empty($componentdir))
@@ -56,13 +56,13 @@ class Component extends Base {
           if (($path = file_exists_in_path($fname, true)) !== false) {
             try {
               include_once($fname);
-              $ret = $this->CreateComponent($name, $componentclassname, NULL, $path, &$args);
+              $ret = $this->CreateComponent($name, $componentclassname, NULL, $path, $args);
             } catch (Exception $e) {
               //print_pre($e);
               print "[Could not load component: " . htmlspecialchars($name) . "]";
             }
           } else if ($this->HasTemplate("./" . $name . ".tpl", $path)) {
-            $ret = $this->CreateComponent($name, "ComponentTemplate", $this->path . "/" . $componentdir . "/templates/" . $name . ".tpl", $path, &$args);
+            $ret = $this->CreateComponent($name, "ComponentTemplate", $this->path . "/" . $componentdir . "/templates/" . $name . ".tpl", $path, $args);
           }
         }
         if ($ret === false) {
@@ -165,7 +165,7 @@ class Component extends Base {
     else
       $componentname = $name;
 
-    if ($this->HasComponent($componentname, &$args)) {
+    if ($this->HasComponent($componentname, $args)) {
       $component =& $this->GetComponent($componentname);
       if ($component !== NULL) {
         if (!empty($subcomponentname)) {

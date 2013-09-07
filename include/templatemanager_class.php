@@ -59,7 +59,9 @@ class TemplateManager extends Smarty {
   public static function singleton($args=NULL) { $name = __CLASS__; if (!self::$instance) { self::$instance = new $name($args); } return self::$instance;  }
 
 
-  function TemplateManager($root=".") {
+  function __construct($root=".") {
+    parent::__construct();
+
     if (!empty($root))
       $this->Init($root);
   }
@@ -69,16 +71,15 @@ class TemplateManager extends Smarty {
     $root = any($locations["root"], ".");
     $tmpdir = any($locations["tmp"], "./tmp");
 
-    $this->template_dir = $root . '/templates';
-    $this->compile_dir  = $tmpdir . '/compiled';
-    $this->cache_dir    = $tmpdir . '/cache';
+    $this->setTemplateDir($root . '/templates');
+    $this->setCompileDir($tmpdir . '/compiled');
+    $this->setCacheDir($tmpdir . '/cache');
     //$this->config_dir   = $root . '/text/'.LANGUAGE;
     $this->_file_perms  = 0664;
 
-    $this->plugins_dir[] = SMARTY_DIR . "/plugins";
     $filepaths = file_find_paths("include/smarty/plugins");
     foreach ($filepaths as $fp) {
-      $this->plugins_dir[] = $fp;
+      $this->addPluginsDir($fp);
     }
 
     //$this->load_filter("output", "varreplace");
@@ -104,67 +105,71 @@ class TemplateManager extends Smarty {
 
     // Much of this has been obsoleted by Smarty 3, but we keep this wrapper for backwards compatibility
 
-    if (method_exists($this, "createTemplate")) {
-      if ($this->HasTemplate($resource_name)) {
-        $parenttpl = $this->currenttpl;
-        $tplobj = $this->createTemplate($resource_name, ($parentpl !== null ? $parentpl : $this));
-        $this->currenttpl = $tplobj;
-        if (!empty($vars)) {
-          foreach ($vars as $k=>$v) {
-            $tplobj->assign($k, $v);
-          }
-        }
-        $return = $tplobj->fetch();
-        $this->currenttpl = $parenttpl;
-      } else {
-        $return = "[Could not find template '$resource_name']";
-      }
-    } else {
-      // First we back up the old tpl variables, then we merge in whatever variables were passed
-      $oldvars =& $this->_tpl_vars;
-
-      $tmpobj =& $object;
-      $newvars = $this->_tpl_vars; 
-      if (!empty($vars)) {
-        // FIXME - originally this used references, but that didn't work well for nonpersistant variables.  Does this work ok in all cases?
-        foreach ($vars as $k=>$v) {
-          $newvars[$k] = $v;
-        }
-      }
-      
-      /*
-      if (!empty($tmpobj)) {
-        do {
-          foreach ($tmpobj as $k=>$v) {
-            if (!isset($newvars[$k]) && $k[0] != "_") { // && !in_array($k, array("smarty", "parent", "modules"))) {
-              $newvars["this"][$k] =& $tmpobj->{$k};
+    try {
+      if (method_exists($this, "createTemplate")) {
+        if ($this->HasTemplate($resource_name)) {
+          $parenttpl = $this->currenttpl;
+          $tplobj = $this->createTemplate($resource_name, ($parentpl !== null ? $parentpl : $this));
+          $this->currenttpl = $tplobj;
+          if (!empty($vars)) {
+            foreach ($vars as $k=>$v) {
+              $tplobj->assign($k, $v);
             }
           }
-        } while ($tmpobj =& $tmpobj->parent);
-      }
-      */
-
-      $newvars["this"] =& $object;
-      
-      // DEBUG: print tpl_vars
-      /*
-      print "<pre>";
-      print_r($newvars);
-      print "</pre>";
-      */
-
-      // Move the new variable array into place...
-      $this->_tpl_vars =& $newvars;
-
-      // Parse the template...
-      if ($this->HasTemplate($resource_name)) {
-        $return = $this->fetch($resource_name);
+          $return = $tplobj->fetch();
+          $this->currenttpl = $parenttpl;
+        } else {
+          $return = "[Could not find template '$resource_name']";
+        }
       } else {
-        $return = "[Could not find template '$resource_name']";
-      }
+        // First we back up the old tpl variables, then we merge in whatever variables were passed
+        $oldvars =& $this->_tpl_vars;
 
-      // And put everything back where we found it.
-      $this->_tpl_vars =& $oldvars;
+        $tmpobj =& $object;
+        $newvars = $this->_tpl_vars; 
+        if (!empty($vars)) {
+          // FIXME - originally this used references, but that didn't work well for nonpersistant variables.  Does this work ok in all cases?
+          foreach ($vars as $k=>$v) {
+            $newvars[$k] = $v;
+          }
+        }
+        
+        /*
+        if (!empty($tmpobj)) {
+          do {
+            foreach ($tmpobj as $k=>$v) {
+              if (!isset($newvars[$k]) && $k[0] != "_") { // && !in_array($k, array("smarty", "parent", "modules"))) {
+                $newvars["this"][$k] =& $tmpobj->{$k};
+              }
+            }
+          } while ($tmpobj =& $tmpobj->parent);
+        }
+        */
+
+        $newvars["this"] =& $object;
+        
+        // DEBUG: print tpl_vars
+        /*
+        print "<pre>";
+        print_r($newvars);
+        print "</pre>";
+        */
+
+        // Move the new variable array into place...
+        $this->_tpl_vars =& $newvars;
+
+        // Parse the template...
+        if ($this->HasTemplate($resource_name)) {
+          $return = $this->fetch($resource_name);
+        } else {
+          $return = "[Could not find template '$resource_name']";
+        }
+
+        // And put everything back where we found it.
+        $this->_tpl_vars =& $oldvars;
+      }
+    } catch (Exception $e) {
+      $return = "[Could not parse template '$resource_name': $e->message]";
     }
 
     return $return;

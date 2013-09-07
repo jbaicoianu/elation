@@ -35,7 +35,7 @@ function smarty_function_component($args, &$smarty) {
     $component = $componentmgr->Get($args["name"], $componentargs);
 
     if ($component !== NULL) {
-      $ret = $component->HandlePayload(&$componentargs, "inline");
+      $ret = $component->HandlePayload($componentargs, "inline");
       if (is_array($ret)) {
         /*
         $webapp->response["type"] = "text/xml";

@@ -829,6 +829,33 @@ class ConfigManager extends Base {
 
   }
 
+  function invalidateConfigCache($cachekey) {
+    $data = DataManager::singleton();
+    $cachewrapper =& $data->caches["apc"]["default"];
+    if( !empty($cachewrapper) && $cachewrapper->enabled ) {
+      $cachewrapper->delete($cachekey);
+    }
+  }
+
+  /**
+   * Generate cachekey for storing configs
+   * 
+   * This functino generates cachekeys for storing config data. Cachekeys are generated differently
+   * if localconfig is enabled.
+   * @param $role string name of role key is being generated for. example: 'live'
+   * @param $name string name of cobrand key is being generated for. example: 'thefind'
+   * @return string cachekey
+   **/
+  function generateCacheKey($role, $name) {
+    $cachekey = '';
+    if($this->isLocalConfigEnabled()) {
+      $cachekey = "localconfig.".md5($this->localConfig->directory).".$role.$name";
+    } else {
+      $cachekey = "config.$role.$name";
+    }
+    return $cachekey;
+  }
+
   /**
    * Load a full configuration (walk the whole heirarchy)
    *
@@ -844,11 +871,7 @@ class ConfigManager extends Base {
     }
 
     $cachewrapper = null;
-    if($this->isLocalConfigEnabled()) {
-      $cachekey = "localconfig.".md5($this->localConfig->directory).".$role.$name";
-    } else {
-      $cachekey = "config.$role.$name";
-    }
+    $cachekey = $this->generateCacheKey($role, $name);
     $data = DataManager::singleton();
     $cachewrapper =& $data->caches["apc"]["default"];
     $allversions = $this->GetAllRevisions($role);
@@ -991,8 +1014,7 @@ class ConfigManager extends Base {
 
     if (!$skipcache && empty($ret)) {
       $cachewrapper = null;
-      //$cachekey = "config.$role.$name.heirarchy";
-      $cachekey = "config.$role.$name";
+      $cachekey = $this->generateCacheKey($role, $name);
 
       $data = DataManager::singleton();
       if (!empty($data->caches["apc"]["default"]) && $data->caches["apc"]["default"]->enabled) {
@@ -1409,7 +1431,7 @@ class ConfigMerged extends Config {
   public $options;
 
   public function loadFromCache() {
-    $cachekey = "config.{$this->role}.{$this->name}";
+    $cachekey = $this->generateCacheKey($this->role, $this->name);
     $data = DataManager::singleton();
     $cachewrapper =& $data->caches["apc"]["default"];
     if (($cachedresult = $cachewrapper->get($cachekey)) !== false ) {

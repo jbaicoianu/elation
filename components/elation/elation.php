@@ -5,12 +5,17 @@ class Component_elation extends Component {
   }
 
   function controller_elation($args, $output="inline") {
-    $vars["inspect"] = "demo.blog";
-    if (!empty($args["inspect"]) && strpos($args["inspect"], "/..") === false) {
-      $vars["inspect"] = $args["inspect"];
-      $vars["file"] = any($args["file"], NULL);
+    $cfg = ConfigManager::singleton();
+    $introenabled = any(ConfigManager::get("elation.intro.enabled"), array_get($cfg->servers, "elation.intro.enabled"), true);
+    if ($introenabled && $introenabled !== "false") {
+      $vars["inspect"] = "demo.blog";
+      if (!empty($args["inspect"]) && strpos($args["inspect"], "/..") === false) {
+        $vars["inspect"] = $args["inspect"];
+        $vars["file"] = any($args["file"], NULL);
+      }
+      return $this->GetComponentResponse("./elation.tpl", $vars);
     }
-    return $this->GetComponentResponse("./elation.tpl", $vars);
+    return "";
   }
   function controller_debug($args) {
     $user = User::singleton();
@@ -67,6 +72,9 @@ class Component_elation extends Component {
     return $ret;
   }
   function controller_inspect($args, $output="inline") {
+    $user = User::singleton();
+    if (!$user->HasRole("inspect")) return;
+
     $vars["component"] = $args["component"];
     $vars["componentdir"] = "./components/" . implode("/components/", explode(".", $vars["component"]));
     $vars["file"] = $args["file"];
@@ -76,11 +84,17 @@ class Component_elation extends Component {
     return $this->GetComponentResponse("./inspect.tpl", $vars);
   }
   function controller_inspect_directory($args) {
+    $user = User::singleton();
+    if (!$user->HasRole("inspect")) return;
+
     $vars["dir"] = $args["dir"];
     $vars["fullname"] = any($args["parentdir"], ".") . (!empty($args["dirname"]) ? "/" . $args["dirname"] : "");
     return $this->GetComponentResponse("./inspect_directory.tpl", $vars);
   }
   function controller_inspect_file($args) {
+    $user = User::singleton();
+    if (!$user->HasRole("inspect")) return;
+
     $vars["component"] = $args["component"];
     $vars["componentdir"] = "./components/" . implode("/components/", explode(".", $vars["component"]));
     $vars["file"] = $args["file"];
@@ -106,6 +120,9 @@ class Component_elation extends Component {
   }
 
   function controller_inspect_component($args, $output="inline") {
+    $user = User::singleton();
+    if (!$user->HasRole("inspect")) return;
+
     $components = explode(",", $args["components"]);
     sort($components);
     $vars["components"] = array();

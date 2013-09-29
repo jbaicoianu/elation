@@ -74,6 +74,7 @@ elation.extend('panel', new function(options) {
           
           panel.item = this.get_item(panel, $TF('div.tf_utils_panel_' + name + ' ul li.selected')[0]);
         }
+        
         if (panel.cfg.animation) {
           var type = panel.cfg.animation;
           
@@ -83,6 +84,7 @@ elation.extend('panel', new function(options) {
       }
       
 			panel.content = {};
+      panel.content[panel.item.name] = panel.container.innerHTML;
 		}
 	}
 	
@@ -129,6 +131,8 @@ elation.extend('panel', new function(options) {
 	}
 	
 	this.load_tab_content = function(panel, target, item) {
+    ajaxlib.xmlhttp.abort();
+    
 		var	target = (typeof target == 'string')
 					? document.getElementById(target)
 					: target,
@@ -213,21 +217,24 @@ elation.extend('panel', new function(options) {
 		
 		// cache content of tab for later retrieval
 		if (!panel.cfg.nocache) {
-			if ($TF('img.tf_results_ajax_spinner',panel.container).length == 0) // kludgy - dont save content if content still loading
-				panel.content[panel.item.name] = panel.container.innerHTML;
-			}
-			panel.item = item;
+      //console.log('switch',panel, panel.container);
+			//if (!panel.fetching && !panel.content[panel.item.name]) // dont save content if content is being fetched
+				
+    }
+    
+    panel.item = item;
 			
-			if (!panel.cfg.nocache) {
-			// if cached copy exists use that
-			if (panel.content[item.name]) {
-          if (panel.cfg.animation) {
-            setTimeout(function() {
-              elation.html.addClass(panel.container, 'animation_'+panel.cfg.animation);
-              panel.container.innerHTML = panel.content[item.name];
-            }, 200);
-          }
-				return;
+    if (!panel.cfg.nocache) {
+      // if cached copy exists use that
+      if (panel.content[item.name]) {
+        if (panel.cfg.animation) {
+          setTimeout(function() {
+            elation.html.addClass(panel.container, 'animation_'+panel.cfg.animation);
+            panel.container.innerHTML = panel.content[item.name];
+          }, 200);
+        }
+        
+        return;
       }
 		} else {
 			// tab fade-in effect
@@ -292,7 +299,9 @@ elation.extend('panel', new function(options) {
           }
           if (panel.jsobj && typeof panel.jsobj.success == 'function') {
             panel.jsobj.success(response);
-          } 
+          }
+ 
+          panel.content[item.name] = panel.container.innerHTML;
         }
 			]
 		});

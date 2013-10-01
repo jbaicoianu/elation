@@ -1,11 +1,41 @@
 #queries {
   width: 98%;
-  height: 80em;
+  height: 768px;
   margin: 0 auto;
+  position: relative;
+  -webkit-user-select: none;
 }
 .tip {
   border: 1px solid black;
   border-radius: 5px;
-  background: white;
+  background: rgba(255,255,255,.75);
+  box-shadow: 2px 2px 4px rgba(0,0,0,.5);
   padding: .5em;
 }
+.queries_legend {
+  position: absolute;
+  top: 1em;
+  left: 1em;
+  background: rgba(255,255,255,.5);
+  border: 1px solid black;
+  border-radius: 6px;
+  padding: 0 1em;
+  z-index: 10;
+  box-shadow: 2px 2px 4px rgba(0,0,0,.5);
+}
+.queries_legend h2 {
+  margin: 1em auto 0 auto;
+}
+.queries_legend h6 {
+  margin: 0 auto 1em 0;
+  font-weight: normal;
+}
+.queries_legend h6 em {
+  font-weight: bold;
+  font-style: normal;
+}
+#queries-canvaswidget {
+  position: relative;
+  z-index: 1;
+}
+

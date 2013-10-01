@@ -1,6 +1,8 @@
 elation.component.add("stats.queries", {
   init: function(name, container, args) {
 console.log(args);
+    var self = this;
+    this.currentzoom = 1;
     this.graph = new $jit.Sunburst({
         //id container for the visualization
         injectInto: container,
@@ -55,8 +57,19 @@ console.log(args);
             if(!node) return;
             //elation.stats.queries('queries').graph.root = node.id;
             //elation.stats.queries('queries').graph.refresh();
-            elation.stats.queries('queries').setRoot(node.id);
+            //elation.stats.queries('queries').setRoot(node.id);
+          },
+          onMouseWheel: function(dir) {
+            self.zoom(dir == -1 ? .9 : 1.1);
+          },
+/*
+          onDragStart: function(dir, thing, ev) {
+            self.dragpos = thing.pos;
+          },
+          onDragMove: function(dir, thing, ev) {
+            self.pan({x: thing.pos.x - self.dragpos.x, y: thing.pos.y - self.dragpos.y});
           }
+*/
         }
     });
     if (args) {
@@ -64,6 +77,7 @@ console.log(args);
       this.graph.loadJSON(args);
     }
     this.graph.refresh();
+    elation.events.add(this.graph.canvas.element, "mousedown", this);
   },
   setRoot: function(id) {
     var node = this.graph.graph.getNode(id);
@@ -86,6 +100,27 @@ console.log(args);
       this.graph.loadJSON(ptr);
       this.graph.refresh();
     }
+  },
+  zoom: function(amount) {
+    this.currentzoom *= amount;
+    this.graph.canvas.scale(amount, amount);
+  },
+  pan: function(amount) {
+    this.graph.canvas.translate(amount[0], amount[1]);
+  },
+  mousedown: function(ev) {
+console.log(this);
+    if (ev.button == 0) {
+      elation.events.add(window, "mousemove,mouseup", this);
+      this.dragpos = [ev.clientX, ev.clientY];
+      ev.preventDefault();
+    }
+  },
+  mousemove: function(ev) {
+    this.pan([(ev.clientX - this.dragpos[0]) / this.currentzoom, (ev.clientY - this.dragpos[1]) / this.currentzoom]);
+    this.dragpos = [ev.clientX, ev.clientY];
+  },
+  mouseup: function(ev) {
+    elation.events.remove(window, "mousemove,mouseup", this);
   }
-  
 });

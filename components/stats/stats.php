@@ -8,26 +8,37 @@ class Component_stats extends Component {
   }
 
   function controller_queries($args) {
-    $vars["file"] = any($args["file"], "querylog");
     $vars["sortby"] = any($args["sortby"], "time");
     $vars["showids"] = any($args["showids"], false);
     $vars["queries"] = array();
 
-    $querydir = "queries";
-    $fname = $querydir . "/queries-" . $vars["file"] . ".txt";
+    $cfg = ConfigManager::singleton();
+    $qlogcfg = any(array_get($cfg->servers, "querylog"));
+
+    $tag = "";
+    if (!empty($qlogcfg["tag"])) {
+      $tag = "-" . date($qlogcfg["tag"]);
+    } 
+
+    $querydir = any($qlogcfg["path"], "tmp/queries");
+    $vars["file"] = any($args["file"], any($qlogcfg["file"], "querylog") . $tag);
+    $fname = $querydir . "/" . $vars["file"];
 
     $querylogs = array();
     if (file_exists($querydir)) {
       if (($dirh = opendir($querydir)) !== false) {
         while (($f = readdir($dirh)) !== false) {
-          if (preg_match("/^queries-(.*?)\.txt$/", $f, $m)) {
-            $querylogs[] = $m[1];
+          if (strpos($f, ".") === false) {
+            $querylogs[] = $f;
           }
         }
       }
     }
+    sort($querylogs);
     
     $vars["querylogs"] = implode(";", $querylogs);
+    $vars["time_start"] = 0;
+    $vars["time_end"] = 0;
 
     if (!empty($fname) && file_exists($fname)) {
       $fd = fopen($fname, "r");
@@ -49,7 +60,12 @@ class Component_stats extends Component {
         $vars["cached"] = true;
         $cachecontents = file_get_contents($cachefilename);
         if (!empty($cachecontents)) {
-          $vars["queries"] = json_decode($cachecontents, true);
+          $cacheobj = json_decode($cachecontents, true);
+          $vars["queries"] = any($cacheobj["queries"], $cacheobj);
+          if (!empty($cacheobj["timerange"])) {
+            $vars["time_start"] = $cacheobj["timerange"][0];
+            $vars["time_end"] = $cacheobj["timerange"][1];
+          }
         }
       } else {
         while (!feof($fd) && ($line = fgets($fd)) !== false) {
@@ -57,6 +73,15 @@ class Component_stats extends Component {
           if (!empty($q)) {
             list($id, $qargs) = explode(":", $q->id, 2);
             list($key, $id) = explode("#", $id, 2);
+
+            if (!empty($q->ts)) {
+              if ($vars["time_start"] == 0 || $q->ts < $vars["time_start"]) {
+                $vars["time_start"] = $q->ts;
+              }
+              if ($vars["time_end"] == 0 || $q->ts > $vars["time_end"]) {
+                $vars["time_end"] = $q->ts;
+              }
+            }
 
             if (empty($id) && (preg_match("/\.([0-9a-f]+)$/", $key, $m) || preg_match("/^suggest\.(.*)$/", $key, $m))) {
               $id = $m[1];
@@ -112,7 +137,7 @@ class Component_stats extends Component {
       }
       if (!empty($vars["queries"])) {
         $this->sortTree($vars["queries"], $vars["sortby"]);
-        file_put_contents($cachefilename, json_encode($vars["queries"]));
+        file_put_contents($cachefilename, json_encode(array("timerange" => array($vars["time_start"], $vars["time_end"]), "queries" => $vars["queries"])));
       }
     }
     //unset($vars["queries"]["children"]["qpm"]);

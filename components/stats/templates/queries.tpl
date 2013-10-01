@@ -18,6 +18,9 @@
 <div id="queries" elation:component="stats.queries">
   <div class="queries_legend">
    <h2>Live site queries</h2>
+   {if !empty($time_start) && !empty($time_end)}
+     <h6><em>{$time_start|date_format:'%Y-%m-%d %H:%M'}</em> to <em>{$time_end|date_format:'%Y-%m-%d %H:%M'}</em></h6>
+   {/if}
    <form action="queries" method="get">
     <label for="query_legend_file">file</label> {component name="ui.select" id="query_legend_file" selectname="file" items=$querylogs selected=$file autosubmit=true}<br />
     <label for="query_legend_sortby">sorted by</label> {component name="ui.select" id="query_legend_sortby" selectname="sortby" items="count;time;time-per-query" selected=$sortby autosubmit=true}<br />

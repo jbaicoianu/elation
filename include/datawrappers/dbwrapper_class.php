@@ -22,7 +22,7 @@ class DBWrapper extends ConnectionWrapper {
     Profiler::StartTimer("DBWrapper:Open({$this->name})", 2);
 
     // Determine server configuration
-    $servers = $this->cfg["servers"];
+    $servers = (isset($this->cfg["servers"]) ? $this->cfg["servers"] : array());;
 
     /* 
     // FIXME - simplified 7/13/12...but need to check that this doesn't break sharding
@@ -71,7 +71,7 @@ class DBWrapper extends ConnectionWrapper {
     return ($this->conn[$servernum] !== NULL && $this->conn[$servernum]->isConnected());
   }
 
-  function &Query($queryid, $query, $args=NULL) {
+  function Query($queryid, $query, $args=NULL) {
     $servers = $this->HashToServer($queryid);
     Profiler::StartTimer("DBWrapper:Query()", 1);
     Profiler::StartTimer("DBWrapper:Query({$this->name})");
@@ -109,7 +109,7 @@ class DBWrapper extends ConnectionWrapper {
               . "SQL: " . $backtrace[2]["args"][1] . "\t"
               . "Binds: " . print_ln($backtrace[2]["args"][2],true,true) . "\t";
             Logger::Error($errmsg);
-            return false;
+            return;
           }
           if ($resource) {
             $dbwrapper_obj = new DBWrapperResults();
@@ -762,9 +762,9 @@ class DataBase {
    */
   public function __construct($cfg, $connect = TRUE) {
     $this->dsn = self::dsn($cfg);
-    $this->username = $cfg["username"];
-    $this->password = $cfg["password"];
-    $this->driver_options = $cfg["driver_options"];
+    $this->username = isset($cfg["username"]) ? $cfg["username"] :  false;
+    $this->password = isset($cfg["password"]) ? $cfg["password"] : false;
+    $this->driver_options = isset($cfg["driver_options"]) ? $cfg["driver_options"] : null;
     $this->cfg = $cfg;
     if ($connect) {
       $this->connect($this->dsn, $this->username, $this->password, $this->driver_options);

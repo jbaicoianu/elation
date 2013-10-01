@@ -22,7 +22,7 @@
   </section>
 
   <section class="elation_homepage_demos elation_clear_after">
-    {component name="elation.demo" demo="apps" image="/images/demos/demo-apps-medium.png" url="/demos/category-apps"}
+    {component name="elation.demo" demo="apps" image="/images/demos/demo-apps-glimpse-medium.png" url="/demos/category-apps"}
     {component name="elation.demo" demo="games" image="/images/demos/demo-games-quake-medium.png" url="/demos/category-games"}
     {component name="elation.demo" demo="visualizations" image="/images/demos/demo-visualizations-medium.png" url="/demos/category-visualizations"}
   </section>

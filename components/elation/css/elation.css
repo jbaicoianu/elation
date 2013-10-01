@@ -14,6 +14,7 @@ body {
   max-width: 50em;
   margin: 0 auto;
   padding: 0 2em;
+  position: relative;
 }
 h1 a {
   text-decoration: none;
@@ -82,3 +83,33 @@ code.codeblock {
   padding: 0 1em;
 }
 
+
+/* screen size overrides */
+@media all and (max-width: 480px) {
+  #container {
+    padding: 0;
+    margin: 0;
+    font-size: .6em;
+  }
+  #container .elation_navigation {
+    padding: 0;
+    margin: 0;
+  }
+  #container .elation_homepage_section {
+    padding: 1em .5em;
+  }
+  #container .elation_homepage_main .panel_left {
+    padding: 1em 0;
+    margin-right: 0;
+    margin: 0 auto;
+    text-align: center;
+    width: auto;
+  }
+  #container .elation_homepage_main .panel_right {
+    display: none;
+  }
+  #container .elation_homepage_demos .elation_demo {
+    width: auto;
+    display: block;
+  }
+}

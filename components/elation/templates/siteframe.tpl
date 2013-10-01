@@ -1,6 +1,6 @@
 {component name="html.header"}
 {dependency type="component" name="elation"}
-{set var="page.title"}Elation PHP+JavaScript MVC Framework{/set}
+{set var="page.title"}Elation Client/Server MVC Framework{/set}
 
 <div id="container">
   <h1><a href="/">Elation</a></h1>

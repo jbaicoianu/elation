@@ -100,6 +100,7 @@
   -ie-transition: all 100ms ease-out;
   transform: scale(.9) rotateZ(0deg);
   transition: all 100ms ease-out;
+  overflow: hidden;
 }
 .elation_homepage_demos .elation_demo:hover {
   -webkit-transform: scale(1) rotateZ(2deg);

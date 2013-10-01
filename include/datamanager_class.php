@@ -471,10 +471,23 @@ class DataManager {
 
   function Quit() {
     if (!empty(self::$querylog)) {
-      foreach (self::$querylog as $q) {
-        $id = explode(".", $q["id"]);
-        if ($id[0] != "stats") {
-          self::Query("stats.default.querylog", "www.querylog.{$q["type"]}", json_encode($q));
+      $cfg = ConfigManager::singleton();
+      $qlogcfg = any(array_get($cfg->servers, "querylog"), array());
+      if ($qlogcfg["enabled"]) {
+        $type = any($qlogcfg["type"], "file");
+        switch ($type) {
+          case 'file':
+            $fpath = any($qlogcfg["path"], "tmp/querylog");
+            $fname = any($qlogcfg["file"], "querylog");
+            $tag = "";
+            if (!empty($qlogcfg["tag"])) {
+              $tag = "-" . date($qlogcfg["tag"]);
+            } 
+            self::writeLogFile($fpath, $fname . $tag);
+            break;
+          case 'network':
+            self::writeLogNetwork();
+            break;
         }
       }
     }
@@ -567,7 +580,31 @@ class DataManager {
     if (empty(self::$querylog_reqid)) {
       self::$querylog_reqid = rand();
     }
-    self::$querylog[] = array("reqid" => self::$querylog_reqid, "id" => $id, "type" => $type, "time" => ($end - $start), "cached" => $cached); 
+    self::$querylog[] = array("reqid" => self::$querylog_reqid, "id" => $id, "type" => $type, "time" => ($end - $start), "cached" => $cached, "ts" => $start); 
+  }
+  static private function writeLogFile($path, $file) {
+    if (!file_exists($path)) {
+      mkdir($path, 0775, true);
+    }
+    if (file_exists($path) && is_writable($path)) {
+      if (($fp = fopen("$path/$file", "a")) !== false) {
+        flock($fp, LOCK_EX);
+        foreach (self::$querylog as $q) {
+          $id = explode(".", $q["id"]);
+          fwrite($fp, json_encode($q) . "\n");
+        }
+        flock($fp, LOCK_UN);
+        fclose($fp);
+      }
+    }
+  }
+  static private function writeLogNetwork() {
+    foreach (self::$querylog as $q) {
+      $id = explode(".", $q["id"]);
+      if ($id[0] != "stats") {
+        self::Query("stats.default.querylog", "www.querylog.{$q["type"]}", json_encode($q));
+      }
+    }
   }
 }
 

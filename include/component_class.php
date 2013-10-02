@@ -96,7 +96,9 @@ class Component extends Base {
   }
   
   function HandlePayload(&$args, $output="blank") {
-    ob_start();
+    if ($output != "commandline") {
+      ob_start();
+    }
     try {
       $ret = NULL;
       //$controllerfuncname = "controller_" . $this->GetFullName("_");
@@ -108,11 +110,13 @@ class Component extends Base {
       global $webapp;
       $ret = $webapp->HandleException($e);
     }
-    if ($ret instanceOf ComponentResponse)
-      $ret->prepend(ob_get_contents());
-    else
-      $ret = ob_get_contents() . $ret;
-    ob_end_clean();
+    if ($output != "commandline") {
+      if ($ret instanceOf ComponentResponse)
+        $ret->prepend(ob_get_contents());
+      else
+        $ret = ob_get_contents() . $ret;
+      ob_end_clean();
+    }
     return $ret;
   }
   

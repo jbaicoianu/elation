@@ -21,8 +21,11 @@ class DBWrapper extends ConnectionWrapper {
     Profiler::StartTimer("DBWrapper:Open()", 1);
     Profiler::StartTimer("DBWrapper:Open({$this->name})", 2);
 
-    $servers = $this->cfg["servers"];
-    // Establish database connection
+    // Determine server configuration
+    $servers = (isset($this->cfg["servers"]) ? $this->cfg["servers"] : array());;
+
+    /* 
+    // FIXME - simplified 7/13/12...but need to check that this doesn't break sharding
     if ($servernum == 0 && !empty($this->cfg["host"])) {
       //Profiler::StartTimer("DBWrapper:Open() - dbconnect");
       if (!empty($this->cfg["username"])) {
@@ -37,7 +40,13 @@ class DBWrapper extends ConnectionWrapper {
       if (!isset($servers[$servernum]["password"]))
         $servers[$servernum]["password"] = any($this->cfg["password"], "");
     }
+    */
+    if (empty($servers[$servernum])) {
+      $servers[$servernum] = array();
+    }
+    $servers[$servernum] = array_merge($servers[$servernum], $this->cfg);
 
+    // Establish database connection
     if (isset($servers[$servernum])) {
       $this->conn[$servernum] = new Database($servers[$servernum]);
       if (!$this->conn[$servernum]) {
@@ -100,7 +109,7 @@ class DBWrapper extends ConnectionWrapper {
               . "SQL: " . $backtrace[2]["args"][1] . "\t"
               . "Binds: " . print_ln($backtrace[2]["args"][2],true,true) . "\t";
             Logger::Error($errmsg);
-            return false;
+            return;
           }
           if ($resource) {
             $dbwrapper_obj = new DBWrapperResults();
@@ -290,10 +299,11 @@ class DBWrapper extends ConnectionWrapper {
     return $rows_affected;
   }
   function &QueryCreate($queryid, $table, $columns) { 
-    $columnsql .= "(" . implode(", ", $columns) . ")";
+    $columnsql = "(" . implode(", ", $columns) . ")";
     $ret = false;
     //print_pre($queryid);
     //print_pre($table);
+    //print_pre($columnsql);
     if (empty($this->cfg["buckets"])) {
       if (!$this->LazyOpen(0)) {
         Logger::Info("Database connection '{$this->name}' marked as failed, skipping CREATE query");
@@ -404,7 +414,7 @@ class DBWrapper extends ConnectionWrapper {
    * @param array $where
    * @return integer $count
    */
-  function &QueryCount($queryid, $table, $where, $extra=NULL) {
+  function &QueryCount($queryid, $table, $where=NULL, $extra=NULL) {
     $ret = 0;
     $servers = $this->HashToServer($queryid);
     foreach ($servers as $server) {
@@ -419,13 +429,17 @@ class DBWrapper extends ConnectionWrapper {
 
           $bindings = array();
           if (!empty($where)) {
-            $whereargs = array();
-            foreach ($where as $k=>$v) {
-              $whereargs[] = "$k=:{$k}";
-              $bindings[":".$k] = $v;
-            }
-            if (!empty($whereargs)) {
-              $query .= " WHERE " . implode(" AND ", $whereargs);
+            if (is_string($where)) {
+              $query .= " WHERE " . $where;
+            } else {
+              $whereargs = array();
+              foreach ($where as $k=>$v) {
+                $whereargs[] = "$k=:{$k}";
+                $bindings[":".$k] = $v;
+              }
+              if (!empty($whereargs)) {
+                $query .= " WHERE " . implode(" AND ", $whereargs);
+              }
             }
           }
           try {
@@ -748,9 +762,10 @@ class DataBase {
    */
   public function __construct($cfg, $connect = TRUE) {
     $this->dsn = self::dsn($cfg);
-    $this->username = $cfg["username"];
-    $this->password = $cfg["password"];
-    $this->driver_options = $cfg["driver_options"];
+    $this->username = isset($cfg["username"]) ? $cfg["username"] :  false;
+    $this->password = isset($cfg["password"]) ? $cfg["password"] : false;
+    $this->driver_options = isset($cfg["driver_options"]) ? $cfg["driver_options"] : null;
+    $this->cfg = $cfg;
     if ($connect) {
       $this->connect($this->dsn, $this->username, $this->password, $this->driver_options);
     }
@@ -774,13 +789,24 @@ class DataBase {
       // change the Statement Class that PDO uses.
       //$this->db->setAttribute(PDO::ATTR_STATEMENT_CLASS, array('DataBaseStatement', array($this->db)));
 
-      $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
+      $driver = $this->cfg["driver"];
+      
+      $this->db->setAttribute( PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
 
-      // fix multiple queries with mysql so we don't have to create multiple objects.
-      $this->db->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, TRUE);
+      switch ($this->cfg["driver"]) {
+        case 'mysql':
+          $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION );
 
-      // force lower case return column names
-      $this->db->setAttribute( PDO::ATTR_CASE, PDO::CASE_LOWER );
+          // fix multiple queries with mysql so we don't have to create multiple objects.
+          $this->db->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, TRUE);
+
+          // force lower case return column names
+          $this->db->setAttribute( PDO::ATTR_CASE, PDO::CASE_LOWER );
+          break;
+        case 'sqlite':
+          $this->db->setAttribute( PDO::ATTR_EMULATE_PREPARES, true );
+          break;
+      }
       
       // connection made, done
       $return = TRUE;

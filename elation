@@ -3,6 +3,7 @@
 ACTION=$1
 SUBACTION=$2
 RETVAL=
+shift 2
 
 export COMPONENTPATHS=$(pwd && [ -f config/elation.path ] && cat config/elation.path)
 export COMPONENTMEDIATYPES="css scripts images media"
@@ -137,6 +138,9 @@ component_disable() {
     [ -L "include/model/$FNAME" ] && rm include/model/$FNAME
   done
   echo DONE
+}
+component_run() {
+  ./util/component $*
 }
 
 db_init() {
@@ -292,7 +296,7 @@ case "$ACTION" in
   system)
     case "$SUBACTION" in
       package)
-        system_package $3
+        system_package $*
         ;;
       *)
         echo "Usage: $0 $ACTION [package]"
@@ -312,7 +316,7 @@ case "$ACTION" in
   web)
     case "$SUBACTION" in
       create)
-        web_create $3
+        web_create $*
         ;;
       init)
         web_init
@@ -335,16 +339,19 @@ case "$ACTION" in
     MODNAME=$3
     case "$SUBACTION" in
       create)
-        component_create $3
+        component_create $*
         ;;
       enable)
-        component_enable $3
+        component_enable $*
         ;;
       disable)
-        component_disable $3
+        component_disable $*
+        ;;
+      run)
+        component_run $*
         ;;
       *)
-        echo "Usage: $0 $ACTION [create|enable|disable]"
+        echo "Usage: $0 $ACTION [create|enable|disable|run]"
         ;;
     esac
     ;;

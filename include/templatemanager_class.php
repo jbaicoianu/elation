@@ -61,7 +61,6 @@ class TemplateManager extends Smarty {
 
   function __construct($root=".") {
     parent::__construct();
-
     if (!empty($root))
       $this->Init($root);
   }

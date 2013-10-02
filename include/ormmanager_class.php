@@ -29,9 +29,8 @@ class OrmManager {
 
   function GetModels() {
     $models = array();
-    //$cfg = ConfigManager::singleton();
-    //if ($modeldir = opendir($cfg->locations["config"] . "/model")) {
-    if ($modeldir = opendir("./config/model")) {
+    $cfg = ConfigManager::singleton();
+    if ($modeldir = opendir($cfg->locations["config"] . "/model")) {
       while ($file = readdir($modeldir)) {
         if (preg_match("/(.*?)\.model$/", $file, $m)) {
           $models[] = $m[1];

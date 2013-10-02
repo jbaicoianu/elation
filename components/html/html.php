@@ -15,9 +15,10 @@ class Component_html extends Component {
 
   public function controller_header($args) {
     if (empty($this->shown["header"])) { // Only allow header once per page
-      $vars["tracking"] = ConfigManager::get("tracking");
+      $cfg = ConfigManager::singleton();
+      $vars["tracking"] = any(ConfigManager::get("tracking"), $cfg->servers["tracking"], array());
       $this->shown["header"] = true;
-      return $this->GetTemplate("./header.tpl", $args);
+      return $this->GetTemplate("./header.tpl", $vars);
     }
     return "";
   }

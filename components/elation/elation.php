@@ -2,6 +2,7 @@
 
 class Component_elation extends Component {
   function init() {
+    ConfigManager::set("page.frame", "elation.siteframe");
   }
 
   function controller_elation($args, $output="inline") {

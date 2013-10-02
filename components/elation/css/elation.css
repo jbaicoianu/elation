@@ -1,72 +1,115 @@
+@font-face { /* FIXME - temp placeholder until I get a real image for the homepage */
+  font-family: 'Ruthie';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Ruthie'), local('Ruthie-Regular'), url(http://themes.googleusercontent.com/static/fonts/ruthie/v3/Di1LdjRzoaEvDmrQy1l_ww.woff) format('woff');
+}
+
 body {
-  padding: 0 4%;
+  color: #404040;
+  background: #efefef url(/images/elation/background.png);
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
-#index_content {
-  color: black;
-  background: #eee;
-  border: 1px solid black;
-  -webkit-border-radius: 10px;
-  -moz-border-radius: 10px;
-  max-width: 80em;
-  margin: 10% auto 5% auto;
-  padding: 2%;
+#container {
+  max-width: 50em;
+  margin: 0 auto;
+  padding: 0 2em;
+  position: relative;
 }
-#elation_dirview {
-  border: 1px solid black;
-  background: white;
-  list-style: none;
-  padding: .5em 1.2em .5em .5em;
-  float: left;
-  height: 20em;
-  overflow-y: auto;
-  overflow-x: hidden;
-  margin-right: .2em;
+h1 a {
+  text-decoration: none;
+  color: inherit;
 }
-#elation_fileview {
-  border: 1px solid black;
-  background: white;
-  height: 20em;
-  padding: .5em;
-  overflow-y: auto;
+h3 {
+  margin: 1em 0 0 0;
+  border-bottom: 2px solid rgba(0,0,0,.2);
 }
-#elation_fileview .elation_filecontents {
-  font-family: monospace;
-  white-space: pre;
+.elation_clear_after:after {
+  height: 0;
   display: block;
+  clear: both;
+  content: '.';
+  visibility: hidden;
 }
-#elation_dirview ul {
-  list-style: none;
+a {
+  color:#4682b4;
 }
-#elation_dirview ul li {
-  border-left: 1px dotted black;
-  background: url(/images/components/elation/dirstructure-entry.png) no-repeat top left;
-  padding-left: 1em;
-}
-#elation_dirview ul li:last-child {
-  border-left: 0;
-  background: url(/images/components/elation/dirstructure-corner.png) no-repeat top left;
-}
-#elation_dirview ul li.elation_file {
-  font-weight: normal;
-}
-#elation_dirview ul li.elation_dir {
-  font-weight: bold;
-}
-#index_content p {
-  margin: .5em 0;
-}
-#elation_demo_apps {
-  list-style: none;
-}
-#elation_demo_apps li.elation_demo_app {
+a.elation_button_large {
+  background-color:#4682b4;
+  background-image:-webkit-gradient(linear, left top, left bottom, from(#5fb0f4), to(#4682b4));
+  background-image:-webkit-linear-gradient(top, #5fb0f4, #4682b4);
+  background-image:-moz-linear-gradient(top, #5fb0f4, #4682b4);
+  background-image:-ms-linear-gradient(top, #5fb0f4, #4682b4);
+  background-image:-o-linear-gradient(top, #5fb0f4, #4682b4);
+  background-image:linear-gradient(top, #5fb0f4, #4682b4);
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#5fb0f4, endColorstr=#4682b4);
+  border:1px solid #386890;
+  color:#fff;
+  text-shadow:0 1px 0 #386890;
+  padding: 15px 35px;
+  text-decoration: none;
   display: inline-block;
-  width: 20%;
-  min-width: 5em;
+  white-space: nowrap;
+  font-weight: bold;
+  border-radius: 2px;
+  box-shadow: 2px 2px 4px #999;
+}
+a.elation_button_large:hover {
+  background-color:#4682b4;
+  background-image:-webkit-gradient(linear, left top, left bottom, from(#4682b4), to(#4682b4));
+  background-image:-webkit-linear-gradient(top, #4682b4, #4682b4);
+  background-image:-moz-linear-gradient(top, #4682b4, #4682b4);
+  background-image:-ms-linear-gradient(top, #4682b4, #4682b4);
+  background-image:-o-linear-gradient(top, #4682b4, #4682b4);
+  background-image:linear-gradient(top, #4682b4, #4682b4);
+    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#4682b4, endColorstr=#4682b4);
+  border:1px solid #386890;
+  color:#fff;
+  text-shadow:0 1px 0 #386890;
+}
+a.elation_button_large:active {
+  box-shadow: 0 0 0 #999;
+  -webkit-transform: translate(2px, 2px);
+  -moz-transform: translate(2px, 2px);
+  -o-transform: translate(2px, 2px);
+  -ie-transform: translate(2px, 2px);
+  transform: translate(2px, 2px);
+}
+code.codeblock {
+  display: block;
+  white-space: pre-wrap;
   border: 1px solid black;
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  border-radius: 5px;
   background: white;
-  padding: 1em;
-  vertical-align: top;
+  padding: 0 1em;
+}
+
+
+/* screen size overrides */
+@media all and (max-width: 480px) {
+  #container {
+    padding: 0;
+    margin: 0;
+    font-size: .6em;
+  }
+  #container .elation_navigation {
+    padding: 0;
+    margin: 0;
+  }
+  #container .elation_homepage_section {
+    padding: 1em .5em;
+  }
+  #container .elation_homepage_main .panel_left {
+    padding: 1em 0;
+    margin-right: 0;
+    margin: 0 auto;
+    text-align: center;
+    width: auto;
+  }
+  #container .elation_homepage_main .panel_right {
+    display: none;
+  }
+  #container .elation_homepage_demos .elation_demo {
+    width: auto;
+    display: block;
+  }
 }

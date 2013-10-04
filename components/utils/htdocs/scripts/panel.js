@@ -130,7 +130,7 @@ elation.extend('panel', new function(options) {
     this.load_tab_content(panel, target, item);
 	}
 	
-	this.load_tab_content = function(panel, target, item) {
+	this.load_tab_content = function(panel, target, item, msg) {
     ajaxlib.xmlhttp.abort();
     
 		var	target = (typeof target == 'string')
@@ -244,8 +244,8 @@ elation.extend('panel', new function(options) {
 		if (!panel.container.style.minHeight)
 			panel.container.style.minHeight = panel.container.offsetHeight + 'px';
 		
-		if (panel.cfg.spinner)
-			panel.container.innerHTML = panel.cfg.spinner;
+		if (panel.cfg.spinner || msg)
+			panel.container.innerHTML = msg || panel.cfg.spinner;
 		
 		// Merge args from both the panel and any specified contentcomponentargs
 		var urlargs = {};

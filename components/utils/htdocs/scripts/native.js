@@ -15,7 +15,12 @@ elation.extend("native", new function() {
       // iOS UIWebView
       var url = 'elation-event:' + ev.type;
       if (ev.data) {
-        url += "/" + elation.JSON.stringify(ev.data);
+        try {
+          var jsondata = elation.JSON.stringify(ev.data);
+          url += "/" + jsondata;
+        } catch (e) {
+          console.log("Couldn't encode event data for event type " + ev.type, ev);
+        }
       }
       var iframe = elation.html.create('iframe');
       iframe.src = url;

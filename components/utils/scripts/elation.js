@@ -149,7 +149,7 @@ elation.extend("component", new function() {
         elements.push(element);
       }
     } else if (typeof $TF != 'undefined') {
-      var elements = $TF("["+this.namespace+"\\:"+this.attrs.componenttype+"]"); 
+      var elements = $TF("["+this.namespace+"\\:"+this.attrs.componenttype+"]", root); 
     } else {
       var elements = [];
     }
@@ -183,7 +183,12 @@ elation.extend("component", new function() {
                     }
                   }
                   if (content.length > 0) {
-                    var newcomponentargs = JSON.parse(content);
+                    var newcomponentargs = '';
+                    try {
+                      newcomponentargs = JSON.parse(content);
+                    } catch (e) {
+                      newcomponentargs = content;
+                    }
                     element.removeChild(element.children[j]);
                     if (componentargs != null) { // empty JSON could cause errors later, so reset null to an empty hash
                       elation.utils.merge(newcomponentargs, mergeto);
@@ -236,6 +241,7 @@ elation.extend("component", new function() {
         component.obj[name] = new component.base(type);
         component.objcount++;
         if (container) {
+          container.setAttribute(elation.component.namespace+':'+elation.component.attrs.componenttype, type);
           container.setAttribute(elation.component.namespace+':'+elation.component.attrs.componentname, name);
         }
       }
@@ -258,9 +264,11 @@ elation.extend("component", new function() {
     component.base.prototype = new this.base(type);
     if (extendclass) {
       component.base.prototype.extend(new extendclass());
+      component.extendclass = extendclass.classdef;
     }
     if (classdef) {
       component.base.prototype.extend((typeof classdef == 'function' ? new classdef() : classdef));
+      component.classdef = classdef;
     }
     elation.extend(type, component); // inject the newly-created component wrapper into the main elation object
   }
@@ -790,6 +798,12 @@ elation.extend("html.transform", function(el, transform, origin, transition) {
   if (origin) { // Optionally, set transform origin
     el.style.webkitTransformOrigin = el.style.MozTransformOrigin = el.style.msTransformOrigin = el.style.transformOrigin = origin;
   }
+
+  return {
+    transform: el.style.webkitTransform || el.style.MozTransform || el.style.msTransform || el.style.transform,
+    transformorigin: el.style.webkitTransformOrigin || el.style.MozTransformOrigin || el.style.msTransformOrigin || el.style.transformOrigin,
+    transition: el.style.webkitTransition || el.style.MozTransition || el.style.msTransition || el.style.transition
+  };
 });
 elation.extend("html.stylecopy", function(dst, src, styles) {
   if (typeof styles == 'string') {
@@ -1505,7 +1519,7 @@ elation.extend("find", function(selectors, parent, first) {
 
 // grabs a js or css file and adds to document
 elation.extend('file.get', function(type, file, func) {
-  if (!type || !file)
+  if (!type || !file || typeof document == 'undefined')
     return false;
   
   var	head = document.getElementsByTagName("HEAD")[0],

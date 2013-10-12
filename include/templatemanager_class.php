@@ -278,6 +278,13 @@ class TemplateManager extends Smarty {
     $this->components =& $components;
   }
 
+  function SetVarReplace($key, $val, $append=false) {
+    if ($append) {
+      $this->varreplace[$key] .= $val;
+    } else { 
+      $this->varreplace[$key] = $val;
+    }
+  }
   function PostProcess(&$output, $simpledebug=false) {
     global $webapp;
 

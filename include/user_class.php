@@ -2,11 +2,24 @@
 // FIXME/TODO - this is a dummy class, and does not actually implement any of 
 //              the methods necessary to represent a logged-in user.
 
-class User {
+OrmManager::LoadModel("user");
+
+class User extends UserModel {
   protected static $instance = NULL;
   public static $usertypes = array("anonymous");
 
   public function InitActiveUser($req) {
+    if (!empty($_SESSION["user"])) {
+      $usertype = $_SESSION["user"]["usertype"];
+      $userid = $_SESSION["user"]["userid"];
+      $user = OrmManager::load("UserModel", array($usertype, $userid));
+      if (!empty($user)) {
+        $this->usertype = $user->usertype;
+        $this->userid = $user->userid;
+        return true;
+      }
+    }
+    return false;
   }
   public function IsLoggedIn() {
     return false;
@@ -22,6 +35,24 @@ class User {
   public function save() {
   }
 
+  public static function create($usertype, $userid, $credentials) {
+    $user = new User();
+    $user->usertype = $usertype;
+    $user->userid = $userid;
+    $user->credentials = crypt($credentials, '$6$rounds=5000$' . substr(md5(mt_rand()), rand(0,8), rand(16,24))); // just bein' random!
+    OrmManager::save($user);
+
+    return self::auth($usertype, $userid, $credentials);
+  }
+  public static function auth($usertype, $userid, $credentials) {
+    $user = OrmManager::load("UserModel", array($usertype, $userid));
+    $credentialsHash = crypt($credentials, $user->credentials);
+    if ($user->credentials == $credentialsHash) {
+      $_SESSION["user"] = array("usertype" => $usertype, "userid" => $userid);
+      return $user;
+    }
+    return false;
+  }
   public static function authorized($role) {
     $user = self::singleton();
     return $user->HasRole($role);

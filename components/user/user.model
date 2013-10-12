@@ -1,0 +1,26 @@
+{
+  "name":"user",
+  "classes":{
+    "UserModel":{
+      "table":"users.user",
+      "props":{
+        "usertype":      ["usertype", "varchar(255)", {"pk":true}],
+        "userid":        ["userid", "varchar(255)", {"pk":true}],
+        "credentials":   ["credentials", "varchar(255)"],
+        "created_time":  ["created_time", "timestamp", {"defaultExpr":"CURRENT_TIMESTAMP"}],
+        "modified_time": ["modified_time", "timestamp"]
+      }
+    },
+    "UserSettingModel":{
+      "table":"users.user_setting",
+      "props":{
+        "usertype":      ["usertype", "varchar(255)", {"pk":true}],
+        "userid":        ["userid", "varchar(255)", {"pk":true}],
+        "name":          ["name", "varchar(255)", {"pk":true}],
+        "value":         ["value", "text"],
+        "created_time":  ["created_time", "timestamp", {"defaultExpr":"CURRENT_TIMESTAMP"}],
+        "modified_time": ["modified_time", "timestamp"]
+      }
+    }
+  }
+}

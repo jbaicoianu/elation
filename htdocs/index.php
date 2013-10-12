@@ -8,8 +8,6 @@ $root = preg_replace("|/htdocs$|", "", getcwd());
 chdir($root);
 elation_readpaths($root);
 
-putenv('TZ=America/Los_Angeles');
-
 include_once("include/webapp_class.php");
 include_once("lib/profiler.php");
 

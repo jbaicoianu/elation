@@ -20,13 +20,9 @@ class Component_elation_orm extends Component {
       $ret["ormcfg"] = new OrmModel($args["model"]);
       if ($args["ormaction"] == "create" && !empty($args["classname"])) {
         $ormclass = new OrmClass($ret["ormcfg"]->classes->{$args["classname"]});
-        //$sql = $ormclass->getCreateSql();
 
         $sqlkey = "db." . $ormclass->table . ".create:nocache";
-/*
-        print_pre($ormclass->table);
-        print_pre($ormclass->getColumns());
-*/
+        /*
         $outlet = Outlet::getInstance();
         $pdo = $outlet->getConnection()->getPDO();
         if ($pdo) {
@@ -38,10 +34,14 @@ class Component_elation_orm extends Component {
             $ret["error"] = $e->getMessage();
           }
         }
-        /*
-        $data = DataManager::singleton();
-        $data->QueryCreate($sqlkey, $ormclass->table, $ormclass->getColumns($sql));
         */
+        try {
+          if (DataManager::create($sqlkey, $ormclass->table, $ormclass->getColumns())) {
+            $ret["success"] = "Table '{$ormclass->table}' created successfully";
+          }
+        } catch(Exception $e) {
+          $ret["error"] = $e->getMessage();
+        }
       }
     }
 
@@ -63,12 +63,15 @@ class Component_elation_orm extends Component {
   function controller_view($args) {
     $ret = $this->GetComponentResponse("./orm_view.tpl");
     $ret["ormcfg"] = $args["ormcfg"];
+    $ret["model"] = any($args["model"], "");
 
     return $ret;
   }
   function controller_view_class($args) {
     $ret = $this->GetComponentResponse("./orm_view_class.tpl");
     $ret["ormclass"] = new OrmClass($args["ormcfg"]);
+    $ret["model"] = any($args["model"], "");
+    $ret["classname"] = any($args["classname"], "");
     $ret["sql"] = $ret["ormclass"]->getCreateSQL();
     return $ret;
   }

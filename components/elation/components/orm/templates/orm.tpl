@@ -7,7 +7,7 @@
 {if !empty($success)}<h4 class="success">{$success|escape:html}</h4>{/if}
 
 {if !empty($ormcfg)}
- {component name="elation.orm.view" ormcfg=$ormcfg}
+ {component name="elation.orm.view" model=$model ormcfg=$ormcfg}
 {/if}
 
 {component name="html.footer"}

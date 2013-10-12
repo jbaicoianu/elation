@@ -92,10 +92,11 @@ class OrmManager {
       return self::singleton()->load($type, $id);
   }
   function Save($obj) {
-    if ($this instanceOf OrmManager)
-      return $this->outlet->save($obj);
-    else
+    if ($this instanceOf OrmManager) {
+      $this->outlet->save($obj);
+    } else {
       return self::singleton()->save($obj);
+    }
   }
   function From($obj) {
     if ($this instanceOf OrmManager)

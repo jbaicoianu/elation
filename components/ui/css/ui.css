@@ -1,6 +1,6 @@
-#button1 {
-  background-image: url(http://s.tfcdn.com/images/search/buttonFind.png);
-  width: 37px;
-  height: 37px;
+body {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  margin-bottom: 20em;
 }
-

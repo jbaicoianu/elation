@@ -1,5 +1,4 @@
-{component name="html.header"}
-{component name="notes" id="notes1" events=$events.notes1}
+{dependency name="ui"}
 <ul>
   <li>
     <h2>ui.button</h2>
@@ -21,6 +20,14 @@
   <li>
     <h2>ui.treeview</h2>
     {component name="ui.treeview" id="treeview1" events=$events.treeview1 items=$treeviewitems}
+  </li>
+  <li>
+    <h2>ui.accordion</h2>
+    {component name="ui.accordion" id="accordion1" events=$events.accordion1 items=$accordionitems}
+  </li>
+  <li>
+    <h2>ui.window</h2>
+    {component name="ui.window" id="window1" events=$events.window1 title="Window 1" content="This is window 1, you can move me around"}
   </li>
 </ul>
 {component name="html.footer"}

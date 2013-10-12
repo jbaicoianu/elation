@@ -1,6 +1,7 @@
 if (typeof require == 'function') var elation = require("utils/elation");
 elation.extend("events", {
   events: {},
+  cloneattrs: ['type', 'bubbles', 'cancelable', 'view', 'detail', 'screenX', 'screenY', 'clientX', 'clientY', 'ctrlKey', 'shiftKey', 'altKey', 'metaKey', 'button', 'relatedTarget', 'target', 'element', 'data', 'origin', 'timeStamp'],
   
   fire: function(type, data, target, element, fn) {
     var extras = {};
@@ -9,9 +10,19 @@ elation.extend("events", {
       target = elation.utils.arrayget(type, 'target') || target;
       element = elation.utils.arrayget(type, 'element') || element;
       fn = elation.utils.arrayget(type, 'fn') || fn;
+      var cloneev = type.event || {};
 
-      if (type.clientX) extras.clientX = type.clientX;
-      if (type.clientY) extras.clientY = type.clientY;
+      for (var k in this.cloneattrs) {
+        var attr = this.cloneattrs[k];
+        if (!elation.utils.isNull(type[attr])) extras[attr] = type[attr];
+        else if (!elation.utils.isNull(cloneev[attr])) extras[attr] = cloneev[attr];
+      }
+/*
+      if (!elation.utils.isNull(type.clientX)) extras.clientX = type.clientX;
+      if (!elation.utils.isNull(type.clientY)) extras.clientY = type.clientY;
+      if (!elation.utils.isNull(type.button)) extras.button = type.button;
+      if (!elation.utils.isNull(type.keyCode)) extras.keyCode = type.keyCode;
+*/
 
       type = elation.utils.arrayget(type, 'type');
     }
@@ -96,8 +107,9 @@ elation.extend("events", {
       target: element, 
       origin: fn,
       custom_event: custom_event_name,
-      preventDefault: function() { return; },
+      preventDefault: function() { this.returnValue = false; return; },
       stopPropagation: function() { this.cancelBubble = true; return; },
+      returnValue: true,
       cancelBubble: false
     };
     
@@ -349,12 +361,11 @@ elation.extend("events", {
 	},
 
   clone: function(ev,  overrides) {
-    var attrs = ['type', 'bubbles', 'cancelable', 'view', 'detail', 'screenX', 'screenY', 'clientX', 'clientY', 'ctrlKey', 'shiftKey', 'altKey', 'metaKey', 'button', 'relatedTarget', 'target', 'element', 'data', 'origin', 'timeStamp'];
     var newev = {};
-    for (var i = 0; i < attrs.length; i++) {
-      var foo = elation.utils.any(overrides[attrs[i]], ev[attrs[i]]);
+    for (var i = 0; i < this.cloneattrs.length; i++) {
+      var foo = elation.utils.any(overrides[this.cloneattrs[i]], ev[this.cloneattrs[i]]);
       if (foo !== null) {
-        newev[attrs[i]] = foo;
+        newev[this.cloneattrs[i]] = foo;
       }
     }
     return elation.events.fix(newev);

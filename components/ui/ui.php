@@ -84,6 +84,28 @@ class Component_ui extends Component {
         "label" => "Button 3"
       )
     );
+    $vars["accordionitems"] = array(
+      array(
+        "title" => "Accordion Item #1",
+        "content" => "This is the content for accordion item #1\n\nSuper cool shit"
+      ),
+      array(
+        "title" => "Accordion Item #2",
+        "content" => "This is the content for accordion item #2"
+      ),
+      array(
+        "title" => "Accordion Item #3",
+        "content" => "This is the content for accordion item #2"
+      ),
+      array(
+        "title" => "Accordion Item #4",
+        "content" => "This is the content for accordion item #4"
+      ),
+      array(
+        "title" => "Accordion Item #5",
+        "content" => "This is the content for accordion item #5"
+      ),
+    );
     return $this->GetComponentResponse("./ui.tpl", $vars);
   }
   public function controller_button($args) {
@@ -167,5 +189,18 @@ class Component_ui extends Component {
     $vars["id"] = any($args["id"], "tf_utils_input_" . $vars["inputname"]);
     $vars["value"] = any($args["value"], "");
     return $this->GetComponentResponse("./textarea.tpl", $vars);
+  }
+  function controller_accordion($args) {
+    $vars["class"] = any($args["class"], false);
+    $vars["id"] = any($args["id"], "tf_utils_input_" . $vars["inputname"]);
+    $vars["items"] = any($args["items"], "");
+    return $this->GetComponentResponse("./accordion.tpl", $vars);
+  }
+  function controller_window($args) {
+    $vars["class"] = any($args["class"], false);
+    $vars["id"] = any($args["id"], "tf_utils_input_" . $vars["inputname"]);
+    $vars["title"] = any($args["title"], "(untitled)");
+    $vars["content"] = any($args["content"], "");
+    return $this->GetComponentResponse("./window.tpl", $vars);
   }
 }  

@@ -1,4 +1,4 @@
-//elation.template.add('orm.class.property.connector', '<span elation:component="orm.connector" elation:args.direction="in"></span><span elation:component="orm.connector" elation:args.direction="out"></span>', 'dust');
+//elation.template.add('orm.class.property.connector', '<span data-elation-component="orm.connector" data-elation-args.direction="in"></span><span data-elation-component="orm.connector" data-elation-args.direction="out"></span>', 'dust');
 elation.template.add('orm.class.property.view', '<span class="orm_class_property_name">{name}</span> <span class="orm_class_property_type">({type})</span>', 'dust');
 elation.template.add('orm.class.property.edit', '<span class="orm_class_property_name"><input name="name" value="{name}" /></span> <span class="orm_class_property_type"><select name="type">{#alltypes}<option{@eq key=type value=.} selected{/eq}>{.}</option>{/alltypes}</select></span>', 'dust');
 

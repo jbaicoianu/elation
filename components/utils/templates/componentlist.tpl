@@ -1,7 +1,7 @@
-<ul{if !empty($id)} id="{$id}"{/if}{if !empty($classname)} class="{$classname}"{/if}{if $root} elation:component="utils.componentlist"{/if}>
-  <elation:args>
+<ul{if !empty($id)} id="{$id}"{/if}{if !empty($classname)} class="{$classname}"{/if}{if $root} data-elation-component="utils.componentlist"{/if}>
+  <data class="elation-args">
     {ldelim}"components":{jsonencode var=$components}{rdelim}
-  </elation:args>
+  </data>
 
   {foreach from=$components key=name item=component}
     <li draggable="true" class="tf_utils_button_draggable">

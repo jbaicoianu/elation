@@ -1,19 +1,11 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:elation="http://www.ajaxelation.com/xmlns">
-{*
-<html xmlns="http://www.w3.org/1999/xhtml"
-  {if !empty($webapp->cobrand)} id="tf_cobrand_{$webapp->cobrand}"{/if} 
-  {if $webapp->sitecfg.page.facebook.enabled} xmlns:fb="http://www.facebook.com/2008/fbml"{/if}
-  {if $webapp->sitecfg.page.manifest.enabled} manifest="/offline.manifest"{/if}
->
-*}
+<html>
 <head>
   <title>[[page.pretitle]][[page.title:{$pageTitle|default:"Untitled Page"}]][[page.appendtitle]]</title>
   
   {config}
-    {dependency type="javascript" url="//ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"}
-    
-    {dependency type="component" name="utils.initjquery"}
+    {* dependency type="javascript" url="//ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js" *}
+    {* dependency type="component" name="utils.initjquery" *}
     {dependency type="component" name="utils.elation"}
     {dependency type="component" name="utils.browser"}
     {dependency type="component" name="utils.tracking"}

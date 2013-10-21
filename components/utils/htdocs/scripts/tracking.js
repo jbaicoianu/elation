@@ -454,27 +454,43 @@ elation.extend('googleanalytics', function(args) {
   this.trackEvent = function(args) {
     switch (args.length) {
       case 2:
-        if (this.GAalerts) this.displayTag('trackEvent('+args[0]+','+args[1]+')');
         try {
-          this.pageTracker._trackEvent(args[0], args[1]);
+          var ga_status = this.pageTracker._trackEvent(args[0], args[1]);
+          if (this.GAalerts && !ga_status){
+            this.displayTag("trackEvent Error: "+args[0]);
+          } else {
+            if (this.GAalerts) this.displayTag('trackEvent('+args[0]+','+args[1]+')');
+          }
         } catch (err) {if (this.GAalerts) this.displayTag("trackEvent Error: "+err.description)}
         break;
       case 3:
-        if (this.GAalerts) this.displayTag('trackEvent('+args[0]+','+args[1]+','+args[2]+')');
         try {
-          this.pageTracker._trackEvent(args[0], args[1], args[2]);
+          var ga_status = this.pageTracker._trackEvent(args[0], args[1], args[2]);
+          if (this.GAalerts && !ga_status){
+            this.displayTag("trackEvent Error: "+args[0]);
+          } else {
+              if (this.GAalerts) this.displayTag('trackEvent('+args[0]+','+args[1]+','+args[2]+')');
+          }
         } catch (err) {if (this.GAalerts) this.displayTag("trackEvent Error: "+err.description)}
         break;
       case 4:
-        if (this.GAalerts) this.displayTag('trackEvent('+args[0]+','+args[1]+','+args[2]+','+args[3]+')');
         try {
-          this.pageTracker._trackEvent(args[0], args[1], args[2], args[3]);
+          var ga_status = this.pageTracker._trackEvent(args[0], args[1], args[2], args[3]);
+          if (this.GAalerts && !ga_status){
+            this.displayTag("trackEvent Error: "+args[0]);
+          } else {
+            if (this.GAalerts) this.displayTag('trackEvent('+args[0]+','+args[1]+','+args[2]+','+args[3]+')');
+          }
         } catch (err) {if (this.GAalerts) this.displayTag("trackEvent Error: "+err.description)}
         break;
       case 5:
-        if (this.GAalerts) this.displayTag('trackEvent('+args[0]+','+args[1]+','+args[2]+','+args[3]+','+args[4]+')');
         try {
-          this.pageTracker._trackEvent(args[0], args[1], args[2], args[3], args[4]);
+          var ga_status = this.pageTracker._trackEvent(args[0], args[1], args[2], args[3], args[4]);
+          if (this.GAalerts && !ga_status){
+            this.displayTag("trackEvent Error: "+args[0]);
+          } else {
+            if (this.GAalerts) this.displayTag('trackEvent('+args[0]+','+args[1]+','+args[2]+','+args[3]+','+args[4]+')');
+          }
         } catch (err) {if (this.GAalerts) this.displayTag("trackEvent Error: "+err.description)}
         break;
     }

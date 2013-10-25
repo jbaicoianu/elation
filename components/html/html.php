@@ -76,7 +76,8 @@ class Component_html extends Component {
     $args['GAenabled'] = $args['pagegroup'] ? any(ConfigManager::get("tracking.googleanalytics.enabled"),$webapp->cfg->servers['tracking']['googleanalytics']['enabled']) : 0;
     $args['GAalerts'] = $webapp->GAalerts;
 
-    $args['trackingcode'] = $webapp->cfg->servers['tracking']['googleanalytics']['trackingcode'];
+    $args['trackingcode'] = any(ConfigManager::get("tracking.googleanalytics.trackingcode"), $webapp->cfg->servers['tracking']['googleanalytics']['trackingcode']);
+
     $args['category'] = any($analytics->category, $analytics->pandora_result['top_category'], $analytics->item->category, $analytics->qpmquery['protocolheaders']['category'], 'none');
     $args['subcategory'] = preg_replace("#\s#", "_", any($analytics->subcategory, $analytics->pandora_result['top_subcategory'], 'none'));
     $args['city'] = "Mountain View";

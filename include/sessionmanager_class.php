@@ -109,6 +109,11 @@ class SessionManager
 
     $this->data = DataManager::singleton();
     Profiler::StartTimer("SessionManager::Init()", 2);
+    $cfgmgr = ConfigManager::singleton();
+    $sessionsource = array_get($cfgmgr->servers, "session.datasource");
+    if (!empty($sessionsource)) {
+      $this->sessionsource = $sessionsource;
+    }
 
     /*
     if ($this->data->caches["memcache"]["session"] !== NULL) {
@@ -254,11 +259,6 @@ class SessionManager
       $this->fluid = $session_memcache["fluid"];
 
     if (empty($session_memcache) && !$this->is_new_user) {
-      /*
-      $result = $this->data->Query("db.userdata.usersession.{$this->flsid}:nocache",
-                                   "SELECT data FROM usersession.usersession WHERE fl_uid=:fl_uid LIMIT 1",
-                                   array(":fl_uid" => $this->fluid));
-      */
       $result = DataManager::QueryFetch($this->sessionsource . "#{$this->fluid}",
                                    $this->sessiontable,
                                    array("fl_uid" => $this->fluid));
@@ -487,12 +487,6 @@ class SessionManager
         //$this->cache_obj->set($id, $_SESSION, 0, $this->session_cache_expire);
         DataManager::update("memcache.session#{$id}", $id, $_SESSION);
       } else {
-        /*
-        $result = $this->data->Query("db.userdata.usersession.{$id}:nocache",
-                                     "UPDATE usersession.usersession SET data=:data WHERE fl_uid=:fl_uid",
-                                     array(":data" => $pdata_serialize, ":fl_uid"  => $this->fluid)
-                                     );
-        */
         $result = $this->data->QueryUpdate($this->sessionsource . "#{$this->fluid}",
                                      $this->sessiontable,
                                      array($this->fluid => array("data" => $pdata_serialize)), 

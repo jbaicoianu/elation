@@ -135,8 +135,6 @@ class DBWrapper extends ConnectionWrapper {
    */
   function &QueryInsert($queryid, $table, $values, $extra=NULL) {
     $servers = $this->HashToServer($queryid);
-Logger::Error("INSERT THE THING");
-Logger::Error($servers);
     $failed = false;
     Profiler::StartTimer("DBWrapper:QueryInsert()");
     foreach ($servers as $server) {

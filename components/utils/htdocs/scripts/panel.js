@@ -132,6 +132,13 @@ elation.extend('panel', new function(options) {
 	
 	this.load_tab_content = function(panel, target, item, msg) {
     ajaxlib.xmlhttp.abort();
+
+    this.tracking = true;
+    if(item == null){
+      //if item is null, This function is invoked manually instead of a click event
+      //set tracking false
+      this.tracking = false;
+    }
     
 		var	target = (typeof target == 'string')
 					? document.getElementById(target)
@@ -155,7 +162,8 @@ elation.extend('panel', new function(options) {
           break;
         
         case "infocard_popup":
-          googleAnalytics.trackEvent(['popup_tab', item.name]);
+          if( item.name == 'about_store') item.name = 'store';
+          if(this.tracking) googleAnalytics.trackEvent(['quick look tab', item.name]);
           break;
         
         default:
@@ -322,7 +330,14 @@ elation.extend('panel', new function(options) {
 			elation.html.removeclass(panel.li, 'selected');
 		
 		elation.html.addclass(li, 'selected');
-		
+
+    //make a GA call for quick look view
+    if(this.tracking){
+      setTimeout( function() {
+       elation.results.view.quicklook_view();
+      }, 1000);
+    }
+
 		return panel.li = li;
 	}
 	

@@ -114,6 +114,10 @@ class SessionManager
     if (!empty($sessionsource)) {
       $this->sessionsource = $sessionsource;
     }
+    $sessiontable = array_get($cfgmgr->servers, "session.table");
+    if (!empty($sessiontable)) {
+      $this->sessiontable = $sessiontable;
+    }
 
     /*
     if ($this->data->caches["memcache"]["session"] !== NULL) {

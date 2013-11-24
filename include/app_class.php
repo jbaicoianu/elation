@@ -35,6 +35,8 @@ class App {
     Profiler::StartTimer("WebApp::Init", 1);
     Profiler::StartTimer("WebApp::TimeToDisplay", 1);
 
+    $GLOBALS["webapp"] = $this;
+
     register_shutdown_function(array('Logger','processShutdown'));
 
     ob_start();

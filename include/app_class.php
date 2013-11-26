@@ -336,16 +336,17 @@ class App {
     if (empty($req))
       $req = $this->request;
 
-    //default cobrand from redirects.xml is stored in the request as "cobrand-default"
-    if (!empty($req["args"]["cobrand-default"]) && is_string($req["args"]["cobrand-default"])) {
-      $ret = $req["args"]["cobrand-default"];
-    }
     //overrided cobrand is in the request as "cobrand"
     if (!empty($req["args"]["cobrand"]) && is_string($req["args"]["cobrand"])) {
       $ret = $req["args"]["cobrand"];
       $_SESSION["temporary"]["cobrand"] = $ret;
     } else if (!empty($_SESSION["temporary"]["cobrand"])) {
       $ret = $_SESSION["temporary"]["cobrand"];
+    }
+
+    //cobrand from redirects.xml is stored in the request as "cobrand-force"
+    if (!empty($req["args"]["cobrand-force"]) && is_string($req["args"]["cobrand-force"])) {
+      $ret = $req["args"]["cobrand-force"];
     }
 
     Logger::Info("Requested config is '$ret'");

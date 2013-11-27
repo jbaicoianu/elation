@@ -7,3 +7,6 @@
 [submodule "components/space"]
 	path = components/space
 	url = git@github.com:jbaicoianu/elation-component-space.git
+[submodule "components/filehost"]
+	path = components/filehost
+	url = git@github.com:jbaicoianu/elation-filehost.git

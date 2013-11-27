@@ -61,9 +61,9 @@
         pandoraLog = new TFHtmlUtilsPandoraLog();
       {rdelim});
     </script>
-  {/if}
+    {component name="utils.panel" type="tracking"}
 
-  {component name="utils.panel" type="tracking"}
+  {/if}
 
  </body>
 </html>

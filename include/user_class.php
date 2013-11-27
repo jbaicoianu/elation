@@ -7,6 +7,7 @@ OrmManager::LoadModel("user");
 class User extends UserModel {
   protected static $instance = NULL;
   public static $usertypes = array("anonymous");
+  public $loggedin = false;
 
   public function InitActiveUser($req) {
     if (!empty($_SESSION["user"])) {
@@ -16,13 +17,14 @@ class User extends UserModel {
       if (!empty($user)) {
         $this->usertype = $user->usertype;
         $this->userid = $user->userid;
+        $this->loggedin = true;
         return true;
       }
     }
     return false;
   }
   public function IsLoggedIn() {
-    return false;
+    return $this->loggedin;
   }
   public function HasRole($role) {
     return true; // FIXME - hardcoded to true, since this is just a dummy class right now...
@@ -49,6 +51,7 @@ class User extends UserModel {
     $credentialsHash = crypt($credentials, $user->credentials);
     if ($user->credentials == $credentialsHash) {
       $_SESSION["user"] = array("usertype" => $usertype, "userid" => $userid);
+      $user->loggedin = true;
       return $user;
     }
     return false;
@@ -64,4 +67,12 @@ class User extends UserModel {
     }
     return self::$instance;
   }
+  public static function current() {
+    return self::singleton();
+  }
+  public static function get($usertype, $userid) {
+    $user = OrmManager::load("UserModel", array($usertype, $userid));
+    return $user;
+  }
 }
+class ElationUserAuthException extends Exception { }

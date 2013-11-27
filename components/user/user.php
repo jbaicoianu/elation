@@ -17,7 +17,6 @@ class Component_user extends Component {
 
     if (!empty($vars["userid"]) && !empty($vars["credentials"])) {
       $user = User::create("default", $vars["userid"], $vars["credentials"]);
-print_pre($user);
     }
     return $this->GetComponentResponse("./create.tpl", $vars);
   }
@@ -25,20 +24,29 @@ print_pre($user);
     $vars = array();
     $vars["userid"] = any($args["userid"], "");
     $vars["credentials"] = any($args["credentials"], "");
+    $vars["success"] = false;
     if (!empty($vars["userid"]) && !empty($vars["credentials"])) {
       $vars["user"] = User::auth("default", $vars["userid"], $vars["credentials"]);
       if (!empty($vars["user"])) {
         $vars["success"] = true;
-      } else {
-        $vars["failed"] = true;
       }
     }
-    
     return $this->GetComponentResponse("./auth.tpl", $vars);
   }
   public function controller_logout($args) {
     $vars = array();
     unset($_SESSION["user"]);
     return $this->GetComponentResponse("./logout.tpl", $vars);
+  }
+  public function controller_exists($args) {
+    $vars["usertype"] = any($args["usertype"], "default");
+    $vars["userid"] = $args["userid"];
+
+    $user = false;
+    if (!empty($vars["userid"])) {
+      $user = User::get($vars["usertype"], $vars["userid"]);
+    }
+    $vars["success"] = !empty($user);
+    return $this->GetComponentResponse("./exists.tpl", $vars);
   }
 }  

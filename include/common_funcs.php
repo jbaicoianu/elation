@@ -1000,3 +1000,11 @@ function hexdump($data, $width=16) {
   }
   print "<pre>" . $dump . "</pre>";
 }
+function mysql_timestamp($time=false) {
+  if ($time === false) {
+    $time = time();
+  } else if (!is_numeric($time)) {
+    $time = strtotime($time);
+  }
+  return date('Y-m-d H:i:s', $time);
+}

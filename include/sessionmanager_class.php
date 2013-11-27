@@ -124,10 +124,12 @@ class SessionManager
 
     // Set session cookie params
     $domain = null;
+    $cfgmgr = ConfigManager::singleton();
     $sessioncfg = any($cfgmgr->servers["session"], array());
     $sessionpath = any($sessioncfg["cookiepath"], "/");
     if ($sessioncfg["domaincookie"]) {
       // Determine second-level domain, taking into account any known ccSLDs (.co.uk, etc)
+      global $webapp;
       $FQDN = $webapp->request["host"];
       $knownccSLDs = explode(" ", any($sessioncfg["ccSLDs"], ""));
       $parts = explode(".", $FQDN);

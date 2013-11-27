@@ -196,6 +196,9 @@ class App {
             print Profiler::Display();
           }
         }
+        if ($output["http_status"]) {
+          $contegargs["http_status"] = $output["http_status"];
+        }
         Profiler::StopTimer("WebApp::TimeToDisplay");
         Profiler::StartTimer("WebApp::Display() - Conteg", 1);
         new Conteg($contegargs);

@@ -152,8 +152,8 @@ class Component_ui extends Component {
     // elation:events click mouseover mouseout mousemove mousedown mouseup change
     // elation:output html
 
-    $vars["id"] = $args["id"];
     $vars["selectname"] = $args["selectname"];
+    $vars["id"] = any($args["id"], "ui_select_" . $vars["selectname"]);
     $vars["class"] = $args["class"];
     $vars["label"] = any($args["label"], false);
     $vars["events"] = $args["events"];
@@ -177,28 +177,29 @@ class Component_ui extends Component {
     $vars["inputname"] = $args["inputname"];
     $vars["class"] = any($args["class"], false);
     $vars["label"] = any($args["label"], false);
-    $vars["id"] = any($args["id"], "tf_utils_input_" . $vars["inputname"]);
+    $vars["id"] = any($args["id"], "ui_input_" . $vars["inputname"]);
     $vars["value"] = any($args["value"], "");
     $vars["type"] = any($args["type"], "");
+    $vars["placeholder"] = any($args["placeholder"], "");
     return $this->GetComponentResponse("./input.tpl", $vars);
   }
   function controller_textarea($args) {
     $vars["inputname"] = $args["inputname"];
     $vars["class"] = any($args["class"], false);
     $vars["label"] = any($args["label"], false);
-    $vars["id"] = any($args["id"], "tf_utils_input_" . $vars["inputname"]);
+    $vars["id"] = any($args["id"], "ui_textarea_" . $vars["inputname"]);
     $vars["value"] = any($args["value"], "");
     return $this->GetComponentResponse("./textarea.tpl", $vars);
   }
   function controller_accordion($args) {
     $vars["class"] = any($args["class"], false);
-    $vars["id"] = any($args["id"], "tf_utils_input_" . $vars["inputname"]);
+    $vars["id"] = any($args["id"], "ui_accordion_" . $vars["inputname"]);
     $vars["items"] = any($args["items"], "");
     return $this->GetComponentResponse("./accordion.tpl", $vars);
   }
   function controller_window($args) {
     $vars["class"] = any($args["class"], false);
-    $vars["id"] = any($args["id"], "tf_utils_input_" . $vars["inputname"]);
+    $vars["id"] = any($args["id"], "ui_window_" . $vars["inputname"]);
     $vars["title"] = any($args["title"], "(untitled)");
     $vars["content"] = any($args["content"], "");
     return $this->GetComponentResponse("./window.tpl", $vars);

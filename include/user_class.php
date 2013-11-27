@@ -9,6 +9,11 @@ class User extends UserModel {
   public static $usertypes = array("anonymous");
   public $loggedin = false;
 
+  public function __construct($user=null) {
+    if ($user instanceof UserModel) {
+      $this->copy($user);
+    }
+  }
   public function InitActiveUser($req) {
     if (!empty($_SESSION["user"])) {
       $usertype = $_SESSION["user"]["usertype"];
@@ -35,6 +40,14 @@ class User extends UserModel {
     return array();
   }
   public function save() {
+  }
+  public function copy($other) {
+    foreach ($other as $k=>$v) {
+      $this->{$k} = $v;
+    }
+  }
+  public function equals($other) {
+    return ($this->usertype == $other->usertype && $this->userid == $other->userid);
   }
 
   public static function create($usertype, $userid, $credentials) {
@@ -72,7 +85,10 @@ class User extends UserModel {
   }
   public static function get($usertype, $userid) {
     $user = OrmManager::load("UserModel", array($usertype, $userid));
-    return $user;
+    if (!empty($user)) {
+      return new User($user);
+    } 
+    return false;
   }
 }
 class ElationUserAuthException extends Exception { }

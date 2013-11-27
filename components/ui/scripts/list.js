@@ -12,7 +12,7 @@ elation.component.add('ui.list', function() {
     this.animatetime = 850;
 
     elation.html.addclass(this.container, 'ui_list');
-    elation.html.addclass(this.container, 'orientation_' + this.orientation);
+    this.setOrientation(this.orientation);
 
     if (this.args.sortbydefault) {
       this.setSortBy(this.args.sortbydefault);
@@ -36,6 +36,13 @@ elation.component.add('ui.list', function() {
       }
     }
     this.refresh();
+  }
+  this.setOrientation = function(orientation) {
+    if (this.orientation) {
+      elation.html.removeclass(this.container, 'orientation_' + this.orientation);
+    }
+    this.orientation = orientation;
+    elation.html.addclass(this.container, 'orientation_' + this.orientation);
   }
   this.addItem = function(item) {
     this.items.push(item);

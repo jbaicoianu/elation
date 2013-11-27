@@ -27,7 +27,6 @@
   margin-bottom: -.4em;
   max-height: 0;
   overflow: hidden;
-  xvisibility: hidden;
   opacity: 0;
 }
 .ui_accordion>ul>li.state_animating>.ui_accordion_content {
@@ -36,7 +35,6 @@
 }
 .ui_accordion>ul>li.state_open>.ui_accordion_content {
   margin-bottom: 0;
-  max-height: auto;
-  xvisibility: visible;
+  max-height: none;
   opacity: 1.0;
 }

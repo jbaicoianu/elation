@@ -75,7 +75,7 @@ class Component_elation_orm extends Component {
     $ret["sql"] = $ret["ormclass"]->getCreateSQL();
     return $ret;
   }
-  function component_generate($args, $output="text") {
+  function controller_generate($args, $output="text") {
     // Only return this data when run from the commandline
     if ($output == "commandline") {
       $ret = "[not found]";
@@ -103,13 +103,22 @@ class Component_elation_orm extends Component {
   }
   function controller_model($args) {
     $vars["model"] = any($args["model"], "space");
-    $foo = OrmManager::LoadModel($vars["model"]);
-    $vars["classes"] = $foo[$vars["model"]]->classes;
+    $models = explode(",", $vars["model"]);
+    $vars["classes"] = array();
+    foreach ($models as $i=>$model) {
+      $foo = OrmManager::LoadModel($model);
+      foreach ($foo[$model]->classes as $k=>$v) {
+        $vars["classes"][$k] = $v;
+      }
+    }
     return $this->GetComponentResponse("./model.tpl", $vars);
   }
   function controller_class($args) {
     $vars["classname"] = any($args["classname"], "unnamed");
     $vars["classdef"] = any($args["classdef"], array());
     return $this->GetComponentResponse("./class.tpl", $vars);
+  }
+  function controller_test($args) {
+    $foo = OrmManager::create();
   }
 }

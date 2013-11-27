@@ -32,6 +32,9 @@ console.log(Math.floor(Math.random() * window.innerWidth * .9));
  this.container.style.top = Math.floor(Math.random() * window.innerHeight * .6) + 'px';
     //elation.component.init();
   }
+  this.serialize = function() {
+    console.log(this.properties, this.connections);
+  }
   this.initproperties = function(props) {
     console.log('class properties:', props);
     for (var k in props) {
@@ -68,7 +71,7 @@ console.log(Math.floor(Math.random() * window.innerWidth * .9));
     var keys = args.key.split(',');
     var other = elation.orm.class(otherclass);
 console.log(this, other, otherclass);
-    if (other) {
+    if (other && other.properties) {
       for (var i = 0; i < keys.length; i++) {
         if (this.properties[keys[i]] && other.properties[keys[i]]) {
           this.properties[keys[i]].link(other.properties[keys[i]]); 

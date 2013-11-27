@@ -210,9 +210,9 @@ class OrmModel extends OrmMaster {
             $rowargs["keys"] = implode(",", $keys[$row->field]);
           }
 
-          $this->classes->{$cls}->props[$row->field] = array($row->field, $rowtype);
+          $this->classes->{$cls}->props->{$row->field} = array($row->field, $rowtype);
           if (!empty($rowargs))
-            $this->classes->{$cls}->props[$row->field][] = $rowargs;
+            $this->classes->{$cls}->props->{$row->field}[] = $rowargs;
           
         }
       }

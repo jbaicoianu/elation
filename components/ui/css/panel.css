@@ -1,0 +1,3 @@
+.ui_panel.orientation_horizontal>* {
+  display: inline-block;
+}

@@ -110,6 +110,7 @@ class ComponentManager extends Component {
         $ret["content"] = $this->GetTemplate($pagevars["template"], $pagevars["vars"]);
       } else {
         $ret["content"] = $this->GetTemplate("404.tpl", $pagevars["vars"]);
+        $ret["http_status"] = 404;
       }
     } else if ($page == "/") {
       // Handle the homepage
@@ -149,6 +150,9 @@ class ComponentManager extends Component {
       if ($component = $this->Get($componentname)) {
         $componentargs = (!empty($this->dispatchargs[$componentname]) ? array_merge_recursive($args, $this->dispatchargs[$componentname]) : $args);
         $ret["content"] = $component->HandlePayload($componentargs, $outputtype);
+        if ($component instanceof ComponentMissing) {
+          $ret["http_status"] = 404;
+        }
       }
     }
 

@@ -25,6 +25,7 @@ elation.component.add("ui.treeview", function() {
     this.items = [];
     this.container.innerHTML = '';
     this.add(items, this.container, attrs);
+    elation.component.init();
   }
   this.add = function(items, root, attrs) {
     if (!root) root = this.container;

@@ -104,6 +104,8 @@ class Component extends Base {
       if (method_exists($this, $controllerfuncname)) {
         $ret = call_user_func(array($this, $controllerfuncname), $args, $output);
       }
+    } catch (ElationUserAuthException $e) {
+      $ret = ComponentManager::fetch("user.auth", array(), "componentresponse");
     } catch (Exception $e) {
       global $webapp;
       $ret = $webapp->HandleException($e);

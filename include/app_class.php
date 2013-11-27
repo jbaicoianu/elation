@@ -39,9 +39,9 @@ class App {
     error_reporting(error_reporting() ^ E_NOTICE); 
     // FIXME - xdebug recursion limit causes problems in some components...
     ini_set('xdebug.max_nesting_level', 250);
-
-
+    $GLOBALS["webapp"] = $this;
     register_shutdown_function(array($this, 'shutdown'));
+
     ob_start();
     $this->rootdir = $rootdir;
     $this->debug = !empty($args["debug"]);

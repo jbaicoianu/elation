@@ -163,7 +163,7 @@ elation.extend('panel', new function(options) {
         
         case "infocard_popup":
           if( item.name == 'about_store') item.name = 'store';
-          if(this.tracking) googleAnalytics.trackEvent(['quick look tab', item.name]);
+          if(this.tracking) googleAnalytics.trackEvent(['quick look tab', item.name,'',1,'false']);
           break;
         
         default:

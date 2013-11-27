@@ -1,4 +1,6 @@
 elation\:args,
-elation\:events {
+elation\:events,
+data.elation-args,
+data.elation-events {
   display: none;
 }

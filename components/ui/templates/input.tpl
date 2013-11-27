@@ -6,7 +6,7 @@
   {if !empty($inputname)} name="{$inputname|escape:html}"{/if}
   {if !empty($class)} class="{$class|escape:html}"{/if}
   {if !empty($value)} value="{$value|escape:html}"{/if}
-  elation:component="ui.input"
+  data-elation-component="ui.input"
   />
   {dependency name="ui.input"}
 {/strip}

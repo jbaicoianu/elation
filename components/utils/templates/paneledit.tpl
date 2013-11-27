@@ -12,7 +12,7 @@
   {component name="utils.componentdetails" id="toolbox_detail"}
 </div>
 
-<div id="dostuff" elation:component="utils.paneledit" elation:args.panel="{$panel}"></div>
+<div id="dostuff" data-elation-component="utils.paneledit" data-elation-args.panel="{$panel}"></div>
 
 <script type="text/javascript">
   elation.onloads.add(function() {ldelim}

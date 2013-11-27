@@ -1,4 +1,4 @@
-{if $root}<div{if !empty($id)} id="{$id}"{/if} elation:component="utils.componentdetails">{/if}
+{if $root}<div{if !empty($id)} id="{$id}"{/if} data-elation-component="utils.componentdetails">{/if}
  {if !empty($component)}
   <h2>{$component->name}</h2>
 

@@ -4,5 +4,5 @@
 {dependency name="ui.window"}
 {dependency name="ui.windowtest"}
 {set var="page.title"}Elation UI - Windowing Test{/set}
-<div elation:component="ui.windowtest"></div>
+<div data-elation-component="ui.windowtest"></div>
 

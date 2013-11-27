@@ -1,41 +1,41 @@
 <div id="flipbuttons">
-  <div elation:component="ui.button">
-    <elation:args>{literal} {
+  <div data-elation-component="ui.button">
+    <data class="elation-args">{literal} {
      "events": { 
       "click": "elation.html.flippable('foo').toggle();"
      } 
     } {/literal}
-    </elation:args>
+    </data>
     flip #1!
   </div>
-  <div elation:component="ui.button">
-    <elation:args>{literal} {
+  <div data-elation-component="ui.button">
+    <data class="elation-args">{literal} {
      "events": { 
       "click": "elation.html.flippable('bar').toggle();"
      } 
     } {/literal}
-    </elation:args>
+    </data>
     flip #2!
   </div>
-  <div elation:component="ui.button">
-    <elation:args>{literal} {
+  <div data-elation-component="ui.button">
+    <data class="elation-args">{literal} {
      "events": { 
       "click": "elation.html.flippable('bar').toggle();elation.html.flippable('foo').toggle();"
      } 
     } {/literal}
-    </elation:args>
+    </data>
     flip both!
   </div>
 </div>
 <div id="flipelements">
-  <div id="foo" elation:component="html.flippable" elation:events.flipstart="console.log('foo foo foo')">
-    <elation:args>{literal} {
+  <div id="foo" data-elation-component="html.flippable">
+    <data class="elation-args">{literal} {
      "events": { 
       "flipstart": "console.log('foo got flipped', ev);",
       "flipend": "console.log('foo unflipped', ev);"
      } 
     } {/literal}
-    </elation:args>
+    </data>
     <div class="html_flippable_side1">
       <h2>hello!</h2>
       <p>this is side 1</p>
@@ -76,14 +76,14 @@
     </div>
 *}
   </div>
-  <div id="bar" elation:component="html.flippable">
-    <elation:args>{literal} {
+  <div id="bar" data-elation-component="html.flippable">
+    <data class="elation-args">{literal} {
      "events": { 
       "flipstart": "console.log('bar got flipped', ev);",
       "flipend": "console.log('bar unflipped', ev);"
      } 
     } {/literal}
-    </elation:args>
+    </data>
     <div class="html_flippable_side1">
       <h2>Flipper 2</h2>
       <p>I am my own unique entity, with a purpose in life</p>

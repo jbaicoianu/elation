@@ -102,128 +102,30 @@ elation.extend("checkhash", new function() {
 });
 
 elation.extend("component", new function() {
-  this.namespace = "elation";
-  this.attrs = {
-    componenttype: 'component',
-    componentname: 'name',
-    componentargs: 'args',
-    componentevents: 'events',
-    componentinit: 'initialized'
-  };
-  this.registry = [];
   this.init = function(root) {
-    var componentattr = "component";
-    var argsattr = this.namespace+':'+this.attrs.componentargs;
-    var eventsattr = this.namespace+':' + this.attrs.componentevents;;
-
     if (root == undefined) {
       root = document;
     }
 
-    // Find all elements which have a <namespace>:<componenttype> attribute
-    if (false && document.evaluate) { // FIXME - using jQuery to query namespace elements for now, the custom method below throws errors in IE
-      if (document.createNSResolver) {
-        var nsresolver = document.createNSResolver(document.documentElement);
-      } else {
-        var nsresolver = function(prefix) {  
-          var ns = {  
-            'xhtml' : 'http://www.w3.org/1999/xhtml',  
-            'elation': 'http://www.ajaxelation.com/xmlns'  
-          };  
-          return ns[prefix] || null;  
-        }  
-      }
-      
-      // FIXME - I've started work to switch this over to use xpath selectors instead of jquery but namespaces make it a pain
-      //         Right now this is just selecting all elements, very inefficient...
-      //var selector = '//*['+this.namespace+':'+this.attrs.componenttype+']';
-      //var selector = "//*[@*["+this.namespace+":"+this.attrs.componenttype+"]]";
-      //var selector = "//*[@*[namespace-uri()='http://www.ajaxelation.com/xmlns']]";
-      //var selector = "//*[local-name()='component']";
-      var selector = "//*";
-      
-      var result = document.evaluate(selector, root, nsresolver, XPathResult.ANY_TYPE, null);
-      var elements = [];
-      var element;
-      while (element = result.iterateNext()) {
-        elements.push(element);
-      }
-    } else if (typeof $TF != 'undefined') {
-      var elements = $TF("["+this.namespace+"\\:"+this.attrs.componenttype+"]", root); 
-    } else {
-      var elements = [];
+    // Find all elements which have a data-elation-component attribute
+    var elements = [];
+    var result = document.evaluate("//*[@data-elation-component]", root, null, XPathResult.ANY_TYPE, null);
+    var element;
+    // Push elements into array so DOM changes don't invalidate our iterator
+    while (element = result.iterateNext()) {
+      elements.push(element);
     }
+
     for (var i = 0; i < elements.length; i++) {
       var element = elements[i];
       var componentid = this.parseid(element);
       if (componentid.type) {
-        var componentinitialized = element.getAttribute(this.namespace+':'+this.attrs.componentinit) || false;
-        if (!componentinitialized) { // FIXME - this isn't working in IE, so components are getting reinitialized with each AJAX request
-          element.setAttribute(this.namespace+':'+this.attrs.componentinit, 1);
+        var componentinitialized = element.dataset['elationInitialized'] || false;
+        if (!componentinitialized) { 
           var componentargs = {}, events = {}, j;
-          // First look for a JSON-encoded args array in the element's direct children (elation:args)
-          if (element.children) {
-            for (j = 0; j < element.children.length; j++) {
-              // FIXME - IE seems to drop the namespace, might be related to above FIXME, so look for a child named "args"
-              if (element.children[j].nodeName.toLowerCase() == argsattr || element.children[j].nodeName.toLowerCase() == "args") { 
-                var argtext = element.children[j].textContent || element.children[j].innerText;
-                var argname = (element.children[j].attributes['name'] ? element.children[j].attributes['name'].value : false);
-                try {
-                  var content = element.children[j].innerHTML.trim();
-
-                  // if elation:name parameter is specified, merge this data into the appropriate place
-                  var mergeto = componentargs;
-                  if (argname) {
-                    var tmpmergeto = elation.utils.arrayget(componentargs, argname);
-                    if (tmpmergeto === null) { // requested key is new, create it and get a reference to the new object
-                      elation.utils.arrayset(componentargs, argname, {});
-                      mergeto = elation.utils.arrayget(componentargs, argname);
-                    } else {
-                      mergeto = tmpmergeto; // key already exists, store reference
-                    }
-                  }
-                  if (content.length > 0) {
-                    var newcomponentargs = '';
-                    try {
-                      newcomponentargs = JSON.parse(content);
-                    } catch (e) {
-                      newcomponentargs = content;
-                    }
-                    element.removeChild(element.children[j]);
-                    if (componentargs != null) { // empty JSON could cause errors later, so reset null to an empty hash
-                      elation.utils.merge(newcomponentargs, mergeto);
-                    }
-                  }
-                } catch(e) {
-                  // Probably JSON syntax error
-                  console.log("Could not parse " + argsattr + ": " + argtext + ": " + e.stack);
-                }
-              } else if (element.children[j].nodeName == eventsattr.toUpperCase() || element.children[j].nodeName == "events") { 
-                try {
-                  var content = element.children[j].innerHTML.trim();
-                  if (content.length > 0) {
-                    events = JSON.parse(content);
-                    element.removeChild(element.children[j]);
-                    if (events == null) { // empty JSON could cause errors later, so reset null to an empty hash
-                      events = {};
-                    }
-                  }
-                  //break; // only one events array per block, bail out when we find one so we don't waste time with the rest
-                } catch(e) {
-                  // Probably JSON syntax error
-                  console.log("Could not parse " + eventsattr + ": " + element.children[j].innerHTML);
-                }
-              }
-            }
-          }
-          // Then, loop through the attributes and parse out any individual arguments which can be specified as attributes
-          for (j = 0; j < element.attributes.length; j++) {
-            if (element.attributes[j].nodeName.substring(0, argsattr.length+1) == argsattr+'.') {
-              componentargs[element.attributes[j].nodeName.substring(argsattr.length+1)] = element.attributes[j].nodeValue;
-            }
-          }
+          var componentdata = this.parseargs(element);
           // Instantiate the new component with all parsed arguments
-          elation.component.create(componentid.name, componentid.type, element, componentargs, events);
+          elation.component.create(componentid.name, componentid.type, element, componentdata.args, componentdata.events);
         }
       }
     }
@@ -241,8 +143,8 @@ elation.extend("component", new function() {
         component.obj[name] = new component.base(type);
         component.objcount++;
         if (container) {
-          container.setAttribute(elation.component.namespace+':'+elation.component.attrs.componenttype, type);
-          container.setAttribute(elation.component.namespace+':'+elation.component.attrs.componentname, name);
+          container.dataset['elationComponent'] = type;
+          container.dataset['elationName'] = name;
         }
       }
       if (component.obj[name] && container) {
@@ -267,6 +169,7 @@ elation.extend("component", new function() {
       component.extendclass = extendclass.classdef;
     }
     if (classdef) {
+      component.base.prototype.extend((typeof classdef == 'function' ? new classdef() : classdef));
       component.base.prototype.extend((typeof classdef == 'function' ? new classdef() : classdef));
       component.classdef = classdef;
     }
@@ -326,6 +229,7 @@ elation.extend("component", new function() {
           }
         }
       }
+      this.container.dataset['elationInitialized'] = 1;
       elation.events.fire({type: "init", fn: this, data: this, element: this.container});
     }
     this.extend = function(from) {
@@ -400,15 +304,84 @@ elation.extend("component", new function() {
         this[ev.type](ev);
       }
     }
-
   }
   this.parseid = function(element) {
-    // Parse out the elation:component and elation:name attributes, if set.  Fall back on HTML id if no name specified
+    // Parse out the data-elation-component and data-elation-name attributes, if set.  Fall back on HTML id if no name specified
     var componentid = {
-      type: element.getAttribute(this.namespace+':'+this.attrs.componenttype),
-      name: element.getAttribute(this.namespace+':'+this.attrs.componentname) || element.id
+      type: element.dataset['elationComponent'],
+      name: element.dataset['elationName'] || element.id
     }
     return componentid;
+  }
+  this.parseargs = function(element) {
+    if (element.children) {
+      // Pull out all <data> blocks
+      var dataresult = document.evaluate("data", element, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+      var componentargs = {}, events = {};
+      for (var j = 0; j < dataresult.snapshotLength; j++) {
+        var dataelement = dataresult.snapshotItem(j);
+        if (elation.html.hasclass(dataelement, 'elation-args')) {
+          // JSON-encoded args inside of <data class="elation-args">...</data>
+          var argtext = dataelement.textContent || dataelement.innerText;
+          var argname = (dataelement.attributes['name'] ? dataelement.attributes['name'].value : false);
+          try {
+            var content = dataelement.innerHTML.trim();
+
+            // if elation-name parameter is specified, merge this data into the appropriate place
+            var mergeto = componentargs;
+            if (argname) {
+              var tmpmergeto = elation.utils.arrayget(componentargs, argname);
+              if (tmpmergeto === null) { // requested key is new, create it and get a reference to the new object
+                elation.utils.arrayset(componentargs, argname, {});
+                mergeto = elation.utils.arrayget(componentargs, argname);
+              } else {
+                mergeto = tmpmergeto; // key already exists, store reference
+              }
+            }
+            if (content.length > 0) {
+              var newcomponentargs = '';
+              try {
+                newcomponentargs = JSON.parse(content);
+              } catch (e) {
+                newcomponentargs = content;
+              }
+              //dataelement.parentNode.removeChild(dataelement);
+              if (componentargs != null) { // empty JSON could cause errors later, so reset null to an empty hash
+                elation.utils.merge(newcomponentargs, mergeto);
+              }
+            }
+          } catch(e) {
+            // Probably JSON syntax error
+            console.log("Could not parse args: " + argtext + ": " + e.stack);
+          }
+        } else if (elation.html.hasclass(dataelement, "elation-events")) { 
+          try {
+            var content = dataelement.innerHTML.trim();
+            if (content.length > 0) {
+              events = JSON.parse(content);
+              element.removeChild(dataelement);
+              if (events == null) { // empty JSON could cause errors later, so reset null to an empty hash
+                events = {};
+              }
+            }
+          } catch(e) {
+            // Probably JSON syntax error
+            console.log("Could not parse " + eventsattr + ": " + element.children[j].innerHTML);
+          }
+        }
+      }
+    }
+    // Then, loop through the attributes and parse out any individual arguments which can be specified as attributes
+    var argprefix = 'elationArgs.';
+    var eventprefix = 'elationEvents.';
+    for (var k in element.dataset) {
+      if (k.substring(0, argprefix.length) == argprefix) {
+        componentargs[k.substring(argprefix.length)] = element.dataset[k];
+      } else if (k.substring(0, eventprefix.length) == eventprefix) {
+        events[k.substring(eventprefix.length)] = element.dataset[k];
+      }
+    }
+    return {args: componentargs, events: events};
   }
   this.fetch = function(type, name) {
     if (!elation.utils.isNull(type) && elation.utils.iselement(type)) {

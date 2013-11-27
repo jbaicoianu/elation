@@ -35,6 +35,8 @@ class App {
     Profiler::StartTimer("WebApp::Init", 1);
     Profiler::StartTimer("WebApp::TimeToDisplay", 1);
 
+    $GLOBALS["webapp"] = $this;
+
     register_shutdown_function(array('Logger','processShutdown'));
 
     ob_start();
@@ -336,11 +338,17 @@ class App {
     if (empty($req))
       $req = $this->request;
 
+    //overrided cobrand is in the request as "cobrand"
     if (!empty($req["args"]["cobrand"]) && is_string($req["args"]["cobrand"])) {
       $ret = $req["args"]["cobrand"];
       $_SESSION["temporary"]["cobrand"] = $ret;
     } else if (!empty($_SESSION["temporary"]["cobrand"])) {
       $ret = $_SESSION["temporary"]["cobrand"];
+    }
+
+    //cobrand from redirects.xml is stored in the request as "cobrand-force"
+    if (!empty($req["args"]["cobrand-force"]) && is_string($req["args"]["cobrand-force"])) {
+      $ret = $req["args"]["cobrand-force"];
     }
 
     Logger::Info("Requested config is '$ret'");

@@ -221,11 +221,12 @@ elation.extend("component", new function() {
           if (typeof this.events[k] == 'string') {
             (function(self, type, blub) {
               self[type] = function(ev) { eval(blub); }
-              //console.log(self, type, blub);
-              elation.events.add(self.container, type, self);
+              //elation.events.add(self.container, type, self);
+              elation.events.add(self, type, self);
             })(this, k, this.events[k]);
           } else {
-            elation.events.add(this.container, k, this.events[k]);
+            //elation.events.add(this.container, k, this.events[k]);
+            elation.events.add(this, k, this.events[k]);
           }
         }
       }
@@ -2416,4 +2417,68 @@ elation.extend('utils.isIdentical', function(a, b, sortArrays) {
     });
   }
   return JSON.stringify(sort(a)) === JSON.stringify(sort(b));
+});
+elation.extend('net.get', function(url, params, args) {
+  if (!args) args = {};
+  var fullurl = url;
+  if (!elation.utils.isEmpty(params)) {
+    fullurl += (url.indexOf('?') == -1 ? '?' : '&') + elation.utils.encodeURLParams(params);
+  }
+
+  return elation.net.xhr('GET', fullurl, false, args);  
+});
+elation.extend('net.post', function(url, params, args) {
+  var formdata = new FormData();
+  for (var k in params) {
+    formdata.append(k, params[k]);
+  }
+
+  return elation.net.xhr('POST', url, formdata, args);  
+});
+elation.extend('net.xhr', function(method, url, formdata, args) {
+  if (!args) args = {};
+  if (!formdata) formdata = null;
+
+  var xhr = new XMLHttpRequest();
+  xhr.onreadystatechange = elation.bind(args, elation.net.handlereadystatechange);
+  if (args.onload) xhr.onload = args.onload;
+  if (args.onprogress) xhr.upload.onprogress = args.onprogress;
+  if (args.onerror) xhr.onerror = args.onerror;
+
+  xhr.open(method, url);
+  if (args.nocache) xhr.setRequestHeader("If-Modified-Since", "Thu, 01 Jan 1970 00:00:00 GMT");
+  xhr.send(formdata);
+
+  return xhr;
+});
+elation.extend('net.handlereadystatechange', function(ev) {
+  // "this" is bound to the args object that was passed when initiating the call
+  var xhr = ev.target;
+  if (xhr.readyState == 4) {
+    if (xhr.status == 200) {
+      if (xhr.responseText) {
+        var response = xhr.responseText;
+        if (this.parse) {
+          try {
+            switch (this.parse) {
+              case 'json':
+                response = JSON.parse(response);
+                break;
+            }      
+          } catch (e) {
+            console.log("elation.net: failed to parse response as '" + this.parse + "': " + response);
+          }
+        }
+        if (this.callback) {
+          //elation.ajax.executeCallback(obj.callback, xhr.responseText);
+          this.callback(response);
+        }
+      }
+    } else {
+      if (this.failurecallback) {
+        //elation.ajax.executeCallback(obj.failurecallback);
+        this.failurecallback();
+      }
+    }
+  }
 });

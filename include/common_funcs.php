@@ -1025,3 +1025,9 @@ function strip_nulls(&$ptr) {
     object_strip_nulls($ptr);
   } 
 }
+function unixtime_milli() {
+  return (int) (microtime(true) * 1000);
+}
+function unixtime_micro() {
+  return (int) (microtime(true) * 1000000);
+}

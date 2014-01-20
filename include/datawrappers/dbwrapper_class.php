@@ -679,6 +679,7 @@ class DBWrapperResults {
         case "INSERT":
           $this->id = $dbconn->lastInsertId();
           $this->results =& $this->id;      // backwards compatability
+          $this->numrows = $resource->rowCount();
           break;
         case "UPDATE":
         case "DELETE":

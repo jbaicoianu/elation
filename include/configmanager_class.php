@@ -8,6 +8,47 @@ include_once("include/base_class.php");
  * @package Framework
  * @subpackage Config
  */
+
+/*
+ * CREATE TABLE cobrand (
+ *   cobrandid bigint(20) unsigned NOT NULL,
+ *   name varchar(255) default NULL,
+ *   PRIMARY KEY (cobrandid),
+ *   UNIQUE KEY name (name)
+ * );
+ *
+ * CREATE TABLE cobrand_config (
+ *   ccid bigint(20) unsigned NOT NULL,
+ *   cobrandid bigint(20) unsigned NOT NULL,
+ *   name varchar(255) default NULL,
+ *   value blob,
+ *   type varchar(64) default 'text',
+ *   role varchar(255) NOT NULL default 'live',
+ *   updated_time bigint(20) unsigned default NULL,
+ *   PRIMARY KEY  (ccid),
+ *   KEY role_cobrand_name_unique (role,cobrandid,name)
+ * );
+ *
+ * CREATE TABLE version (
+ *   versionid int(11) NOT NULL auto_increment,
+ *   cobrandid bigint(20) unsigned NOT NULL,
+ *   role varchar(255) NOT NULL default 'live',
+ *   revision int(12) default 1,
+ *   added date default NULL,
+ *   updated date default NULL,
+ *   PRIMARY KEY (versionid),
+ *   UNIQUE KEY cobrandid_role (cobrandid,role)
+ * );
+ *
+ * CREATE FUNCTION config.hash_cobrand (name VARCHAR(255)) 
+ *   RETURNS BIGINT UNSIGNED DETERMINISTIC 
+ *   RETURN funcs.md5int64(name);
+ * CREATE FUNCTION config.hash_cobrand_config (role VARCHAR(255), cobrandid BIGINT UNSIGNED, name VARCHAR(255)) 
+ *   RETURNS BIGINT UNSIGNED DETERMINISTIC 
+ *   RETURN funcs.md5int64(concat(role,'-',cobrandid,'-',name)); 
+ *
+ */
+
 class ConfigManager extends Base {
   public $servers = array(); // server configs, from ini
   public $configs; // site configs, from db
@@ -424,28 +465,7 @@ class ConfigManager extends Base {
   function Load($name, $role=NULL, $skipLocalConfig = false) {
     Profiler::StartTimer("ConfigManager::Load()");
     //print_pre("Load called with name=$name and role=$role");
-/*
-    $ret = array();
-    $role = any($role, $this->role, "");
-    $ret = $this->GetCobrandidAndRevision($name, $role);
-    if (!empty($ret)) {
-      $result_config = DataManager::Query("db.config.cobrand_config.{$name}.{$role}:nocache",
-                                          "SELECT name,value FROM config.cobrand_config WHERE cobrandid=:cobrandid and role=:role ORDER BY name",
-                                          array(":cobrandid" => $ret["cobrandid"], ":role" => $role));
-      //print_pre($result_config);
-      if ($result_config && count($result_config->rows) > 0) {
-        $settings = array();
-        foreach ($result_config->rows as $config_obj) {
-          $settings[$config_obj->name] = $config_obj->value;
-        }
-        array_set_multi($ret, $settings);
-        $this->configs[$name] = $ret;
-      }
-    } else {
-      Logger::Error("Could not find config '$name'");
-    }
-*/
-    //$this->configs[$name] = new Config($name, $role);
+
     $config = new Config($name, $role);
     $this->configs[$name] = $ret = any($config->config, array());
 
@@ -730,11 +750,13 @@ class ConfigManager extends Base {
         $i++;
       }
       if ($valid) {
+        $cobrandid = $this->GetCobrandId($name);
+
         $response = DataManager::query("db.config.cobrand_config.{$name}-{$newcfg['key']}:nocache",
                                        "INSERT INTO config.cobrand_config"
-                                     . " SET cobrandid=(SELECT cobrandid FROM config.cobrand WHERE name=:name1),name=:name2,value=:value,role=:role",
-                                       array(":name1" => $name, ":name2" => $newcfg["key"], ":value" => $newcfg["value"], ":role" => $role));
-        if (!empty($response) && !empty($response->id)) {
+                                     . " SET ccid=config.hash_cobrand_config(:role, :cobrandid, :name),cobrandid=:cobrandid,name=:name,value=:value,role=:role",
+                                       array(":cobrandid" => $cobrandid, ":name" => $newcfg["key"], ":value" => $newcfg["value"], ":role" => $role));
+        if (!empty($response) && $response->numrows > 0) {
           $this->UpdateRevision($cobrandid, $role);
           //$this->data->caches["memcache"]["data"]->delete("db.config.cobrand_config.{$name}.{$role}");
           //$this->data->caches["memcache"]["data"]->delete("db.config.version.$name.$role");
@@ -777,23 +799,23 @@ class ConfigManager extends Base {
    * @return boolean
    */
   function AddCobrand($cobrandname) {
-    $ret = false;
+    $cobrandid = false;
 
     if (!empty($cobrandname)) {
       $query = DataManager::Query("db.config.cobrand.{$cobrandname}:nocache",
-                            "INSERT INTO config.cobrand SET name=:name",
+                            "INSERT INTO config.cobrand SET name=:name,cobrandid=config.hash_cobrand(name)",
                             array(":name" => $cobrandname));
-      if (!empty($query) && !empty($query->id)) {
-        $ret = $query->id;
+      if (!empty($query) && $query->numrows > 0) {
+        $cobrandid = $this->GetCobrandID($cobrandname);
         $query = DataManager::Query("db.config.cobrand.{$cobrandname}.version:nocache",
                               "INSERT INTO config.version (cobrandid, role, revision, added, updated) VALUES(:cobrandid, :role, 1, now(), now())",
-                              array(":cobrandid" => $query->id,
+                              array(":cobrandid" => $cobrandid,
                                     ":role" => $this->role)); // FIXME - should this add to all versions or just let the migrate script handle this?
         DataManager::CacheClear("db.config.version.ALL.{$this->role}");
         DataManager::CacheClear("db.config.version.$cobrandname.{$this->role}");
       }
     }
-    return $ret;
+    return $cobrandid;
   }
 
   /**
@@ -1106,7 +1128,7 @@ class ConfigManager extends Base {
       $query = DataManager::Query("db.config.version.{$cobrandid}.{$role}",
                                   "INSERT INTO config.version SET cobrandid=:cobrandid, role=:role, revision=1, added=now(), updated=now()",
                                   array(":cobrandid" => $cobrandid, ":role" => $role));
-      if (!empty($query) && !empty($query->id)) {
+      if (!empty($query) && $query->numrows > 0) {
         $ret = true;
       }
     }
@@ -1130,7 +1152,7 @@ class ConfigManager extends Base {
         $query = DataManager::Query("db.config.version.{$name}.{$role}:nocache",
                                     "INSERT INTO config.version SET cobrandid=(SELECT cobrandid FROM config.cobrand WHERE name=:name), role=:role, revision=1, added=now(), updated=now()",
                                     array(":name" => $name, ":role" => $role));
-        if (!empty($query) && !empty($query->id)) {
+        if (!empty($query) && $query->numrows > 0) {
            $ret = true;
         }
      }
@@ -1157,12 +1179,12 @@ class ConfigManager extends Base {
                                   "SELECT revision FROM config.version WHERE cobrandid=:cobrandid and role=:role",
                                   array(":cobrandid" => $cobrandid, ":role" => $role));
       if (!empty($query) && $query->NumResults() > 0) {
-         $version_info = $query->GetResult(0);
-	 $revision = $version_info->revision;
+        $version_info = $query->GetResult(0);
+        $revision = $version_info->revision;
       }else{
-         if ($this->AddRevision($cobrandid, $role)) {
-           $revision = 1;
-	 }
+        if ($this->AddRevision($cobrandid, $role)) {
+          $revision = 1;
+        }
       }
 
     }

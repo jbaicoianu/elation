@@ -783,6 +783,104 @@ elation.extend("utils.merge", function(entities, mergeto) {
   return mergeto;
 });
 
+elation.extend("utils.array_merge", function() {
+  // From: http://phpjs.org/functions
+  // +   original by: Brett Zamir (http://brett-zamir.me)
+  // +   bugfixed by: Nate
+  // +   input by: josh
+  // +   bugfixed by: Brett Zamir (http://brett-zamir.me)
+  // *     example 1: arr1 = {"color": "red", 0: 2, 1: 4}
+  // *     example 1: arr2 = {0: "a", 1: "b", "color": "green", "shape": "trapezoid", 2: 4}
+  // *     example 1: array_merge(arr1, arr2)
+  // *     returns 1: {"color": "green", 0: 2, 1: 4, 2: "a", 3: "b", "shape": "trapezoid", 4: 4}
+  // *     example 2: arr1 = []
+  // *     example 2: arr2 = {1: "data"}
+  // *     example 2: array_merge(arr1, arr2)
+  // *     returns 2: {0: "data"}
+  var args = Array.prototype.slice.call(arguments),
+    argl = args.length,
+    arg,
+    retObj = {},
+    k = '',
+    argil = 0,
+    j = 0,
+    i = 0,
+    ct = 0,
+    toStr = Object.prototype.toString,
+    retArr = true;
+
+  for (i = 0; i < argl; i++) {
+    if (toStr.call(args[i]) !== '[object Array]') {
+      retArr = false;
+      break;
+    }
+  }
+
+  if (retArr) {
+    retArr = [];
+    for (i = 0; i < argl; i++) {
+      retArr = retArr.concat(args[i]);
+    }
+    return retArr;
+  }
+
+  for (i = 0, ct = 0; i < argl; i++) {
+    arg = args[i];
+    if (toStr.call(arg) === '[object Array]') {
+      for (j = 0, argil = arg.length; j < argil; j++) {
+        retObj[ct++] = arg[j];
+      }
+    }
+    else {
+      for (k in arg) {
+        if (arg.hasOwnProperty(k)) {
+          if (parseInt(k, 10) + '' === k) {
+            retObj[ct++] = arg[k];
+          }
+          else {
+            retObj[k] = arg[k];
+          }
+        }
+      }
+    }
+  }
+  return retObj;
+});
+
+elation.extend("utils.array_merge_recursive", function(arr1, arr2) {
+  // From: http://phpjs.org/functions
+  // +   original by: Subhasis Deb
+  // +      input by: Brett Zamir (http://brett-zamir.me)
+  // +   bugfixed by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+  // -    depends on: array_merge
+  // *     example 1: arr1 = {'color': {'favourite': 'read'}, 0: 5}
+  // *     example 1: arr2 = {0: 10, 'color': {'favorite': 'green', 0: 'blue'}}
+  // *     example 1: array_merge_recursive(arr1, arr2)
+  // *     returns 1: {'color': {'favorite': {0: 'red', 1: 'green'}, 0: 'blue'}, 1: 5, 1: 10}
+  var idx = '';
+
+  if (arr1 && Object.prototype.toString.call(arr1) === '[object Array]' &&
+    arr2 && Object.prototype.toString.call(arr2) === '[object Array]') {
+    for (idx in arr2) {
+      arr1.push(arr2[idx]);
+    }
+  } else if ((arr1 && (arr1 instanceof Object)) && (arr2 && (arr2 instanceof Object))) {
+    for (idx in arr2) {
+      if (idx in arr1) {
+        if (typeof arr1[idx] === 'object' && typeof arr2 === 'object') {
+          arr1[idx] = elation.utils.array_merge(arr1[idx], arr2[idx]);
+        } else {
+          arr1[idx] = arr2[idx];
+        }
+      } else {
+        arr1[idx] = arr2[idx];
+      }
+    }
+  }
+
+  return arr1;
+});
+
 /* Sets value in a multilevel object element 
 * args:
 * obj -- multilevel object

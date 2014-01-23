@@ -224,7 +224,7 @@ elation.extend('panel', new function(options) {
     
     panel.item = item;
 			
-    if (!panel.cfg.nocache) {
+    if (!panel.cfg.nocache && !item.args.nocache) {
       // if cached copy exists use that
       if (panel.content[item.name]) {
         if (panel.cfg.animation) {

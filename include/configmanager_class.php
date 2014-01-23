@@ -466,7 +466,7 @@ class ConfigManager extends Base {
    * @param array $newcfg new configuration object to compare with
    * @return array
    */
-  function Update($name, $newcfg, $role="", $deletecfg=null, $skipLocalConfig = false) {
+  function Update($name, $newcfg, $role="", $deletecfg=null, $skipLocalConfig = false, $addedcfg=null) {
     $ret = false;
     $updaterevision = false;
 
@@ -481,10 +481,10 @@ class ConfigManager extends Base {
 
     /*
     $diff = array_diff_assoc_recursive($newcfg, $oldcfg);
-    
     $configupdates = $this->FlattenConfig($diff);
     */
     $configdeletes = $this->FlattenConfig($deletecfg);
+
     if (count($newcfg) > 0) {
       foreach ($newcfg as $k=>$v) {
         Logger::Debug('ConfigManager Update: [' . $name . ' ' . $cobrandid . ' ' . $role . '] ' . $k . ' = ' . $v["value"] . ' : ' . $v["type"]);
@@ -495,10 +495,29 @@ class ConfigManager extends Base {
           $ret = true;
         }
       }
+
       $updaterevision = true;
     }
+
+    // process the inserts
+    if (count($addedcfg) > 0) {
+      $keyvalues = array();
+
+      foreach ($addedcfg as $k=>$v) 
+        $keyvalues[] = array("cobrandid"=>$cobrandid,"name"=>$k,"value"=>$v["value"],"type"=>$v["type"],'role'=>$role);
+
+      if (!empty($keyvalues)) {
+        $query = DataManager::insert("db.config.cobrand_config.{$name}-{$k}:nocache", "config.cobrand_config", $keyvalues);
+        
+        $ret |= true;
+      }
+
+      $updaterevision = true;
+    }
+
     // process the deletes
     if (count($configdeletes) > 0) {
+      /*
       foreach ($configdeletes as $k=>$v) {
         if ($configdeletes[$k]) {
           $query = DataManager::query("db.config.cobrand_config.delete.{$name}-{$k}:nocache",
@@ -507,9 +526,11 @@ class ConfigManager extends Base {
           $ret |= true;
         }
       }
+      */
 
-      /* FIXME - code above deletes one-by-one, this code deletes en-masse.  Should we switch to this instead?
+      /* FIXME - code above deletes one-by-one, this code deletes en-masse.  Should we switch to this instead? */
       $deletes = array();
+
       foreach ($configdeletes as $k=>$v) {
         if ($v == 1)
           $deletes[] = "'$k'";
@@ -522,7 +543,6 @@ class ConfigManager extends Base {
                                     array(":cobrandid" => $cobrandid, ":role" => $role));
         $ret |= true;
       }
-      */
 
       $updaterevision = true;
     }
@@ -825,8 +845,8 @@ class ConfigManager extends Base {
         Logger::Warn("Tried to delete cobrand '$cobrandname' which didn't exist");
       }
     }
+    
     return $ret;
-
   }
 
   function invalidateConfigCache($cachekey) {

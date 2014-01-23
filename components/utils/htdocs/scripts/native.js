@@ -8,15 +8,22 @@ elation.extend("native", new function() {
     this.bridge(ev);
   }
   this.bridge = function(ev) {
+    var evdata = false;
+    try {
+      evdata = elation.JSON.stringify(ev.data);
+    } catch (e) {
+      console.log("Couldn't encode event data for event type " + ev.type, ev);
+    }
     if (window.external && window.external.notify) {
       // metro
-      window.external.notify('{"type": "' + ev.type + '", "data": ' + elation.JSON.stringify(ev.data) + '}');
+      window.external.notify('{"type": "' + ev.type + '", "data": ' + data + '}');
     } else {
       // iOS UIWebView
       var url = 'elation-event:' + ev.type;
-      if (ev.data) {
-        url += "/" + elation.JSON.stringify(ev.data);
+      if (evdata) {
+        url += "/" + evdata;
       }
+
       var iframe = elation.html.create('iframe');
       iframe.src = url;
       // add the frame to the DOM so the URL is actually requested

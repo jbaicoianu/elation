@@ -31,6 +31,8 @@ class Component_html extends Component {
       
       $args["classes"] = $classes;
       $args["agent"] = $useragent;
+      $args['universal_tracking'] = 
+        any(ConfigManager::get("tracking.googleanalytics.universal_tracking"), $webapp->cfg->servers['tracking']['googleanalytics']['universal_tracking']);
       $dependencies = ConfigManager::get("dependencies.load");
       if(!empty($dependencies)) {
         foreach($dependencies as $dependency) {
@@ -54,6 +56,9 @@ class Component_html extends Component {
     // Assemble page-level args for Google Analytics --
     global $webapp;
 
+    $args['universal_tracking'] = 
+      any(ConfigManager::get("tracking.googleanalytics.universal_tracking"), $webapp->cfg->servers['tracking']['googleanalytics']['universal_tracking']);
+
     $analytics = Analytics::singleton();
     $componentmgr = ComponentManager::singleton();
     $args['cobrand'] = $webapp->cobrand;
@@ -76,7 +81,8 @@ class Component_html extends Component {
     $args['GAenabled'] = $args['pagegroup'] ? any(ConfigManager::get("tracking.googleanalytics.enabled"),$webapp->cfg->servers['tracking']['googleanalytics']['enabled']) : 0;
     $args['GAalerts'] = $webapp->GAalerts;
 
-    $args['trackingcode'] = $webapp->cfg->servers['tracking']['googleanalytics']['trackingcode'];
+    $args['trackingcode'] = any(ConfigManager::get("tracking.googleanalytics.trackingcode"), $webapp->cfg->servers['tracking']['googleanalytics']['trackingcode']);
+
     $args['category'] = any($analytics->category, $analytics->pandora_result['top_category'], $analytics->item->category, $analytics->qpmquery['protocolheaders']['category'], 'none');
     $args['subcategory'] = preg_replace("#\s#", "_", any($analytics->subcategory, $analytics->pandora_result['top_subcategory'], 'none'));
     $args['city'] = "Mountain View";

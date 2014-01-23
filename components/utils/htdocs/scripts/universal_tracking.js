@@ -26,12 +26,21 @@ elation.extend('googleanalytics', function(args) {
   this.myfindspanel = '';
   this.mouseovertype = '';
   this.mouseovereventenable = 1;
-  this.pageTracker = _gat._getTracker(this.trackingcode);
-  this.pageTracker._setCookieTimeout("172800"); // campaign tracking expiration 2 days
+  //this.pageTracker = _gat._getTracker(this.trackingcode);
+  //ga('create', this.trackingcode, 'thefind.com');
+  ga('create', this.trackingcode, {'allowLinker': true});
+  ga('require', 'linker');
+  //ga('linker:autoLink', ['destination.com']);
+  ga('require', 'ecommerce', 'ecommerce.js');   // Load the ecommerce plug-in.
+  //this.pageTracker = ga;
+  //this.pageTracker = ga('create', 'UA-6126393-1', 'thefind.com');
+  //this.pageTracker._setCookieTimeout("172800"); // campaign tracking expiration 2 days //Can be
+  //set from Dashboard
 
-  var self = this;
-  var ignoredOrganics=['www.thefind.com', 'thefind', 'thefind.com', 'the find', 'glimpse', 'glimpse.com', 'www.glimpse.com', 'local.thefind.com', 'green.thefind.com', 'ww1.glimpse.com', 'shoptrue.com', 'shoptrue', 'coupons.thefind.com', 'shop.glimpse.com', 'ww1.thefind.com', 'www.shoptrue.com', 'reviews.thefind.com', 'visual.thefind.com', 'prices.thefind.com'];
-  $TF.each(ignoredOrganics, function(key, value) {self.pageTracker._addIgnoredOrganic(value)});
+  //Ignored organics can be tracked form the GA Dashboard as per srilatha
+  //var self = this;
+  //var ignoredOrganics=['www.thefind.com', 'thefind', 'thefind.com', 'the find', 'glimpse', 'glimpse.com', 'www.glimpse.com', 'local.thefind.com', 'green.thefind.com', 'ww1.glimpse.com', 'shoptrue.com', 'shoptrue', 'coupons.thefind.com', 'shop.glimpse.com', 'ww1.thefind.com', 'www.shoptrue.com', 'reviews.thefind.com', 'visual.thefind.com', 'prices.thefind.com'];
+  //$TF.each(ignoredOrganics, function(key, value) {self.pageTracker._addIgnoredOrganic(value)});
 
   var domainName = document.domain.match(/(\.(.+)\.com$)/gi);
   if(domainName == null) {
@@ -40,21 +49,25 @@ elation.extend('googleanalytics', function(args) {
   domainName = domainName[0];
 
   if (this.cobrand=='local' || this.cobrand=='greenshopping' || this.cobrand=='visualbeta' || this.cobrand=='coupons' || this.cobrand=='thefind' || this.cobrand=='thefindww1' || this.cobrand=='reviews' || this.cobrand=='prices') {
-    this.pageTracker._setDomainName(domainName); // set to '.thefind.com' or '.dev.thefind.com'
-    this.pageTracker._setAllowLinker(true);
-    this.pageTracker._setAllowHash(false);
+    //this.pageTracker._setDomainName(domainName); // set to '.thefind.com' or '.dev.thefind.com'
+    //this.pageTracker._setAllowLinker(true);
+    //this.pageTracker._setAllowHash(false); //deprecated
+    ga('linker:autoLink', [domainName]);
   }else if (this.cobrand=='glimpse' || this.cobrand=='glimpseww1' || this.cobrand=='glimpseshop') {
-    this.pageTracker._setDomainName(domainName); //set to '.glimpse.com'
-    this.pageTracker._setAllowLinker(true);
-    this.pageTracker._setAllowHash(false);
+    //this.pageTracker._setDomainName(domainName); //set to '.glimpse.com'
+    //this.pageTracker._setAllowLinker(true);
+    //this.pageTracker._setAllowHash(false); //deprecated
+    ga('linker:autoLink', [domainName]);
   }else if (this.cobrand=='shoptrue') {
-    this.pageTracker._setDomainName(domainName); //set to '.shoptrue.com'
-    this.pageTracker._setAllowLinker(true);
-    this.pageTracker._setAllowHash(false);
+    //this.pageTracker._setDomainName(domainName); //set to '.shoptrue.com'
+    //this.pageTracker._setAllowLinker(true);
+    //this.pageTracker._setAllowHash(false); //deprecated
+    ga('linker:autoLink', [domainName]);
   }else if (this.cobrand=='thefinduk') {
-    this.pageTracker._setDomainName(domainName); //set to '.thefind.co.uk'
-    this.pageTracker._setAllowLinker(true);
-    this.pageTracker._setAllowHash(false);
+    //this.pageTracker._setDomainName(domainName); //set to '.thefind.co.uk'
+    //this.pageTracker._setAllowLinker(true);
+    //this.pageTracker._setAllowHash(false); //deprecated
+    ga('linker:autoLink', [domainName]);
   }
 
   // attach event handlers to various static links
@@ -116,18 +129,20 @@ elation.extend('googleanalytics', function(args) {
        this.pageTracker._setCustomVar(index, name, value, opt_scope);
        if (this.GAalerts) this.displayTag('setCustomVar(' + index + ', ' + name + ', ' + value + ', ' + opt_scope + ')');
     } catch (err) {
-       if (this.GAalerts) this.displayTag("setCustomVar Error: " + err.description);
+       if (this.GAalerts) this.displayTag("setCustomVar Error: " + err.message);
     }
   };
 
   this.trackPageViewWrapper = function(pageurl) {
   //console.log('url:'+pageurl);
     try {
-      this.pageTracker._trackPageview(pageurl);
+      //this.pageTracker._trackPageview(pageurl);
+      ga('send', 'pageview', pageurl);
+      
       if (this.GAalerts) {
         this.displayTag('trackPageview('+pageurl+')');
       }
-    } catch (err) {if (this.GAalerts) this.displayTag("trackPageViewWrapper Error: " + err.description)}
+    } catch (err) {if (this.GAalerts) this.displayTag("trackPageViewWrapper Error: " + err.message)}
   };
 
   this.trackPageview = function() {
@@ -428,8 +443,9 @@ elation.extend('googleanalytics', function(args) {
       if (this.GAalerts) this.displayTag('trackPageview('+pageurl+')');
 
       try {
-        this.pageTracker._trackPageview(pageurl);
-      } catch (err) {if (this.GAalerts) this.displayTag("trackPageview Error: "+err.description)}
+        //this.pageTracker._trackPageview(pageurl);
+        ga('send', 'pageview', pageurl);
+      } catch (err) {if (this.GAalerts) this.displayTag("trackPageview Error: "+err.message)}
     }
     var data = {};
     if(typeof elation.browse != 'undefined'){
@@ -455,43 +471,31 @@ elation.extend('googleanalytics', function(args) {
     switch (args.length) {
       case 2:
         try {
-          var ga_status = this.pageTracker._trackEvent(args[0], args[1]);
-          if (this.GAalerts && !ga_status){
-            this.displayTag("trackEvent Error: "+args[0]);
-          } else {
-            if (this.GAalerts) this.displayTag('trackEvent('+args[0]+','+args[1]+')');
-          }
-        } catch (err) {if (this.GAalerts) this.displayTag("trackEvent Error: "+err.description)}
+          //var ga_status = this.pageTracker._trackEvent(args[0], args[1]);
+           ga('send', 'event', args[0], args[1]);
+           if (this.GAalerts) this.displayTag('trackEvent('+args[0]+','+args[1]+')');
+        } catch (err) {if (this.GAalerts) this.displayTag("trackEvent Error: "+err.message)}
         break;
       case 3:
         try {
-          var ga_status = this.pageTracker._trackEvent(args[0], args[1], args[2]);
-          if (this.GAalerts && !ga_status){
-            this.displayTag("trackEvent Error: "+args[0]);
-          } else {
-              if (this.GAalerts) this.displayTag('trackEvent('+args[0]+','+args[1]+','+args[2]+')');
-          }
-        } catch (err) {if (this.GAalerts) this.displayTag("trackEvent Error: "+err.description)}
+          //var ga_status = this.pageTracker._trackEvent(args[0], args[1], args[2]);
+           ga('send', 'event', args[0], args[1], args[2]);
+           if (this.GAalerts) this.displayTag('trackEvent('+args[0]+','+args[1]+','+args[2]+')');
+        } catch (err) {if (this.GAalerts) this.displayTag("trackEvent Error: "+err.message)}
         break;
       case 4:
         try {
-          var ga_status = this.pageTracker._trackEvent(args[0], args[1], args[2], args[3]);
-          if (this.GAalerts && !ga_status){
-            this.displayTag("trackEvent Error: "+args[0]);
-          } else {
-            if (this.GAalerts) this.displayTag('trackEvent('+args[0]+','+args[1]+','+args[2]+','+args[3]+')');
-          }
-        } catch (err) {if (this.GAalerts) this.displayTag("trackEvent Error: "+err.description)}
+          //var ga_status = this.pageTracker._trackEvent(args[0], args[1], args[2], args[3]);
+           ga('send', 'event', args[0], args[1], args[2], args[3]);
+           if (this.GAalerts) this.displayTag('trackEvent('+args[0]+','+args[1]+','+args[2]+','+args[3]+')');
+        } catch (err) {if (this.GAalerts) this.displayTag("trackEvent Error: "+err.message)}
         break;
       case 5:
         try {
-          var ga_status = this.pageTracker._trackEvent(args[0], args[1], args[2], args[3], args[4]);
-          if (this.GAalerts && !ga_status){
-            this.displayTag("trackEvent Error: "+args[0]);
-          } else {
-            if (this.GAalerts) this.displayTag('trackEvent('+args[0]+','+args[1]+','+args[2]+','+args[3]+','+args[4]+')');
-          }
-        } catch (err) {if (this.GAalerts) this.displayTag("trackEvent Error: "+err.description)}
+          //var ga_status = this.pageTracker._trackEvent(args[0], args[1], args[2], args[3], args[4]);
+           ga('send', 'event', args[0], args[1], args[2], args[3], args[4]);
+           if (this.GAalerts) this.displayTag('trackEvent('+args[0]+','+args[1]+','+args[2]+','+args[3]+','+args[4]+')');
+        } catch (err) {if (this.GAalerts) this.displayTag("trackEvent Error: "+err.message)}
         break;
     }
   };
@@ -509,10 +513,26 @@ elation.extend('googleanalytics', function(args) {
       this.displayTag('addItem('+orderID+','+args.item[0]+','+args.item[1]+','+args.item[2]+','+args.item[3]+','+args.item[4]+')');
     }
     try {
-      this.pageTracker._addTrans(orderID, args.trans[0], args.trans[1], "", "", this.city, this.state, this.country);
-      this.pageTracker._addItem(orderID, args.item[0], args.item[1], args.item[2], args.item[3], args.item[4]);
-      this.pageTracker._trackTrans();
-    } catch (err) {if (this.GAalerts) this.displayTag("trackTrans Error: "+err.description)}
+      //this.pageTracker._addTrans(orderID, args.trans[0], args.trans[1], "", "", this.city, this.state, this.country);
+      //this.pageTracker._addItem(orderID, args.item[0], args.item[1], args.item[2], args.item[3], args.item[4]);
+      //this.pageTracker._trackTrans();
+      ga('ecommerce:addTransaction', {
+        'id': orderID,                     // Transaction ID. Required
+        'affiliation': args.trans[0],   // Affiliation or store name
+        'revenue': args.trans[1],               // Grand Total
+        'shipping': '',                  // Shipping
+        'tax': ''                     // Tax
+      });
+      ga('ecommerce:addItem', {
+        'id': orderID,                     // Transaction ID. Required
+        'sku': args.item[0],               // SKU/Code
+        'name': args.item[1],   // Product name required 
+        'category': args.item[2],                  // Category or variation
+        'price': args.item[3],                     // Unit Price
+        'quantity': args.item[4]                     // Quantity
+      });
+      ga('ecommerce:send');
+    } catch (err) {if (this.GAalerts) this.displayTag("trackTrans Error: "+err.message)}
   };
 
   this.trackPrivacySettings = function() {

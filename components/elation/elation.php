@@ -48,7 +48,12 @@ class Component_elation extends Component {
       $diff_curr = array_diff_assoc_recursive($args["settings"], $this->root->cfg->FlattenConfig($this->root->cfg->servers));
 
       //$vars["tfdev"]["serveroverrides"] = $diff_orig;
-      $vars["tfdev"]["serveroverrides"] = $diff_curr;
+      $cookiesettings = array();
+      if (!empty($_COOKIE["tf-dev"])) {
+        $tmpsettings = json_decode($_COOKIE["tf-dev"], true);
+        $cookiesettings = (!empty($tmpsettings["serveroverrides"]) ? $tmpsettings["serveroverrides"] : array());
+      }
+      $vars["tfdev"]["serveroverrides"] = array_merge($cookiesettings, $diff_curr);
       setcookie("tf-dev", json_encode($vars["tfdev"]), time() + 86400*365, "/"); // dev cookie persists for a year
       
       if (!empty($diff_curr)) {

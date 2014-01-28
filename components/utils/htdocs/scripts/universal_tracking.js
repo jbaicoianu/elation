@@ -509,7 +509,7 @@ elation.extend('googleanalytics', function(args) {
     this.myfindspanel='';
     var orderID = Math.floor(Math.random()*1000000000000);
     if (this.GAalerts) {
-      this.displayTag('addTrans('+orderID+','+args.trans[0]+','+args.trans[1]+',"","",')');
+      this.displayTag('addTrans('+orderID+','+args.trans[0]+','+args.trans[1]+')');
       this.displayTag('addItem('+orderID+','+args.item[0]+','+args.item[1]+','+args.item[2]+','+args.item[3]+','+args.item[4]+')');
     }
     try {

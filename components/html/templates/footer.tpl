@@ -1,5 +1,4 @@
   [[debug]]
-GA enabled {$GAenabled}
   {dependency type="component" name="html.footer"}
   {dependency type="component" name="utils.panel"}
   {if $GAenabled}

@@ -1,3 +1,4 @@
+{dependency name="ui.window"}
 {dependency name="ui.draggable"}
 {dependency name="utils.dust"}
 {dependency name="utils.template"}

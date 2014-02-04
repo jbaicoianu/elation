@@ -1,0 +1,30 @@
+.user_auth {
+  text-align: center;
+  transition: background 250ms ease-out;
+}
+.user_auth h2 {
+  margin: 0;
+}
+.user_auth label {
+  text-align: right;
+}
+.user_auth.orientation_inline h2 {
+  display: inline-block;
+  font-size: 1.2em;
+}
+.user_auth.orientation_inline h2::after {
+  content: ':';
+}
+.user_auth.orientation_inline .ui_input {
+  display: inline-block;
+}
+.user_auth.orientation_inline .ui_input label {
+  min-width: 0;
+}
+
+.user_auth.state_success {
+  background: rgba(0,255,0,.2);
+}
+.user_auth.state_error {
+  background: rgba(255,0,0,.2);
+}

@@ -1,18 +1,33 @@
+.ui_slider {
+  display: inline-block;
+  white-space: nowrap;
+}
 .ui_slider input[type='range'] {
   width: 100%;
+}
+.ui_slider label {
+  vertical-align: middle;
+  margin-right: .5em;
+  display: inline-block;
 }
 .ui_slider_track {
   width: 100%;
   border: 1px solid black;
+  background: white;
   height: .4em;
   position: relative;
-  margin: 1em 0;
+  display: inline-block;
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+  vertical-align: middle;
 }
 .ui_slider_handle {
+  display: inline-block;
   width: .25em;
   border: 1px solid black;
   background: grey;
   height: 1.2em;
   position: absolute;
   top: -.4em;
+  cursor: pointer;
 }

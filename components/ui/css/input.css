@@ -1,0 +1,4 @@
+.ui_input label {
+  min-width: 6em;
+  display: inline-block;
+}

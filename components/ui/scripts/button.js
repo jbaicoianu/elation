@@ -5,6 +5,8 @@ elation.component.add('ui.button', {
     this.title = this.args.title || false;
     this.draggable = this.args.draggable || false;
     this.label = this.args.label || container.innerHTML;
+    this.autoblur = this.args.autoblur || false;
+
     elation.html.addclass(this.container, 'ui_button');
     this.create();
     elation.events.add(this.container, 'click', this);
@@ -47,6 +49,9 @@ elation.component.add('ui.button', {
   },
   click: function(ev) {
     elation.events.fire({type: 'ui_button_click', element: this});
+    if (this.autoblur) {
+      this.container.blur();
+    }
   }
 });
 

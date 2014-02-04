@@ -1,4 +1,4 @@
-//elation.template.add('orm.class.property.connector', '<span elation:component="orm.connector" elation:args.direction="in"></span><span elation:component="orm.connector" elation:args.direction="out"></span>', 'dust');
+//elation.template.add('orm.class.property.connector', '<span data-elation-component="orm.connector" data-elation-args.direction="in"></span><span data-elation-component="orm.connector" data-elation-args.direction="out"></span>', 'dust');
 elation.template.add('orm.class.property.view', '<span class="orm_class_property_name">{name}</span> <span class="orm_class_property_type">({type})</span>', 'dust');
 elation.template.add('orm.class.property.edit', '<span class="orm_class_property_name"><input name="name" value="{name}" /></span> <span class="orm_class_property_type"><select name="type">{#alltypes}<option{@eq key=type value=.} selected{/eq}>{.}</option>{/alltypes}</select></span>', 'dust');
 
@@ -30,7 +30,10 @@ elation.component.add('orm.class', function() {
 console.log(Math.floor(Math.random() * window.innerWidth * .9));
  this.container.style.left = Math.floor(Math.random() * window.innerWidth * .8) + 'px';
  this.container.style.top = Math.floor(Math.random() * window.innerHeight * .6) + 'px';
-    elation.component.init();
+    //elation.component.init();
+  }
+  this.serialize = function() {
+    console.log(this.properties, this.connections);
   }
   this.initproperties = function(props) {
     console.log('class properties:', props);
@@ -68,7 +71,7 @@ console.log(Math.floor(Math.random() * window.innerWidth * .9));
     var keys = args.key.split(',');
     var other = elation.orm.class(otherclass);
 console.log(this, other, otherclass);
-    if (other) {
+    if (other && other.properties) {
       for (var i = 0; i < keys.length; i++) {
         if (this.properties[keys[i]] && other.properties[keys[i]]) {
           this.properties[keys[i]].link(other.properties[keys[i]]); 
@@ -110,13 +113,12 @@ elation.component.add('orm.class.property', function() {
       this.type = this.alltypes[0];
     }
     this.render(false);
-    elation.events.add(this.container, 'mouseover,mouseout,mousedown,keydown', this);
+    elation.events.add(this.container, 'mouseover,mouseout,keydown', this);
     elation.html.addclass(this.container, 'orm_class_property');
     this.setdefault(this.args.formdefault);
 
-    this.connectors['in'] = elation.orm.connector(null, elation.html.create({tag: 'div', append: this.container}), {direction: 'in'});
-    this.connectors['out'] = elation.orm.connector(null, elation.html.create({tag: 'div', append: this.container}), {direction: 'out'});
-console.log(this.connectors);
+    this.connectors['in'] = elation.orm.connector(null, elation.html.create({tag: 'div', append: this.container}), {direction: 'any_in'});
+    this.connectors['out'] = elation.orm.connector(null, elation.html.create({tag: 'div', append: this.container}), {direction: 'any_out'});
   }
   this.setdefault = function(def) {
     this.isdefault = def;
@@ -194,7 +196,7 @@ console.log(this.connectors);
     }
   }
   this.mousedown = function(ev) {
-    if (!this.editing) {
+    if (ev.button == 0 && !this.editing) {
       this.startedit();
     }
   }
@@ -242,8 +244,15 @@ elation.component.add("orm.connector", function() {
     this.direction = this.args.direction || 'any';
     this.links = [];
     elation.html.addclass(this.container, 'orm_connector');
-    elation.html.addclass(this.container, 'orm_connector_' + this.direction);
+    if (this.direction == 'any_in' || this.direction == 'any_out') {
+      var dir = this.direction.substr(this.direction.indexOf('_')+1);
+      this.direction = 'any';
+      elation.html.addclass(this.container, 'orm_connector_any orm_connector_' + dir);
+    } else {
+      elation.html.addclass(this.container, 'orm_connector_' + this.direction);
+    }
     elation.events.add(this.container, 'mousedown', this);
+
   }
   this.addlink = function(other) {
     var newlink = elation.orm.connector.link(null, elation.html.create({tag: 'canvas', append: this.container}));
@@ -266,6 +275,7 @@ elation.component.add("orm.connector", function() {
   this.moveto = function(x, y) {
     this.container.style.left = x + 'px';
     this.container.style.top = y + 'px';
+    //elation.html.transform(this.container, 'scale(2) translate3d(' + x + 'px, ' + y + 'px, 0px)');
     elation.events.fire({type: 'orm_connector_move', element: this});
   }
   this.reparent = function(parent) {
@@ -277,18 +287,23 @@ elation.component.add("orm.connector", function() {
     }
   }
   this.mousedown = function(ev) {
-    var dragname = 'dragpoint';
-    if (!elation.orm.connector.obj[dragname]) {
-      this.dragpoint = elation.orm.connector(dragname, elation.html.create({tag: 'div', append: this.container}), {direction: 'temp'});
-    } else {
-      this.dragpoint = elation.orm.connector(dragname);
-      this.dragpoint.reparent(this.container);
+    if (ev.button == 0) {
+      var dragname = 'dragpoint';
+      if (!elation.orm.connector.obj[dragname]) {
+        this.dragpoint = elation.orm.connector(dragname, elation.html.create({tag: 'div', append: this.container}), {direction: 'temp'});
+      } else {
+        this.dragpoint = elation.orm.connector(dragname);
+        this.dragpoint.reparent(this.container);
+      }
+      var mypos = elation.html.position(this.container);
+      var offset = 4; // FIXME - dunno why this is needed...need to figure it out instead of hardcoding
+      this.dragpoint.moveto(ev.clientX - mypos[0] + window.scrollX - offset, ev.clientY - mypos[1] + window.scrollY - offset);
+      if (!this.draglink) {
+        this.draglink = this.addlink(this.dragpoint);
+      }
+      elation.events.add(window, 'mousemove,mouseup', this);
+      ev.stopPropagation();
     }
-    var mypos = elation.html.position(this.container);
-    this.dragpoint.moveto(ev.clientX - mypos[0], ev.clientY - mypos[1]);
-    this.draglink = this.addlink(this.dragpoint);
-    elation.events.add(window, 'mousemove,mouseup', this);
-    ev.stopPropagation();
   }
   this.mousemove = function(ev) {
     //this.endpos = [ev.clientX, ev.clientY];
@@ -302,27 +317,34 @@ elation.component.add("orm.connector", function() {
         color = '#0f0';
       }
     }
-    this.draglink.setcolor(color);
+    if (this.draglink) {
+      this.draglink.setcolor(color);
+    }
     var mypos = elation.html.position(this.container);
-    this.dragpoint.moveto(ev.clientX - mypos[0], ev.clientY - mypos[1]);
+    var offset = 4; // FIXME - dunno why this is needed...need to figure it out instead of hardcoding
+    this.dragpoint.moveto(ev.clientX - mypos[0] + window.scrollX - offset, ev.clientY - mypos[1] + window.scrollY - offset);
   }
   this.mouseup = function(ev) {
+    elation.events.remove(window, 'mousemove,mouseup', this);
     var target = ev.target;
     if (elation.html.hasclass(target, 'orm_connector')) {
       var other = elation.component.fetch(target);
       if (other && ((this.direction == 'any' || other.direction == 'any') || 
           (this.direction == 'in' && other.direction == 'out') ||
           (this.direction == 'out' && other.direction == 'in'))) {
-        this.draglink.setend(other);
-        this.draglink = false;
+        if (this.draglink) {
+          this.draglink.setend(other);
+          this.draglink = false;
+        }
       } else {
         this.removelink(this.draglink);
+        this.draglink = false;
       }
     } else {
       this.removelink(this.draglink);
+      this.draglink = false;
     }
     this.dragpoint.reparent(false);
-    elation.events.remove(window, 'mousemove,mouseup', this);
   }
 });
 elation.component.add("orm.connector.link", function() {

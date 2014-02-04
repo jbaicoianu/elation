@@ -35,13 +35,12 @@ class Component_elation_orm extends Component {
           }
         }
         */
-        $data = DataManager::singleton();
         try {
-          $data->QueryCreate($sqlkey, $ormclass->table, $ormclass->getColumns($sql));
-          $vars["success"] = true;
-        } catch (Exception $e) {
-          $vars["success"] = false;
-          $vars["error"] = $e->getMessage();
+          if (DataManager::create($sqlkey, $ormclass->table, $ormclass->getColumns())) {
+            $ret["success"] = "Table '{$ormclass->table}' created successfully";
+          }
+        } catch(Exception $e) {
+          $ret["error"] = $e->getMessage();
         }
       }
     }
@@ -62,18 +61,19 @@ class Component_elation_orm extends Component {
   }
   function controller_view($args) {
     $vars["ormcfg"] = $args["ormcfg"];
-    $vars["model"] = $args["model"];
+    $vars["model"] = any($args["model"], "");
 
     return $this->GetComponentResponse("./orm_view.tpl", $vars);
   }
   function controller_view_class($args) {
     $vars["ormclass"] = new OrmClass($args["ormcfg"]);
-    $vars["model"] = $args["model"];
     $vars["classname"] = $args["classname"];
+    $vars["model"] = any($args["model"], "");
+    $vars["classname"] = any($args["classname"], "");
     $vars["sql"] = $vars["ormclass"]->getCreateSQL();
     return $this->GetComponentResponse("./orm_view_class.tpl", $vars);
   }
-  function component_generate($args, $output="text") {
+  function controller_generate($args, $output="text") {
     // Only return this data when run from the commandline
     if ($output == "commandline") {
       $ret = "[not found]";
@@ -101,13 +101,22 @@ class Component_elation_orm extends Component {
   }
   function controller_model($args) {
     $vars["model"] = any($args["model"], "space");
-    $foo = OrmManager::LoadModel($vars["model"]);
-    $vars["classes"] = $foo[$vars["model"]]->classes;
+    $models = explode(",", $vars["model"]);
+    $vars["classes"] = array();
+    foreach ($models as $i=>$model) {
+      $foo = OrmManager::LoadModel($model);
+      foreach ($foo[$model]->classes as $k=>$v) {
+        $vars["classes"][$k] = $v;
+      }
+    }
     return $this->GetComponentResponse("./model.tpl", $vars);
   }
   function controller_class($args) {
     $vars["classname"] = any($args["classname"], "unnamed");
     $vars["classdef"] = any($args["classdef"], array());
     return $this->GetComponentResponse("./class.tpl", $vars);
+  }
+  function controller_test($args) {
+    $foo = OrmManager::create();
   }
 }

@@ -25,6 +25,7 @@ elation.component.add("ui.treeview", function() {
     this.items = [];
     this.container.innerHTML = '';
     this.add(items, this.container, attrs);
+    elation.component.init();
   }
   this.add = function(items, root, attrs) {
     if (!root) root = this.container;
@@ -52,8 +53,9 @@ elation.component.add("ui.treeview", function() {
         }
         this.items.push(tvitem);
         elation.events.add(tvitem, 'ui_treeviewitem_hover,ui_treeviewitem_select', this);
-        if (items[k][attrs.children]) {
+        if (items[k][attrs.children] && Object.keys(items[k][attrs.children]).length > 0) {
           this.add(items[k][attrs.children], li, attrs);
+          elation.html.addclass(li, 'state_expanded');
         }
       }
     }

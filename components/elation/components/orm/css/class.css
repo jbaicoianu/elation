@@ -5,7 +5,7 @@
   display: inline-block;
   background: #ccf;
   padding: .5em;
-  position: relative;
+  position: absolute;
   vertical-align: top;
   margin-right: 1em;
   -webkit-touch-callout: none;
@@ -110,6 +110,7 @@ ul.orm_class_properties {
   height: .4em;
   border-radius: .4em;
   opacity: .8;
+  cursor: pointer;
 }
 .orm_connector:hover {
   opacity: 1;
@@ -135,8 +136,10 @@ ul.orm_class_properties {
 .orm_connector.orm_connector_any {
   border: 1px solid #099;
   background: #0ff;
+  /*
   left: -.8em;
   top: .25em;
+  */
 }
 .orm_connector.orm_connector_any:hover {
   background: #9ff;
@@ -145,7 +148,8 @@ ul.orm_class_properties {
   display: none;
 }
 .orm_connector.orm_connector_temp {
-  visibility: hidden;
+  visibility: visible;
+background: red;
   pointer-events: none;
 }
 

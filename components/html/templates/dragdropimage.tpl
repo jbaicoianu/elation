@@ -1,5 +1,6 @@
 {component name="html.header"}
-<script type="text/javascript" src="/scripts/components/html/jszip.js"></script>
+{set var="page.title"}Client-side bulk image resizer{/set}
+<script type="text/javascript" src="/scripts/html/jszip.js"></script>
 
 <div id="dragdrop"><div>drag ur imgz here</div></div>
 
@@ -27,6 +28,7 @@
   cursor: move;
   overflow: hidden;
   -moz-box-shadow: 8px 8px 8px #333;
+  -webkit-user-select: none;
 }
 .imagescaler canvas {
   display: block;
@@ -79,8 +81,9 @@ function DragTarget(container, options) {
         if (ev.dataTransfer.files.length > 0) {
           var files = ev.dataTransfer.files;
           for (var i = 0; i < files.length; i++) {
-            console.log(files[i]);
-            this.scalers.push(new ImageScaler(this.container, {src: files[i].getAsDataURL(), name: files[i].fileName, type: files[i].type}));
+            var url = window.URL.createObjectURL(files[i]);
+            console.log(files[i], url);
+            this.scalers.push(new ImageScaler(this.container, {src: url, name: files[i].fileName, type: files[i].type}));
           }
         } else if (ev.dataTransfer.types.contains("text/uri-list")) {
           this.scalers.push(new ImageScaler(this.container, {src: ev.dataTransfer.getData("text/uri-list")}));
@@ -94,7 +97,7 @@ function DragTarget(container, options) {
     console.log('Generating zip');
     var zip = new JSZip();
     for (var i = 0; i < this.scalers.length; i++) {
-      zip.add(this.scalers[i].name, this.scalers[i].canvas.toDataURL(this.scalers[i].type).replace("data:"+this.scalers[i].type+";base64,", ""), {base64: true});
+      zip.file(this.scalers[i].name, this.scalers[i].canvas.toDataURL(this.scalers[i].type).replace("data:"+this.scalers[i].type+";base64,", ""), {base64: true});
     }
     var content = zip.generate();
     location.href = "data:application/zip;base64,"+content;
@@ -159,11 +162,13 @@ function ImageScaler(container, options) {
           elation.events.add(window, 'mousemove', this);
           elation.events.add(window, 'mouseup', this);
           ev.stopPropagation();
+          ev.preventDefault();
         } else if (!this.dragging) {
           console.log('dragging');
           this.dragging = true;
           elation.events.add(window, 'mousemove', this);
           elation.events.add(window, 'mouseup', this);
+          ev.preventDefault();
         }
         break;
       case 'mousemove':

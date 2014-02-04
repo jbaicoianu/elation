@@ -37,8 +37,11 @@ class App {
 
     // disable notices by default.  This should probably be a config option...
     error_reporting(error_reporting() ^ E_NOTICE); 
-
+    // FIXME - xdebug recursion limit causes problems in some components...
+    ini_set('xdebug.max_nesting_level', 250);
+    $GLOBALS["webapp"] = $this;
     register_shutdown_function(array($this, 'shutdown'));
+
     ob_start();
     $this->rootdir = $rootdir;
     $this->debug = !empty($args["debug"]);
@@ -164,6 +167,8 @@ class App {
         // Load settings from servers.ini
         $contegargs = (isset($this->cfg->servers["conteg"]) ? $this->cfg->servers["conteg"] : array());
         $contegargs["charset"] = "UTF-8"; // FIXME - shouldn't be hardcoded, but we should also replace Conteg...
+        $contegargs["cache_control"]["macro"] = "no-cache";
+        //$contegargs["use_etags"] = true;
         // And also from site config
         $contegcfg = ConfigManager::get("conteg");
         if (is_array($contegcfg)) {
@@ -190,6 +195,9 @@ class App {
           if (!empty($this->request["args"]["timing"])) {
             print Profiler::Display();
           }
+        }
+        if ($output["http_status"]) {
+          $contegargs["http_status"] = $output["http_status"];
         }
         Profiler::StopTimer("WebApp::TimeToDisplay");
         Profiler::StartTimer("WebApp::Display() - Conteg", 1);
@@ -268,7 +276,7 @@ class App {
   }
 
   function HandleError($errno, $errstr, $errfile, $errline, $errcontext) {
-    $visible = (!isset($this->cfg->servers["logger"]["visible"]) || $this->cfg->servers["logger"]["visible"] == true);
+    $visible = (!isset($this->cfg->servers["logger"]["visible"]) || $this->cfg->servers["logger"]["visible"] == true) && (error_reporting() & $errno);
     if ($visible) {
       if ($errno & E_ERROR || $errno & E_USER_ERROR)
         $type = "error";

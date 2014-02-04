@@ -91,10 +91,11 @@ class OrmManager {
       return self::singleton()->load($type, $id);
   }
   function Save($obj) {
-    if ($this instanceOf OrmManager)
-      return $this->outlet->save($obj);
-    else
+    if ($this instanceOf OrmManager) {
+      $this->outlet->save($obj);
+    } else {
       return self::singleton()->save($obj);
+    }
   }
   function From($obj) {
     if ($this instanceOf OrmManager)
@@ -208,9 +209,9 @@ class OrmModel extends OrmMaster {
             $rowargs["keys"] = implode(",", $keys[$row->field]);
           }
 
-          $this->classes->{$cls}->props[$row->field] = array($row->field, $rowtype);
+          $this->classes->{$cls}->props->{$row->field} = array($row->field, $rowtype);
           if (!empty($rowargs))
-            $this->classes->{$cls}->props[$row->field][] = $rowargs;
+            $this->classes->{$cls}->props->{$row->field}[] = $rowargs;
           
         }
       }

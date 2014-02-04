@@ -29,51 +29,138 @@ elation.extend("utils.physics.system", new function() {
     }
   }
   this.checkCollision = function(obj, t) {
+    obj.object.updateMatrix();
+    obj.object.updateMatrixWorld();
+
+    if (obj.contacting && obj.contacting.length > 0) {
+      //console.log('untouching', obj, obj.contacting);
+    }
+    obj.contacting = [];
     if (obj.radius > 0) {
       if (!this.tmpray) {
-        this.tmpray = new THREE.Ray(obj.pos, obj.vel.clone().normalize());
+        this.tmpray = new THREE.Ray(obj.pos.clone(), obj.vel.clone().normalize());
       } else {
-        this.tmpray.origin = obj.pos;
+        this.tmpray.origin = obj.pos.clone();
         this.tmpray.direction = obj.vel.clone().normalize();
       }
-  //console.log(ray);
-      var speed = obj.vel.length();
-      var objects = this.tmpray.intersectScene(elation.space.fly(0).scene, speed);
-      for (var i = 0; i < objects.length; i++) {
-        var c = objects[i];
-
-        if (c) {
-          if (c.distance <= speed) {
-            //console.log(objects);
-            
-            var vrel = obj.vel.clone();
-            if (c.object && c.object.dynamics) {
-              vrel.subSelf(c.object.dynamics.vel);
-            }
-            var vsep = vrel.dot(c.face.normal);
-            //console.log("vsep", vsep, obj.radius);
-            if (vsep > 0) {
-              //console.log('already moving away');
-            } else if (obj.radius > 0 && (c.distance - obj.radius) <= speed * t) {
-              //console.log('crash at ', c.distance, speed, speed * t, obj.vel, obj.radius);
-              //obj.setVelocity([0,0,0]);
-              var foo = elation.space.admin(0).findThingParent(c.object);
-              if (foo && foo.dynamics) {
-                if (foo.dynamics != obj) {
-                  obj.bounce(c, t);
-                  foo.dynamics.bounce(c, t);
-                }
-              } else {
-                obj.bounce(c, t);
-              }
-              break;
+      var speed = obj.vel.length() * t;
+      var potential = [];
+      for (var k in this.objects) {
+        if (this.objects[k] != obj) {
+          var other = this.objects[k];
+          var xrel = other.pos.clone().subSelf(obj.pos);
+          //console.log(obj.pos, this.pos, xrel);
+          var rsq = Math.pow(obj.radius + other.radius, 2);
+          var c = xrel.dot(xrel) - rsq;
+          if (c < 0) {
+            //console.log('crashy?');
+            potential.push(other.object);
+          } else {
+            var vrel = obj.vel.clone().subSelf(other.vel);
+            var a = vrel.dot(vrel);
+            if (a < 0.00001) {
+              continue; // Moving away from each other
             } else {
+              var b = xrel.dot(vrel);
+              var d = b * b - a * c;
+              if (d < 0) {
+                //console.log('no solutions');
+                continue;
+              } else {
+                potential.push(other.object);
+              }
             }
-          } else if (c.distance > speed) {
-            // Object too far away, bail out
-            break;
+/*
+            var b = 2 * xrel.dot(vrel);
+            var q = -.5 * (b + ((b < 0 ? -1 : 1) * Math.sqrt(b*b - 4*a*c)));
+            var t0 = q / a, t1 = c/q;
+            //console.log(obj.object.name, other.object.name, a, b, c, t0, t1);
+*/
+/*
+            if (!isNaN(t0) || !isNaN(t1)) {
+              potential.push(other.object);
+            }
+*/
           }
         }
+      }
+
+      if (potential.length > 0) {
+        //var objects = this.tmpray.intersectScene(elation.space.fly(0).scene);
+        var objects = this.tmpray.intersectObjects(potential);
+if (objects.length > 0) {
+  //console.log(objects, potential, [this.tmpray.origin.x, this.tmpray.origin.y, this.tmpray.origin.z], [this.tmpray.direction.x, this.tmpray.direction.y, this.tmpray.direction.z], obj.radius);
+} else if (potential.length > 0) {
+  //console.log(potential, [this.tmpray.origin.x, this.tmpray.origin.y, this.tmpray.origin.z], [this.tmpray.direction.x, this.tmpray.direction.y, this.tmpray.direction.z], obj.radius);
+}
+        for (var i = 0; i < objects.length; i++) {
+          var c = objects[i];
+
+          if (c && !c.object.ignoreCollider) {
+//console.log(c);
+            var blurp = obj.pos.clone().subSelf(c.point);
+            if (blurp.length() < obj.radius) {
+              obj.contacting.push(c);
+              //console.log(blurp.length(), [blurp.x, blurp.y, blurp.z]);
+                var foo = elation.space.admin(0).findThingParent(c.object);
+                if (foo && foo.dynamics) {
+                  if (foo.dynamics != obj) {
+                    obj.bounce(c, t);
+                    foo.dynamics.bounce(c, t);
+                  }
+                } else {
+                  obj.bounce(c, t);
+                }
+                break;
+            } else if (c.distance <= speed) {
+              //console.log(objects);
+              var vrel = obj.vel.clone();
+              if (c.object && c.object.dynamics) {
+                vrel.subSelf(c.object.dynamics.vel);
+              }
+              var vsep = vrel.dot(c.face.normal);
+              //console.log("vsep", vsep, obj.radius);
+              if (vsep > 0) {
+                //console.log('already moving away');
+              } else if (obj.radius > 0 && (c.distance - obj.radius) <= speed) {
+                //console.log('crash at ', c.distance, speed, speed * t, obj.vel, obj.radius);
+                //obj.setVelocity([0,0,0]);
+                obj.contacting.push(c);
+                var foo = elation.space.admin(0).findThingParent(c.object);
+                if (foo && foo.dynamics) {
+                  if (foo.dynamics != obj) {
+                    obj.bounce(c, t);
+                    foo.dynamics.bounce(c, t);
+                  }
+                } else {
+                  obj.bounce(c, t);
+                }
+                break;
+              } else {
+              }
+            } else if (c.distance > speed) {
+              // Object too far away, bail out
+              break;
+            }
+          }
+        }
+      }
+    }
+    if (obj.forces['gravity']) {
+      if (obj.contacting && obj.contacting.length > 0) {
+        //console.log('touching:', obj, obj.contacting);
+        var gsum = new THREE.Vector3();
+        for (var i = 0; i < obj.contacting.length; i++) {
+          var a = obj.forces['gravity'].clone();
+          var b = obj.contacting[i].face.normal.clone().normalize();
+          
+          gsum.subSelf(b.multiplyScalar(a.dot(b)));
+        }
+        obj.addForce("normalforce", gsum);
+        obj.setFriction(1000);
+      } else if (obj.forces["normalforce"]) {
+        obj.removeForce("normalforce");
+        obj.setFriction(0);
       }
     }
     obj.iterate(t);
@@ -105,11 +192,13 @@ elation.extend("utils.physics.object", function(args) {
   this.friction = this.args.friction || 0;
   this.pos = this.args.position || new THREE.Vector3(0,0,0); // Position, in m
   this.rot = this.args.rotation || new THREE.Vector3(0,0,0); // Rotation, in radians
-  this.vel = this.args.vel || new THREE.Vector3(0,0,0); // Velocity, in m/s
+  this.vel = this.args.velocity || new THREE.Vector3(0,0,0); // Velocity, in m/s
   this.accel = this.args.accel || new THREE.Vector3(); // Acceleration, in m/s^2
   this.angular = this.args.angular || new THREE.Vector3(0,0,0); // Rotational velocity, in degrees/s
   this.restitution = this.args.restitution || 1;
   this.radius = (typeof this.args.radius != 'undefined' ? this.args.radius : 0);
+  this.box = (typeof this.args.box != 'undefined' ? this.args.box : null);
+  this.object = (typeof this.args.object != 'undefined' ? this.args.object : null);
   this.forces = {'_num': 0}; // Forces on this object, in N
   this.forcesum = new THREE.Vector3();
 
@@ -121,8 +210,29 @@ elation.extend("utils.physics.object", function(args) {
     if (!this.sleeping) {
       var fallasleep = true;
       if ((this.drag > 0 || this.friction > 0)) {
-        this.calculateFriction();
+        this.calculateFriction(t);
       }
+
+      /*
+       * Note to self: the entire accel/vel/pos update cycle could be done with a single 9x9 matrix multiply:
+       *
+       * [1, 0, 0, t, 0, 0, .5*t^2, 0, 0]   [px]   [ px + vx*t + .5*ax*t^2 ]
+       * [0, 1, 0, 0, t, 0, 0, .5*t^2, 0]   [py]   [ py + vy*t + .5*ay*t^2 ]
+       * [0, 0, 1, 0, 0, t, 0, 0, .5*t^2]   [pz]   [ pz + vz*t + .5*az*t^2 ]
+       * [0, 0, 0, 1, 0, 0, t, 0, 0     ] * [vx] = [ vx + ax*t ]
+       * [0, 0, 0, 0, 1, 0, 0, t, 0     ]   [vy]   [ vy + ay*t ]
+       * [0, 0, 0, 0, 0, 1, 0, 0, t     ]   [vz]   [ vz + az*t ]
+       * [0, 0, 0, 0, 0, 0, 1, 0, 0     ]   [ax]   [ ax ]
+       * [0, 0, 0, 0, 0, 0, 0, 1, 0     ]   [ay]   [ ay ]
+       * [0, 0, 0, 0, 0, 0, 0, 0, 1     ]   [az]   [ az ]
+       *
+       * Alternatively (and more efficiently) it could be broken down into seperate x, y, and z steps and solved using 3 3x3 matrix multiplies:
+       * 
+       * [ 1, t, .5*t^2 ]   [p]   [ p + v*t + .5*a*t^2 ]
+       * [ 0, 1, t      ] * [v] = [ v + a*t ]
+       * [ 0, 0, 1      ]   [a]   [ a ]
+       */
+
       if (this.accel && this.accel.length() > elation.utils.physics.system.lambda) {
         //this.vel = this.vel.add(this.accel.multiply(.5*t*t));
         this.vel.addSelf(this.accel.clone().multiplyScalar(.5*t*t));
@@ -148,19 +258,18 @@ elation.extend("utils.physics.object", function(args) {
     }
   }
   this.addForce = function(name, force) {
-    if (force instanceof THREE.Vector3)
+    if (force instanceof THREE.Vector3) {
       this.forces[name] = force;
-    else
+    } else
       this.forces[name] = new THREE.Vector3(force[0], force[1], force[2]);
     this.forces._num++;
 
     this.calculateAcceleration();
-    //console.log('added force', name, [force.x, force.y, force.z], [this.accel.x, this.accel.y, this.accel.z]);
   }
   this.updateSleepState = function() {
-    this.accelerating = (this.accel && this.accel.length() > 0);
-    this.moving = (this.vel && this.vel.length() > 0);
-    this.rotating = (this.angular && this.angular.length() > 0);
+    this.accelerating = (this.accel && this.accel.length() > 0.00001);
+    this.moving = (this.vel && this.vel.length() > 0.00001);
+    this.rotating = (this.angular && this.angular.length() > 0.00001);
 
     this.sleeping = !(this.accelerating || this.moving || this.rotating);
     return this.sleeping;
@@ -194,7 +303,7 @@ elation.extend("utils.physics.object", function(args) {
       this.removeForce('friction');
     }
   }
-  this.calculateFriction = function(time) {
+  this.calculateFriction = function(t) {
     var v = this.vel.length();
 
     if (v > 0.00001) {
@@ -204,6 +313,17 @@ elation.extend("utils.physics.object", function(args) {
       }
       if (this.friction > 0) {
         var fd = this.vel.clone().multiplyScalar(-1 * this.friction * this.mass);
+        var a = fd.length() / this.mass;
+        var dv = .5 * a * t * t ;
+        if (dv > this.vel.length()) {
+          // FIXME - this is to prevent friction from ever pushing an object backwards
+          //         but it's probably wrong right now...
+          var newa = 2 * this.vel.length();
+          fd.normalize().multiplyScalar(newa);
+          var newdv = .5 * newa;
+
+          console.log('overaccel', t, [a, dv], [newa, newdv], "E", this.vel.length(), fd.length());
+        }
         this.addForce("friction", fd);
       }
     } else {
@@ -307,4 +427,10 @@ elation.extend("utils.physics.object", function(args) {
     }
   }
   this.init();
+});
+elation.extend("utils.physics.aabb", new function() {
+  this.min = false;
+  this.max = false;
+
+  
 });

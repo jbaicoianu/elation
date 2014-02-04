@@ -54,7 +54,6 @@ elation.component.add("ui.tabitem", function() {
       this.tooltip = this.args.tooltip;
       this.container.title = this.args.tooltip;
     }
-console.log('new item now yeah');
     elation.events.add(this.container, 'mouseover,mouseout,click', this);
   }
   this.hover = function() {

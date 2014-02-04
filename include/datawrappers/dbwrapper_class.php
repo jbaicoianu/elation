@@ -301,15 +301,14 @@ class DBWrapper extends ConnectionWrapper {
   function &QueryCreate($queryid, $table, $columns) { 
     $columnsql = "(" . implode(", ", $columns) . ")";
     $ret = false;
-    //print_pre($queryid);
-    //print_pre($table);
-    //print_pre($columnsql);
     if (empty($this->cfg["buckets"])) {
       if (!$this->LazyOpen(0)) {
         Logger::Info("Database connection '{$this->name}' marked as failed, skipping CREATE query");
         return false;
       }
       if ($this->conn[0]) {
+        $dbname = explode(".", $table)[0];
+        $result2 = $this->conn[0]->queryBind("CREATE DATABASE IF NOT EXISTS $dbname");
         $result = $this->conn[0]->queryBind("CREATE TABLE " . $table . " " . $columnsql);
         $ret = !empty($result);
       }

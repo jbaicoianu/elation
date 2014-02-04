@@ -20,13 +20,15 @@ console.log('disable drag');
     }
   }
   this.mousedown = function(ev) {
-    elation.events.add(window, 'mousemove,mouseup', this);
-    this.mousepos = [ev.clientX, ev.clientY];
-    this.windowpos = [this.container.offsetLeft, this.container.offsetTop];
-    
-    this.container.style.left = this.windowpos[0] + 'px';
-    this.container.style.top = this.windowpos[1] + 'px';
-    elation.events.fire({type: 'ui_draggable_start', element: this});
+    if (ev.button == 0) {
+      elation.events.add(window, 'mousemove,mouseup', this);
+      this.mousepos = [ev.clientX, ev.clientY];
+      this.windowpos = [this.container.offsetLeft, this.container.offsetTop];
+      
+      this.container.style.left = this.windowpos[0] + 'px';
+      this.container.style.top = this.windowpos[1] + 'px';
+      elation.events.fire({type: 'ui_draggable_start', element: this});
+    }
   }
   this.mousemove = function(ev) {
     var diff = [ev.clientX - this.mousepos[0], ev.clientY - this.mousepos[1]];

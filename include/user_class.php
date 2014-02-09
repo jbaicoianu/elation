@@ -20,8 +20,8 @@ class User extends UserModel {
       $userid = $_SESSION["user"]["userid"];
       $user = OrmManager::load("UserModel", array($usertype, $userid));
       if (!empty($user)) {
-        $this->usertype = $user->usertype;
-        $this->userid = $user->userid;
+        $this->copy($user);
+        $this->credentials = false; // strip out credentials
         $this->loggedin = true;
         return true;
       }
@@ -86,6 +86,7 @@ class User extends UserModel {
   public static function get($usertype, $userid) {
     $user = OrmManager::load("UserModel", array($usertype, $userid));
     if (!empty($user)) {
+      $user->credentials = false; // strip out credentials
       return new User($user);
     } 
     return false;

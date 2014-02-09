@@ -168,7 +168,7 @@ class TemplateManager extends Smarty {
         $this->_tpl_vars =& $oldvars;
       }
     } catch (Exception $e) {
-      $return = "[Could not parse template '$resource_name': $e->message]";
+      $return = "[Could not parse template '$resource_name': " . $e->getMessage() . "]";
     }
 
     return $return;

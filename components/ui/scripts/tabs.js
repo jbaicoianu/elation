@@ -1,3 +1,14 @@
+/** 
+ * Tabs UI component
+ *
+ * @class tabs
+ * @augments elation.ui.base
+ * @memberof elation.ui
+ * @todo this could probably inherit from ui.list to be more general
+ *
+ * @param {object} args
+ * @param {string} args.items
+ */
 elation.component.add("ui.tabs", function() {
   this.init = function() {
     this.items = [];
@@ -8,6 +19,7 @@ elation.component.add("ui.tabs", function() {
       }
     }
     elation.html.addclass(this.container, 'ui_tabs');
+    elation.events.fire({type: 'ui_tabs_create'});
     this.create();
   }
   this.create = function() {
@@ -24,7 +36,7 @@ elation.component.add("ui.tabs", function() {
   this.add = function(tab) {
     var tabitem = elation.ui.tabitem(null, elation.html.create({tag: 'li', append: this.ul, content: tab.label}), tab);
     elation.events.add(tabitem, "ui_tabitem_hover,ui_tabitem_select", this);
-    this.tabitems[tabitem.name] = tabitem;
+    this.tabitems[tabitem.tabname] = tabitem;
   }
   this.setActiveTab = function(name) {
     if (this.tabitems[name]) {
@@ -49,7 +61,7 @@ elation.component.add("ui.tabs", function() {
 });
 elation.component.add("ui.tabitem", function() {
   this.init = function() {
-    this.name = this.args.name;
+    this.tabname = this.args.name;
     if (this.args.tooltip) {
       this.tooltip = this.args.tooltip;
       this.container.title = this.args.tooltip;

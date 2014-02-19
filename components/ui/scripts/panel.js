@@ -1,4 +1,17 @@
+/** 
+ * Panel layout UI element
+ *
+ * @class panel
+ * @augments elation.ui.base
+ * @memberof elation.ui
+ *
+ * @param {object} args
+ * @param {string} args.classname
+ * @param {string} args.orientation
+ */
 elation.component.add("ui.panel", function() {
+  this.defaultcontainer = {tag: 'div', classname: 'ui_panel'};
+
   this.init = function() {
     this.items = [];
     this.orientation = this.args.orientation || 'vertical';
@@ -9,6 +22,12 @@ elation.component.add("ui.panel", function() {
       elation.html.addclass(this.container, this.args.classname);
     }
   }
+  /**
+   * Append a new component to this panel
+   * @function add
+   * @memberof elation.ui.panel#
+   * @param {elation.component.base} component
+   */
   this.add = function(component) {
     if (component) {
       this.container.appendChild(component.container);
@@ -19,4 +38,4 @@ elation.component.add("ui.panel", function() {
     }
     return false;
   }
-});
+}, elation.ui.base);

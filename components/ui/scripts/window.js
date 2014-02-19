@@ -1,3 +1,24 @@
+/** 
+ * Window UI component
+ *
+ * @class window
+ * @augments elation.ui.base
+ * @memberof elation.ui
+ *
+ * @param {object} args
+ * @param {array} args.items
+ * @param {boolean} args.controls
+ * @param {string} args.title
+ * @param {string} args.content
+ * @param {array} args.position
+ * @param {boolean} args.center
+ * @param {int} args.width
+ * @param {int} args.top
+ * @param {int} args.bottom
+ * @param {int} args.left
+ * @param {int} args.right
+ */
+
 elation.require(['ui.button', 'ui.buttonbar']);
 
 elation.component.add('ui.window', function() {
@@ -13,6 +34,7 @@ elation.component.add('ui.window', function() {
     this.titlebar = elation.html.create({tag: 'h2', classname: 'ui_window_titlebar', append: this.container});
     this.minimized = false;
     this.maximized = false;
+    this.transformorigin = "50% 50%";
     this.labels = {
       minimize: '_',
       maximize: '□',
@@ -54,7 +76,7 @@ elation.component.add('ui.window', function() {
   }
   this.focus = function(skipmove) {
     if (!this.active) {
-      this.windownum = elation.ui.window.numwindows++;;
+      this.windownum = elation.ui.window.numwindows++;
       // first remove focus from any existing active windows
       var activewindows = elation.find('.ui_window.state_active');
       if (activewindows.length > 0) {
@@ -67,7 +89,7 @@ elation.component.add('ui.window', function() {
         //this.minimize();
       } else {
         //this.setposition((this.maximized ? [0,0] : this.offsetpos), false);
-        elation.html.transform(this.container, this.gettransform(), '50% 0%', (skipmove ? '' : 'all 100ms ease-in-out'));
+        elation.html.transform(this.container, this.gettransform(), this.transformorigin, (skipmove ? '' : 'all 100ms ease-in-out'));
       }
       this.active = true;
       elation.events.fire({type: 'focus', element: this});
@@ -109,13 +131,14 @@ elation.component.add('ui.window', function() {
       elation.events.fire({type: 'ui_window_close', element: this});
     }
   }
-  this.close = function() {
+  this.close = function(ev) {
     if (this.container.parentNode) {
       this.container.parentNode.removeChild(this.container);
       elation.events.fire({type: 'ui_window_close', element: this});
     }
+    if (ev) ev.stopPropagation();
   }
-  this.minimize = function() {
+  this.minimize = function(ev) {
     if (this.maximized) {
       this.maximize();
     }
@@ -125,7 +148,7 @@ elation.component.add('ui.window', function() {
         this.oldtransform = elation.html.transform(this.container);
       }
       this.windownum = -1;
-      elation.html.transform(this.container, this.gettransform(false, false, .25), '50% 0%', 'all 100ms ease-out');
+      elation.html.transform(this.container, this.gettransform(false, false, .25), this.transformorigin, 'all 100ms ease-out');
       elation.html.addclass(this.container, 'state_minimized');
       this.controls.buttons.minimize.setLabel(this.labels.restore);
       this.controls.buttons.maximize.setLabel(this.labels.maximize);
@@ -140,17 +163,18 @@ elation.component.add('ui.window', function() {
       }
       this.controls.buttons.minimize.setLabel(this.labels.minimize);
       this.minimized = false;
-      elation.html.transform(this.container, this.gettransform(), '50% 0%', 'all 100ms ease-out');
+      elation.html.transform(this.container, this.gettransform(), this.transformorigin, 'all 100ms ease-out');
       elation.events.fire({type: 'ui_window_restore', element: this});
     }
+    if (ev) ev.stopPropagation();
   }
-  this.maximize = function() {
+  this.maximize = function(ev) {
     if (!this.maximized) {
       // maximize
       this.focus();
       elation.html.addclass(this.container, 'state_maximized');
 /*
-      elation.html.transform(this.container, this.gettransform([0,0]), '50% 0%', 'none'); //'all 100ms ease-out');
+      elation.html.transform(this.container, this.gettransform([0,0]), this.transformorigin, 'none'); //'all 100ms ease-out');
       this.container.style.width = window.innerWidth + 'px';
       this.container.style.height = window.innerHeight + 'px';
 */
@@ -167,7 +191,7 @@ elation.component.add('ui.window', function() {
       elation.html.removeclass(this.container, 'state_maximized');
       this.setposition(this.restorestate[0]);
       this.setsize(this.restorestate[1]);
-      //elation.html.transform(this.container, this.gettransform(), '50% 0%', 'none'); //'all 100ms ease-out');
+      //elation.html.transform(this.container, this.gettransform(), this.transformorigin, 'none'); //'all 100ms ease-out');
       this.controls.buttons.maximize.setLabel(this.labels.maximize);
       this.maximized = false;
       elation.events.fire({type: 'ui_window_restore', element: this});
@@ -176,12 +200,13 @@ elation.component.add('ui.window', function() {
       elation.html.removeclass(this.container, 'state_minimized'); // clear minimized flag if set
       this.minimized = false;
     }
+    if (ev) ev.stopPropagation();
   }
   this.getsize = function() {
     return [this.container.offsetWidth, this.container.offsetHeight];
   }
   this.setsize = function(size) {
-    elation.html.transform(this.container, this.gettransform(), '50% 0%', 'none');
+    elation.html.transform(this.container, this.gettransform(), this.transformorigin, 'none');
     this.content.style.width = size[0] + 'px';
     this.content.style.height = (size[1] - this.titlebar.offsetHeight) + 'px';
     this.size[0] = size[0];
@@ -202,10 +227,18 @@ elation.component.add('ui.window', function() {
   this.setposition = function(pos, animate) {
     this.offsetpos[0] = pos[0];
     this.offsetpos[1] = pos[1];
-    elation.html.transform(this.container, this.gettransform(), '50% 0%', (animate ? 'all 100ms ease-in-out' : 'none'));
+    elation.html.transform(this.container, this.gettransform(), this.transformorigin, (animate ? 'all 100ms ease-in-out' : 'none'));
   }
   this.settitle = function(newtitle) {
-    this.titlebar.innerHTML = newtitle || '';
+    if (newtitle instanceof HTMLElement) {
+      this.container.replaceChild(newtitle, this.titlebar);
+      this.titlebar = newtitle;
+      if (!elation.html.hasclass(this.titlebar, 'ui_window_titlebar')) {
+        elation.html.addclass(this.titlebar, 'ui_window_titlebar');
+      }
+    } else {
+      this.titlebar.innerHTML = newtitle || '';
+    }
     if (this.controls) {
       //this.titlebar.appendChild(this.controls.container);
       this.titlebar.insertBefore(this.controls.container, this.titlebar.firstChild);
@@ -360,4 +393,5 @@ elation.component.add('ui.window', function() {
       this.setsize([window.innerWidth, window.innerHeight]);
     }
   }
-});
+}, elation.ui.base);
+

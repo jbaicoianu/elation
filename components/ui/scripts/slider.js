@@ -1,3 +1,19 @@
+/** 
+ * Slider UI component
+ *
+ * @class slider
+ * @augments elation.ui.base
+ * @memberof elation.ui
+ *
+ * @param {object} args
+ * @param {number} args.minpos
+ * @param {number} args.maxpos
+ * @param {number} args.value
+ * @param {boolean} args.showlabel
+ * @param {boolean} args.snap
+ * @param {string} args.labelprefix
+ * @param {string} args.labelsuffix
+ */
 elation.component.add("ui.slider", function() {
   this.minpos = 0;
   this.maxpos = 100;
@@ -75,4 +91,4 @@ console.log(sliderpos, percent, diff);
     //console.log(this.position, ev.wheelDeltaY, this.position + ev.wheelDeltaY / 120);
     this.setposition(this.position + ev.wheelDeltaY / 120);
   }
-});
+}, elation.ui.base);

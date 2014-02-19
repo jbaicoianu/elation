@@ -1,3 +1,13 @@
+/** 
+ * ButtonBar UI element
+ *
+ * @class buttonbar
+ * @augments elation.ui.base
+ * @memberof elation.ui
+ *
+ * @param {object} args
+ * @param {object} args.buttons
+ */
 elation.component.add('ui.buttonbar', function() {
   this.init = function() {
     /*
@@ -17,4 +27,4 @@ elation.component.add('ui.buttonbar', function() {
       }
     }
   }
-});
+}, elation.ui.base);

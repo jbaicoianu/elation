@@ -1,3 +1,13 @@
+/** 
+ * Toggle UI component
+ *
+ * @class toggle
+ * @augments elation.ui.base
+ * @memberof elation.ui
+ *
+ * @param {object} args
+ * @param {string} args.formname
+ */
 elation.component.add("ui.toggle", {
   init: function(name, container, args) {
     this.panels = container.getElementsByClassName("ui_toggle_panel");

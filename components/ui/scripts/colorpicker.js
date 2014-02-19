@@ -1,3 +1,13 @@
+/** 
+ * ColorPicker UI element
+ *
+ * @class colorpicker
+ * @augments elation.ui.base
+ * @memberof elation.ui
+ *
+ * @param {object} args
+ * @param {string} args.color
+ */
 elation.component.add('ui.colorpicker', function() {
   this.init = function() {
     this.name = this.args.name;
@@ -15,6 +25,11 @@ elation.component.add('ui.colorpicker', function() {
     this.container.appendChild(this.input);
     elation.events.add(this.container, 'click', this);
   }
+  /**
+   * Initialize the HTML5 canvas element responsible for the picker element
+   * @function initcanvas
+   * @memberof elation.ui.colorpicker#
+   */
   this.initcanvas = function() {
     this.canvas = elation.html.create('canvas');
     this.canvas.width = 256;
@@ -47,6 +62,11 @@ elation.component.add('ui.colorpicker', function() {
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
   }
+  /**
+   * Make the colorpicker visible
+   * @function showpicker
+   * @memberof elation.ui.colorpicker#
+   */
   this.showpicker = function() {
     if (!this.canvas) {
       this.initcanvas();
@@ -55,6 +75,11 @@ elation.component.add('ui.colorpicker', function() {
     this.container.appendChild(this.canvas);
     this.shown = true;
   }
+  /**
+   * Make the colorpicker invisible
+   * @function hidepicker
+   * @memberof elation.ui.colorpicker#
+   */
   this.hidepicker = function() {
     if (this.canvas.parentNode == this.container) {
       this.container.removeChild(this.canvas);
@@ -62,6 +87,13 @@ elation.component.add('ui.colorpicker', function() {
     this.shown = false;
     this.swatch.style.backgroundColor = this.input.value;
   }
+  /**
+   * Gets the color underneath the passed-in event's position
+   * @function getcolor
+   * @memberof elation.ui.colorpicker#
+   * @param {event} ev
+   * @returns {object}
+   */
   this.getcolor = function(ev) {
     var canvaspos = elation.html.position(this.canvas);
     var pos = [ev.clientX - canvaspos[0], ev.clientY - canvaspos[1]];
@@ -76,6 +108,14 @@ elation.component.add('ui.colorpicker', function() {
                     + (color.b < 16 ? "0" : "") + color.b.toString(16);
     return color;
   }
+  /**
+   * Event handler: click
+   * Toggle visibility of the picker element
+   *
+   * @function click
+   * @memberof elation.ui.colorpicker#
+   * @param {event} ev
+   */
   this.click = function(ev) {
     if (!this.shown) {
       this.showpicker();
@@ -83,6 +123,15 @@ elation.component.add('ui.colorpicker', function() {
       this.hidepicker();
     }
   }
+  /**
+   * Event handler: mousedown
+   * Starts picking mode, and updates the selected color preview
+   *
+   * @function mousedown
+   * @memberof elation.ui.colorpicker#
+   * @param {event} ev
+   * @emits ui_colorpicker_preview
+   */
   this.mousedown = function(ev) {
     this.picking = true;
     var color = this.getcolor(ev);
@@ -90,6 +139,15 @@ elation.component.add('ui.colorpicker', function() {
     elation.events.fire({type: 'ui_colorpicker_preview', element: this, data: color});
     ev.preventDefault();
   }
+  /**
+   * Event handler: mousemove
+   * Updates the selected color preview
+   *
+   * @function mousemove
+   * @memberof elation.ui.colorpicker#
+   * @param {event} ev
+   * @emits ui_colorpicker_preview
+   */
   this.mousemove = function(ev) {
     if (this.picking) {
       var color = this.getcolor(ev);
@@ -98,6 +156,15 @@ elation.component.add('ui.colorpicker', function() {
       ev.preventDefault();
     }
   }
+  /**
+   * Event handler: mouseup
+   * Accepts the currently-selected color as this component's value
+   *
+   * @function mouseup
+   * @memberof elation.ui.colorpicker#
+   * @param {event} ev
+   * @emits ui_colorpicker_select
+   */
   this.mouseup = function(ev) {
     if (this.picking) {
       this.picking = false;
@@ -107,4 +174,4 @@ elation.component.add('ui.colorpicker', function() {
       elation.events.fire({type: 'ui_colorpicker_select', element: this, data: color});
     }
   }
-});
+}, elation.ui.base);

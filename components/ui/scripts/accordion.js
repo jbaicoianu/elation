@@ -1,3 +1,15 @@
+/** 
+ * Generalized collapsible "accordion" container component
+ *
+ * @class accordion
+ * @augments elation.ui.base
+ * @memberof elation.ui
+ * @alias elation.ui.accordion
+ *
+ * @param {object} args
+ * @param {string} args.label
+ * @param {boolean} args.editable
+ */
 elation.component.add("ui.accordion", function() {
   this.init = function() {
     elation.html.addclass(this.container, 'ui_accordion');
@@ -9,6 +21,12 @@ elation.component.add("ui.accordion", function() {
       this.setItems(this.args.items);
     }
   }
+  /**
+   * Set the active items for this accordion
+   * @function setItems
+   * @memberof elation.ui.accordion#
+   * @param {array} items
+   */
   this.setItems = function(items) {
     this.list = elation.html.create({tag: 'ul', classname: 'ui_accordion_list', append: this.container});
     this.items = items;
@@ -16,6 +34,13 @@ elation.component.add("ui.accordion", function() {
       this.createItem(num, items[num]);
     }
   }
+  /**
+   * Create the HTML elements for a new item
+   * @function createItem
+   * @memberof elation.ui.accordion#
+   * @param {int} num
+   * @param {Object} item
+   */
   this.createItem = function(num, item) {
     var li = elation.html.create({tag: 'li', append: this.list});
     var title = elation.html.create({tag: 'h3', classname: 'ui_accordion_title', append: li, content: item.title});
@@ -25,6 +50,14 @@ elation.component.add("ui.accordion", function() {
     elation.events.add(title, "mousedown", function(ev) { ev.preventDefault(); });
     return li;
   }
+  /**
+   * Override show() to animate opening the specified item
+   * @function show
+   * @memberof elation.ui.accordion#
+   * @param {int} num
+   * @emits ui_accordion_preshow
+   * @emits ui_accordion_show
+   */
   this.show = function(num) {
     if (this.shown.indexOf(num) == -1) {
       // Fire preshow event before starting animation
@@ -42,6 +75,13 @@ elation.component.add("ui.accordion", function() {
       elation.events.fire({type: 'ui_accordion_show', element: this, data: num});
     }
   }
+  /**
+   * Override hide() to animate closing the specified item
+   * @function hide
+   * @memberof elation.ui.accordion#
+   * @param {int} num
+   * @emits ui_accordion_hide
+   */
   this.hide = function(num) {
     var idx = this.shown.indexOf(num);
     if (idx != -1) {
@@ -51,6 +91,12 @@ elation.component.add("ui.accordion", function() {
       elation.events.fire({type: 'ui_accordion_hide', element: this, data: num});
     }
   }
+  /**
+   * Toggle visibility of specified item
+   * @function toggle
+   * @memberof elation.ui.accordion#
+   * @param {int} num
+   */
   this.toggle = function(num) {
     if (this.elements[num]) {
       var idx = this.shown.indexOf(num);
@@ -66,4 +112,4 @@ elation.component.add("ui.accordion", function() {
       }
     }
   }
-});
+}, elation.ui.base);

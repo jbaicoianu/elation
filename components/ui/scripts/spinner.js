@@ -1,3 +1,14 @@
+/** 
+ * Simple spinner UI component
+ * Displays a fancy spinner while content is loading
+ *
+ * @class spinner
+ * @augments elation.ui.base
+ * @memberof elation.ui
+ *
+ * @param {object} args
+ * @param {string} args.type
+ */
 elation.component.add('ui.spinner', function() {
   this.types = {
     'default': '<div class="loading-container"><div class="loading"></div><div class="loading-text">loading</div></div>'
@@ -17,4 +28,4 @@ elation.component.add('ui.spinner', function() {
     elation.html.addclass(this.container, 'ui_spinner_' + this.type);
     this.container.innerHTML = this.types[this.type];
   }
-});
+}, elation.ui.base);

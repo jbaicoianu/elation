@@ -1,3 +1,15 @@
+/** 
+ * TreeView UI component
+ *
+ * @class treeview
+ * @augments elation.ui.base
+ * @memberof elation.ui
+ * @todo this could probably inherit from ui.list to be more generalized
+ *
+ * @param {object} args
+ * @param {array} args.items
+ * @param {object} args.attrs
+ */
 elation.component.add("ui.treeview", function() {
   this.init = function() {
     elation.html.addclass(this.container, 'ui_treeview');

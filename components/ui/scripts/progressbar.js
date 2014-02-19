@@ -1,3 +1,13 @@
+/** 
+ * Progressbar UI component
+ *
+ * @class progressbar
+ * @augments elation.ui.base
+ * @memberof elation.ui
+ *
+ * @param {object} args
+ * @param {string} args.label
+ */
 elation.component.add("ui.progressbar", function() {
   this.value = 0;
   this.start = 0;
@@ -48,4 +58,4 @@ elation.component.add("ui.progressbar", function() {
         break;
     }
   }
-});
+}, elation.ui.base);

@@ -1,5 +1,21 @@
-elation.component.add('ui.button', {
-  init: function(name, container, args) {
+/** 
+ * Button UI element
+ *
+ * @class button
+ * @augments elation.ui.base
+ * @memberof elation.ui
+ *
+ * @param {object} args
+ * @param {string} args.tag
+ * @param {string} args.classname
+ * @param {string} args.label
+ * @param {string} args.title
+ * @param {boolean} args.draggable
+ * @param {boolean} args.autoblur
+ * @param {boolean} args.autofocus
+ */
+elation.component.add('ui.button', function() {
+  this.init = function(name, container, args) {
     this.tag = this.args.tag || "BUTTON";
     this.classname = this.args.classname || "";
     this.title = this.args.title || false;
@@ -10,8 +26,17 @@ elation.component.add('ui.button', {
     elation.html.addclass(this.container, 'ui_button');
     this.create();
     elation.events.add(this.container, 'click', this);
-  },
-  create: function() {
+
+    for (var k in this.events) {
+      elation.events.add(this.container, k, this.events[k]);
+    }
+  }
+  /**
+   * Initialize HTML element
+   * @function create
+   * @memberof elation.ui.button#
+   */
+  this.create = function() {
     //this.element = document.createElement(this.tag);
     this.container.innerHTML = this.label;
     var classname = '';
@@ -25,8 +50,14 @@ elation.component.add('ui.button', {
     }
     if (this.title)
       this.container.title = this.title;
-  },
-  addTo: function(parent) {
+  }
+  /**
+   * Add as a child of the specified element, removing from current parent if necessary
+   * @function addTo
+   * @memberof elation.ui.button#
+   * @returns {boolean}
+   */
+  this.addTo = function(parent) {
     if (typeof parent != 'undefined') {
       if (!this.container)
         this.create();
@@ -34,26 +65,44 @@ elation.component.add('ui.button', {
       return true;
     }
     return false;
-  },
-  setLabel: function(label) {
+  }
+  /**
+   * Sets the text label of the button
+   * @function setLabel
+   * @memberof elation.ui.button#
+   */
+  this.setLabel = function(label) {
     this.label = label;
     if (this.container)
       this.container.innerHTML = label;
-  },
-  setActive: function(active) {
+  }
+  /**
+   * Set whether the element is active or not
+   * @function setActive
+   * @memberof elation.ui.button#
+   * @param {boolean} active
+   */
+  this.setActive = function(active) {
     if (active) {
       elation.html.addclass(this.container, 'state_active');
     } else {
       elation.html.removeclass(this.container, 'state_active');
     }
-  },
-  click: function(ev) {
+  }
+  /**
+   * Event handler for HTML button's click event
+   * @function click
+   * @memberof elation.ui.button#
+   * @param {boolean} active
+   * @emits ui_button_click
+   */
+  this.click = function(ev) {
     elation.events.fire({type: 'ui_button_click', element: this});
     if (this.autoblur) {
       this.container.blur();
     }
   }
-});
+}, elation.ui.base);
 
 /*
 plop = new function() {

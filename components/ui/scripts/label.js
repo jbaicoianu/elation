@@ -1,4 +1,17 @@
+/** 
+ * Simple text label
+ *
+ * @class label
+ * @augments elation.ui.base
+ * @memberof elation.ui
+ *
+ * @param {object} args
+ * @param {string} args.label
+ * @param {boolean} args.editable
+ */
 elation.component.add("ui.label", function() {
+  this.defaultcomponent = {tag: 'h2', classname: 'ui_label'};
+
   this.init = function() {
     if (this.args.label) {
       this.setlabel(this.args.label);
@@ -8,12 +21,22 @@ elation.component.add("ui.label", function() {
       elation.html.addclass(this.container, this.args.classname);
     }
     this.editable = this.args.editable || false;
+
     if (this.editable) {
       elation.html.addclass(this.container, 'state_editable');
       elation.events.add(this.container, 'keydown,blur', this);
       this.container.contentEditable = true;
     }
+    if (this.args.hidden) {
+      this.hide();
+    }
   }
+  /**
+   * Set text for this label
+   * @function setlabel
+   * @memberof elation.ui.label#
+   * @param {string} label
+   */
   this.setlabel = function(label) {
     if (label != this.label) {
       this.label = label;
@@ -23,6 +46,12 @@ elation.component.add("ui.label", function() {
       }
     }
   }
+  /**
+   * Event handler: HTML element keydown event
+   * @function keydown
+   * @memberof elation.ui.label#
+   * @param {event} ev
+   */
   this.keydown = function(ev) {
     console.log(ev);
     //elation.events.fire({type: 'ui_label_change', element: this, data: this.container.innerHTML});
@@ -38,8 +67,13 @@ elation.component.add("ui.label", function() {
         break;
     }
   }
+  /**
+   * Event handler: HTML element blur event
+   * @function blur
+   * @memberof elation.ui.label#
+   * @param {event} ev
+   */
   this.blur = function(ev) {
-console.log('blur', ev);
     this.setlabel(this.container.innerHTML);
   }
-});
+}, elation.ui.base);

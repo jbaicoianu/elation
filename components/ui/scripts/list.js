@@ -31,7 +31,6 @@ elation.component.add('ui.list', function() {
     this.items = [];
     this.listitems = [];
 
-    this.renderLoopActive = false;
     this.dirty = false;
 
     this.animatetime = 850;
@@ -186,17 +185,6 @@ elation.component.add('ui.list', function() {
     elation.events.add(newlistitem, 'ui_list_item_select', this);
     return newlistitem;
   }
-  /**
-   * Mark data as dirty, and then start the animation loop if not already active
-   * @function refresh
-   * @memberof elation.ui.list#
-   */
-  this.refresh = function() {
-    this.dirty = true;
-    if (!this.renderLoopActive) {
-      this.render(true);
-    }
-  }
 
   /**
    * Updates the listitem objects and the HTML representation of this list with any new or removed items
@@ -204,7 +192,6 @@ elation.component.add('ui.list', function() {
    * @memberof elation.ui.list#
    */
   this.render = function() {
-    if (this.dirty) {
       var ul = this.getListElement();
 
       // FIXME - this could be made more efficient in two ways:
@@ -228,13 +215,6 @@ elation.component.add('ui.list', function() {
         }
       }
       elation.component.init();
-
-      this.dirty = false;
-      requestAnimationFrame(elation.bind(this, this.render));
-      this.renderLoopActive = true;
-    } else if (!this.dirty) {
-      this.renderLoopActive = false;
-    } 
   }
 
   /**

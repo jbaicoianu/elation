@@ -21,6 +21,9 @@
  * @param {boolean} args.hidden
  */
 elation.component.add("ui.base", function() {
+  this.renderloopActive = false;
+  this.dirty = false;
+
   /**
    * Make this component visible 
    * @function show
@@ -51,5 +54,43 @@ elation.component.add("ui.base", function() {
     }
     this.orientation = orientation;
     elation.html.addclass(this.container, 'orientation_' + this.orientation);
+  }
+  /**
+   * Mark data as dirty, and then start the render loop if not already active
+   * @function refresh
+   * @memberof elation.ui.base#
+   */
+  this.refresh = function() {
+    this.dirty = true;
+    if (!this.renderloopActive) {
+      this.renderloop();
+    }
+  }
+  /**
+   * Hook into the browser's animation loop to make component renders as efficient as possible
+   * This also automatically rate-limits updates to the render speed of the browser (normally 
+   * 60fps) rather than triggering a render every time data changes (which could be > 60fps)
+   * 
+   * @function renderloop
+   * @memberof elation.ui.base#
+   */
+  this.renderloop = function() {
+    if (this.dirty) {
+      this.render();
+      this.dirty = false;
+      requestAnimationFrame(elation.bind(this, this.renderloop));
+      this.renderloopActive = true;
+    } else if (!this.dirty) {
+      this.renderloopActive = false;
+    } 
+  }
+  /**
+   * Update the component's visual representation to reflect the current state of the data
+   * 
+   * @function render
+   * @abstract
+   * @memberof elation.ui.base#
+   */
+  this.render = function() {
   }
 });

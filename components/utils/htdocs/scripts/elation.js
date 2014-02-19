@@ -1922,15 +1922,16 @@ elation.extend('ui.infoboxes.email_form', function(args) {
 	
 	if (name && data.nickname)
 		name.value = data.nickname;
-	
-	if (msg) 
+  if(args.message) {
+    msg.value  = args.message;
+	} else if (msg) {
   	if (elation.utils.arrayget(args, "isproduct")) {
   		msg.value  = "I just discovered this product on TheFind and wanted to share it with you.\n\n" + url + sep + "ddkey=" + elation.utils.arrayget(args, 'ddkey') + "\n\n";
   	}
   	else {
   		msg.value = "I just discovered these products on TheFind and wanted to share them with you.\n\n" + url + "\n\nCheck them out!";
   	}
-	
+	}
 	if (to)
 		to.focus();
 });

@@ -124,15 +124,6 @@ elation.extend('googleanalytics', function(args) {
     this.filters += args['freeshipping']?'1':'0';
   };
 
-  this.setCustomVar = function(index, name, value, opt_scope) {
-    try {
-       this.pageTracker._setCustomVar(index, name, value, opt_scope);
-       if (this.GAalerts) this.displayTag('setCustomVar(' + index + ', ' + name + ', ' + value + ', ' + opt_scope + ')');
-    } catch (err) {
-       if (this.GAalerts) this.displayTag("setCustomVar Error: " + err.message);
-    }
-  };
-
   this.trackPageViewWrapper = function(pageurl) {
   //console.log('url:'+pageurl);
     try {

@@ -1,3 +1,6 @@
 .ui_panel.orientation_horizontal>* {
   display: inline-block;
+  vertical-align: top;
+}
+.ui_panel {
 }

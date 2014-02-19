@@ -181,6 +181,8 @@ class Component_ui extends Component {
     $vars["value"] = any($args["value"], "");
     $vars["type"] = any($args["type"], "");
     $vars["placeholder"] = any($args["placeholder"], "");
+    $vars["disabled"] = any($args["disabled"], false);
+    $vars["autofocus"] = any($args["autofocus"], false);
     return $this->GetComponentResponse("./input.tpl", $vars);
   }
   function controller_textarea($args) {

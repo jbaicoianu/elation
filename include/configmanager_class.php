@@ -519,7 +519,7 @@ class ConfigManager extends Base {
       $updaterevision = true;
     }
 
-    // process the inserts
+    // process the inserts en-masse
     if (count($addedcfg) > 0) {
       $keyvalues = array();
 
@@ -549,6 +549,7 @@ class ConfigManager extends Base {
       */
 
       /* FIXME - code above deletes one-by-one, this code deletes en-masse.  Should we switch to this instead? */
+      /* yes i believe so. -lazarus */
       $deletes = array();
 
       foreach ($configdeletes as $k=>$v) {
@@ -1236,9 +1237,6 @@ class ConfigManager extends Base {
     return $ret;
   }
 
-
-
-
   /**
    * Update the revision information of a cobrand  from the config.version table.
    *
@@ -1272,19 +1270,20 @@ class ConfigManager extends Base {
    * @param $name
    * @return integer
    */
-   function GetCobrandId($name) {
-     $ret = NULL;
-     if (!empty($name)) {
-       $data = DataManager::singleton();
-       $query = DataManager::Query("db.config.version.$name.$role:nocache",
-                             "SELECT cobrandid FROM config.cobrand WHERE name=:name",
-                             array(":name" => $name));
-       if (!empty($query->rows) && count($query->rows) == 1) {
-         $ret = $query->rows[0]->cobrandid;
-       }
-     }
-     return $ret;
-   }
+  function GetCobrandId($name) {
+    $ret = NULL;
+    
+    if (!empty($name)) {
+      $data = DataManager::singleton();
+      $query = DataManager::Query("db.config.version.$name.$role:nocache",
+                            "SELECT cobrandid FROM config.cobrand WHERE name=:name",
+                            array(":name" => $name));
+      if (!empty($query->rows) && count($query->rows) == 1) {
+        $ret = $query->rows[0]->cobrandid;
+      }
+    }
+    return $ret;
+  }
 
   /**
    * get the cobrandid and revision information
@@ -1292,26 +1291,27 @@ class ConfigManager extends Base {
    * @param $name, $role, $nocache
    * @return array
    */
-   function GetCobrandidAndRevision($name, $role, $nocache=false) {
-     $ret = array();
-
-     if ($name && $role) {
-       $query = DataManager::Query("db.config.version.$name.$role".($nocache?":nocache":""),
-                                   "SELECT config.version.cobrandid, config.version.revision FROM config.version INNER JOIN config.cobrand on config.version.cobrandid=config.cobrand.cobrandid WHERE config.cobrand.name=:name and config.version.role=:role",
-                                   array(":name" => $name, ":role" => $role));
-       if ($query && $query->NumResults() == 1) {
-         $version_info = $query->GetResult(0);
-         $ret["cobrandid"] = $version_info->cobrandid;
-         $ret["revision"] = $version_info->revision;
-       } elseif($nocache==true) {
-         if($this->AddRevisionByName($name, $role)) {
-           $this->GetCobrandidAndRevision($name, $role);
-         }
-       }
-     }
-
-     return $ret;
-   }
+  function GetCobrandidAndRevision($name, $role, $nocache=false) {
+    $ret = array();
+ 
+    if ($name && $role) {
+      $query = DataManager::Query("db.config.version.$name.$role".($nocache?":nocache":""),
+                                  "SELECT config.version.cobrandid, config.version.revision FROM config.version INNER JOIN config.cobrand on config.version.cobrandid=config.cobrand.cobrandid WHERE config.cobrand.name=:name and config.version.role=:role",
+                                  array(":name" => $name, ":role" => $role));
+      
+      if ($query && $query->NumResults() == 1) {
+        $version_info = $query->GetResult(0);
+        $ret["cobrandid"] = $version_info->cobrandid;
+        $ret["revision"] = $version_info->revision;
+      } elseif($nocache==true) {
+        if($this->AddRevisionByName($name, $role)) {
+          $this->GetCobrandidAndRevision($name, $role);
+        }
+      }
+    }
+ 
+    return $ret;
+  }
 
   public static function get($key) {
     return self::singleton()->GetSetting($key);

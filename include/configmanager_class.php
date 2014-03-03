@@ -24,7 +24,7 @@ include_once("include/base_class.php");
  *   value blob,
  *   type varchar(64) default 'text',
  *   role varchar(255) NOT NULL default 'live',
- *   updated_time bigint(20) unsigned default NULL,
+ *   modified_time bigint(20) unsigned default NULL,
  *   PRIMARY KEY  (ccid),
  *   KEY role_cobrand_name_unique (role,cobrandid,name)
  * );
@@ -509,8 +509,8 @@ class ConfigManager extends Base {
       foreach ($newcfg as $k=>$v) {
         Logger::Debug('ConfigManager Update: [' . $name . ' ' . $cobrandid . ' ' . $role . '] ' . $k . ' = ' . $v["value"] . ' : ' . $v["type"]);
         $response = DataManager::Query("db.config.cobrand_config.{$name}-{$k}:nocache",
-                                       "UPDATE config.cobrand_config SET value=:value, type=:type WHERE name=:name AND cobrandid=:cobrandid AND role=:role",
-                                       array(":value" => $v["value"], ":type" => $v["type"], ":name" => $k, ":cobrandid" => $cobrandid, ":role" => $role));
+                                       "UPDATE config.cobrand_config SET value=:value, type=:type, modified_time=:timestamp WHERE name=:name AND cobrandid=:cobrandid AND role=:role",
+                                       array(":value" => $v["value"], ":type" => $v["type"], ":name" => $k, ":cobrandid" => $cobrandid, ":role" => $role, ":timestamp" => unixtime_milli()));
         if (!empty($response) && $response->numrows > 0) {
           $ret = true;
         }
@@ -775,8 +775,8 @@ class ConfigManager extends Base {
 
         $response = DataManager::query("db.config.cobrand_config.{$name}-{$newcfg['key']}:nocache",
                                        "INSERT INTO config.cobrand_config"
-                                     . " SET ccid=config.hash_cobrand_config(:role, :cobrandid, :name),cobrandid=:cobrandid,name=:name,value=:value,role=:role",
-                                       array(":cobrandid" => $cobrandid, ":name" => $newcfg["key"], ":value" => $newcfg["value"], ":role" => $role));
+                                     . " SET ccid=config.hash_cobrand_config(:role, :cobrandid, :name),cobrandid=:cobrandid,name=:name,value=:value,role=:role,modified_time=:timestamp",
+                                       array(":cobrandid" => $cobrandid, ":name" => $newcfg["key"], ":value" => $newcfg["value"], ":role" => $role, ":timestamp" => unixtime_milli()));
         if (!empty($response) && $response->numrows > 0) {
           $this->UpdateRevision($cobrandid, $role);
           //$this->data->caches["memcache"]["data"]->delete("db.config.cobrand_config.{$name}.{$role}");

@@ -1,7 +1,6 @@
   [[debug]]
   {dependency type="component" name="html.footer"}
   {dependency type="component" name="utils.panel"}
-
   {if $GAenabled}
   
     {if $universal_tracking eq true}
@@ -59,10 +58,12 @@
           var d = (datetime.getMonth() + 1) + '-' + datetime.getDate() + '-' + datetime.getFullYear();
           {if $universal_tracking eq true}
           //googleAnalytics.setCustomVar(1, "FirstVisitDate", d, 1);
-          ga('set', 'dimension1', d);
+          //First visit source is not used in universal analytics
+          //ga('set', 'dimension1', d);
           //googleAnalytics.setCustomVar(5, "FirstVisitSource", "placeholder", 1);
           //googleAnalytics.setCustomVar(4, "FirstVisitCobrand", "{$cobrand|escape:javascript}", 1);
-          ga('set', 'dimension4', "$cobrand|escape:javascript");
+          ga('set', 'dimension10', "$cobrand|escape:javascript");
+          ga('set', 'dimension11', "$cobrand|escape:javascript");
           {else}
           googleAnalytics.setCustomVar(1, "FirstVisitDate", d, 1);
           //googleAnalytics.setCustomVar(5, "FirstVisitSource", "placeholder", 1);
@@ -80,9 +81,9 @@
             if (googleAnalytics.pagetype == 'index') landing_category = "home page";
           {/if}
           {if $universal_tracking eq true}
-            ga('set', 'dimension2', landing_category);
+            ga('set', 'dimension5', landing_category);
             //googleAnalytics.setCustomVar(2, "LandingCategory", landing_category, 2);
-            ga('set', 'dimension3', "{$version}");
+            ga('set', 'dimension12', "{$version}");
             //googleAnalytics.setCustomVar(3, "VersionNumber", "{$version}", 2);
             //googleAnalytics.trackEvent(["AB Test", "version", "{$version}"]) 
           {else}

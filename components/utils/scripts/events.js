@@ -46,7 +46,7 @@ elation.extend("events", {
     for (var i=0; i<list.length; i++) {
       event = elation.events.fix(list[i]);
       if (fn || element) {
-        if ((fn && event.origin == fn) || (element && event.target == element)) {
+        if ((fn && event.origin == fn) || (element && event.target == element) || elation.utils.isNull(event.target)) {
           original_events.push(event);
         } else {
           continue;
@@ -73,6 +73,7 @@ elation.extend("events", {
       else if (typeof event.origin.handleEvent != 'undefined')
         cont = event.origin.handleEvent(event);
       events.push(event);
+
       if (cont === false || event.cancelBubble) {
         break;
       }
@@ -144,119 +145,121 @@ elation.extend("events", {
     }
   },
   
-	// syntax: add(element || [ elements ], "type1,type2,type3", function || object);
-	add: function(elements, types, fn, custom_event_name) {
+  // syntax: add(element || [ elements ], "type1,type2,type3", function || object);
+  add: function(elements, types, fn, custom_event_name) {
     if (custom_event_name)
       custom_event_name = custom_event_name.replace('.','_');
 
-		if (!types || !fn || typeof types != "string")
-			return;
+    if (!types || !fn || typeof types != "string")
+      return;
 
     var elements = elation.utils.isNull(elements) 
-          ? [{}] 
+          ? [null] 
           : !elation.utils.isArray(elements) || elements == window
             ? [ elements ] 
             : elements,
-				types = types.split(',');
-		
-		if (typeof fn == "string") {
-			fn = (function(func) { return function(ev) { eval(func); }; })(fn);
-		}
+        types = types.split(',');
+    
+    if (typeof fn == "string") {
+      fn = (function(func) { return function(ev) { eval(func); }; })(fn);
+    }
 
-		for (var e=0; e<elements.length; e++) {
-			var element = elements[e];
-			
-			if (typeof element != 'object')
-				continue;
-			
-			for (var i=0; i<types.length; i++) {
-				var type = types[i];
-				
+    for (var e=0; e<elements.length; e++) {
+      var element = elements[e];
+      
+      if (typeof element != 'object')
+        continue;
+      
+      for (var i=0; i<types.length; i++) {
+        var type = types[i];
+        
         elation.events._register(element, type, fn, custom_event_name);
         
         if (!element)
           continue;
         
-				if ("addEventListener" in element) {
+        if ("addEventListener" in element) {
           if (type == 'mousewheel' && elation.browser.type != 'safari')
             type = 'DOMMouseScroll';
-					
+          
           if (typeof fn == "object" && fn.handleEvent) {
-						element[type+fn] = function(e) { 
+            element[type+fn] = function(e) { 
               if (custom_event_name)
                 elation.events.fire({ type: custom_event_name, data: fn });
               
-							fn.handleEvent(e); 
-						}
-						element.addEventListener(type, element[(type + fn)], false);
-					} else {
-						element.addEventListener(type, fn, false);
-					}
-				} else if (element.attachEvent) {
-					if (typeof fn == "object" && fn.handleEvent) { 
-						element[type+fn] = function() { 
+              fn.handleEvent(e); 
+            }
+            element.addEventListener(type, element[(type + fn)], false);
+          } else {
+            element.addEventListener(type, fn, false);
+          }
+        } else if (element.attachEvent) {
+          if (typeof fn == "object" && fn.handleEvent) { 
+            element[type+fn] = function() { 
               if (custom_event_name)
                 elation.events.fire({ type: custom_event_name, data: fn });
-							
+              
               fn.handleEvent(elation.events.fix(window.event)); 
-						}
-					} else {
-						element["e" + type + fn] = fn;
-						element[type + fn] = function() { 
-							if (typeof element["e" + type + fn] == 'function') 
-								element["e" + type + fn](elation.events.fix(window.event)); 
-						}
-					}
-					
-					element.attachEvent("on" + type, element[type + fn]);
-				}
-			}
-		}
-		
-		return this;
-	},
-	
-	// syntax: remove(element || [ elements ], "type1,type2,type3", reference);
-	remove: function(elements, types, fn) {
-		if (!elements || !types || !fn || typeof types != "string")
-			return;
-		
-		//var	elements = (!elation.utils.isNull(elements.nodeName) || elements == window) ? [ elements ] : elements;
-		if (!elation.utils.isArray(elements)) {
-			elements = [elements];
-		}
-		var types = types.split(',');
-		
-		for (var e=0; e<elements.length; e++) {
-			var element = elements[e];
-			
-			if (typeof element != 'object')
-				continue;
-			
-			for (var i=0; i<types.length; i++) {
-				var type = types[i];
-				
-				elation.events._unregister(element, type, fn);
+            }
+          } else {
+            element["e" + type + fn] = fn;
+            element[type + fn] = function() { 
+              if (typeof element["e" + type + fn] == 'function') 
+                element["e" + type + fn](elation.events.fix(window.event)); 
+            }
+          }
+          
+          element.attachEvent("on" + type, element[type + fn]);
+        }
+      }
+    }
+    
+    return this;
+  },
+  
+  // syntax: remove(element || [ elements ], "type1,type2,type3", reference);
+  remove: function(elements, types, fn) {
+    //if (!elements || !types || !fn || typeof types != "string")
+    //  return;
+    
+    //var  elements = (!elation.utils.isNull(elements.nodeName) || elements == window) ? [ elements ] : elements;
+    if (!elation.utils.isArray(elements)) {
+      elements = [elements];
+    }
+    var types = types.split(',');
+    
+    for (var e=0; e<elements.length; e++) {
+      var element = elements[e];
+      
+      if (typeof element != 'object')
+        continue;
+      
+      for (var i=0; i<types.length; i++) {
+        var type = types[i];
+        
+        elation.events._unregister(element, type, fn);
 
-				if (element.removeEventListener) {
-					if (typeof fn == "object" && fn.handleEvent) {
-						element.removeEventListener(type, element[type+fn], false);
-						delete element[type + fn];
-					} else {
-						element.removeEventListener(type, fn, false);
-					}
-				} else if (element.detachEvent) {
-					if (typeof element[type + fn] == "function")
-						element.detachEvent("on" + type, element[type + fn]);
-					
-					element[type + fn] = null;
-					element["e" + type + fn] = null;
-				}
-			}
-		}
-		
-		return this;
-	},
+        if (element) {
+          if (element.removeEventListener) {
+            if (typeof fn == "object" && fn.handleEvent) {
+              element.removeEventListener(type, element[type+fn], false);
+              delete element[type + fn];
+            } else {
+              element.removeEventListener(type, fn, false);
+            }
+          } else if (element.detachEvent) {
+            if (typeof element[type + fn] == "function")
+              element.detachEvent("on" + type, element[type + fn]);
+            
+            element[type + fn] = null;
+            element["e" + type + fn] = null;
+          }
+        }
+      }
+    }
+    
+    return this;
+  },
   
   fix: function(event) {
     event.preventDefault = function() {
@@ -272,7 +275,7 @@ elation.extend("events", {
     
     return event;
   },
-	
+  
   getTarget: function(event) {
     return window.event ? event.srcElement : event.target;
   },
@@ -294,71 +297,71 @@ elation.extend("events", {
     return reltg;
   },
   
-	getEventTarget: function(event, parentClassName) {
-		var target;
-		
-		if (!event) 
-			var event = window.event;
-		
-		if (event.target) 
-			target = event.target;
-		else if (event.srcElement) 
-			target = event.srcElement;
-		
-		if (target.nodeType == 3) 
-			target = target.parentNode; // Defeat Safari bug
-		
-		if (parentClassName) {
-			// Make sure we're working with the correct element
-			var classUp, classDown;
-			
-			if (parentClassName.indexOf(">")) {
-				var classes = parentClassName.split(">", 2);
-				classDown = classes[0];
-				classUp = classes[1];
-			} else {
-				classDown = parentClassName;
-			}
-			
-			// First run DOWN the heirarchy to find the base class...
-			while (!elation.html.hasclass(target,classDown) && target.parentNode) {
-				target = target.parentNode;
-			}
-			
-			// Now if we've specified a child to attach to, find it!
-			if (classUp) {
-				var elements;
-				elements = elation.find("." + classUp, target);
-				if (elements.length > 0) {
-					target = elements[0];
-				}
-			}
-		}
-		
-		return target;
-	},
-	isTransition: function(ev, parent) {
-		var tg = this.getTarget(ev),
-				reltg = this.getRelated(ev);
-		return (elation.utils.isin(parent, tg) && !elation.utils.isin(parent, reltg));
-	},
+  getEventTarget: function(event, parentClassName) {
+    var target;
+    
+    if (!event) 
+      var event = window.event;
+    
+    if (event.target) 
+      target = event.target;
+    else if (event.srcElement) 
+      target = event.srcElement;
+    
+    if (target.nodeType == 3) 
+      target = target.parentNode; // Defeat Safari bug
+    
+    if (parentClassName) {
+      // Make sure we're working with the correct element
+      var classUp, classDown;
+      
+      if (parentClassName.indexOf(">")) {
+        var classes = parentClassName.split(">", 2);
+        classDown = classes[0];
+        classUp = classes[1];
+      } else {
+        classDown = parentClassName;
+      }
+      
+      // First run DOWN the heirarchy to find the base class...
+      while (!elation.html.hasclass(target,classDown) && target.parentNode) {
+        target = target.parentNode;
+      }
+      
+      // Now if we've specified a child to attach to, find it!
+      if (classUp) {
+        var elements;
+        elements = elation.find("." + classUp, target);
+        if (elements.length > 0) {
+          target = elements[0];
+        }
+      }
+    }
+    
+    return target;
+  },
+  isTransition: function(ev, parent) {
+    var tg = this.getTarget(ev),
+        reltg = this.getRelated(ev);
+    return (elation.utils.isin(parent, tg) && !elation.utils.isin(parent, reltg));
+  },
 
-	// returns mouse or all finger touch coords
-	coords: function(event) {
-		if (typeof event.touches != 'undefined' && event.touches.length > 0) {
-			var c = {
+  // returns mouse or all finger touch coords
+  coords: function(event) {
+    if (typeof event.touches != 'undefined' && event.touches.length > 0) {
+      var c = {
         x: event.touches[0].pageX, 
         y: event.touches[0].pageY
       };
-		} else {
-			var	c = {
+    } else {
+      var  c = {
         x: (event.pageX || (event.clientX + document.body.scrollLeft)),
         y: (event.pageY || (event.clientY + document.body.scrollTop))
       };
-		}
+    }
     
-		return c;
-	},
+    return c;
+  },
 
   clone: function(ev,  overrides) {
     var newev = {};

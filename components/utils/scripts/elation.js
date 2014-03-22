@@ -122,7 +122,7 @@ elation.extend("component", new function() {
       if (componentid.type) {
         var componentinitialized = element.dataset['elationInitialized'] || false;
         if (!componentinitialized) { 
-          var componentargs = {}, events = {}, j;
+          var componentargs = {}, events = {};
           var componentdata = this.parseargs(element);
           // Instantiate the new component with all parsed arguments
           elation.component.create(componentid.name, componentid.type, element, componentdata.args, componentdata.events);
@@ -135,25 +135,37 @@ elation.extend("component", new function() {
     // an instance with the given name exists already.  If it doesn't we create
     // it, and then we return a reference to the specified instance.
     var component = function(name, container, args, events) {
+      var realname = name;
+      if (elation.utils.isObject(name)) {
+        // Simple syntax just takes an object with all arguments
+        args = name;
+        realname = elation.utils.any(args.id, args.name, null);
+        container = (!elation.utils.isNull(args.container) ? args.container : null);
+        events = (!elation.utils.isNull(args.events) ? args.events : null);
+      }
+
+      // If no args were passed in, we're probably being used as the base for another 
+      // component's prototype, so there's no need to go through full init
+      if (!realname && !container && !args) return new component.base(type);
+
       // If no name was passed, use the current object count as a name instead ("anonymous" components)
-      if (!name && name !== 0) {
-        name = component.objcount;
+      if (elation.utils.isNull(realname) || realname === "") {
+        realname = component.objcount;
       }
-      if (!component.obj[name]) {
-        component.obj[name] = new component.base(type);
+
+      if (!component.obj[realname] && !elation.utils.isEmpty(args)) {
+        component.obj[realname] = new component.base(type);
         component.objcount++;
-        if (container) {
-          container.dataset['elationComponent'] = type;
-          container.dataset['elationName'] = name;
+      //}
+      // TODO - I think combining this logic would let us use components without needing HTML elements for the container
+      //if (component.obj[realname] && container !== undefined) {
+        component.obj[realname].componentinit(type, realname, container, args, events);
+
+        if (typeof component.obj[realname].init == 'function') {
+          component.obj[realname].init(realname, container, args, events);
         }
       }
-      if (component.obj[name] && container) {
-        component.obj[name].componentinit(type, name, container, args, events);
-        if (typeof component.obj[name].init == 'function') {
-          component.obj[name].init(name, container, args, events);
-        }
-      }
-      return component.obj[name];
+      return component.obj[realname];
     };
     component.objcount = 0;
     component.obj = {}; // this is where we store all the instances of this type of component
@@ -169,7 +181,6 @@ elation.extend("component", new function() {
       component.extendclass = extendclass.classdef;
     }
     if (classdef) {
-      component.base.prototype.extend((typeof classdef == 'function' ? new classdef() : classdef));
       component.base.prototype.extend((typeof classdef == 'function' ? new classdef() : classdef));
       component.classdef = classdef;
     }
@@ -213,24 +224,44 @@ elation.extend("component", new function() {
     this.componentinit = function(name, id, container, args, events) {
       this.name = name;
       this.id = id;
-      this.container = container;
+      this.componentname = component; // FIXME - redundant with this.name above, but this.name is very likely to be clobbered by the user
       this.args = args || {};
+      if (container) {
+        this.container = container;
+      } else if (this.args.containertag) {
+        this.container = elation.html.create(this.args.containertag);
+      } else if (this.defaultcontainer) {
+        this.container = elation.html.create(this.defaultcontainer);
+      } else {
+        this.container = null;
+      }
       this.events = events || {};
+      for (var k in this.events) {
+        if (typeof this.events[k] == 'string') {
+          (function(self, type, blub) {
+            self[type] = function(ev) { eval(blub); }
+            elation.events.add(self, type, self);
+          })(this, k, this.events[k]);
+        } else {
+          elation.events.add(this, k, this.events[k]);
+        }
+      }
       if (this.container) {
-        for (var k in this.events) {
-          if (typeof this.events[k] == 'string') {
-            (function(self, type, blub) {
-              self[type] = function(ev) { eval(blub); }
-              //elation.events.add(self.container, type, self);
-              elation.events.add(self, type, self);
-            })(this, k, this.events[k]);
-          } else {
-            //elation.events.add(this.container, k, this.events[k]);
-            elation.events.add(this, k, this.events[k]);
+        this.container.dataset['elationComponent'] = name;
+        this.container.dataset['elationName'] = id;
+        this.container.dataset['elationInitialized'] = 1;
+
+        if (this.defaultcontainer && this.defaultcontainer.classname && !elation.html.hasclass(this.container, this.defaultcontainer.classname)) {
+          elation.html.addclass(this.container, this.defaultcontainer.classname);
+        }
+        if (this.args.append) {
+          if (this.args.append instanceof elation.component.base) {
+            this.args.append.container.appendChild(this.container);
+          } else if (elation.utils.isElement(this.args.append)) {
+            this.args.append.appendChild(this.container);
           }
         }
       }
-      this.container.dataset['elationInitialized'] = 1;
       elation.events.fire({type: "init", fn: this, data: this, element: this.container});
     }
     this.extend = function(from) {
@@ -345,6 +376,8 @@ elation.extend("component", new function() {
                 newcomponentargs = JSON.parse(content);
               } catch (e) {
                 newcomponentargs = content;
+                // Simple string, so set the value directly rather than using merge-by-reference
+                elation.utils.arrayset(componentargs, argname, content);
               }
               //dataelement.parentNode.removeChild(dataelement);
               if (componentargs != null) { // empty JSON could cause errors later, so reset null to an empty hash
@@ -471,9 +504,11 @@ elation.extend('onloads',new function() {
  * */ 
 elation.extend("bind", function(ctx, fn) {
   if (typeof fn == 'function') {
-    return (typeof fn.bind == 'function' ? 
-        fn.bind(ctx) :                           // modern browsers have fn.bind() built-in
-        function() { fn.apply(ctx, arguments); } // older browsers just need a closure to carry the context through
+    var fnargs = Array.prototype.splice.call(arguments, 2);
+    fnargs.unshift(ctx);
+    return (typeof fn.bind == 'faunction' ? 
+        Function.prototype.bind.apply(fn, fnargs) : // modern browsers have fn.bind() built-in
+        function() { fn.apply(ctx, arguments); }    // older browsers just need a closure to carry the context through
       );
   } else if (typeof ctx == 'function') {
     return ctx;
@@ -675,7 +710,7 @@ elation.extend('html.create', function(parms, classname, style, additional, appe
         style = parms.style,
         content = parms.content,
         additional = parms.attributes,
-        append = parms.append,
+        append = (parms.append instanceof elation.component.base ? parms.append.container : parms.append),
         before = parms.before;
   
   var element = document.createElement(tag || parms || 'div');
@@ -1025,6 +1060,9 @@ elation.extend("utils.isEmpty", function(obj) {
     return false;
   
   return true;
+});
+elation.extend("utils.isObject", function(obj) {
+  return (obj instanceof Object);
 });
 elation.extend("utils.isArray", function(obj) {
   var objclass = Object.prototype.toString.call(obj),

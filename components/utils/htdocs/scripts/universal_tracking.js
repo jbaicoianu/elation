@@ -68,6 +68,11 @@ elation.extend('googleanalytics', function(args) {
     //this.pageTracker._setAllowLinker(true);
     //this.pageTracker._setAllowHash(false); //deprecated
     ga('linker:autoLink', [domainName]);
+  }else if (this.cobrand=='shoplike') {
+    //this.pageTracker._setDomainName(domainName); //set to '.thefind.co.uk'
+    //this.pageTracker._setAllowLinker(true);
+    //this.pageTracker._setAllowHash(false); //deprecated
+    ga('linker:autoLink', [domainName]);
   }
 
   // attach event handlers to various static links

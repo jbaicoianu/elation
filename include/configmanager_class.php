@@ -486,7 +486,7 @@ class ConfigManager extends Base {
    * @param array $newcfg new configuration object to compare with
    * @return array
    */
-  function Update($name, $newcfg, $role="", $deletecfg=null, $skipLocalConfig = false) {
+  function Update($name, $newcfg, $role="", $deletecfg=null, $skipLocalConfig = false, $addedcfg=null) {
     $ret = false;
     $updaterevision = false;
 
@@ -501,10 +501,10 @@ class ConfigManager extends Base {
 
     /*
     $diff = array_diff_assoc_recursive($newcfg, $oldcfg);
-    
     $configupdates = $this->FlattenConfig($diff);
     */
     $configdeletes = $this->FlattenConfig($deletecfg);
+
     if (count($newcfg) > 0) {
       foreach ($newcfg as $k=>$v) {
         Logger::Debug('ConfigManager Update: [' . $name . ' ' . $cobrandid . ' ' . $role . '] ' . $k . ' = ' . $v["value"] . ' : ' . $v["type"]);
@@ -515,10 +515,29 @@ class ConfigManager extends Base {
           $ret = true;
         }
       }
+
       $updaterevision = true;
     }
+
+    // process the inserts en-masse
+    if (count($addedcfg) > 0) {
+      $keyvalues = array();
+
+      foreach ($addedcfg as $k=>$v) 
+        $keyvalues[] = array("cobrandid"=>$cobrandid,"name"=>$k,"value"=>$v["value"],"type"=>$v["type"],'role'=>$role);
+
+      if (!empty($keyvalues)) {
+        $query = DataManager::insert("db.config.cobrand_config.{$name}-{$k}:nocache", "config.cobrand_config", $keyvalues);
+        
+        $ret |= true;
+      }
+
+      $updaterevision = true;
+    }
+
     // process the deletes
     if (count($configdeletes) > 0) {
+      /*
       foreach ($configdeletes as $k=>$v) {
         if ($configdeletes[$k]) {
           $query = DataManager::query("db.config.cobrand_config.delete.{$name}-{$k}:nocache",
@@ -527,9 +546,12 @@ class ConfigManager extends Base {
           $ret |= true;
         }
       }
+      */
 
-      /* FIXME - code above deletes one-by-one, this code deletes en-masse.  Should we switch to this instead?
+      /* FIXME - code above deletes one-by-one, this code deletes en-masse.  Should we switch to this instead? */
+      /* yes i believe so. -lazarus */
       $deletes = array();
+
       foreach ($configdeletes as $k=>$v) {
         if ($v == 1)
           $deletes[] = "'$k'";
@@ -542,7 +564,6 @@ class ConfigManager extends Base {
                                     array(":cobrandid" => $cobrandid, ":role" => $role));
         $ret |= true;
       }
-      */
 
       $updaterevision = true;
     }
@@ -847,8 +868,8 @@ class ConfigManager extends Base {
         Logger::Warn("Tried to delete cobrand '$cobrandname' which didn't exist");
       }
     }
+    
     return $ret;
-
   }
 
   function invalidateConfigCache($cachekey) {
@@ -1216,9 +1237,6 @@ class ConfigManager extends Base {
     return $ret;
   }
 
-
-
-
   /**
    * Update the revision information of a cobrand  from the config.version table.
    *
@@ -1252,19 +1270,20 @@ class ConfigManager extends Base {
    * @param $name
    * @return integer
    */
-   function GetCobrandId($name) {
-     $ret = NULL;
-     if (!empty($name)) {
-       $data = DataManager::singleton();
-       $query = DataManager::Query("db.config.version.$name.$role:nocache",
-                             "SELECT cobrandid FROM config.cobrand WHERE name=:name",
-                             array(":name" => $name));
-       if (!empty($query->rows) && count($query->rows) == 1) {
-         $ret = $query->rows[0]->cobrandid;
-       }
-     }
-     return $ret;
-   }
+  function GetCobrandId($name) {
+    $ret = NULL;
+    
+    if (!empty($name)) {
+      $data = DataManager::singleton();
+      $query = DataManager::Query("db.config.version.$name.$role:nocache",
+                            "SELECT cobrandid FROM config.cobrand WHERE name=:name",
+                            array(":name" => $name));
+      if (!empty($query->rows) && count($query->rows) == 1) {
+        $ret = $query->rows[0]->cobrandid;
+      }
+    }
+    return $ret;
+  }
 
   /**
    * get the cobrandid and revision information
@@ -1272,26 +1291,27 @@ class ConfigManager extends Base {
    * @param $name, $role, $nocache
    * @return array
    */
-   function GetCobrandidAndRevision($name, $role, $nocache=false) {
-     $ret = array();
-
-     if ($name && $role) {
-       $query = DataManager::Query("db.config.version.$name.$role".($nocache?":nocache":""),
-                                   "SELECT config.version.cobrandid, config.version.revision FROM config.version INNER JOIN config.cobrand on config.version.cobrandid=config.cobrand.cobrandid WHERE config.cobrand.name=:name and config.version.role=:role",
-                                   array(":name" => $name, ":role" => $role));
-       if ($query && $query->NumResults() == 1) {
-         $version_info = $query->GetResult(0);
-         $ret["cobrandid"] = $version_info->cobrandid;
-         $ret["revision"] = $version_info->revision;
-       } elseif($nocache==true) {
-         if($this->AddRevisionByName($name, $role)) {
-           $this->GetCobrandidAndRevision($name, $role);
-         }
-       }
-     }
-
-     return $ret;
-   }
+  function GetCobrandidAndRevision($name, $role, $nocache=false) {
+    $ret = array();
+ 
+    if ($name && $role) {
+      $query = DataManager::Query("db.config.version.$name.$role".($nocache?":nocache":""),
+                                  "SELECT config.version.cobrandid, config.version.revision FROM config.version INNER JOIN config.cobrand on config.version.cobrandid=config.cobrand.cobrandid WHERE config.cobrand.name=:name and config.version.role=:role",
+                                  array(":name" => $name, ":role" => $role));
+      
+      if ($query && $query->NumResults() == 1) {
+        $version_info = $query->GetResult(0);
+        $ret["cobrandid"] = $version_info->cobrandid;
+        $ret["revision"] = $version_info->revision;
+      } elseif($nocache==true) {
+        if($this->AddRevisionByName($name, $role)) {
+          $this->GetCobrandidAndRevision($name, $role);
+        }
+      }
+    }
+ 
+    return $ret;
+  }
 
   public static function get($key) {
     return self::singleton()->GetSetting($key);

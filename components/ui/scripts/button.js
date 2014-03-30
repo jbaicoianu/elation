@@ -15,6 +15,8 @@
  * @param {boolean} args.autofocus
  */
 elation.component.add('ui.button', function() {
+  this.defaultcontainer = { tag: 'button', classname: 'ui_button' };
+
   this.init = function(name, container, args) {
     this.tag = this.args.tag || "BUTTON";
     this.classname = this.args.classname || "";

@@ -22,6 +22,8 @@
 elation.require(['ui.button', 'ui.buttonbar']);
 
 elation.component.add('ui.window', function() {
+  this.defaultcontainer = {tag: 'div', classname: 'ui_window'};
+
   this.init = function() {
     this.initUIWindow();
   }
@@ -55,6 +57,9 @@ elation.component.add('ui.window', function() {
     elation.events.add(window, 'resize,orientationchange', this);
     var curpos = elation.html.position(this.container);
     elation.html.addclass(this.container, "ui_window");
+    if (this.args.classname) {
+      elation.html.addclass(this.container, this.args.classname);
+    }
     if (this.args.width) {
       this.container.style.width = this.args.width;  
     }
@@ -103,39 +108,45 @@ elation.component.add('ui.window', function() {
     }
   }
   this.createcontrols = function() {
-    this.controls = elation.ui.buttonbar(null, elation.html.create({classname: 'ui_window_controls'}), {
-      buttons: {
-        minimize: { 
-          label: this.labels.minimize,
-          classname: 'ui_window_control_minimize',
-          events: { click: elation.bind(this, this.minimize) }
-        },
-        maximize: { 
-          label: this.labels.maximize,
-          classname: 'ui_window_control_maximize',
-          events: { click: elation.bind(this, this.maximize) }
-        },
-        close: { 
-          label: this.labels.close,
-          classname: 'ui_window_control_close',
-          events: { click: elation.bind(this, this.close) }
-        }
+    var buttons = {};
+    if (this.args.minimize !== false) {
+      buttons.minimize = { 
+        label: this.labels.minimize,
+        classname: 'ui_window_control_minimize',
+        events: { click: elation.bind(this, this.minimize) }
+      };
+    }
+    if (this.args.minimize !== false) {
+      buttons.maximize = {
+        label: this.labels.maximize,
+        classname: 'ui_window_control_maximize',
+        events: { click: elation.bind(this, this.maximize) }
+      };
+    }
+    if (this.args.close !== false) {
+      buttons.close = { 
+        label: this.labels.close,
+        classname: 'ui_window_control_close',
+        events: { click: elation.bind(this, this.close) }
       }
+    }
+
+    this.controls = elation.ui.buttonbar(null, elation.html.create({classname: 'ui_window_controls'}), {
+      buttons: buttons
     });
     elation.html.addclass(this.container, 'ui_window_withcontrols');
     this.resizer = elation.html.create({tag: 'div', classname: 'ui_window_resizer', append: this.container});
   }
   this.open = function() {
-    if (!this.container.parentNode) {
-      this.container.parentNode.removeChild(this.container);
-      elation.events.fire({type: 'ui_window_close', element: this});
-    }
+    this.show();
+    elation.events.fire({type: 'ui_window_open', element: this});
   }
   this.close = function(ev) {
     if (this.container.parentNode) {
-      this.container.parentNode.removeChild(this.container);
-      elation.events.fire({type: 'ui_window_close', element: this});
+      //this.container.parentNode.removeChild(this.container);
     }
+    this.hide();
+    elation.events.fire({type: 'ui_window_close', element: this});
     if (ev) ev.stopPropagation();
   }
   this.minimize = function(ev) {
@@ -215,8 +226,8 @@ elation.component.add('ui.window', function() {
   }
   this.center = function() {
     var dim = elation.html.dimensions(this.container);
-    var realx = (window.innerWidth - this.size[0]) / 2;
-    var realy = (window.innerHeight - this.size[1]) / 2;
+    var realx = (window.innerWidth - this.container.offsetWidth) / 2;
+    var realy = (window.innerHeight - this.container.offsetHeight) / 2;
     this.setposition([realx, realy]);
   }
   this.drag = function(diff) {
@@ -246,13 +257,9 @@ elation.component.add('ui.window', function() {
   }
   this.setcontent = function(newcontent) {
     if (newcontent instanceof HTMLElement) {
-      if (this.content) {
-        this.container.removeChild(this.content);
-      }
-      if (newcontent.parentNode) newcontent.parentNode.removeChild(newcontent);
-    
-      this.container.appendChild(newcontent);
-      this.content = newcontent;
+      this.setcontenthtml(newcontent);
+    } else if (newcontent instanceof elation.component.base) {
+      this.setcontenthtml(newcontent.container);
     } else {
       if (!this.content) {
         this.content = elation.html.create({tag: 'div', classname: 'ui_window_content', append: this.container});
@@ -262,6 +269,15 @@ elation.component.add('ui.window', function() {
       }
     }
     elation.html.addclass(this.content, 'ui_window_content');
+  }
+  this.setcontenthtml = function(newcontent) {
+    if (this.content) {
+      this.container.removeChild(this.content);
+    }
+    if (newcontent.parentNode) newcontent.parentNode.removeChild(newcontent);
+  
+    this.container.appendChild(newcontent);
+    this.content = newcontent;
   }
   this.gettransform = function(pos, layer, scale) {
     if (!pos && pos !== 0) pos = this.offsetpos;

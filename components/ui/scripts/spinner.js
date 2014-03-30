@@ -10,8 +10,11 @@
  * @param {string} args.type
  */
 elation.component.add('ui.spinner', function() {
+  this.defaultcontainer = { tag: 'div', classname: 'ui_spinner' };
+
   this.types = {
-    'default': '<div class="loading-container"><div class="loading"></div><div class="loading-text">loading</div></div>'
+    'default': '<div class="loading-container"><div class="loading"></div><div class="loading-text">loading</div></div>',
+    'dark': '<div class="loading-container dark"><div class="loading"></div><div class="loading-text">loading</div></div>'
   };
 
   this.init = function() {

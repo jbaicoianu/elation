@@ -119,5 +119,16 @@
   top: 0;
   width: 100px;
 }
+
+
+.loading-container.dark .loading {
+  border-color: transparent #000 transparent #000;
+}
+.loading-container.dark:hover .loading {
+  border-color: transparent #E45635 transparent #E45635;
+}
+.loading-container.dark .loading-text {
+  color: #000;
+}
 /* end css loading spinner */
 

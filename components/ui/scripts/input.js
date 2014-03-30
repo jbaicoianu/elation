@@ -53,12 +53,19 @@ elation.component.add('ui.input', function() {
 
     if (this.args.hidden) this.hide();
 
+    if (this.args.classname) {
+      elation.html.addclass(this.container, this.args.classname); 
+    }
     elation.events.add(this.inputelement, 'focus,blur,input,keydown', this);
 
     // Set up object setters/getters to bridge with HTML element attributes
     Object.defineProperty(this, "value", { get: function() { return this.inputelement.value; }, set: function(v) { this.inputelement.value = v; } });
     Object.defineProperty(this, "disabled", { get: function() { return this.inputelement.disabled; }, set: function(v) { this.inputelement.disabled = v; } });
     Object.defineProperty(this, "autofocus", { get: function() { return this.inputelement.autofocus; }, set: function(v) { this.inputelement.autofocus = v; } });
+
+    if (this.args.value) {
+      this.value = this.args.value;
+    }
   }
   /**
    * Mark this component as being enabled

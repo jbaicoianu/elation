@@ -6,17 +6,17 @@
  * @memberof elation.ui
  * @alias elation.ui.list
  *
- * @param {object} args
- * @param {string} args.tag
- * @param {string} args.classname
- * @param {string} args.title
- * @param {boolean} args.draggable
- * @param {boolean} args.hidden
- * @param {string} args.orientation
- * @param {string} args.sortbydefault
- * @param {array} args.items
+ * @param {object}    args
+ * @param {string}    args.tag
+ * @param {string}    args.classname
+ * @param {string}    args.title
+ * @param {boolean}   args.draggable
+ * @param {boolean}   args.hidden
+ * @param {string}    args.orientation
+ * @param {string}    args.sortbydefault
+ * @param {array}     args.items
+ * @param {object}    args.attrs
  * @param {elation.container.simple} args.itemcontainer
- * @param {object} args.attrs
  */
 elation.component.add('ui.list', function() {
   this.defaultcontainer = {tag: 'ul', classname: 'ui_list'};
@@ -34,6 +34,10 @@ elation.component.add('ui.list', function() {
     this.dirty = false;
 
     this.animatetime = 850;
+
+    if (this.classname) {
+      elation.html.addclass(this.container, this.classname);
+    }
 
     this.setOrientation(this.orientation);
 
@@ -106,7 +110,7 @@ elation.component.add('ui.list', function() {
     }
     this.itemcontainer = itemcontainer;
     this.setItems(this.itemcontainer.items);
-    elation.events.add(this.itemcontainer, "container_add,container_remove,container_move", this);
+    elation.events.add(this.itemcontainer, "container_add,container_remove,container_move,container_load,container_clear", this);
   }
   /**
    * Extracts items out of the list's existing HTML structure
@@ -337,6 +341,24 @@ elation.component.add('ui.list', function() {
    * @param {event} ev
    */
   this.container_move = function(ev) {
+    this.refresh();
+  }
+  /**
+   * Event handler: elation.container.simple#container_load
+   * @function container_load
+   * @memberof elation.ui.list#
+   * @param {event} ev
+   */
+  this.container_load = function(ev) {
+    this.refresh();
+  }
+  /**
+   * Event handler: elation.container.simple#container_clear
+   * @function container_clear
+   * @memberof elation.ui.list#
+   * @param {event} ev
+   */
+  this.container_clear = function(ev) {
     this.refresh();
   }
 }, elation.ui.base);

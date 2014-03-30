@@ -146,7 +146,7 @@ elation.extend("component", new function() {
 
       // If no args were passed in, we're probably being used as the base for another 
       // component's prototype, so there's no need to go through full init
-      if (!realname && !container && !args) return new component.base(type);
+      if (elation.utils.isNull(realname) && !container && !args) return new component.base(type);
 
       // If no name was passed, use the current object count as a name instead ("anonymous" components)
       if (elation.utils.isNull(realname) || realname === "") {
@@ -177,8 +177,8 @@ elation.extend("component", new function() {
     })();
     component.base.prototype = new this.base(type);
     if (extendclass) {
-      component.base.prototype.extend(new extendclass());
-      component.extendclass = extendclass.classdef;
+      component.extendclass = new extendclass();
+      component.base.prototype.extend(component.extendclass);
     }
     if (classdef) {
       component.base.prototype.extend((typeof classdef == 'function' ? new classdef() : classdef));

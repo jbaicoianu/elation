@@ -1,6 +1,13 @@
+* {
+  margin: 0;
+  padding: 0;
+}
 elation\:args,
 elation\:events,
 data.elation-args,
 data.elation-events {
+  display: none;
+}
+.state_hidden {
   display: none;
 }

@@ -1,20 +1,20 @@
-@font-face { /* FIXME - temp placeholder until I get a real image for the homepage */
-  font-family: 'Ruthie';
-  font-style: normal;
-  font-weight: 400;
-  src: local('Ruthie'), local('Ruthie-Regular'), url(http://themes.googleusercontent.com/static/fonts/ruthie/v3/Di1LdjRzoaEvDmrQy1l_ww.woff) format('woff');
-}
-
 body {
+  margin: 0;
+  padding: 0;
   color: #404040;
   background: #efefef url(/images/elation/background.png);
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 #container {
-  max-width: 50em;
+  /* max-width: 50em; */
   margin: 0 auto;
-  padding: 0 2em;
   position: relative;
+  padding: 1em 2em;
+}
+header {
+}
+header h1 {
+  margin: 0 0 0 0;
 }
 h1 a {
   text-decoration: none;
@@ -82,7 +82,6 @@ code.codeblock {
   background: white;
   padding: 0 1em;
 }
-
 
 /* screen size overrides */
 @media all and (max-width: 480px) {

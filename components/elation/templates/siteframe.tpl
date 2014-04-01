@@ -3,9 +3,7 @@
 {set var="page.title"}Elation Client/Server MVC Framework{/set}
 
 <div id="container">
-  <h1><a href="/">Elation</a></h1>
-
-  {component name="elation.navigation"}
+  {component name="elation.header"}
 
   {component name="html.content" content=$content}
 

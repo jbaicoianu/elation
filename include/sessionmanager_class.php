@@ -135,14 +135,32 @@ class SessionManager
     // instantiate the pandora object
     $pandora = PandoraLog::singleton();
 
-    // check to see if there is an existing cookie for flsid
-    $has_flsid = (isset($_COOKIE['flsid']) || isset($_REQUEST['flsid']));
+    // check to see if there is an existing cookie for flsid & event=new (session)
+    if (isset($_REQUEST['event']) && $_REQUEST['event'] == "new") {
+      // force new sesion - for mobile
+      $has_flsid = false;
+    } else {
+      $has_flsid = (isset($_COOKIE['flsid']) || isset($_REQUEST['flsid']));
+    }
     $this->is_new_session = ($has_flsid == 1) ? 0 : 1;
+
 
     // if flsid was passed via the URL, set it as a cookie
     if (!empty($_REQUEST['flsid'])) {
-      setcookie("flsid", $_REQUEST['flsid'], 0, '/');
+      $host = $_SERVER['HTTP_HOST'];
+      preg_match("/[^\.\/]+\.[^\.\/]+$/", $host, $matches);
+      $domain = $matches[0];
+      // set top level domain explicitly so we don't get a conbination of 
+      // dev subdomains in cookie for same cookie name, ie: flsid
+      setcookie("flsid", $_REQUEST['flsid'], 0, '/', $domain);
       $this->flsid = $_COOKIE['flsid'] = $_REQUEST['flsid'];
+    }
+
+    if ($_REQUEST['event'] == 'new') {
+      // force new flsid/session id
+      $this->flsid = session_regenerate_id();
+    } else {
+      $this->flsid = session_id();
     }
 
     session_set_save_handler(
@@ -265,7 +283,6 @@ class SessionManager
      * If not, query the DB to get the persistent session data.
      * If not in the DB, create a new session.
      */
-    $this->flsid = session_id();
     //$session_memcache = $this->cache_obj->get($this->flsid);
     $session_memcache = DataManager::fetch("memcache.session#{$this->flsid}", $this->flsid);
     //$tmpsession = unserialize($session_memcache);

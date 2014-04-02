@@ -135,43 +135,9 @@ class SessionManager
     // instantiate the pandora object
     $pandora = PandoraLog::singleton();
 
-    // check to see if there is an existing cookie for flsid & event=new (session)
-    if (isset($_REQUEST['event']) && $_REQUEST['event'] == "new") {
-      // force new sesion - for mobile
-      $has_flsid = false;
-    } else {
-      $has_flsid = (isset($_COOKIE['flsid']) || isset($_REQUEST['flsid']));
-    }
+    // check to see if there is an existing cookie for flsid
+    $has_flsid = (isset($_COOKIE['flsid']) || isset($_REQUEST['flsid']));
     $this->is_new_session = ($has_flsid == 1) ? 0 : 1;
-
-
-    // if flsid was passed via the URL, set it as a cookie
-    if (!empty($_REQUEST['flsid'])) {
-      $host = $_SERVER['HTTP_HOST'];
-      preg_match("/[^\.\/]+\.[^\.\/]+$/", $host, $matches);
-      $domain = $matches[0];
-      // set top level domain explicitly so we don't get a conbination of 
-      // dev subdomains in cookie for same cookie name, ie: flsid
-      setcookie("flsid", $_REQUEST['flsid'], 0, '/', $domain);
-      $this->flsid = $_COOKIE['flsid'] = $_REQUEST['flsid'];
-    }
-
-    if ($_REQUEST['event'] == 'new') {
-      // force new flsid/session id
-      $this->flsid = session_regenerate_id();
-    } else {
-      $this->flsid = session_id();
-    }
-
-    session_set_save_handler(
-      array(&$this, 'open'),
-      array(&$this, 'close'),
-      array(&$this, 'read'),
-      array(&$this, 'write'),
-      array(&$this, 'destroy'),
-      array(&$this, 'gc')
-    );
-
 
     // register_shutdown_function('session_write_close');
 
@@ -200,6 +166,21 @@ class SessionManager
     }
     session_set_cookie_params(0, $sessionpath, $domain);
 
+    // if flsid was passed via the URL, set it as a cookie
+    if (!empty($_GET['flsid'])) {
+      setcookie("flsid", $_GET['flsid'], 0, '/', $domain);
+      $this->flsid = $_COOKIE['flsid'] = $_GET['flsid'];
+    }
+
+    session_set_save_handler(
+      array(&$this, 'open'),
+      array(&$this, 'close'),
+      array(&$this, 'read'),
+      array(&$this, 'write'),
+      array(&$this, 'destroy'),
+      array(&$this, 'gc')
+    );
+    
     // set the garbage collection lifetime (on the DB persist data)
     ini_set('session.gc_maxlifetime', 31536000); // 31536000 = 60 * 60 * 24 * 365
 
@@ -247,6 +228,7 @@ class SessionManager
       $pdata_serialize = serialize($_SESSION["persist"]);
       $this->crc = strlen($pdata_serialize) . crc32($pdata_serialize);
     }
+    
     if (!$has_flsid) {
       // new session -- update the permanent cookie
 
@@ -284,6 +266,14 @@ class SessionManager
      * If not in the DB, create a new session.
      */
     //$session_memcache = $this->cache_obj->get($this->flsid);
+
+    // force new flsid/session id regardless if flsid is passed in url
+    if ($_REQUEST['event'] == 'new') {
+      $this->flsid = session_regenerate_id();
+    } else {
+      $this->flsid = session_id();
+    }
+
     $session_memcache = DataManager::fetch("memcache.session#{$this->flsid}", $this->flsid);
     //$tmpsession = unserialize($session_memcache);
 

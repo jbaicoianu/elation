@@ -46,7 +46,8 @@
   <?import namespace="elation" implementation="#elation"?>
   <![endif]-->
   *}
-  {component name="tracking.autotrack"}
+  {* component name="tracking.autotrack" *}
+  <script type="text/javascript" src="/tracking/autotrack.snip"></script>
   <script type="text/javascript">if (elation.onloads) elation.onloads.init();</script>
 </head>
 <body class="{if !empty($pagecfg.pagename)}tf_page_{$pagecfg.pagename}{/if}{if $classes}{$classes}{/if}">

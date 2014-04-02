@@ -126,6 +126,15 @@ elation.extend('googleanalytics', function(args) {
     this.filters += args['freeshipping']?'1':'0';
   };
 
+  this.setCustomDim = function(index,value) {
+    try {
+       ga('set', 'dimension'+index, value);
+       if (this.GAalerts) this.displayTag('setCustomDim(dimension'+index + ', ' + value + ')');
+    } catch (err) {
+       if (this.GAalerts) this.displayTag("setCustomDim Error: " + err.description);
+    }
+  };
+
   this.trackPageViewWrapper = function(pageurl) {
   //console.log('url:'+pageurl);
     try {
@@ -444,7 +453,7 @@ elation.extend('googleanalytics', function(args) {
           ga('send', 'pageview', pageurl, metricObj);
           if (this.GAalerts){
             for(i in args.metric){
-              this.displayTag('customMetric(set,'+args.metric[i]['key']+','+args.metric[i]['value']+')');
+              this.displayTag('setCustomMetric('+args.metric[i]['key']+','+args.metric[i]['value']+')');
             }
           }
         } else {

@@ -53,17 +53,22 @@
           'browse_nodename':     '{$browse->nodename|escape:javascript}',
           'browse_nodetype':     '{$browse->nodetype|escape:javascript}'
         {rdelim});
+        //Set result category
+        {if !empty($category)}
+          if (googleAnalytics.pagetype == 'search') {ldelim}
+            var landing_category = "{$category}";
+            googleAnalytics.setCustomDim(9, landing_category);
+          {rdelim}
+        {/if}
         {if $is_new_user}
           var datetime = new Date();
           var d = (datetime.getMonth() + 1) + '-' + datetime.getDate() + '-' + datetime.getFullYear();
           {if $universal_tracking eq true}
-          //googleAnalytics.setCustomVar(1, "FirstVisitDate", d, 1);
-          //First visit source is not used in universal analytics
-          //ga('set', 'dimension1', d);
           //googleAnalytics.setCustomVar(5, "FirstVisitSource", "placeholder", 1);
           //googleAnalytics.setCustomVar(4, "FirstVisitCobrand", "{$cobrand|escape:javascript}", 1);
-          ga('set', 'dimension10', "{$cobrand|escape:javascript}");
-          ga('set', 'dimension11', "{$cobrand|escape:javascript}");
+          //ga('set', 'dimension10', "{$cobrand|escape:javascript}");
+          //ga('set', 'dimension11', "{$cobrand|escape:javascript}");
+          googleAnalytics.setCustomDim(10, "{$cobrand|escape:javascript}");
           {else}
           googleAnalytics.setCustomVar(1, "FirstVisitDate", d, 1);
           //googleAnalytics.setCustomVar(5, "FirstVisitSource", "placeholder", 1);
@@ -71,21 +76,17 @@
           {/if}
         {/if}
         {if $is_new_session}
-          var landing_category = googleAnalytics.pagetype ? googleAnalytics.pagetype : "home page";
-          // special handling for coupons since there coupons_index, coupons_browsemap, coupons_store, coupons_tag, etc
-          if (googleAnalytics.pagetype.search(/coupon/i) != -1) landing_category = 'coupons';
            //special handling for product search
           {if !empty($category)}
-            if (googleAnalytics.pagetype == 'search') landing_category = "{$category}";
-            if (googleAnalytics.pagetype == 'browse_homepage') landing_category = "home page";
-            if (googleAnalytics.pagetype == 'index') landing_category = "home page";
+            if (googleAnalytics.pagetype == 'search') {ldelim}
+              var landing_category = "{$category}";
+              //ga('set', 'dimension5', landing_category);
+              googleAnalytics.setCustomDim(5, landing_category);
+            {rdelim}
           {/if}
           {if $universal_tracking eq true}
-            ga('set', 'dimension5', landing_category);
-            //googleAnalytics.setCustomVar(2, "LandingCategory", landing_category, 2);
-            ga('set', 'dimension12', "{$version}");
-            //googleAnalytics.setCustomVar(3, "VersionNumber", "{$version}", 2);
-            //googleAnalytics.trackEvent(["AB Test", "version", "{$version}"]) 
+            //ga('set', 'dimension12', "{$version}");
+            googleAnalytics.setCustomDim(12, "{$version}");
           {else}
             googleAnalytics.setCustomVar(2, "LandingCategory", landing_category, 2);
             googleAnalytics.setCustomVar(3, "VersionNumber", "{$version}", 2);

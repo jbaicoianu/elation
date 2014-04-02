@@ -62,8 +62,8 @@
           //ga('set', 'dimension1', d);
           //googleAnalytics.setCustomVar(5, "FirstVisitSource", "placeholder", 1);
           //googleAnalytics.setCustomVar(4, "FirstVisitCobrand", "{$cobrand|escape:javascript}", 1);
-          ga('set', 'dimension10', "$cobrand|escape:javascript");
-          ga('set', 'dimension11', "$cobrand|escape:javascript");
+          ga('set', 'dimension10', "{$cobrand|escape:javascript}");
+          ga('set', 'dimension11', "{$cobrand|escape:javascript}");
           {else}
           googleAnalytics.setCustomVar(1, "FirstVisitDate", d, 1);
           //googleAnalytics.setCustomVar(5, "FirstVisitSource", "placeholder", 1);
@@ -91,8 +91,14 @@
             googleAnalytics.setCustomVar(3, "VersionNumber", "{$version}", 2);
             //googleAnalytics.trackEvent(["AB Test", "version", "{$version}"]) 
           {/if}
+          var args = {ldelim}{rdelim};
+          args.metric = [{ldelim}'key':'metric2','value':1{rdelim}],
+          //args['metric'] = metric;
+          googleAnalytics.trackPageview(args);
+        {else}
+          googleAnalytics.trackPageview();
         {/if}
-        googleAnalytics.trackPageview();
+        //googleAnalytics.trackPageview();
         pandoraLog = new TFHtmlUtilsPandoraLog();
       {rdelim});
     </script>

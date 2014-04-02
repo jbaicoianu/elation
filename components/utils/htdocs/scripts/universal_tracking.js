@@ -138,7 +138,7 @@ elation.extend('googleanalytics', function(args) {
     } catch (err) {if (this.GAalerts) this.displayTag("trackPageViewWrapper Error: " + err.message)}
   };
 
-  this.trackPageview = function() {
+  this.trackPageview = function(args) {
     var status = this.status;
     var total = this.total;
     var pagegroup = this.pagegroup;
@@ -436,8 +436,20 @@ elation.extend('googleanalytics', function(args) {
       if (this.GAalerts) this.displayTag('trackPageview('+pageurl+')');
 
       try {
-        //this.pageTracker._trackPageview(pageurl);
-        ga('send', 'pageview', pageurl);
+        if(typeof args != 'undefined' && args.metric) {
+          var metricObj = {};
+          for(i in args.metric){
+            metricObj[args.metric[i]['key']] = args.metric[i]['value'];
+          }
+          ga('send', 'pageview', pageurl, metricObj);
+          if (this.GAalerts){
+            for(i in args.metric){
+              this.displayTag('customMetric(set,'+args.metric[i]['key']+','+args.metric[i]['value']+')');
+            }
+          }
+        } else {
+          ga('send', 'pageview', pageurl);
+        }
       } catch (err) {if (this.GAalerts) this.displayTag("trackPageview Error: "+err.message)}
     }
     var data = {};
@@ -494,10 +506,27 @@ elation.extend('googleanalytics', function(args) {
   };
 
   this.trackClickout = function(args) {
-    if (args.event.length == 5) 
-      this.trackEvent([ args.event[0], args.event[1], args.event[2] , args.event[3] , args.event[4] ]);
-    else  
-      this.trackEvent([args.event[0], args.event[1], args.event[2] + args.event[3] ]);
+    if (args.event.length == 5) {
+      if(args.metric) {
+        var metricObj = {};
+        for(i in args.metric){
+          metricObj[args.metric[i]['key']] = args.metric[i]['value'];
+        }
+        ga('send', 'event', args.event[0], args.event[1], args.event[2], args.event[3], metricObj);
+      } else {
+        ga('send', 'event', args.event[0], args.event[1], args.event[2], args.event[3], args.event[4]);
+      }
+      if (this.GAalerts){
+        this.displayTag('trackEvent('+args.event[0]+','+args.event[1]+','+args.event[2]+','+args.event[3]+','+args.event[4]+')');
+        if(args.metric){
+          for(i in args.metric){
+            this.displayTag('customMetric(set,'+args.metric[i]['key']+','+args.metric[i]['value']+')');
+          }
+        }
+      }
+   }
+    //else  
+      //this.trackEvent([args.event[0], args.event[1], args.event[2] + args.event[3] ]);
     this.clickoutsource=0;
     this.myfindspanel='';
     var orderID = Math.floor(Math.random()*1000000000000);
@@ -526,6 +555,26 @@ elation.extend('googleanalytics', function(args) {
       });
       ga('ecommerce:send');
     } catch (err) {if (this.GAalerts) this.displayTag("trackTrans Error: "+err.message)}
+  };
+
+  this.trackEventMetric = function(args) {
+    if(args.event.length == 5){
+      try {
+           if(args.metric) {
+             var metricObj = {};
+             for(i in args.metric){
+               metricObj[args.metric[i]['key']] = args.metric[i]['value'];
+             }
+             ga('send', 'event', args.event[0], args.event[1], args.event[2], args.event[3], metricObj);
+             if (this.GAalerts){
+               this.displayTag('trackEvent('+args.event[0]+','+args.event[1]+','+args.event[2]+','+args.event[3]+','+args.event[4]+')');
+              for(i in args.metric){
+                this.displayTag('customMetric(set,'+args.metric[i]['key']+','+args.metric[i]['value']+')');
+              }
+           }
+         }
+      } catch (err) {if (this.GAalerts) this.displayTag("trackEvent Error: "+err.message)}
+    }
   };
 
   this.trackPrivacySettings = function() {

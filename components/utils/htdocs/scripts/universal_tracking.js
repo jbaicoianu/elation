@@ -38,7 +38,7 @@ elation.extend('googleanalytics', function(args) {
   //set from Dashboard
 
   //Ignored organics can be tracked form the GA Dashboard as per srilatha
-  //var self = this;
+  var self = this;
   //var ignoredOrganics=['www.thefind.com', 'thefind', 'thefind.com', 'the find', 'glimpse', 'glimpse.com', 'www.glimpse.com', 'local.thefind.com', 'green.thefind.com', 'ww1.glimpse.com', 'shoptrue.com', 'shoptrue', 'coupons.thefind.com', 'shop.glimpse.com', 'ww1.thefind.com', 'www.shoptrue.com', 'reviews.thefind.com', 'visual.thefind.com', 'prices.thefind.com'];
   //$TF.each(ignoredOrganics, function(key, value) {self.pageTracker._addIgnoredOrganic(value)});
 

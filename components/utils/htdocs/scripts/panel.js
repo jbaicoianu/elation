@@ -12,6 +12,7 @@ elation.extend('panel', new function(options) {
 
 	this.add = function(name, args, data, content, parent) {
     if (!this.panelmap[name]) {
+    	//console.log(name, args, data, content, parent);
 			this.panelmap[name] = this.panels.length;
 			this.panels.push(args || {});
     }
@@ -20,12 +21,17 @@ elation.extend('panel', new function(options) {
   }
 
   this.Init = function(name, args) {
+		//console.log('attemping to Init', name, args);
+
     var panel = this.panels[this.panelmap[name]] || null;
 		
     if (args) {
 			if (args.id)
 				panel.element = $TF("#"+args.id);
 			
+			if (args.targetid)
+				panel.cfg.targetid = args.targetid;
+
 			panel.items = {};
 			if (args.cfg && args.cfg.items) {
 				$TF.each(args.cfg.items, function(k, v) {
@@ -48,10 +54,12 @@ elation.extend('panel', new function(options) {
           panel.container = document.getElementById(panel.cfg.targetid);
           this.lis = $TF('div.tf_utils_panel_' + name + ' ul li');;
           
-          for (var i=0; i<this.lis.length; i++)
-            if (elation.html.hasclass(this.lis[i], 'selected'))
+          for (var i=0; i<this.lis.length; i++) {
+            if (elation.html.hasclass(this.lis[i], 'selected')) {
               panel.li = this.lis[i];
-          
+          	}
+          }
+
           for (var key in panel.items) {
             var	item = panel.items[key],
                 element = item.element;
@@ -60,7 +68,7 @@ elation.extend('panel', new function(options) {
               elation.events.add(element[0], 'click', this);
               element[0].onselectstart = function() { return(false); };
               
-              /*
+              
               if (item.args.selected && item.args.contentcomponent && item.args.nopopup) {
                 (function(self, buh, el) {
                   setTimeout(function() {
@@ -68,7 +76,7 @@ elation.extend('panel', new function(options) {
                   },1);
                 })(this, item, element[0]);
               }
-              */
+              
             }
           }
           
@@ -83,9 +91,12 @@ elation.extend('panel', new function(options) {
         }
       }
       
-			panel.content = {};
-      panel.content[panel.item.name] = panel.container.innerHTML;
+      if (panel.container) {
+				panel.content = {};
+      	panel.content[panel.item.name] = panel.container.innerHTML;
+    	}
 		}
+		//console.log('Init panel', panel, panel.container);
 	}
 	
 	this.handleEvent = function(event) {
@@ -131,6 +142,7 @@ elation.extend('panel', new function(options) {
 	}
 	
 	this.load_tab_content = function(panel, target, item, msg) {
+		//console.log('load tab',panel, item, target, msg);
     ajaxlib.xmlhttp.abort();
 
     this.tracking = true;
@@ -218,6 +230,7 @@ elation.extend('panel', new function(options) {
 			
 			this.select_item(item, panel);
 			
+    //console.log('container',panel);
 			return panel.item = item;
 		}
 		
@@ -231,7 +244,6 @@ elation.extend('panel', new function(options) {
     }
     
     panel.item = item;
-			
     if (!panel.cfg.nocache && !item.args.nocache) {
       // if cached copy exists use that
       if (panel.content[item.name]) {
@@ -242,6 +254,7 @@ elation.extend('panel', new function(options) {
           }, 200);
         }
         
+    //console.log('cached',item);
         return;
       }
 		} else {
@@ -263,6 +276,7 @@ elation.extend('panel', new function(options) {
 				if (panel.args.hasOwnProperty(k)) 
 					urlargs[k] = panel.args[k];
 		
+    //console.log('args?',item);
     if (!item.args)
       return;
     
@@ -287,6 +301,7 @@ elation.extend('panel', new function(options) {
     
 		var componentname = item.args.contentcomponent || panel.cfg.contentcomponent;
     
+    //console.log('ajax',parms); 
 		// ajax-fetch tab content
 		ajaxlib.Queue({
 			url: componentname, 
@@ -332,19 +347,23 @@ elation.extend('panel', new function(options) {
 		elation.html.addclass(li, 'selected');
 
     //make a GA call for quick look view
+    //  This code does NOT belong in elation core panel.js!  There shouldn't be any tracking code here.
+    //  furthermore this code runs on every panel wether it has to do with the QL or not... WHY?
+    /*
     if(this.tracking){
       setTimeout( function() {
        elation.results.view.quicklook_view();
       }, 1000);
     }
+    */
 
 		return panel.li = li;
 	}
 	
   this.set_args = function(panelname, args) {
 		var panel, item;
-		
   	if (panel = this.panels[this.panelmap[panelname]]) {
+  		//console.log('setting args',panelname, panel, args);
       for (var key in args) 
         elation.utils.arrayset(panel.args, key, args[key]);
 			
@@ -357,6 +376,8 @@ elation.extend('panel', new function(options) {
   					elation.html.addclass(item.element[0], 'tf_utils_state_disabled_'+item.args.disabledtype);
         }
 			}
+
+			this.Init(panelname, panel.args);
 		}
   }
 	

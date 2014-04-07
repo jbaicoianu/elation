@@ -38,7 +38,7 @@ elation.extend('googleanalytics', function(args) {
   //set from Dashboard
 
   //Ignored organics can be tracked form the GA Dashboard as per srilatha
-  //var self = this;
+  var self = this;
   //var ignoredOrganics=['www.thefind.com', 'thefind', 'thefind.com', 'the find', 'glimpse', 'glimpse.com', 'www.glimpse.com', 'local.thefind.com', 'green.thefind.com', 'ww1.glimpse.com', 'shoptrue.com', 'shoptrue', 'coupons.thefind.com', 'shop.glimpse.com', 'ww1.thefind.com', 'www.shoptrue.com', 'reviews.thefind.com', 'visual.thefind.com', 'prices.thefind.com'];
   //$TF.each(ignoredOrganics, function(key, value) {self.pageTracker._addIgnoredOrganic(value)});
 
@@ -67,6 +67,8 @@ elation.extend('googleanalytics', function(args) {
     //this.pageTracker._setDomainName(domainName); //set to '.thefind.co.uk'
     //this.pageTracker._setAllowLinker(true);
     //this.pageTracker._setAllowHash(false); //deprecated
+    ga('linker:autoLink', [domainName]);
+  }else if (this.cobrand=='shoplike') {
     ga('linker:autoLink', [domainName]);
   }
 
@@ -124,6 +126,15 @@ elation.extend('googleanalytics', function(args) {
     this.filters += args['freeshipping']?'1':'0';
   };
 
+  this.setCustomDim = function(index,value) {
+    try {
+       ga('set', 'dimension'+index, value);
+       if (this.GAalerts) this.displayTag('setCustomDim(dimension'+index + ', ' + value + ')');
+    } catch (err) {
+       if (this.GAalerts) this.displayTag("setCustomDim Error: " + err.description);
+    }
+  };
+
   this.trackPageViewWrapper = function(pageurl) {
   //console.log('url:'+pageurl);
     try {
@@ -136,7 +147,7 @@ elation.extend('googleanalytics', function(args) {
     } catch (err) {if (this.GAalerts) this.displayTag("trackPageViewWrapper Error: " + err.message)}
   };
 
-  this.trackPageview = function() {
+  this.trackPageview = function(args) {
     var status = this.status;
     var total = this.total;
     var pagegroup = this.pagegroup;
@@ -434,8 +445,20 @@ elation.extend('googleanalytics', function(args) {
       if (this.GAalerts) this.displayTag('trackPageview('+pageurl+')');
 
       try {
-        //this.pageTracker._trackPageview(pageurl);
-        ga('send', 'pageview', pageurl);
+        if(typeof args != 'undefined' && args.metric) {
+          var metricObj = {};
+          for(i in args.metric){
+            metricObj[args.metric[i]['key']] = args.metric[i]['value'];
+          }
+          ga('send', 'pageview', pageurl, metricObj);
+          if (this.GAalerts){
+            for(i in args.metric){
+              this.displayTag('setCustomMetric('+args.metric[i]['key']+','+args.metric[i]['value']+')');
+            }
+          }
+        } else {
+          ga('send', 'pageview', pageurl);
+        }
       } catch (err) {if (this.GAalerts) this.displayTag("trackPageview Error: "+err.message)}
     }
     var data = {};
@@ -492,10 +515,27 @@ elation.extend('googleanalytics', function(args) {
   };
 
   this.trackClickout = function(args) {
-    if (args.event.length == 5) 
-      this.trackEvent([ args.event[0], args.event[1], args.event[2] , args.event[3] , args.event[4] ]);
-    else  
-      this.trackEvent([args.event[0], args.event[1], args.event[2] + args.event[3] ]);
+    if (args.event.length == 5) {
+      if(args.metric) {
+        var metricObj = {};
+        for(i in args.metric){
+          metricObj[args.metric[i]['key']] = args.metric[i]['value'];
+        }
+        ga('send', 'event', args.event[0], args.event[1], args.event[2], args.event[3], metricObj);
+      } else {
+        ga('send', 'event', args.event[0], args.event[1], args.event[2], args.event[3], args.event[4]);
+      }
+      if (this.GAalerts){
+        this.displayTag('trackEvent('+args.event[0]+','+args.event[1]+','+args.event[2]+','+args.event[3]+','+args.event[4]+')');
+        if(args.metric){
+          for(i in args.metric){
+            this.displayTag('customMetric(set,'+args.metric[i]['key']+','+args.metric[i]['value']+')');
+          }
+        }
+      }
+   }
+    //else  
+      //this.trackEvent([args.event[0], args.event[1], args.event[2] + args.event[3] ]);
     this.clickoutsource=0;
     this.myfindspanel='';
     var orderID = Math.floor(Math.random()*1000000000000);
@@ -524,6 +564,26 @@ elation.extend('googleanalytics', function(args) {
       });
       ga('ecommerce:send');
     } catch (err) {if (this.GAalerts) this.displayTag("trackTrans Error: "+err.message)}
+  };
+
+  this.trackEventMetric = function(args) {
+    if(args.event.length == 5){
+      try {
+           if(args.metric) {
+             var metricObj = {};
+             for(i in args.metric){
+               metricObj[args.metric[i]['key']] = args.metric[i]['value'];
+             }
+             ga('send', 'event', args.event[0], args.event[1], args.event[2], args.event[3], metricObj);
+             if (this.GAalerts){
+               this.displayTag('trackEvent('+args.event[0]+','+args.event[1]+','+args.event[2]+','+args.event[3]+','+args.event[4]+')');
+              for(i in args.metric){
+                this.displayTag('customMetric(set,'+args.metric[i]['key']+','+args.metric[i]['value']+')');
+              }
+           }
+         }
+      } catch (err) {if (this.GAalerts) this.displayTag("trackEvent Error: "+err.message)}
+    }
   };
 
   this.trackPrivacySettings = function() {

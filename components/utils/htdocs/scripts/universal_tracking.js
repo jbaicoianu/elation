@@ -529,7 +529,7 @@ elation.extend('googleanalytics', function(args) {
         this.displayTag('trackEvent('+args.event[0]+','+args.event[1]+','+args.event[2]+','+args.event[3]+','+args.event[4]+')');
         if(args.metric){
           for(i in args.metric){
-            this.displayTag('customMetric(set,'+args.metric[i]['key']+','+args.metric[i]['value']+')');
+            this.displayTag('setcustomMetric(set,'+args.metric[i]['key']+','+args.metric[i]['value']+')');
           }
         }
       }

@@ -75,6 +75,9 @@
           googleAnalytics.setCustomVar(4, "FirstVisitCobrand", "{$cobrand|escape:javascript}", 1);
           {/if}
         {/if}
+        {if $is_new_user && !$is_logged_in}
+          googleAnalytics.setCustomDim(6, "false");
+        {/if}
         {if $is_new_session}
            //special handling for product search
           {if !empty($category)}

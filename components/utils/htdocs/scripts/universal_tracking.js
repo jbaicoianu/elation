@@ -29,6 +29,7 @@ elation.extend('googleanalytics', function(args) {
   //this.pageTracker = _gat._getTracker(this.trackingcode);
   //ga('create', this.trackingcode, 'thefind.com');
   ga('create', this.trackingcode, {'allowLinker': true});
+  ga('require', 'displayfeatures');
   ga('require', 'linker');
   //ga('linker:autoLink', ['destination.com']);
   ga('require', 'ecommerce', 'ecommerce.js');   // Load the ecommerce plug-in.
@@ -37,10 +38,7 @@ elation.extend('googleanalytics', function(args) {
   //this.pageTracker._setCookieTimeout("172800"); // campaign tracking expiration 2 days //Can be
   //set from Dashboard
 
-  //Ignored organics can be tracked form the GA Dashboard as per srilatha
   var self = this;
-  //var ignoredOrganics=['www.thefind.com', 'thefind', 'thefind.com', 'the find', 'glimpse', 'glimpse.com', 'www.glimpse.com', 'local.thefind.com', 'green.thefind.com', 'ww1.glimpse.com', 'shoptrue.com', 'shoptrue', 'coupons.thefind.com', 'shop.glimpse.com', 'ww1.thefind.com', 'www.shoptrue.com', 'reviews.thefind.com', 'visual.thefind.com', 'prices.thefind.com'];
-  //$TF.each(ignoredOrganics, function(key, value) {self.pageTracker._addIgnoredOrganic(value)});
 
   var domainName = document.domain.match(/(\.(.+)\.com$)/gi);
   if(domainName == null) {

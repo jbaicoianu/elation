@@ -31,8 +31,6 @@ class Component_html extends Component {
       
       $args["classes"] = $classes;
       $args["agent"] = $useragent;
-      $args['universal_tracking'] = 
-        any(ConfigManager::get("tracking.googleanalytics.universal_tracking"), $webapp->cfg->servers['tracking']['googleanalytics']['universal_tracking']);
       $dependencies = ConfigManager::get("dependencies.load");
       if(!empty($dependencies)) {
         foreach($dependencies as $dependency) {
@@ -55,9 +53,6 @@ class Component_html extends Component {
   public function controller_footer($args) {
     // Assemble page-level args for Google Analytics --
     global $webapp;
-
-    $args['universal_tracking'] = 
-      any(ConfigManager::get("tracking.googleanalytics.universal_tracking"), $webapp->cfg->servers['tracking']['googleanalytics']['universal_tracking']);
 
     $analytics = Analytics::singleton();
     $componentmgr = ComponentManager::singleton();

@@ -3,31 +3,14 @@
   {dependency type="component" name="utils.panel"}
   {if $GAenabled}
   
-    {if $universal_tracking eq true}
     {literal}
-    <script>
-    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-     m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-     })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-      //ga('send', 'pageview');
-                  
+      <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+         (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+         m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+         })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
       </script>
-      {/literal}
-
-
-    {else}
-
-    {literal}
-    <script type="text/javascript">
-    var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-    </script>
     {/literal}
-
-    {/if}
-
 
     <script type="text/javascript">
       $TF(document).ready(function() {ldelim}
@@ -63,17 +46,7 @@
         {if $is_new_user}
           var datetime = new Date();
           var d = (datetime.getMonth() + 1) + '-' + datetime.getDate() + '-' + datetime.getFullYear();
-          {if $universal_tracking eq true}
-          //googleAnalytics.setCustomVar(5, "FirstVisitSource", "placeholder", 1);
-          //googleAnalytics.setCustomVar(4, "FirstVisitCobrand", "{$cobrand|escape:javascript}", 1);
-          //ga('set', 'dimension10', "{$cobrand|escape:javascript}");
-          //ga('set', 'dimension11', "{$cobrand|escape:javascript}");
           googleAnalytics.setCustomDim(10, "{$cobrand|escape:javascript}");
-          {else}
-          googleAnalytics.setCustomVar(1, "FirstVisitDate", d, 1);
-          //googleAnalytics.setCustomVar(5, "FirstVisitSource", "placeholder", 1);
-          googleAnalytics.setCustomVar(4, "FirstVisitCobrand", "{$cobrand|escape:javascript}", 1);
-          {/if}
         {/if}
         {if $is_new_user && !$is_logged_in}
           googleAnalytics.setCustomDim(6, "false");
@@ -87,14 +60,8 @@
               googleAnalytics.setCustomDim(5, landing_category);
             {rdelim}
           {/if}
-          {if $universal_tracking eq true}
             //ga('set', 'dimension12', "{$version}");
             googleAnalytics.setCustomDim(12, "{$version}");
-          {else}
-            googleAnalytics.setCustomVar(2, "LandingCategory", landing_category, 2);
-            googleAnalytics.setCustomVar(3, "VersionNumber", "{$version}", 2);
-            //googleAnalytics.trackEvent(["AB Test", "version", "{$version}"]) 
-          {/if}
           var args = {ldelim}{rdelim};
           args.metric = [{ldelim}'key':'metric2','value':1{rdelim}],
           //args['metric'] = metric;

@@ -36,6 +36,9 @@
           'browse_nodename':     '{$browse->nodename|escape:javascript}',
           'browse_nodetype':     '{$browse->nodetype|escape:javascript}'
         {rdelim});
+        {if !empty($request_cobrand)}
+          googleAnalytics.setCustomDim(11, "{$request_cobrand|escape:javascript}");
+        {/if}
         //Set result category
         {if !empty($category)}
           if (googleAnalytics.pagetype == 'search') {ldelim}

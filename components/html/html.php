@@ -128,6 +128,8 @@ class Component_html extends Component {
     $args['birth_year'] = $estimated_birth_year;
     $args['user_gender'] = $user_gender;
 
+    $args['cfg_cobrand'] = $webapp->cfg->servers["cobrand"];
+    $args['request_cobrand'] = $webapp->request["args"]["cobrand"];
     //$args['GAenabled'] = 1; //testing only
 
     if (empty($this->shown["footer"])) { // Only allow footer once per page

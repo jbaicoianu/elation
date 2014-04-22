@@ -121,6 +121,13 @@ class Component_html extends Component {
     $args['userid'] = $user->userid;
     $args['useremail'] = $user->email;
 
+    $estimated_birth_year = $user->getUserSetting('estimated_birth_year');
+    $gender = $user->gender;
+    $user_gender = ($gender == 'F' ? 'female': 'male');
+
+    $args['birth_year'] = $estimated_birth_year;
+    $args['user_gender'] = $user_gender;
+
     //$args['GAenabled'] = 1; //testing only
 
     if (empty($this->shown["footer"])) { // Only allow footer once per page

@@ -51,6 +51,15 @@
         {if $is_new_user && !$is_logged_in}
           googleAnalytics.setCustomDim(6, "false");
         {/if}
+        {if $is_logged_in}
+          debugger;
+          {if $birth_year != ''}
+            googleAnalytics.setCustomDim(1, "{$birth_year}"); //Birth year
+          {/if}
+          {if $user_gender != ''}
+            googleAnalytics.setCustomDim(2, "{$user_gender}"); //Gender
+          {/if}
+        {/if}
         {if $is_new_session}
            //special handling for product search
           {if !empty($category)}

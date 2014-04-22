@@ -52,7 +52,6 @@
           googleAnalytics.setCustomDim(6, "false");
         {/if}
         {if $is_logged_in}
-          debugger;
           {if $birth_year != ''}
             googleAnalytics.setCustomDim(1, "{$birth_year}"); //Birth year
           {/if}

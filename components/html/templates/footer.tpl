@@ -61,6 +61,9 @@
           {if $user_gender != ''}
             googleAnalytics.setCustomDim(2, "{$user_gender}"); //Gender
           {/if}
+          {if $demo_location != ''}
+            googleAnalytics.setCustomDim(3, "{$demo_location}"); //Gender
+          {/if}
         {/if}
         {if $is_new_session}
            //special handling for product search

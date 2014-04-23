@@ -125,8 +125,16 @@ class Component_html extends Component {
     $gender = $user->gender;
     $user_gender = ($gender == 'F' ? 'female': 'male');
 
-    $args['birth_year'] = $estimated_birth_year;
-    $args['user_gender'] = $user_gender;
+    if($user->getUserSetting("tracking.user.demographics_dimension") != 1) {
+      $args['birth_year'] = $estimated_birth_year;
+      $args['user_gender'] = $user_gender;
+
+      $location = $user->GetLocation();
+      if($location['city'] && $location['state']){
+        $args['demo_location'] = $location['city'].','.$location['state'];
+      }
+      $user->setUserSetting("tracking.user.demographics_dimension", "1");
+    }
 
     $args['cfg_cobrand'] = $webapp->cfg->servers["cobrand"];
     $args['request_cobrand'] = $webapp->request["args"]["cobrand"];

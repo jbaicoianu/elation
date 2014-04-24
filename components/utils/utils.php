@@ -41,12 +41,14 @@ class Component_utils extends Component {
 
   function controller_panel($args, $output="inline") {
     $ret = "";
+    $selected = $args["selected"];
     $vars["placementname"] = $args["placement"]; // FIXME - we currently don't do anything with placements
     $vars["panel"]["parent"] = any($args["parent"], "");
     if (!empty($vars["panel"]["parent"]) && !empty($args["panelname"]))
       $vars["panel"]["name"] = $vars["panel"]["parent"] . "." . $args["panelname"];
     else
       $vars["panel"]["name"] = $args["type"];
+
     $vars["panel"]["top"] = any($args["top"], true);
     $vars["panel"]["cfg"] = $this->PanelSort(any($args["panel"], ConfigManager::get("panels.types.{$vars["panel"]["name"]}")));
     $vars["panel"]["id"] = any($args["id"], $vars["panel"]["cfg"]["id"], "tf_utils_panel_" . str_replace(".", "_", $vars["panel"]["name"]));
@@ -56,6 +58,7 @@ class Component_utils extends Component {
     $vars["panel"]["info"] = array("type",$vars["panel"]["type"],"id"=>$vars["panel"]["id"],"name"=>$vars["panel"]["name"]);
     $vars["panel"]["json_include"] = any($vars["panel"]["cfg"]["json_include"], 0);
     $vars["panel"]["noclear"] = any($vars["panel"]["cfg"]["noclear"], 0);
+    $items = $vars["panel"]["cfg"]["items"];
 
     // If the apicomponent option is set for this panel, execute the specified component
     if (!empty($vars["panel"]["cfg"]["apicomponent"])) {
@@ -66,7 +69,19 @@ class Component_utils extends Component {
         $vars["apicomponentoutput"] = ComponentManager::fetch($vars["panel"]["cfg"]["apicomponent"], $apicomponentargs, "data");
       }
     }
+    if ($selected && $items[$selected]) {
+      foreach ($items as $k=>$v) {
+        unset($items[$k]["selected"]);
+      }
+      $items[$selected]["selected"] = "true";
 
+      $vars["panel"]["cfg"]["items"] = $items;
+      //print_pre($items);
+    }
+    if ($args['uid']) {
+      $vars['panel']['uid'] = $args['uid'];
+      $vars['panel']['cfg']['targetid'] = $vars['panel']['cfg']['targetid'] . '_' . $args['uid'];
+    }
     if ($output == "ajax") {
       $ret = array();
       $ajaxpanels = self::PanelFilterAjax($vars["panel"]["cfg"]);

@@ -70,6 +70,9 @@ elation.extend("events", {
     }
 
     // return all event objects that were fired
+
+    console.log('[events] firing event', type, events);
+
     return events;
   },
   
@@ -362,11 +365,13 @@ elation.extend("events", {
 
 	// returns mouse or all finger touch coords
 	coords: function(event) {
-		if (typeof event.touches != 'undefined' && event.touches.length > 0) {
-			var c = {
-        x: event.touches[0].pageX, 
-        y: event.touches[0].pageY
-      };
+    var ttypes = [ 'touchstart', 'touchmove', 'touchend' ];
+		if (elation.utils.indexOf(ttypes, event.type) >= 0) {
+			var prop = event.type == 'touchend' ? 'changedTouches' : 'touches',
+          c = {
+            x: event[prop][0].pageX, 
+            y: event[prop][0].pageY
+          };
 		} else {
 			var	c = {
         x: (event.pageX || (event.clientX + document.body.scrollLeft)),

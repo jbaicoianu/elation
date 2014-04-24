@@ -233,11 +233,21 @@ elation.extend("component", new function() {
   }
 });
 
-elation.extend('onloads',new function() {
+elation.extend('onloads', new function() {
   this.done = false;
-  this.onloads = [];
+  
+  this.reset = function() {
+    this.onloads = [];
+    this.priority = { '0':[], '1':[], '2':[], '3':[], '4':[] };
+  }
 
-  this.add = function(expr) {
+  this.add = function(expr, priority) {
+    var priority = priority || 2;
+
+    if (!this.priority[priority])
+      this.priority[priority] = [];
+    
+    this.priority[priority].push(this.onloads.length);
     this.onloads.push(expr);
     
     // if DOM already loaded, execute immediately
@@ -286,17 +296,31 @@ elation.extend('onloads',new function() {
     if (elation.onloads.timer) clearInterval(elation.onloads.timer);
 
     var script = '';
-    var expr;
-    while (expr = elation.onloads.onloads.shift()) {
-      if (typeof expr == 'function') {
-        expr(); // FIXME - this causes all function references to be executed before all strings
-      } else {
-        script += expr + (expr.charAt(expr.length - 1) != ';' ? ';' : '');
+    var expr, level;
+
+    for (level in elation.onloads.priority) {
+      var group = elation.onloads.priority[level];
+
+      for (var i=0; i<group.length; i++) {
+        expr = elation.onloads.onloads[group[i]];
+
+        //console.log('[onloads] execute - priority:', level, 'index:', group[i], 'type:', typeof expr, expr);
+        if (typeof expr == 'function') {
+          expr(); // FIXME - this causes all function references to be executed before all strings
+        } else if (typeof expr == 'string') {
+          script += expr + (expr.charAt(expr.length - 1) != ';' ? ';' : '');
+        } else {
+        console.log('[onloads] execute - UNKNOWN TYPE ERROR');
+        }
       }
     }
 
     eval(script);
+
+    elation.onloads.reset();
   }
+
+  this.reset();
 });
 
 /**

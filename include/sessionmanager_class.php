@@ -139,22 +139,6 @@ class SessionManager
     $has_flsid = (isset($_COOKIE['flsid']) || isset($_REQUEST['flsid']));
     $this->is_new_session = ($has_flsid == 1) ? 0 : 1;
 
-    // if flsid was passed via the URL, set it as a cookie
-    if (!empty($_REQUEST['flsid'])) {
-      setcookie("flsid", $_REQUEST['flsid'], 0, '/');
-      $this->flsid = $_COOKIE['flsid'] = $_REQUEST['flsid'];
-    }
-
-    session_set_save_handler(
-      array(&$this, 'open'),
-      array(&$this, 'close'),
-      array(&$this, 'read'),
-      array(&$this, 'write'),
-      array(&$this, 'destroy'),
-      array(&$this, 'gc')
-    );
-
-
     // register_shutdown_function('session_write_close');
 
     // Set session cookie params
@@ -182,6 +166,21 @@ class SessionManager
     }
     session_set_cookie_params(0, $sessionpath, $domain);
 
+    // if flsid was passed via the URL, set it as a cookie
+    if (!empty($_GET['flsid'])) {
+      setcookie("flsid", $_GET['flsid'], 0, '/', $domain);
+      $this->flsid = $_COOKIE['flsid'] = $_GET['flsid'];
+    }
+
+    session_set_save_handler(
+      array(&$this, 'open'),
+      array(&$this, 'close'),
+      array(&$this, 'read'),
+      array(&$this, 'write'),
+      array(&$this, 'destroy'),
+      array(&$this, 'gc')
+    );
+    
     // set the garbage collection lifetime (on the DB persist data)
     ini_set('session.gc_maxlifetime', 31536000); // 31536000 = 60 * 60 * 24 * 365
 
@@ -229,6 +228,7 @@ class SessionManager
       $pdata_serialize = serialize($_SESSION["persist"]);
       $this->crc = strlen($pdata_serialize) . crc32($pdata_serialize);
     }
+    
     if (!$has_flsid) {
       // new session -- update the permanent cookie
 
@@ -265,8 +265,15 @@ class SessionManager
      * If not, query the DB to get the persistent session data.
      * If not in the DB, create a new session.
      */
-    $this->flsid = session_id();
     //$session_memcache = $this->cache_obj->get($this->flsid);
+
+    // force new flsid/session id regardless if flsid is passed in url
+    if ($_REQUEST['event'] == 'new') {
+      $this->flsid = session_regenerate_id();
+    } else {
+      $this->flsid = session_id();
+    }
+
     $session_memcache = DataManager::fetch("memcache.session#{$this->flsid}", $this->flsid);
     //$tmpsession = unserialize($session_memcache);
 

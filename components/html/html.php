@@ -31,8 +31,6 @@ class Component_html extends Component {
       
       $args["classes"] = $classes;
       $args["agent"] = $useragent;
-      $args['universal_tracking'] = 
-        any(ConfigManager::get("tracking.googleanalytics.universal_tracking"), $webapp->cfg->servers['tracking']['googleanalytics']['universal_tracking']);
       $dependencies = ConfigManager::get("dependencies.load");
       if(!empty($dependencies)) {
         foreach($dependencies as $dependency) {
@@ -55,9 +53,6 @@ class Component_html extends Component {
   public function controller_footer($args) {
     // Assemble page-level args for Google Analytics --
     global $webapp;
-
-    $args['universal_tracking'] = 
-      any(ConfigManager::get("tracking.googleanalytics.universal_tracking"), $webapp->cfg->servers['tracking']['googleanalytics']['universal_tracking']);
 
     $analytics = Analytics::singleton();
     $componentmgr = ComponentManager::singleton();
@@ -126,6 +121,23 @@ class Component_html extends Component {
     $args['userid'] = $user->userid;
     $args['useremail'] = $user->email;
 
+    $estimated_birth_year = $user->getUserSetting('estimated_birth_year');
+    $gender = $user->gender;
+    $user_gender = ($gender == 'F' ? 'female': 'male');
+
+    if($user->getUserSetting("tracking.user.demographics_dimension") != 1) {
+      $args['birth_year'] = $estimated_birth_year;
+      $args['user_gender'] = $user_gender;
+
+      $location = $user->GetLocation();
+      if($location['city'] && $location['state']){
+        $args['demo_location'] = $location['city'].','.$location['state'];
+      }
+      $user->setUserSetting("tracking.user.demographics_dimension", "1");
+    }
+
+    $args['cfg_cobrand'] = $webapp->cfg->servers["cobrand"];
+    $args['request_cobrand'] = $webapp->request["args"]["cobrand"];
     //$args['GAenabled'] = 1; //testing only
 
     if (empty($this->shown["footer"])) { // Only allow footer once per page

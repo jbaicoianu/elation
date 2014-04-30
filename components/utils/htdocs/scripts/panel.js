@@ -26,8 +26,17 @@ elation.extend('panel', new function(options) {
   }
 
   this.set_args = function(name, args) {
-  	console.log('[panel] attempt set_args', name, this.panelmap[name], typeof this.panels[this.panelmap[name]], args);
-  	return this.panels[this.panelmap[name]].set_args(args);
+  	var map = this.panelmap[name],
+				indexes = (typeof map == 'string' ? map.split(',') : [ map ]),
+  			index, i, panel;
+
+  	console.log('[panel] attempt set_args', name, map, i, panel, args);
+  	
+  	for (var i=0; i<indexes.length; i++) {
+  		index = indexes[i];
+  		panel = this.panels[index];
+  		panel.set_args.call(panel, args);
+  	}
   }
 });
 

@@ -194,12 +194,12 @@ elation.extend('panel.obj', function(name, parent, args) {
 		console.log('[panel] tab load start', this.name, item, target, msg);
     ajaxlib.xmlhttp.abort();
 		
-    this.tracking = true;
-    if(item == null){
-      //if item is null, This function is invoked manually instead of a click event
-      //set tracking false
-      this.tracking = false;
-    }
+    //this.tracking = true;
+    //if(item == null){
+      ////if item is null, This function is invoked manually instead of a click event
+      ////set tracking false
+      //this.tracking = false;
+    //}
     
 		var	target = (typeof target == 'string')
 					? document.getElementById(target)
@@ -220,8 +220,8 @@ elation.extend('panel.obj', function(name, parent, args) {
           break;
         
         case "infocard_popup":
-          if( item.name == 'about_store') item.name = 'store';
-          if(this.tracking) googleAnalytics.trackEvent(['quick look tab', item.name,'',1,'false']);
+          //if( item.name == 'about_store') item.name = 'store';
+          //if(this.tracking) googleAnalytics.trackEvent(['quick look tab', item.name,'',1,'false']);
           break;
         
         default:
@@ -309,6 +309,7 @@ elation.extend('panel.obj', function(name, parent, args) {
 				
 				this.loadtab_status = 'cached_version';
 		  	elation.events.fire("panel_tabload", this);
+		  	elation.events.fire("panel_tabload_cached", this);
 		    
 		    return;
       }

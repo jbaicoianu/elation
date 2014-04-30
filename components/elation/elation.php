@@ -360,7 +360,7 @@ class Component_elation extends Component {
           AND cobrand=:cobrand
           AND effective_dt != :effective_dt";
         if ($req['save_scope'] != 'all') $sql .= " AND role = :role";
-        $query = DataManager::Query("db.userdata.abtest:nocache",
+        $query = DataManager::Query("db.abtests.abtest:nocache",
                               $sql,
                               array(
                                 ":cobrand"=>$req['cobrand'],
@@ -374,7 +374,7 @@ class Component_elation extends Component {
         $roles=array($req['role']);
         if ($req['save_scope'] == 'all') $roles=array('dev', 'test', 'live', 'elation');
         foreach ($roles as $role) {
-          DataManager::Query("db.userdata.abtest:nocache",
+          DataManager::Query("db.abtests.abtest:nocache",
                         "DELETE FROM userdata.abtest
                           WHERE effective_dt=:effective_dt
                           AND cobrand=:cobrand
@@ -385,7 +385,7 @@ class Component_elation extends Component {
                             ":role"=>$role)
                        );
           foreach ($req['version'] as $k=>$v) {
-            DataManager::Query("db.userdata.abtest:nocache",
+            DataManager::Query("db.abtests.abtest:nocache",
                          "INSERT INTO userdata.abtest
                             SET version=:version,
                                percent=:percent,
@@ -412,7 +412,7 @@ class Component_elation extends Component {
       }
       //fall into new lookup---
     }
-    $query = DataManager::Query("db.userdata.abtest:nocache",
+    $query = DataManager::Query("db.abtests.abtest:nocache",
                           "SELECT * FROM userdata.abtest ORDER BY status, role, cobrand, effective_dt",
                           array()
                          );

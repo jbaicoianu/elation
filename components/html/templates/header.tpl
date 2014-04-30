@@ -16,11 +16,7 @@
     {dependency type="component" name="utils.initjquery"}
     {dependency type="component" name="utils.elation"}
     {dependency type="component" name="utils.browser"}
-    {if $universal_tracking eq true}
-    {dependency type="component" name="utils.universal_tracking"}
-    {else}
     {dependency type="component" name="utils.tracking"}
-    {/if}
     {dependency type="component" name="tplmgr.tplmgr"}
     {dependency type="component" name="utils.panel"}
     {dependency type="component" name="utils.ajaxlib"}

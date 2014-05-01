@@ -4,6 +4,10 @@
 
 OrmManager::LoadModel("user");
 
+if (!class_exists("UserModel")) {
+  class UserModel { };
+}
+
 class User extends UserModel {
   protected static $instance = NULL;
   public static $usertypes = array("anonymous");

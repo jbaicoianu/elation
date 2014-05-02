@@ -71,7 +71,7 @@ elation.extend("events", {
 
     // return all event objects that were fired
 
-    console.log('[events] firing event', type, events);
+    //console.log('[events] firing event', type, events);
 
     return events;
   },

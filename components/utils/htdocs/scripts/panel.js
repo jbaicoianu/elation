@@ -30,7 +30,7 @@ elation.extend('panel', new function(options) {
 				indexes = (typeof map == 'string' ? map.split(',') : [ map ]),
   			index, i, panel;
 
-  	console.log('[panel] attempt set_args', name, map, i, panel, args);
+  	//console.log('[panel] attempt set_args', name, map, i, panel, args);
   	
   	for (var i=0; i<indexes.length; i++) {
   		index = indexes[i];
@@ -47,12 +47,13 @@ elation.extend('panel.obj', function(name, parent, args) {
   this.content = {};
 
   this.init = function(args) {
-		console.log('[panel] init start', name, args, this);
+  	var timing = new elation.timing(true);
+		//console.log('[panel] init start', name, args, this);
     if (args) {
 		  this.cfg = args.cfg;
 
 	  	if (args.id)
-				this.element = elation.id("#" + args.id + (args.uid ? '_' + args.uid : ''));
+				this.element = document.getElementById(args.id + (args.uid ? '_' + args.uid : ''));
 			
 			this.set_items(args); 
 
@@ -71,9 +72,9 @@ elation.extend('panel.obj', function(name, parent, args) {
           }
         }
         if (this.cfg.navigation == "true") {
-          this.container = elation.id('#' + this.cfg.targetid);
+          this.container = document.getElementById(this.cfg.targetid);
 
-          console.log('[panel] init navigation', this.cfg.targetid, this.container);
+          //console.log('[panel] init navigation', this.cfg.targetid, this.container);
     			this.lis = elation.find('#'+ args.id + (args.uid ? '_' + args.uid : '') + ' ul li');
 
           for (var i=0; i<this.lis.length; i++) {
@@ -107,7 +108,7 @@ elation.extend('panel.obj', function(name, parent, args) {
         this.initAnimations();
       }
       
-      console.log('[panel] init save content', this.container, this.item, elation.find('div.tf_utils_panel_' + name + ' ul li.selected', true));
+      //console.log('[panel] init save content', this.container, this.item, elation.find('div.tf_utils_panel_' + name + ' ul li.selected', true));
       if (this.container && this.item) {
 				this.content = {};
       	this.content[this.item.name] = this.container.innerHTML;
@@ -115,6 +116,7 @@ elation.extend('panel.obj', function(name, parent, args) {
 		}
 
 	  elation.events.fire("panel_init", this);
+	  timing.print('panel init', true);
 	}
 	/*
 	this.reinit = function(target) {
@@ -136,7 +138,7 @@ elation.extend('panel.obj', function(name, parent, args) {
 	this.set_items = function(args) {
 		this.items = {};
 
-		console.log('[panel] set_items', this.name, this, this.args.cfg, this);
+		//console.log('[panel] set_items', this.name, this, this.args.cfg, this);
 		if (this.cfg && this.cfg.items) {
 			for (var key in this.cfg.items) {
 				this.items[key] = new elation.panel.add_item(key, this, this.cfg.items[key]);
@@ -165,6 +167,7 @@ elation.extend('panel.obj', function(name, parent, args) {
 	}
 	
 	this.click = function(event, target) {
+  	var timing = new elation.timing(true);
 		while (target && target.nodeName != 'LI') 
 			target = target.parentNode;
 		
@@ -186,7 +189,7 @@ elation.extend('panel.obj', function(name, parent, args) {
 		//	item = this.reinit(target);
 		//}
 
-		console.log('[panel] EVENT click', item, this);
+		//console.log('[panel] EVENT click', item, this);
     
     if (!this.container && this.cfg.targetid) {
     	this.initAnimations();
@@ -197,10 +200,11 @@ elation.extend('panel.obj', function(name, parent, args) {
       elation.html.removeClass(this.container, 'animation_'+this.cfg.animation);
 		
     this.load_tab_content(target, item);
+	  timing.print('panel tab click', true);
 	}
 	
 	this.load_tab_content = function(target, item, msg) {
-		console.log('[panel] tab load start', this.name, item, target, msg);
+		//console.log('[panel] tab load start', this.name, item, target, msg);
     ajaxlib.xmlhttp.abort();
 		
     //this.tracking = true;
@@ -436,7 +440,7 @@ elation.extend('panel.obj', function(name, parent, args) {
 	}
 	
   this.set_args = function(args) {
-		console.log('[panel] set_args', this.name, args, this);
+		//console.log('[panel] set_args', this.name, args, this);
 		var item;
 
     for (var key in args) 
@@ -457,7 +461,7 @@ elation.extend('panel.obj', function(name, parent, args) {
 	}
 	
 	this.get_item = function(target) {
-		console.log('[panel] get_item', this.name, target, this.items);
+		//console.log('[panel] get_item', this.name, target, this.items);
 		for (var key in this.items) {
 			var	item = this.items[key],
 					element = item.element;

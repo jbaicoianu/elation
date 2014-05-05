@@ -199,21 +199,15 @@ elation.extend('panel.obj', function(name, parent, args) {
 		if (this.cfg.animation) 
       elation.html.removeClass(this.container, 'animation_'+this.cfg.animation);
 		
-    this.load_tab_content(target, item);
+    this.load_tab_content(target, item, '', event);
 	  timing.print('panel tab click', true);
 	}
 	
-	this.load_tab_content = function(target, item, msg) {
+	this.load_tab_content = function(target, item, msg, origin) {
 		//console.log('[panel] tab load start', this.name, item, target, msg);
     ajaxlib.xmlhttp.abort();
 		
-    //this.tracking = true;
-    //if(item == null){
-      ////if item is null, This function is invoked manually instead of a click event
-      ////set tracking false
-      //this.tracking = false;
-    //}
-    
+    this.origin = origin; 
 		var	target = (typeof target == 'string')
 					? document.getElementById(target)
 					: target,
@@ -322,7 +316,6 @@ elation.extend('panel.obj', function(name, parent, args) {
 				
 				this.loadtab_status = 'cached_version';
 		  	elation.events.fire("panel_tabload", this);
-		  	elation.events.fire("panel_tabload_cached", this);
 		    
 		    return;
       }

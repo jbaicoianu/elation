@@ -53,7 +53,7 @@ elation.extend('panel.obj', function(name, parent, args) {
 		  this.cfg = args.cfg;
 
 	  	if (args.id)
-				this.element = document.getElementById(args.id + (args.uid ? '_' + args.uid : ''));
+				this.element = document.getElementById(args.id + '_inner' + (args.uid ? '_' + args.uid : ''));
 			
 			this.set_items(args); 
 
@@ -75,7 +75,7 @@ elation.extend('panel.obj', function(name, parent, args) {
           this.container = document.getElementById(this.cfg.targetid);
 
           //console.log('[panel] init navigation', this.cfg.targetid, this.container);
-    			this.lis = elation.find('#'+ args.id + (args.uid ? '_' + args.uid : '') + ' ul li');
+    			this.lis = elation.find('#'+ args.id + '_inner' + (args.uid ? '_' + args.uid : '') + ' ul li');
 
           for (var i=0; i<this.lis.length; i++) {
             if (elation.html.hasclass(this.lis[i], 'selected')) {

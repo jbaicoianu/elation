@@ -125,7 +125,7 @@ class Component_html extends Component {
     $gender = $user->gender;
     $user_gender = ($gender == 'F' ? 'female': 'male');
 
-    if($user->getUserSetting("tracking.user.demographics_dimension") != 1) {
+    //if($user->getUserSetting("tracking.user.demographics_dimension") != 1) {
       $args['birth_year'] = $estimated_birth_year;
       $args['user_gender'] = $user_gender;
 
@@ -133,8 +133,8 @@ class Component_html extends Component {
       if($location['city'] && $location['state']){
         $args['demo_location'] = $location['city'].','.$location['state'];
       }
-      $user->setUserSetting("tracking.user.demographics_dimension", "1");
-    }
+      //$user->setUserSetting("tracking.user.demographics_dimension", "1");
+    //}
 
     $args['cfg_cobrand'] = $webapp->cfg->servers["cobrand"];
     $args['request_cobrand'] = $webapp->request["args"]["cobrand"];

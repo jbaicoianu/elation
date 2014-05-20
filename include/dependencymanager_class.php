@@ -115,14 +115,15 @@ class DependencyManager {
     $extensionlen = strlen($extension);
     foreach ($args as $k=>$v) {
       if ($k[0] != '_') {
-        $componentdir = $typemap[$type]["dir"] . "/$k";
+        $componentdir = realpath($typemap[$type]["dir"] . "/$k");
         $files = explode(" ", $v);
         foreach ($files as $file) {
           if (substr($file, -($extensionlen+1), $extensionlen+1) == ".$extension") {
             $file = substr($file, 0, -($extensionlen+1));
           }
           $fname = $componentdir . "/" . $file . "." . $extension;
-          if (file_exists($fname)) {
+          $realfname = realpath($fname);
+          if (file_exists($fname) && $fname == $realfname) {
             $modtime = filemtime($fname);
             if ($modtime > $ret["lastmodified"])
               $ret["lastmodified"] = $modtime;

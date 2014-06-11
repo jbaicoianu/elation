@@ -21,10 +21,10 @@
   {if $panel.cfg.simple != 1 && $panel.json_include}
     <script type="text/javascript">
       //<!--
-      elation.onloads.add(function() {ldelim}
-        console.log('[panel] from cfg', typeof elation.panel.add, {jsonencode var=$panel}, 'tid: {$targetid}');
+      //elation.onloads.add(function() {ldelim}
+        //console.log('[panel] from cfg', typeof elation.panel.add, {jsonencode var=$panel}, 'tid: {$targetid}');
         elation.panel.add('{$panel.name}'{if !$panel.cfg.noargs}, {jsonencode var=$panel}{/if});
-      {rdelim}, 1);
+      //{rdelim});
       //-->
     </script>
   {/if}

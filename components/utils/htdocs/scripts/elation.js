@@ -618,7 +618,16 @@ elation.extend("html.stylecopy", function(dst, src, styles) {
     }
   }
 });
-elation.extend("utils.camelize", function(text) {
+
+elation.extend("utils.iniframe", function() {
+  try {
+    return window.self !== window.top;
+  } catch (e) {
+    return true;
+  }
+});
+
+elation.extend("utils.camelize", function (text) {
   return text.replace(/-+(.)?/g, function (match, chr) {
     return chr ? chr.toUpperCase() : '';
   });

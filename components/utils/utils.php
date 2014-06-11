@@ -42,14 +42,14 @@ class Component_utils extends Component {
   function controller_panel($args, $output="inline") {
     $ret = "";
     $selected = $args["selected"];
-    $vars["placementname"] = $args["placement"]; // FIXME - we currently don't do anything with placements
+    $vars["placement"] = $args["placement"]; // FIXME - we currently don't do anything with placements
     $vars["panel"]["parent"] = any($args["parent"], "");
+
     if (!empty($vars["panel"]["parent"]) && !empty($args["panelname"]))
       $vars["panel"]["name"] = $vars["panel"]["parent"] . "." . $args["panelname"];
     else
       $vars["panel"]["name"] = $args["type"];
 
-    $vars["panel"]["top"] = any($args["top"], true);
     $vars["panel"]["cfg"] = $this->PanelSort(any($args["panel"], ConfigManager::get("panels.types.{$vars["panel"]["name"]}")));
     $vars["panel"]["id"] = any($args["id"], $vars["panel"]["cfg"]["id"], "tf_utils_panel_" . str_replace(".", "_", $vars["panel"]["name"]));
     $vars["panel"]["type"] = any($args["type"], "panel");

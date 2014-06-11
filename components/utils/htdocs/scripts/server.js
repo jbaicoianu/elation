@@ -55,7 +55,6 @@ elation.extend("host", new function() {
     return (new elation.server());
   }
   this.execute = function(type, p1, p2, p3) {
-    //console.log('execute ',typeof p3);
     if (type != 'multirequest' && typeof p3 == 'function')
       p3 = { callback: p3 };
     
@@ -307,17 +306,19 @@ elation.extend("server", function() {
       }
     }
 		
-    // FIXME - this had a delay of 1ms when type='data' and name='infobox.data' was passed, I'm sure there was a reason but it doesn't work with the way this is done now... 
-    execute_scripts();  // no timer makes priceslider happy!  no ugly delay.
-    
     // If caller passed in a callback, execute it
     if (typeof ajaxlibobj != 'undefined' && ajaxlibobj.callback) {
       try {
+        //console.log('TRY ajaxlib callback:', ajaxlibobj.callback, ajaxlibobj, common);
         elation.ajax.executeCallback(ajaxlibobj.callback, common, this);
       } catch(e) {
+        //console.log('CATCH ajaxlib callback:', e, ajaxlibobj.callback, ajaxlibobj, common);
         batch.callback(function() { elation.ajax.executeCallback(ajaxlibobj.callback, common); });
       }
     }
+
+    // FIXME - this had a delay of 1ms when type='data' and name='infobox.data' was passed, I'm sure there was a reason but it doesn't work with the way this is done now... 
+    execute_scripts();  // no timer makes priceslider happy!  no ugly delay.
   }
   
   var register_inline_scripts = function(common, element) {
@@ -333,6 +334,7 @@ elation.extend("server", function() {
       }
     }
   }
+
   this.responsehandlers = {
     'infobox': function(response, common) {
       var content = response['_content'],
@@ -380,12 +382,12 @@ elation.extend("server", function() {
               targetel.innerHTML = response['_content'];
           }
           
-          register_inline_scripts(common, targetel);
-					
           /* repositions infobox after ajax injection, use responsetype ["infobox"] if applicable */
           if (elation.ui && elation.ui.infobox && infobox && infobox.args.reposition) {
             common.inlinescripts.push("elation.ui.infobox.position('"+infobox.name+"', true);");
           }
+          
+          register_inline_scripts(common, targetel);
         }
       }
     },

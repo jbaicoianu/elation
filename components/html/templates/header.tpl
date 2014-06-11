@@ -37,15 +37,22 @@
   <meta name="description" content="[[page.meta.description:TheFind.com - shopping search reinvented. What can we find for you?]]" />
   <meta name="keywords" content="[[page.meta.keywords]]" />
   {*
-  <!--[if lt IE 8]>
-  <object id="elation" classid="http://www.dcsdfcv.coc/"></object>
-  <?import namespace="elation" implementation="#elation"?>
-  <![endif]-->
+    <!--[if lt IE 8]>
+    <object id="elation" classid="http://www.dcsdfcv.coc/"></object>
+    <?import namespace="elation" implementation="#elation"?>
+    <![endif]-->
   *}
-  {* component name="tracking.autotrack" *}
-  <script type="text/javascript" src="/tracking/autotrack.snip"></script>
-  <script type="text/javascript">if (elation.onloads) elation.onloads.init();</script>
+
+  <script type="application/javascript">
+    {component name="tracking.autotrack"}
+  </script>
+
+  <script type="text/javascript">
+    if (elation.onloads) elation.onloads.init();
+  </script>
 </head>
 <body class="{if !empty($pagecfg.pagename)}tf_page_{$pagecfg.pagename}{/if}{if $classes}{$classes}{/if}">
-
-<script>console.log('{$agent}');</script>
+  <script>
+    if (!elation.utils.iniframe())
+      console.log('{$agent}');
+  </script>

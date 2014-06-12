@@ -90,7 +90,8 @@ elation.extend("component", new function() {
     componenttype: 'component',
     componentname: 'name',
     componentargs: 'args',
-    componentinit: 'initialized'
+    componentinit: 'initialized',
+    componentreinit: 'reinitialize'
   };
   this.registry = [];
   this.init = function(root) {
@@ -141,10 +142,18 @@ elation.extend("component", new function() {
     for (var i = 0; i < elements.length; i++) {
       var element = elements[i];
       var componentid = this.parseid(element);
+      
       if (componentid.type) {
         var componentinitialized = element.getAttribute(this.namespace+':'+this.attrs.componentinit) || false;
+        
         if (!componentinitialized) { // FIXME - this isn't working in IE, so components are getting reinitialized with each AJAX request
-          element.setAttribute(this.namespace+':'+this.attrs.componentinit, 1);
+          var componentreinit = element.getAttribute(this.namespace+':'+this.attrs.componentreinit) || false;
+          
+          // added reinit flag to force components to always re-initialize themselves on every component.init -lazarus
+          // most of the time you'd want to reset the initialized flag specifically (there should be a method for that)
+          if (!componentreinit)
+            element.setAttribute(this.namespace+':'+this.attrs.componentinit, 1);
+          
           var componentargs = {}, j;
           // First look for a JSON-encoded args array in the element's direct children (elation:args)
           if (element.children) {
@@ -1539,7 +1548,7 @@ elation.extend('file.batch', function() {
 	this.callback = function(script) {
 		this.callbacks.push(script);
 		
-		if (this.files.length == 0)
+		//if (this.files.length == 0)
 			this.done(true);
 	}
 	
@@ -1549,6 +1558,7 @@ elation.extend('file.batch', function() {
 				if (!this.files[i].loaded && this.files[i].type != 'css') 
 					return;
 		
+    console.log('done', this.callbacks.length, this.callbacks);
 		for (var i=0; i<this.callbacks.length; i++) 
 			switch (typeof this.callbacks[i]) {
 				case "string":

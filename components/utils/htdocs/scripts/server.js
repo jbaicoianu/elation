@@ -276,7 +276,9 @@ elation.extend("server", function() {
 				}
       }
     }
+
     var batch = new elation.file.batch();
+
     if (cssparms.length > 0)
       batch.add('/css/main?'+cssparms.substr(0,cssparms.length-1),'css');
     if (javascriptparms.length > 0)
@@ -287,21 +289,21 @@ elation.extend("server", function() {
     // Execute all inline scripts
     var execute_scripts = function() {
       if (common.inlinescripts.length > 0) {
-        var script_text = '';
+        var scripts = '', script;
+        
         for (var i = 0; i < common.inlinescripts.length; i++) {
-          if (!common.inlinescripts[i] || typeof common.inlinescripts[i] == 'undefined') 
+          script = common.inlinescripts[i];
+
+          if (!script || typeof script == 'undefined') {
             continue;
-          else
-            script_text += common.inlinescripts[i] + '\n';
-        }
-        try {
-          eval(script_text);
-        } catch(e) {
-          try {
-            batch.callback(script_text);
-          } catch(e) {
-            console.log('-!- ajaxlib inlinescript warning: ' + e.message);
+          } else {
+            scripts += script + '\n';
           }
+        }
+
+        if (scripts) {
+          console.log(batch);
+          batch.callback(scripts);
         }
       }
     }

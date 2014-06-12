@@ -63,7 +63,7 @@ elation.extend('panel.obj', function(name, parent, args) {
 	this.lis = [];
 
   this.init = function(args) {
-		//alert('[panel] init start ' + name + ' ' + elation.utils.stringify(args.cfg));
+		console.log('[panel] init start ' + name + ' ' + elation.utils.stringify(args.cfg));
   	
   	this.initArgs(args);
   	this.initElements(this.cfg);
@@ -94,7 +94,7 @@ elation.extend('panel.obj', function(name, parent, args) {
   }
 
 	this.initItems = function(items) {
-		//console.log('[panel] set_items', this.name, this, items, this);
+		console.log('[panel] set_items', this.name, this, items, this);
 
 		for (var key in items) 
 			this.items[key] = new elation.panel.add_item(key, this, items[key]);
@@ -120,7 +120,7 @@ elation.extend('panel.obj', function(name, parent, args) {
     if (this.container && this.item) {
 			this.content = {};
     	this.content[this.item.name] = this.container.innerHTML;
-	   	//console.log('$$$', this.container, this.item)
+	   	console.log('[panel] init caching', this.item.name, this.container);
   	}
   }
 
@@ -134,7 +134,7 @@ elation.extend('panel.obj', function(name, parent, args) {
   }
 
   this.handleEvent = function(event) {
-  	//alert(event.type + ' buh ' + event.target.id)
+  	console.log('[panel] handleEvent:',event.type + ' buh ' + event.target.id)
 		event = event || window.event;
 		target = event.target || event.srcElement;
 		
@@ -167,7 +167,7 @@ elation.extend('panel.obj', function(name, parent, args) {
 		//	item = this.reinit(target);
 		//}
 
-		//console.log('[panel] EVENT click', item, this);
+		console.log('[panel] EVENT click', item, this);
     
     if (!this.container && this.cfg.targetid) {
     	this.initAnimations();
@@ -181,7 +181,7 @@ elation.extend('panel.obj', function(name, parent, args) {
 	}
 	
 	this.load_tab_content = function(target, item, msg, origin) {
-		//console.log('[panel] tab load start: ' + this.name + ' ' + target.id);
+		console.log('[panel] tab load start: ' + this.name + ' ' + target.id);
     ajaxlib.xmlhttp.abort();
 		
     this.origin = origin; 
@@ -261,7 +261,7 @@ elation.extend('panel.obj', function(name, parent, args) {
 			
 			this.select_item(item);
 
-      //console.log('[panel] tab load ended:  no container', this.name, this, item);
+      console.log('[panel] tab load ended:  no container', this.name, this, item);
 			
 			this.loadtab_status = 'no_container';
 		  elation.events.fire("panel_tabload", this);
@@ -270,17 +270,9 @@ elation.extend('panel.obj', function(name, parent, args) {
 		}
 		
 		this.select_item(item);
-		
-		// cache content of tab for later retrieval
-		if (!this.cfg.nocache) {
-      //console.log('switch',panel, panel.container);
-			//if (!panel.fetching && !panel.content[panel.item.name]) // dont save content if content is being fetched
-    }
-    
     this.item = item;
 
     if (!elation.utils.isTrue(this.cfg.nocache) && !elation.utils.isTrue(item.args.nocache)) {
-    	//console.log('---', !this.cfg.nocache, !this.item.args.nocache, this.content, this.content.product)
       // if cached copy exists use that
       if (this.content && this.content[item.name]) {
         if (this.cfg.animation) {
@@ -292,7 +284,7 @@ elation.extend('panel.obj', function(name, parent, args) {
           delete self;
         }
         
-      	//console.log('[panel] tab load ended: used cache version', this.name, item.name, this, item);
+      	console.log('[panel] tab load ended: used cache version', this.name, item.name, this, item);
 				
 				this.loadtab_status = 'cached_version';
 		  	elation.events.fire("panel_tabload", this);
@@ -308,7 +300,7 @@ elation.extend('panel.obj', function(name, parent, args) {
 			this.container.innerHTML = msg || this.cfg.spinner;
 		
     if (!item.args) {
-      //console.log('[panel] load no args for ajax', item);
+      console.log('[panel] load no args for ajax', item);
 			
 			this.loadtab_status = 'no_ajax';
 		  elation.events.fire("panel_tabload", this);
@@ -337,7 +329,7 @@ elation.extend('panel.obj', function(name, parent, args) {
 		var componentname = item.args.contentcomponent || this.cfg.contentcomponent,
 				self = this;
     
-    //console.log('[panel] ajax fetching', this.name, item.name, urlargs, item, this);
+    console.log('[panel] ajax fetching', this.name, item.name, urlargs, item, this);
     
     this.loadtab_ajaxparms = parms;
 		this.loadtab_status = 'fetching_ajax';
@@ -431,7 +423,7 @@ elation.extend('panel.add_item', function(name, panel, args) {
 		if (!element)
 			return;
 
-		//alert('panel add_item ' + this.name + ' #' + element.id + ' #' + panel.element.id);
+		console.log('[panel] add_item ' + this.name + ' #' + element.id + ' #' + panel.element.id);
     elation.events.add(element, 'click', panel);
     element.onselectstart = function() { return false; };
     

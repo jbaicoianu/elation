@@ -210,10 +210,10 @@ elation.extend('panel.obj', function(name, parent, args) {
           break;
         
         default:
-          if (pagetype)
-            googleAnalytics.trackEvent([this.name, item.name, pagetype]);
-          else
-            googleAnalytics.trackEvent([this.name, item.name]);
+          //if (pagetype)
+            //googleAnalytics.trackEvent([this.name, item.name, pagetype]);
+          //else
+            //googleAnalytics.trackEvent([this.name, item.name]);
           
           break;
       }

@@ -297,12 +297,17 @@ elation.extend("server", function() {
           if (!script || typeof script == 'undefined') {
             continue;
           } else {
-            scripts += script + '\n';
+            try {
+              console.log('trying', script);
+              eval(script);
+            } catch(e) {
+              console.log('error, trying to execute callback after dependencies load', e);
+              scripts += script + '\n';
+            }
           }
         }
 
         if (scripts) {
-          console.log(batch);
           batch.callback(scripts);
         }
       }

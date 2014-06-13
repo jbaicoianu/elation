@@ -201,8 +201,8 @@ elation.extend('panel.obj', function(name, parent, args) {
       // FIXME - Tracking should NOT be in Elation Core.  Use custom events!
       switch (this.name) {
         case 'tabs':
-          googleAnalytics.trackEvent(['tab', item.name, pagetype]);
-          break;
+          //googleAnalytics.trackEvent(['tab', item.name, pagetype]);
+          //break;
         
         case "infocard_popup":
           //if( item.name == 'about_store') item.name = 'store';

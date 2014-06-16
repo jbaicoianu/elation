@@ -80,7 +80,7 @@ elation.extend('panel.obj', function(name, parent, args) {
 	this.lis = [];
 
   this.init = function(args) {
-		//console.log('[panel] init start ' + name + ' ' + elation.utils.stringify(args.cfg));
+		//alert('[panel] init start ' + name + ' ' + elation.utils.stringify(args.cfg));
   	
   	this.initArgs(args);
   	this.initElements(this.cfg);
@@ -111,10 +111,9 @@ elation.extend('panel.obj', function(name, parent, args) {
   }
 
 	this.initItems = function(items) {
-		//console.log('[panel] set_items', this.name, this, items, this);
-
-		for (var key in items) 
+		for (var key in items) {
 			this.items[key] = new elation.panel.add_item(key, this, items[key]);
+		}
 	}
 
 	this.initObjectLinking = function(object) {
@@ -151,7 +150,7 @@ elation.extend('panel.obj', function(name, parent, args) {
   }
 
   this.handleEvent = function(event) {
-  	//console.log('[panel] handleEvent:', event.type + ' buh ' + event.target.id)
+  	//alert('[panel] handleEvent: '+ event.type + ' #' + event.target.id)
 		event = event || window.event;
 		target = event.target || event.srcElement;
 		
@@ -435,12 +434,17 @@ elation.extend('panel.add_item', function(name, panel, args) {
 			return;
 
 		var panel = this.panel,
-				element = this.element = elation.find('li#'+panel.id+'_'+this.name, panel.element, true);
-		
+				elements = elation.find('li#'+panel.id+'_'+this.name);
+
+		if (elements)
+			for (var i=0; i<elements.length; i++)
+				if (elements[i].parentNode.parentNode.id == panel.element.id)
+					var element = this.element = elements[i];
+
 		if (!element)
 			return;
 
-		//console.log('[panel] add_item ' + this.name + ' #' + element.id + ' #' + panel.element.id);
+		//console.log('[panel] add_item ' + this.name + ' ' + element.id, element, elements);
     elation.events.add(element, 'click', panel);
     element.onselectstart = function() { return false; };
     

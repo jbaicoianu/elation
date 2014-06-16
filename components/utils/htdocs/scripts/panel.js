@@ -25,13 +25,30 @@ elation.extend('panel', new function(options) {
 		if (this.panelmap[newname])
 			this.panelmap[newname] += ',' + this.panels.length;
 		else
-			this.panelmap[newname] = this.panels.length;
+			this.panelmap[newname] = this.panels.length + '';
 		
 		this.panels.push(panel);
   }
 
-  this.get = function(name) {
-  	return this.panels[this.panelmap[name]];
+  this.get = function(name, all) {
+    var ret = [], 
+		    matches = [], 
+		    panels = this.panels, 
+		    map = this.panelmap;
+
+    for (var key in map) {
+    	if (key.search(new RegExp(name, "g")) >= 0)
+    		matches.push(map[key]);
+    }
+
+    for (var i=0; i<matches.length; i++) {
+    	var indexes = matches[i].split(',');
+
+	    for (var j=0; j<indexes.length; j++)
+    		ret.push(panels[indexes[j]]);
+    }
+
+		return all ? ret : ret[ret.length-1];
   }
 
   this.set_args = function(name, args) {
@@ -181,7 +198,7 @@ elation.extend('panel.obj', function(name, parent, args) {
 	}
 	
 	this.load_tab_content = function(target, item, msg, origin) {
-		//console.log('[panel] tab load start: ' + this.name + ' ' + target.id);
+		//alert('[panel] tab load start: ' + this.name + ' ' + target.id);
     ajaxlib.xmlhttp.abort();
 		
     this.origin = origin; 

@@ -23,7 +23,9 @@
       //<!--
       //elation.onloads.add(function() {ldelim}
         //console.log('[panel] from cfg: {$panel.name}', 'tid: {$targetid}');
-        elation.panel.add('{$panel.name}'{if !$panel.cfg.noargs}, {jsonencode var=$panel}{/if});
+        //setTimeout(function() {ldelim}
+          elation.panel.add('{$panel.name}'{if !$panel.cfg.noargs}, {jsonencode var=$panel}{/if});
+        //{rdelim},1000);
       //{rdelim});
       //-->
     </script>

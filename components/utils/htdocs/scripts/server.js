@@ -298,10 +298,10 @@ elation.extend("server", function() {
             continue;
           } else {
             try {
-              console.log('trying', script);
+              //console.log('trying', script);
               eval(script);
             } catch(e) {
-              console.log('error, trying to execute callback after dependencies load', e);
+              //console.log('error, trying to execute callback after dependencies load', e);
               scripts += script + '\n';
             }
           }

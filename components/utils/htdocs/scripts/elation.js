@@ -548,8 +548,8 @@ elation.extend('html.create', function(parms, classname, style, additional, appe
     for (var property in style)
       element.style[property] = style[property];
   
-  if (additional)
-    for (var property in additional)
+  if (additional) 
+    for (var property in additional) 
       element[property] = additional[property];
   
 	if (append)
@@ -1558,7 +1558,7 @@ elation.extend('file.batch', function() {
 				if (!this.files[i].loaded && this.files[i].type != 'css') 
 					return;
 		
-    console.log('done', this.callbacks.length, this.callbacks);
+    //console.log('done', this.callbacks.length, this.callbacks);
 		for (var i=0; i<this.callbacks.length; i++) 
 			switch (typeof this.callbacks[i]) {
 				case "string":

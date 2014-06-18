@@ -350,7 +350,7 @@ elation.extend('panel.obj', function(name, parent, args) {
     this.loadtab_ajaxparms = parms;
 		this.loadtab_status = 'fetching_ajax';
 
-		var ajax = new elation.server();
+		//var ajax = new elation.server();
 
 		// ajax-fetch tab content, here we go!
 		ajaxlib.Queue({

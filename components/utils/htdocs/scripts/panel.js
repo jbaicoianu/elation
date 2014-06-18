@@ -353,7 +353,7 @@ elation.extend('panel.obj', function(name, parent, args) {
 		var ajax = new elation.server();
 
 		// ajax-fetch tab content, here we go!
-		ajax.Queue({
+		ajaxlib.Queue({
 			method: 'POST',
 			url: componentname,
 			args: parms,

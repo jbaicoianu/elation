@@ -451,7 +451,7 @@ elation.extend('panel.add_item', function(name, panel, args) {
     elation.events.add(element, 'click', panel);
     element.onselectstart = function() { return false; };
     
-    if (args.selected && args.contentcomponent && args.nopopup) {
+    if (elation.utils.isTrue(args.selected) && args.contentcomponent && elation.utils.isTrue(args.nopopup)) {
       (function(self) {
         setTimeout(function() {
           panel.load_tab_content.call(panel, element, self);

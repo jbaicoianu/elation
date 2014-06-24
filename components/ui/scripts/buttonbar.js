@@ -21,7 +21,9 @@ elation.component.add('ui.buttonbar', function() {
     if (this.args.buttons) {
       for (var i in this.args.buttons) {
         var buttonargs = this.args.buttons[i];
-        var button = elation.ui.button(null, elation.html.create({tag: 'button', append: this.container}), buttonargs, buttonargs.events);
+        //var button = elation.ui.button(null, elation.html.create({tag: 'button', append: this.container}), buttonargs, buttonargs.events);
+        var button = elation.ui.button(buttonargs);
+        button.reparent(this.container);
         this.buttons[i] = button;
         //console.log('\t-', button);
       }

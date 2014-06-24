@@ -254,7 +254,9 @@ elation.component.add('ui.list', function() {
     // FIXME - this could be much more efficient, and is probably the slowest part of the whole process
     for (var i = 0; i < items.length; i++) {
       elation.html.removeclass(items[i].container, 'state_animating');
-      ul.removeChild(items[i].container);
+      if (items[i].container.parentNode == ul) {
+        ul.removeChild(items[i].container);
+      }
       ul.appendChild(items[i].container);
     }
     // Calculate new item positions, and set transform

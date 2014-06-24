@@ -1,3 +1,10 @@
+@font-face { /* FIXME - temp placeholder until I get a real image for the homepage */
+  font-family: 'Ruthie';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Ruthie'), local('Ruthie-Regular'), url(http://themes.googleusercontent.com/static/fonts/ruthie/v3/Di1LdjRzoaEvDmrQy1l_ww.woff) format('woff');
+}
+
 .elation_homepage_section {
   background: white;
   border: 1px solid #d6d6d6;

@@ -8,6 +8,7 @@
     {* dependency type="component" name="utils.initjquery" *}
     {dependency type="component" name="utils.elation"}
     {dependency type="component" name="utils.browser"}
+    {dependency type="component" name="utils.native"}
     {dependency type="component" name="utils.tracking"}
     {dependency type="component" name="tplmgr.tplmgr"}
     {dependency type="component" name="utils.panel"}

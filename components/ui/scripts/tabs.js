@@ -10,6 +10,8 @@
  * @param {string} args.items
  */
 elation.component.add("ui.tabs", function() {
+  this.defaultcontainer = { tag: 'div', classname: 'ui_tabs' };
+
   this.init = function() {
     this.items = [];
     this.tabitems = [];

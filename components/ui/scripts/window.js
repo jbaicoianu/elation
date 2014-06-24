@@ -19,7 +19,7 @@
  * @param {int} args.right
  */
 
-elation.require(['ui.button', 'ui.buttonbar']);
+elation.require(['ui', 'ui.button', 'ui.buttonbar']);
 
 elation.component.add('ui.window', function() {
   this.defaultcontainer = {tag: 'div', classname: 'ui_window'};

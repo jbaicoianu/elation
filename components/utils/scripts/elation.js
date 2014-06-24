@@ -108,13 +108,7 @@ elation.extend("component", new function() {
     }
 
     // Find all elements which have a data-elation-component attribute
-    var elements = [];
-    var result = document.evaluate("//*[@data-elation-component]", root, null, XPathResult.ANY_TYPE, null);
-    var element;
-    // Push elements into array so DOM changes don't invalidate our iterator
-    while (element = result.iterateNext()) {
-      elements.push(element);
-    }
+    var elements = elation.find('[data-elation-component]');
 
     for (var i = 0; i < elements.length; i++) {
       var element = elements[i];
@@ -224,7 +218,7 @@ elation.extend("component", new function() {
     this.componentinit = function(name, id, container, args, events) {
       this.name = name;
       this.id = id;
-      this.componentname = component; // FIXME - redundant with this.name above, but this.name is very likely to be clobbered by the user
+      this.componentname = name; // FIXME - redundant with this.name above, but this.name is very likely to be clobbered by the user
       this.args = args || {};
       if (container) {
         this.container = container;
@@ -263,7 +257,14 @@ elation.extend("component", new function() {
         }
       }
       elation.events.fire({type: "init", fn: this, data: this, element: this.container});
+      //this.initParentClass(elation.utils.arrayget(elation, name))
     }
+    this.initParentClass = function(classdef) {
+      if (classdef && classdef.extendclass && typeof classdef.extendclass.init == 'function') {
+        classdef.extendclass.init.call(this);
+      }
+    }
+
     this.extend = function(from) {
       for (var k in from) {
         if (k != 'constructor' && k != 'prototype') {
@@ -329,6 +330,7 @@ elation.extend("component", new function() {
       }
       if (newparent) {
         newparent.appendChild(this.container);
+        elation.component.init();
       }
     }
     this.handleEvent = function(ev) {
@@ -348,10 +350,10 @@ elation.extend("component", new function() {
   this.parseargs = function(element) {
     if (element.children) {
       // Pull out all <data> blocks
-      var dataresult = document.evaluate("data", element, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+      var dataresult = elation.find("data", element);
       var componentargs = {}, events = {};
-      for (var j = 0; j < dataresult.snapshotLength; j++) {
-        var dataelement = dataresult.snapshotItem(j);
+      for (var j = 0; j < dataresult.length; j++) {
+        var dataelement = dataresult[j];
         if (elation.html.hasclass(dataelement, 'elation-args')) {
           // JSON-encoded args inside of <data class="elation-args">...</data>
           var argtext = dataelement.textContent || dataelement.innerText;
@@ -418,14 +420,25 @@ elation.extend("component", new function() {
     return {args: componentargs, events: events};
   }
   this.fetch = function(type, name) {
+    if (type instanceof elation.component.base) {
+      // If we were passed an already-existing component, just return it
+      return type;
+    }
+
+    var id;
     if (!elation.utils.isNull(type) && elation.utils.iselement(type)) {
-      var id = this.parseid(type);
+      // If an HTML element was passed in, find the associated component id
+      id = this.parseid(type);
+    } else if (elation.utils.isArray(type)) {
+      id = { type: type[0], name: type[1] };
     } else {
-      var id = {type: type, name: name};
+      id = { type: type, name: name };
     }
     if (id.type && id.name) {
       var componentclass = elation.utils.arrayget(elation, id.type);
-      return componentclass(id.name);
+      if (componentclass && typeof componentclass == 'function') {
+        return componentclass(id.name);
+      }
     }
 
   }
@@ -506,7 +519,7 @@ elation.extend("bind", function(ctx, fn) {
   if (typeof fn == 'function') {
     var fnargs = Array.prototype.splice.call(arguments, 2);
     fnargs.unshift(ctx);
-    return (typeof fn.bind == 'faunction' ? 
+    return (typeof fn.bind == 'function' ? 
         Function.prototype.bind.apply(fn, fnargs) : // modern browsers have fn.bind() built-in
         function() { fn.apply(ctx, arguments); }    // older browsers just need a closure to carry the context through
       );
@@ -980,7 +993,7 @@ elation.extend("utils.arrayget", function(obj, name, defval) {
   var ptr = obj;
   var x = name.split(".");
   for (var i = 0; i < x.length; i++) {
-    if (ptr==null || (typeof ptr[x[i]] != 'array' && typeof ptr[x[i]] != 'object' && i != x.length-1)) {
+    if (ptr==null || (!elation.utils.isArray(ptr[x[i]]) && !elation.utils.isObject(ptr[x[i]]) && i != x.length-1)) {
       ptr = null;
       break;
     }

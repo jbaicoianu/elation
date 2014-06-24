@@ -10,7 +10,7 @@
  * @param {boolean} args.editable
  */
 elation.component.add("ui.label", function() {
-  this.defaultcomponent = {tag: 'h2', classname: 'ui_label'};
+  this.defaultcontainer = {tag: 'h2', classname: 'ui_label'};
 
   this.init = function() {
     if (this.args.label) {

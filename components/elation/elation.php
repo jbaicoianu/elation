@@ -456,4 +456,14 @@ class Component_elation extends Component {
     );
     return $this->GetComponentResponse("./component.tpl", $vars);
   }
+  public function controller_header($args) {
+    $cfg = ConfigManager::singleton();
+    $header = ConfigManager::get("page.header", array_get($cfg->servers, "page.header"), null);
+    if (!empty($header)) {
+      return ComponentManager::fetch($header);
+    } else if ($header !== null) {
+      return "";
+    }
+    return $this->GetComponentResponse("./header.tpl", $vars);
+  }
 }  

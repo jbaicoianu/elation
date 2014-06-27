@@ -1808,9 +1808,13 @@ elation.extend('file.root', function() {
   return '';
 });
 elation.extend('require', function(modules, callback) {
+  //console.log('require:', modules, this.requireactivebatch);
   if (!elation.utils.isArray(modules)) modules = [modules];
   if (!this.requireactivebatch) {
     this.requireactivebatch = new elation.require.batch();
+
+    // Reinitialize modules after new dependencies have been loaded
+    this.requireactivebatch.addcallback(function() { setTimeout(elation.bind(elation.component, elation.component.init), 0); });
   }
   this.requireactivebatch.addrequires(modules);
   if (callback) {
@@ -1818,6 +1822,11 @@ elation.extend('require', function(modules, callback) {
   }
 });
 elation.extend('require.batch', function(modules, callback) {
+
+  // Handles asynchronous batch loading for dependencies
+  // Loads multiple files, then fires a single callback when all are finished loading
+  // TODO - needs timeout and better error handling
+
   this.pending = [];
   this.done = [];
   this.callbacks = [];

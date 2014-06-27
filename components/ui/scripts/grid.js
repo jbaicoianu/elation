@@ -16,7 +16,7 @@
  * @param {string}    args.sortbydefault
  * @param {array}     args.items
  * @param {object}    args.attrs
- * @param {elation.container.simple} args.itemcontainer
+ * @param {elation.collection.simple} args.itemcollection
  */
 elation.require("ui.list", function() {
   elation.component.add('ui.grid', function() {

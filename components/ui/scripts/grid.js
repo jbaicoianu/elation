@@ -18,7 +18,11 @@
  * @param {object}    args.attrs
  * @param {elation.container.simple} args.itemcontainer
  */
-elation.component.add('ui.grid', function() {
-  this.defaultcontainer = {tag: 'ul', classname: 'ui_grid'};
-}, elation.ui.list);
-
+elation.require("ui.list", function() {
+  elation.component.add('ui.grid', function() {
+    this.defaultcontainer = {tag: 'ul', classname: 'ui_grid'};
+    this.init = function() {
+      elation.ui.grid.extendclass.init.call(this);
+    }
+  }, elation.ui.list);
+});

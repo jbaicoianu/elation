@@ -284,8 +284,6 @@ elation.extend("server", function() {
     if (javascriptparms.length > 0)
       batch.add('/scripts/main?'+javascriptparms.substr(0,javascriptparms.length-1),null,true);
 		
-    common.inlinescripts.push("elation.component.init();");
-    
     // Execute all inline scripts
     var execute_scripts = function() {
       if (common.inlinescripts.length > 0) {
@@ -354,6 +352,7 @@ elation.extend("server", function() {
         if (infobox) { 
           infobox.ajax_continue(content);
           register_inline_scripts(common, infobox.elements.container);
+          elation.component.init(infobox.elements.container);
         }
       }
     },
@@ -395,6 +394,7 @@ elation.extend("server", function() {
           }
           
           register_inline_scripts(common, targetel);
+          elation.component.init(targetel);
         }
       }
     },

@@ -56,7 +56,8 @@ class Component_utils extends Component {
     $vars["panel"]["enabled"] = any($args["enabled"], (isset($vars["panel"]["cfg"]["enabled"]) ? $vars["panel"]["cfg"]["enabled"] : true));
     $vars["panel"]["args"] = any($args["panelargs"], array());
     $vars["panel"]["info"] = array("type",$vars["panel"]["type"],"id"=>$vars["panel"]["id"],"name"=>$vars["panel"]["name"]);
-    $vars["panel"]["json_include"] = any($vars["panel"]["cfg"]["json_include"], 0);
+    $vars["panel"]["json_include"] = any($args["json_include"], $vars["panel"]["cfg"]["json_include"], 0);
+    $vars["panel"]["json_only"] = any($args["json_only"], $vars["panel"]["cfg"]["json_only"], 0);
     $vars["panel"]["noclear"] = any($vars["panel"]["cfg"]["noclear"], 0);
     $items = $vars["panel"]["cfg"]["items"];
 

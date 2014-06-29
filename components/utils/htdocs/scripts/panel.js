@@ -197,7 +197,7 @@ elation.extend('panel.obj', function(name, parent, args) {
 	}
 	
 	this.load_tab_content = function(target, item, msg, origin) {
-		//alert('[panel] tab load start: ' + this.name + ' ' + target.id);
+		//console.log('[panel] tab load start: ' + this.name + ' ' + target.id);
     ajaxlib.xmlhttp.abort();
 		
     this.origin = origin; 

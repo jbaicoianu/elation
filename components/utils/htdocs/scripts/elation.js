@@ -975,7 +975,7 @@ elation.extend("utils.arraymax", function(array) {
 	return ret; 
 });
 elation.extend("utils.arrayavg", function(array) {
-	return (arraySum(array) / array.length); 
+	return (elation.utils.arraysum(array) / array.length); 
 });
 elation.extend("utils.arraysum", function(array) {
 	for (var i=total=0; i<array.length; i++) 

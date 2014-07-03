@@ -95,7 +95,8 @@ elation.extend('panel.obj', function(name, parent, args) {
   this.initArgs = function(args) {
 	  elation.utils.array_merge_recursive(this, args);
 
-  	this.args = {};
+  	if (!this.args)
+  		this.args = {};
 
   	for (var key in args.cfg)
   		if (typeof args.cfg[key] != 'object')
@@ -326,7 +327,7 @@ elation.extend('panel.obj', function(name, parent, args) {
     
 		// Merge args from both the panel and any specified contentcomponentargs
 		var urlargs = elation.utils.array_merge_recursive(this.args, item.args.contentcomponentargs);
-
+		
 		urlargs['tab'] = item.args.argname;
 		this.active_argname = item.args.argname;
 		

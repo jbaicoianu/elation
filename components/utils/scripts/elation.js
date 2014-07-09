@@ -338,6 +338,12 @@ elation.extend("component", new function() {
         this[ev.type](ev);
       }
     }
+    this.destroy  = function() {
+      var componentclass = elation.utils.arrayget(elation, this.componentname);
+      if (componentclass && componentclass.obj[this.id]) {
+        delete componentclass.obj[this.id];
+      }
+    }
   }
   this.parseid = function(element) {
     // Parse out the data-elation-component and data-elation-name attributes, if set.  Fall back on HTML id if no name specified

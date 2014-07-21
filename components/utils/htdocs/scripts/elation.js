@@ -178,7 +178,7 @@ elation.extend("component", new function() {
           // Then, loop through the attributes and parse out any individual arguments which can be specified as attributes
           for (j = 0; j < element.attributes.length; j++) {
             if (element.attributes[j].nodeName.substring(0, argsattr.length+1) == argsattr+'.') {
-              elation.utils.arrayset(componentargs, element.attributes[j].nodeName.substring(argsattr.length+1), element.attributes[j].nodeValue);
+              elation.utils.arrayset(componentargs, element.attributes[j].nodeName.substring(argsattr.length+1), element.attributes[j].value);
             }
           }
           // Instantiate the new component with all parsed arguments
@@ -1693,10 +1693,10 @@ elation.extend('file.dependencies', new function() {
 			ret += (ret == '' ? '?' : '&') + key + '=';
 			
 			for (var i=0; i<parms[key].length; i++) {
-				if (parms[key][i] != 'map')
+				//if (parms[key][i] != 'map')
 					ret += parms[key][i] + (i == parms[key].length-1?'':'+');
-				else if (i == parms[key].length-1)
-					ret = ret.substr(0,ret.length-1);
+				//else if (i == parms[key].length-1)
+				//	ret = ret.substr(0,ret.length-1);
 			}
 		}
 		
@@ -1729,7 +1729,6 @@ elation.extend('file.dependencies', new function() {
 		
 		if (component || type == 'css') {
 			url = this.wait(url, type);
-			
 			if (url) 
 				url = '/' + (type == 'css' ? 'css' : 'scripts') + '/main' + url;
 			else 
@@ -1747,7 +1746,7 @@ elation.extend('file.dependencies', new function() {
 						self.done(file); 
 					})(this)
 		));
-		
+
 		this.files[url] = file;
 		
 		return file;

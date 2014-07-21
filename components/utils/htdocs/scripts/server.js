@@ -429,14 +429,17 @@ elation.extend("server", function() {
     'dependency': function(response, common) {
       if (response['deptype'] == 'component' && response['name']) {
         var name = response['name'].split('.', 2); // FIXME - this won't work with "deep" components (eg. thefind.search.filters.color)
+        
         if (name[0] && response['subtypes']) {
           var subtypes = response['subtypes'].split(',');
+
           for (var i = 0; i < subtypes.length; i++) {
             if (!common.dependencies[subtypes[i]])
               common.dependencies[subtypes[i]] = [];
             if (!common.dependencies[subtypes[i]][name[0]])
               common.dependencies[subtypes[i]][name[0]] = [];
-            common.dependencies[subtypes[i]][name[0]].push(name[1]);
+
+            common.dependencies[subtypes[i]][name[0]].push(name[1] || name[0]);
           }
         }
       }
@@ -455,7 +458,9 @@ elation.extend("server", function() {
     },
     'args': function(response, common) {
       // FIXME: need to ask James what is being sent as responsetype == args
-    }
+    },
+    'options': function(response, common) { },
+    'tracking': function(response, common) { }
   }
 
 

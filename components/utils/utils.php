@@ -172,7 +172,7 @@ class Component_utils extends Component {
     $ret = array();
     if (!empty($panel["items"])) {
       foreach ($panel["items"] as $name=>$item) {
-        $realname = ($nameprefix !== NULL ? $nameprefix . "_" : "") . $name . $item["enabled"];
+        $realname = ($nameprefix !== NULL ? $nameprefix . "_" : "") . $name;
         if (($item["ajax"] || $item["component"] == "utils.panel")) {
           $ret[$realname] = $item;
         } else if (!empty($item["items"])) {

@@ -1,42 +1,41 @@
 .ui_list {
   list-style: none;
-  margin: 0;
-  padding: 0;
   -webkit-perspective: 400px;
   -moz-perspective: 400px;
   perspective: 400px;
+  position: relative;
+  overflow: auto;
 }
 .ui_list>.ui_list_item {
-  margin: 0;
   -webkit-transform: translate3d(0, 0, 0);
   -moz-transform: translate3d(0, 0, 0);
   -o-transform: translate3d(0, 0, 0);
   -ms-transform: translate3d(0, 0, 0);
   transform: translate3d(0, 0, 0);
   position: relative;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  border: 1px solid transparent;
 }
-.ui_list.orientation_inline>.ui_list_item {
-  display: inline-block;
+.ui_list.state_selectable>.ui_list_item {
+  cursor: pointer;
 }
 .ui_list>.ui_list_item.state_animating {
   -webkit-transition: -webkit-transform 250ms linear;
   transition: all 250ms linear;
 }
+.ui_list>.ui_list_item.state_lastselected {
+  border: 1px dotted #999;
+}
 
 /* default theme */
 .ui_list {
-  border: 1px solid #111;
-  background: rgba(0,0,0,.1);
 }
 .ui_list>.ui_list_item {
-  padding: .2em .4em;
-  border-bottom: 1px solid rgba(0,0,0,.1);
-  cursor: pointer;
 }
 .ui_list>.ui_list_item:hover {
-  background: rgba(0,0,0,.1);
 }
 .ui_list>.ui_list_item.state_selected {
-  background: rgba(0,0,0,.2);
 }
 

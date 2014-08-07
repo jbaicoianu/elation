@@ -3,44 +3,24 @@
   padding: 0;
   margin: 0;
   display: block;
-  background-image: -webkit-linear-gradient(bottom, rgba(0,0,0,.8) 66%, rgba(64,64,64,.5) 98%);
-  background-image: -moz-linear-gradient(bottom, rgba(0,0,0,.8) 66%, rgba(64,64,64,.5) 98%);
-  color: white;
 }
 .ui_tabs>ul>li {
   display: inline-block;
-  min-width: 5em;
-  text-align: center;
   cursor: pointer;
-  padding: 2px 4px;
+  -webkit-user-select: none;
 }
 .ui_tabs>ul>li:first-child {
 }
 .ui_tabs>ul>li:last-child {
-  border-right: 1px solid black;
 }
 .ui_tabs>ul>li.state_hover {
-  background: #ffa;
 }
 .ui_tabs>ul>li.state_selected {
-  xbackground: #afa;
 }
 
 .ui_tabs>ul>li {
 }
 .ui_tabs>ul>li.state_hover {
-/*
-  background-image: -webkit-linear-gradient(bottom, rgba(16,16,16,.8) 66%, rgba(128,128,128,.5) 98%);
-  background-image: -moz-linear-gradient(bottom, rgba(16,16,16,.8) 66%, rgba(128,128,128,.5) 98%);
-  background-color: transparent;
-*/
-  background: rgba(128,255,128,.2);
 }
 .ui_tabs>ul>li.state_selected {
-/*
-  background-image: -webkit-linear-gradient(bottom, rgba(16,64,16,.8) 66%, rgba(128,200,128,.5) 98%);
-  background-image: -moz-linear-gradient(bottom, rgba(16,64,16,.8) 66%, rgba(128,200,128,.5) 98%);
-  background-color: transparent;
-*/
-  background: rgba(200,200,200,.2);
 }

@@ -7,7 +7,7 @@
 .ui_treeview ul {
   /*background: rgba(0,0,0,.8);*/
   list-style: none;
-  border-left: .1em solid white;
+  border-left: .1em solid;
   margin: 0 0 0 .3em;
   padding-left: .8em;
   -webkit-user-select: none;
@@ -28,7 +28,6 @@
   float: left;
   clear: left;
   padding-right: .5em;
-  color: white;
 }
 .ui_treeview ul li:last-child>ul {
   border-left: 0;
@@ -36,6 +35,7 @@
 .ui_treeview>ul>li:first-child:last-child:before {
   content: '-';
 }
+/*
 .ui_treeview ul li.state_disabled:before,
 .ui_treeview ul li.state_disabled,
 .ui_treeview ul li.state_hover li.state_disabled,
@@ -47,6 +47,10 @@
   color: yellow;
   background: rgba(1,1,0,.5);
 }
+.ui_treeview ul li.state_hover:before,
+.ui_treeview ul li.state_selected li.state_hover:before {
+  color: white;
+}
 .ui_treeview ul li.state_selected,
 .ui_treeview ul li.state_hover li.state_selected {
   color: red;
@@ -56,6 +60,7 @@
   color: white;
   background: transparent;
 }
+*/
 .ui_treeview ul li:last-child:before {
   content: '└';
 }

@@ -1,7 +1,11 @@
-.ui_input label {
-  min-width: 6em;
+.ui_input .ui_label {
   display: inline-block;
+  padding: 0 .5em;
 }
+.ui_input_element {
+  box-sizing: border-box;
+}
+/*
 .ui_input input {
   width: 100%;
   box-sizing: border-box;
@@ -12,3 +16,4 @@
 }
 .ui_input input:focus {
 }
+*/

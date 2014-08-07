@@ -1,8 +1,10 @@
+.ui_panel {
+}
+.ui_panel.orientation_horizontal {
+}
 .ui_panel.orientation_horizontal>* {
   display: inline-block;
   vertical-align: top;
-}
-.ui_panel {
 }
 .ui_panel.orientation_float>* {
   display: block;

@@ -1,74 +1,25 @@
 .ui_button {
   cursor: pointer;
-  border: 1px solid #bbb;
-  border-radius: .2em;
-  padding: .2em .5em;
-  color: black;
-  background: -webkit-gradient(
-    linear,
-    left top,
-    left bottom,
-    color-stop(0.1, rgb(240,240,240)),
-    color-stop(0.9, rgb(204,204,204))
-  );
-  background: -moz-linear-gradient(
-    center top,
-    rgb(240,240,240) 10%,
-    rgb(204,204,204) 90%
-  );
   -webkit-user-select: none;
-}
-.ui_button:hover {
-  border: 1px solid #999;
-  background: -webkit-gradient(
-    linear,
-    left top,
-    left bottom,
-    color-stop(0.1, rgb(250,250,250)),
-    color-stop(0.9, rgb(214,214,214))
-  );
-  background: -moz-linear-gradient(
-    center top,
-    rgb(250,250,250) 10%,
-    rgb(214,214,214) 90%
-  );
-}
-.ui_button:active,
-.ui_button.state_active {
-  border: 1px solid #c0c0c0;
-  background: -webkit-gradient(
-    linear,
-    left top,
-    left bottom,
-    color-stop(0.1, rgb(214,214,214)),
-    color-stop(0.9, rgb(250,250,250))
-  );
-  background: -moz-linear-gradient(
-    center top,
-    rgb(214,214,214) 10%,
-    rgb(250,250,250) 90%
-  );
 }
 .ui_button_sprite_twostate_hover,
 .ui_button_sprite_twostate_active,
 .ui_button_sprite_threestate {
   background-repeat: no-repeat;
   cursor: pointer;
-  border: 0 none;
+  border: none;
   border-radius: 0;
 }
 .ui_button_sprite_twostate_hover:hover {
   background-position: 100% 0;
-  border: 0 none;
+  border: none;
 }
 .ui_button_sprite_threestate:hover {
   background-position: 50% 0;
-  border: 0 none;
+  border: none;
 }
 .ui_button_sprite_twostate_active:active,
 .ui_button_sprite_threestate:active {
   background-position: 100% 0;
-  border: 0 none;
+  border: none;
 }
-
-

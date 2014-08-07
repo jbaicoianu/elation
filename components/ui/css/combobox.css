@@ -1,0 +1,40 @@
+.ui_combobox {
+  position: relative;
+}
+.ui_combobox>.ui_panel {
+  display: inline-block;
+  position: relative;
+}
+.ui_combobox .ui_label {
+  display: inline-block;
+}
+.ui_combobox .ui_combobox_element {
+  vertical-align: middle;
+}
+.ui_combobox .ui_panel .ui_combobox_dropdownbutton {
+  position: absolute;
+  width: 1.5em;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  margin: 0;
+  display: block;
+  vertical-align: middle;
+  box-sizing: border-box;
+  line-height: 1em;
+  font-size: 1em;
+}
+.ui_combobox .ui_combobox_dropdown {
+  position: static;
+  max-height: 20em;
+  overflow-y: auto;
+  overflow-x: hidden;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  box-sizing: border-box;
+  height: auto;
+}
+.ui_combobox .ui_input_element {
+  padding-right: 1.5em;
+}

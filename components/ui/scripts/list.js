@@ -1,43 +1,53 @@
-/** 
- * List UI element
- *
- * @class list
- * @augments elation.ui.base
- * @memberof elation.ui
- * @alias elation.ui.list
- *
- * @param {object}    args
- * @param {string}    args.tag
- * @param {string}    args.classname
- * @param {string}    args.title
- * @param {boolean}   args.draggable
- * @param {boolean}   args.hidden
- * @param {string}    args.orientation
- * @param {string}    args.sortbydefault
- * @param {array}     args.items
- * @param {object}    args.attrs
- * @param {elation.container.simple} args.itemcontainer
- */
 elation.require("ui.base", function() {
+  /** 
+   * List UI element
+   *
+   * @class list
+   * @augments elation.ui.base
+   * @memberof elation.ui
+   * @alias elation.ui.list
+   *
+   * @param {object}    args
+   * @param {string}    args.tag
+   * @param {string}    args.classname
+   * @param {string}    args.title
+   * @param {boolean}   args.draggable
+   * @param {boolean}   args.selectable
+   * @param {boolean}   args.hidden
+   * @param {string}    args.orientation
+   * @param {string}    args.sortbydefault
+   * @param {array}     args.items
+   * @param {object}    args.attrs
+   * @param {elation.collection.simple} args.itemcollection
+   */
   elation.component.add('ui.list', function() {
     this.defaultcontainer = {tag: 'ul', classname: 'ui_list'};
 
     this.init = function(name, container, args) {
+      elation.ui.list.extendclass.init.call(this);
+
       this.tag = this.args.tag || this.container.tagName || 'DIV';
       this.classname = this.args.classname || "";
       this.title = this.args.title || false;
       this.draggable = this.args.draggable || false;
+      this.selectable = elation.utils.any(this.args.selectable, true);
+      this.multiselect = elation.utils.any(this.args.multiselect, false);
+      this.spinner = this.args.spinner || false;
       this.events = this.args.events || {}
       this.orientation = this.args.orientation || 'vertical';
       this.items = [];
       this.listitems = [];
+      this.selection = [];
 
       this.dirty = false;
 
       this.animatetime = 850;
 
       if (this.classname) {
-        elation.html.addclass(this.container, this.classname);
+        this.addclass(this.classname);
+      }
+      if (this.selectable) {
+        this.addclass('state_selectable');
       }
 
       this.setOrientation(this.orientation);
@@ -48,8 +58,8 @@ elation.require("ui.base", function() {
       if (this.args.hidden) {
         this.hide();
       }
-      if (this.args.itemcontainer) {
-        this.setItemContainer(this.args.itemcontainer);
+      if (this.args.itemcollection) {
+        this.setItemCollection(this.args.itemcollection);
       } else if (this.args.items) {
         this.setItems(this.args.items);
       } else {
@@ -100,18 +110,20 @@ elation.require("ui.base", function() {
       this.refresh();
     }
     /**
-     * Links this list component with a container to automatically handle updates when data changes
-     * @function setItemContainer
+     * Links this list component with a collection to automatically handle updates when data changes
+     * @function setItemCollection
      * @memberof elation.ui.list#
-     * @param {elation.collection.simple} itemcontainer  
+     * @param {elation.collection.simple} itemcollection  
      */
-    this.setItemContainer = function(itemcontainer) {
-      if (this.itemcontainer) {
-        elation.events.remove(this.itemcontainer, "container_add,container_remove,container_move", this);
+    this.setItemCollection = function(itemcollection) {
+      if (this.itemcollection) {
+        elation.events.remove(this.itemcollection, "collection_add,collection_remove,collection_move", this);
       }
-      this.itemcontainer = itemcontainer;
-      this.setItems(this.itemcontainer.items);
-      elation.events.add(this.itemcontainer, "container_add,container_remove,container_move,container_load,container_clear", this);
+      this.itemcollection = itemcollection;
+      elation.events.add(this.itemcollection, "collection_add,collection_remove,collection_move,collection_load,collection_load_begin,collection_clear", this);
+      //this.setItems(this.itemcollection.items);
+      Object.defineProperty(this, 'items', { get: function() { return this.itemcollection.items; } });
+      this.refresh();
     }
     /**
      * Extracts items out of the list's existing HTML structure
@@ -124,7 +136,8 @@ elation.require("ui.base", function() {
       for (var i = 0; i < this.container.childNodes.length; i++) {
         var node = this.container.childNodes[i];
         if (node instanceof HTMLLIElement) {
-          items.push({label: node.innerText});
+          items.push({label: node.innerHTML});
+          node.parentNode.removeChild(node);
         }
       }
       this.setItems(items);
@@ -167,7 +180,7 @@ elation.require("ui.base", function() {
       }
       this.listitems = [];
       this.items = [];
-      ul.innerHTML = '';
+      //ul.innerHTML = '';
     }
     /**
      * Get the elation.ui.listitem for a specified item, allocating as needed
@@ -176,8 +189,9 @@ elation.require("ui.base", function() {
      * @param {Object} item
      * @returns {elation.ui.listitem}
      */
-    this.getlistitem = function(item) {
+    this.getlistitem = function(itemnum) {
       var attrs = this.getDefaultAttributes();
+      var item = this.items[itemnum];
       for (var i = 0; i < this.listitems.length; i++) {
         if (this.listitems[i].value === item) {
           return this.listitems[i];
@@ -185,7 +199,7 @@ elation.require("ui.base", function() {
       }
       
       // no existing listitem, allocate a new one
-      var newlistitem = elation.ui.listitem(null, elation.html.create({tag: 'li'}), {item: item, attrs: attrs});
+      var newlistitem = elation.ui.listitem({item: item, attrs: attrs, selectable: this.selectable});
       this.listitems.push(newlistitem);
       elation.events.add(newlistitem, 'ui_list_item_select', this);
       return newlistitem;
@@ -214,7 +228,7 @@ elation.require("ui.base", function() {
           }
         }
         for (var i = 0; i < this.items.length; i++) {
-          var listitem = this.getlistitem(this.items[i]);
+          var listitem = this.getlistitem(i);
           if (listitem.container.parentNode != ul) {
             ul.appendChild(listitem.container);
           }
@@ -307,63 +321,171 @@ elation.require("ui.base", function() {
       elation.html.addclass(this.container, 'ui_list_sortby_' + this.sortby);
     }
     /**
+     * Returns a list of which items are currently visible in this list
+     * @function getVisibleItems
+     * @memberof elation.ui.list#
+     * @returns {array}
+     */
+    this.getVisibleItems = function() {
+      var visible = [];
+      for (var i = 0; i < this.listitems.length; i++) { 
+        var li = this.listitems[i];
+        if (li.container.offsetTop + li.container.offsetHeight >= this.container.scrollTop && li.container.offsetTop <= this.container.scrollTop + this.container.offsetHeight) { 
+          //console.log('visible:', i, li.args.item.label); 
+          visible.push(i);
+        } 
+      }
+      return visible;
+    }
+    /**
+     * Sets the selection state of all items in the list
+     * @function selectall
+     * @memberof elation.ui.list#
+     * @param {bool} state
+     * @param {Array} exclude
+     */
+    this.selectall = function(state, exclude) {
+      if (state === undefined) state = true;
+      if (exclude === undefined) exclude = [];
+
+      if (state) {
+        // select all
+        for (var i = 0; i < this.listitems.length; i++) {
+          var li = this.listitems[i];
+          if (exclude.indexOf(li) == -1 && this.selection.indexOf(li) == -1) {
+            li.select(false);
+            this.selection.push(li);
+          }
+        }
+      } else {
+        // deselect all
+        while (this.selection.length > 0) {
+          var li = this.selection.pop();
+          if (exclude.indexOf(li) == -1) {
+            li.unselect();
+          }
+        }
+      }
+    }
+    /**
+     * Sets the specified selection as being the last one clicked
+     * @function setlastselection
+     * @memberof elation.ui.list#
+     * @param {elation.ui.listitem} selection
+     */
+    this.setlastselection = function(selection) {
+      if (this.lastselection) {
+        this.lastselection.setlastselected(false);
+      }
+      this.lastselection = selection;
+      this.lastselection.setlastselected(true);
+    }
+    /**
      * Event handler: elation.ui.listitem#ui_list_item_select
      * @function ui_list_item_select
      * @memberof elation.ui.list#
      * @param {event} ev
      */
     this.ui_list_item_select = function(ev) {
-      if (this.selecteditem) {
-        this.selecteditem.unselect();
+      var newselection = ev.element;
+
+      if (!ev.ctrlKey && this.selection.length > 0) {
+        // If ctrl key wasn't down, unselect all selected items in the list
+        this.selectall(false, [newselection]);
       }
-      this.selecteditem = ev.target;
+
+      if (this.multiselect && ev.shiftKey && this.lastselection) {
+        // If shift key was down and we had a previous item selected, perform a range-select
+        var idx1 = this.listitems.indexOf(this.lastselection);
+        var idx2 = this.listitems.indexOf(newselection);
+        if (idx1 != -1 && idx2 != -1) {
+          var start = Math.min(idx1, idx2);
+          var end = Math.max(idx1, idx2);
+          for (var i = start; i <= end; i++) {
+            if (this.selection.indexOf(this.listitems[i]) == -1) {
+              this.listitems[i].select(false);
+              this.selection.push(this.listitems[i]);
+            }
+          }
+        }
+      } else {
+        // Otherwise, perform a single selection
+        var idx = this.selection.indexOf(newselection);
+        if (idx == -1) {
+          this.selection.push(newselection);
+        } else {
+          this.selection.splice(idx, 1);
+          newselection.unselect();
+        }
+      }
+
+      if (this.multiselect) {
+        // Make note of the most recently-clicked list item, for future interaction
+        this.setlastselection(newselection);
+      }
       elation.events.fire({type: 'ui_list_select', element: this, data: ev.data});
     }
     /**
-     * Event handler: elation.container.simple#container_add
-     * @function container_add
+     * Event handler: elation.collection.simple#collection_add
+     * @function collection_add
      * @memberof elation.ui.list#
      * @param {event} ev
      */
-    this.container_add = function(ev) {
+    this.collection_add = function(ev) {
       this.refresh();
     }
     /**
-     * Event handler: elation.container.simple#container_remove
-     * @function container_remove
+     * Event handler: elation.collection.simple#collection_remove
+     * @function collection_remove
      * @memberof elation.ui.list#
      * @param {event} ev
      */
-    this.container_remove = function(ev) {
+    this.collection_remove = function(ev) {
       this.refresh();
     }
     /**
-     * Event handler: elation.container.simple#container_move
-     * @function container_move
+     * Event handler: elation.collection.simple#collection_move
+     * @function collection_move
      * @memberof elation.ui.list#
      * @param {event} ev
      */
-    this.container_move = function(ev) {
+    this.collection_move = function(ev) {
       this.refresh();
     }
     /**
-     * Event handler: elation.container.simple#container_load
-     * @function container_load
+     * Event handler: elation.collection.simple#collection_load_begin
+     * @function collection_load_begin
      * @memberof elation.ui.list#
      * @param {event} ev
      */
-    this.container_load = function(ev) {
+    this.collection_load_begin = function(ev) {
+      if (this.spinner) {
+        this.container.appendChild(this.spinner.container);
+        this.spinner.show();
+      }
+    }
+    /**
+     * Event handler: elation.collection.simple#collection_load
+     * @function collection_load
+     * @memberof elation.ui.list#
+     * @param {event} ev
+     */
+    this.collection_load = function(ev) {
+      if (this.spinner) {
+        this.container.removeChild(this.spinner.container);
+      }
       this.refresh();
     }
     /**
-     * Event handler: elation.container.simple#container_clear
-     * @function container_clear
+     * Event handler: elation.collection.simple#collection_clear
+     * @function collection_clear
      * @memberof elation.ui.list#
      * @param {event} ev
      */
-    this.container_clear = function(ev) {
+    this.collection_clear = function(ev) {
       this.refresh();
     }
+
   }, elation.ui.base);
 
   /** 
@@ -375,21 +497,37 @@ elation.require("ui.base", function() {
    * @memberof elation.ui
    * @alias elation.ui.listitem
    *
-   * @param {object} args
-   * @param {object} args.item
-   * @param {object} args.attrs
+   * @param {object}  args
+   * @param {object}  args.item
+   * @param {object}  args.attrs
+   * @param {boolean} args.selectable
    */
   elation.component.add('ui.listitem', function() {
+    this.defaultcontainer = {tag: 'li', classname: 'ui_list_item'};
+
     this.init = function() {
+      elation.ui.listitem.extendclass.init.call(this);
+
       this.value = this.args.item;
       this.attrs = this.args.attrs || {};
+      this.selectable = this.args.selectable || false;
+      elation.events.add(this.container, 'click', this);
 
-      elation.html.addclass(this.container, 'ui_list_item');
+      this.render();
+    }
+    this.setValue = function(value) {
+      this.value = value;
+      this.render();
+    }
+    this.render = function() {
+      // reset classname to default
+      this.container.className = this.defaultcontainer.classname;
       if (this.value) {
         if (this.value.classname) {
-          elation.html.addclass(this.container, this.value.classname);
+          this.addclass(this.value.classname);
         }
 
+        this.container.innerHTML = '';
         var filled = false;
         if (this.value instanceof elation.component.base) {
           this.container.appendChild(this.value.container);
@@ -407,16 +545,24 @@ elation.require("ui.base", function() {
         if (!filled) {
           if (elation.utils.isString(this.value)) {
             this.container.innerHTML = this.value;
-          } else if (this.value[this.attrs.label]) {
-            this.container.innerHTML = this.value[this.attrs.label];
+          } else {
+            var attrval = elation.utils.arrayget(this.value, this.attrs.label);
+            if (attrval !== null) {
+              this.container.innerHTML = attrval;
+            }
           }
         }
 
+        if (this.selected) {
+          this.addclass("state_selected");
+        }
+        if (this.lastselected) {
+          this.addclass("state_lastselected");
+        }
         if (!elation.utils.isEmpty(this.attrs.disabled) && !elation.utils.isEmpty(this.value[this.attrs.disabled])) {
-          elation.html.addclass(this.container, "state_disabled");
+          this.addclass("state_disabled");
         }
       }
-      elation.events.add(this.container, 'click', this);
     }
     /**
      * Set this list item as being selected
@@ -424,9 +570,14 @@ elation.require("ui.base", function() {
      * @memberof elation.ui.listitem#
      * @emits elation.ui.listitem#ui_list_item_select
      */
-    this.select = function() {
+    this.select = function(extra) {
+      this.selected = true;
       elation.html.addclass(this.container, 'state_selected');
-      elation.events.fire({type: 'ui_list_item_select', element: this, data: this.value});
+      // FIXME - 'extra' has two meanings here; if you pass false it doesn't emit events, but if you
+      //          pass an object, it's treated as an event, and its properties are cloned
+      if (extra !== false) {
+        elation.events.fire({type: 'ui_list_item_select', element: this, data: this.value, event: extra});
+      }
     }
     /**
      * Set this list item as being unselected
@@ -435,8 +586,23 @@ elation.require("ui.base", function() {
      * @emits elation.ui.listitem#ui_list_item_unselect
      */
     this.unselect = function() {
+      this.selected = false;
       elation.html.removeclass(this.container, 'state_selected');
       elation.events.fire({type: 'ui_list_item_unselect', element: this, data: this.value});
+    }
+    /**
+     * Set this list item as being the last item selected in its list
+     * @function setlastselected
+     * @memberof elation.ui.listitem#
+     */
+    this.setlastselected = function(state) {
+      this.lastselected = state;
+      var hasclass = this.hasclass('state_lastselected');
+      if (state && !hasclass) {
+        this.addclass('state_lastselected');
+      } else if (!state && hasclass) {
+        this.removeclass('state_lastselected');
+      }
     }
     /**
      * Event handler: HTML element click
@@ -445,7 +611,9 @@ elation.require("ui.base", function() {
      * @param {event} ev
      */
     this.click = function(ev) {
-      this.select();
+      if (this.selectable) {
+        this.select(ev);
+      }
     }
-  });
+  }, elation.ui.base);
 });

@@ -1,0 +1,21 @@
+.ui_keyvaluelistitem {
+}
+.ui_keyvaluelistitem_key {
+  width: 10em;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ui_keyvaluelistitem_key:after {
+  content: ':';
+}
+.ui_keyvaluelistitem_key.state_empty:after {
+  content: '';
+}
+.ui_keyvaluelistitem_value {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

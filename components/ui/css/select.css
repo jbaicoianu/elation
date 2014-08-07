@@ -1,0 +1,11 @@
+.ui_select {
+  padding-right: .5em;
+}
+.ui_select_label {
+  display: inline-block;
+  font-size: 1em;
+}
+.ui_select_label:after {
+  content: ':';
+  padding-right: .2em;
+}

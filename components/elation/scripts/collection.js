@@ -1,15 +1,14 @@
-/** 
- * Simple data collection
- *
- * @class simple
- * @augments elation.component.base
- * @memberof elation.collection
- * @alias elation.collection.simple
- *
- * @param {object} args
- */
-elation.require("", function() {
-console.log("FLURP");
+elation.require([], function() {
+  /** 
+   * Simple data collection
+   *
+   * @class simple
+   * @augments elation.component.base
+   * @memberof elation.collection
+   * @alias elation.collection.simple
+   *
+   * @param {object} args
+   */
   elation.component.add("collection.simple", function() {
     this.init = function() {
       this.items = [];
@@ -128,7 +127,9 @@ console.log("FLURP");
       this.items.splice(0, this.items.length);
       elation.events.fire({type: "collection_clear", element: this});
     }
-
+    this.filter = function(filterfunc, filterargs) {
+      return elation.collection.filter({parent: this, filterfunc: filterfunc, filterargs: filterargs});
+    }
   });
   /** 
    * Indexed data collection
@@ -141,19 +142,22 @@ console.log("FLURP");
    *
    * @param {object} args
    * @param {string} args.index
+   * @param {string} args.indextransform
    */
   elation.component.add("collection.indexed", function() {
     this.init = function() {
       elation.collection.simple.base.prototype.init.call(this);
       this.index = this.args.index;
+      this.indextransform = this.args.indextransform || false;
       this.itemindex = {};
     }
     this.add = function(item, pos) {
-      if (!(item[this.index] in this.itemindex)) {
-        this.itemindex[item[this.index]] = item;
+      var idx = this.getindex(item);
+      if (!(idx in this.itemindex)) {
+        this.itemindex[idx] = item;
         return elation.collection.simple.base.prototype.add.call(this, item, pos);
       } else if (!elation.utils.isNull(pos)) {
-        var realitem = this.itemindex[item[this.index]];
+        var realitem = this.itemindex[idx];
         if (this.items[pos] != realitem) {
           this.move(realitem, pos);
         }
@@ -161,21 +165,32 @@ console.log("FLURP");
       return false;
     }
     this.remove = function(item) {
-      if (item[this.index] in this.itemindex) {
-        var realitem = this.itemindex[item[this.index]];
-        delete this.itemindex[item[this.index]];
+      var idx = this.getindex(item);
+      if (idx in this.itemindex) {
+        var realitem = this.itemindex[idx];
+        delete this.itemindex[idx];
         return elation.collection.simple.base.prototype.remove.call(this, realitem);
       }
       return false;
     }
     this.find = function(item) {
-      if (!elation.utils.isNull(this.itemindex[item])) {
-        return elation.collection.simple.base.prototype.find.call(this, this.itemindex[item]);
+      var idx = this.getindex(item);
+      if (!elation.utils.isNull(this.itemindex[idx])) {
+        return elation.collection.simple.base.prototype.find.call(this, this.itemindex[idx]);
       }
       return elation.collection.simple.base.prototype.find.call(this, item);
     }
     this.getlength = function() {
       return Object.keys(this.itemindex).length;
+    }
+    this.getindex = function(idx) {
+      if (!elation.utils.isString(idx)) {
+        idx = idx[this.index];
+      }
+      if (this.indextransform) {
+        idx = this.indextransform(idx);
+      }
+      return idx;
     }
   }, elation.collection.simple);
 
@@ -233,6 +248,7 @@ console.log("FLURP");
       if (!key) key = this.storagekey;
       if (!elation.utils.isEmpty(localStorage[this.storagekey])) {
         try {
+          elation.events.fire({type: "collection_load_begin", element: this});
           this.items = JSON.parse(localStorage[this.storagekey]);
           this.buildindex();
           elation.events.fire({type: "collection_load", element: this});
@@ -245,7 +261,8 @@ console.log("FLURP");
     }
     this.buildindex = function() {
       for (var i = 0; i < this.items.length; i++) {
-        this.itemindex[this.items[i][this.index]] = this.items[i];
+        var idx = this.getindex(this.items[i]);
+        this.itemindex[idx] = this.items[i];
       }
     }
   }, elation.collection.indexed);
@@ -270,10 +287,11 @@ console.log("FLURP");
   elation.component.add("collection.api", function() {
     this.init = function() {
       elation.collection.simple.base.prototype.init.call(this);
-      this.host = this.args.host;
+      this.host = this.args.host || '';
       this.endpoint = this.args.endpoint;
       this.apiargs = this.args.apiargs;
       this.datatransform = this.args.datatransform || {};
+      //this.data = { items: [], count: 0 };
       Object.defineProperties(this, {
         items: { get: this.getitems }
       });
@@ -287,8 +305,19 @@ console.log("FLURP");
       return url;
     }
     this.load = function() {
-      var url = this.getURL();
-      elation.ajax.Get(url, this.apiargs, { callback: elation.bind(this, function(d) { this.clear(); this.processResponse(d); }) });
+      if (!this.loading) {
+        this.loading = true;
+        var url = this.getURL();
+        elation.events.fire({type: "collection_load_begin", element: this});
+        elation.ajax.Get(url, this.apiargs, { callback: elation.bind(this, function(d) { this.clear(); this.processResponse(d); }) });
+      }
+    }
+    this.clear = function() {
+      if (this.data) {
+        this.data.items.splice(0, this.items.length);
+        this.data.count = 0;
+      }
+      elation.events.fire({type: "collection_clear", element: this});
     }
     this.append = function() {
       var url = this.getURL();
@@ -297,7 +326,7 @@ console.log("FLURP");
     this.getitems = function() {
       if (!this.data) {
         this.data = { items: [], count: 0 };
-        //this.load();
+        this.load();
       }
       return this.data.items;
     }
@@ -310,9 +339,16 @@ console.log("FLURP");
     }
     this.processResponse = function(data, args) {
       var newdata = this.transformData(this.parseData(data));
+      if (!this.data) {
+        this.data = { items: [], count: 0 };
+      }
       if (newdata.items) {
         Array.prototype.push.apply(this.data.items, newdata.items);
       }
+      if (newdata.count) {
+        this.data.count = newdata.count;
+      }
+      this.loading = false;
       elation.events.fire({type: "collection_load", element: this});
     }
     this.parseData = function(data) {
@@ -356,4 +392,66 @@ console.log("FLURP");
       return JSON.parse(data);
     }
   }, elation.collection.api);
+
+  /** 
+   * Custom data collection
+   * Emits events when items are read, added, removed, etc. to allow arbitrary user-specified item backends
+   * (For example, a collection which lists all the properties an object contains)
+   *
+   * @class custom
+   * @augments elation.collection.simple
+   * @memberof elation.collection
+   * @alias elation.collection.custom
+   *
+   * @param {object} args
+   */
+  elation.component.add("collection.custom", function() {
+    this.init = function() {
+      elation.collection.custom.extendclass.init.call(this);
+      if (this.args.items) {
+        Object.defineProperties(this, {
+          items: { get: this.args.items }
+        });
+      }
+    }
+  }, elation.collection.simple);
+  /** 
+   * Filter collection
+   * Apply the specified filter to the parent list, and present it as its own collection
+   *
+   * @class filter
+   * @augments elation.collection.simple
+   * @memberof elation.collection
+   * @alias elation.collection.filter
+   *
+   * @param {object} args
+   * @param {elation.collection.simple} args.parent List to filter
+   * @param {function} args.filterfunc Callback function for filtering list 
+   */
+  elation.component.add("collection.filter", function() {
+    this.init = function() {
+      elation.collection.filter.extendclass.init.call(this);
+
+      this.parent = this.args.parent;
+      this.filterfunc = this.args.filterfunc;
+
+      Object.defineProperties(this, {
+        items: { get: this.getfiltereditems }
+      });
+      // TODO - attach events to the parent, so we can respond to its events and emit our own as necessary
+    }
+    this.getfiltereditems = function() {
+      var items = this.parent.items;
+      var filtered = [];
+      for (var i = 0; i < items.length; i++) {
+        if (this.filterfunc(items[i])) {
+          filtered.push(items[i]);
+        }
+      }
+      return filtered;
+    }
+    this.update = function() {
+      elation.events.fire({type: "collection_load", element: this});
+    }
+  }, elation.collection.simple);
 });

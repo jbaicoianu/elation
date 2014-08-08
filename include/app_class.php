@@ -159,16 +159,18 @@ class App {
 
       $headers = headers_list();
       $isRedirect = false;
+      $ctype = null;
       foreach ($headers as $header) {
         list ($k, $v) = explode(": ", $header, 2);
-         if ($k == "Location") $isRedirect = true;
+        if ($k == "Location") $isRedirect = true;
+        if ($k == "Content-Type") $ctype = $v;
       }
       if (!$isRedirect) {
         // Load settings from servers.ini
         $contegargs = (isset($this->cfg->servers["conteg"]) ? $this->cfg->servers["conteg"] : array());
         $contegargs["charset"] = "UTF-8"; // FIXME - shouldn't be hardcoded, but we should also replace Conteg...
-        $contegargs["cache_control"]["macro"] = "no-cache";
-        //$contegargs["use_etags"] = true;
+        $contegargs["cache_control"]["macro"] = "public";
+        $contegargs["use_etags"] = true;
         // And also from site config
         $contegcfg = ConfigManager::get("conteg");
         if (is_array($contegcfg)) {
@@ -176,7 +178,7 @@ class App {
         }
 
         if (empty($contegargs["type"])) {
-          $contegargs["type"] = any($this->request["contenttype"], $output["responsetype"]);
+          $contegargs["type"] = any($ctype, $this->request["contenttype"], $output["responsetype"]);
         }
         // Merge type-specific policy settings from config if applicable
         if (isset($contegargs["policy"]) && is_array($contegargs["policy"][$contegargs["type"]])) {
@@ -187,7 +189,6 @@ class App {
           $contegargs["modified"] = filemtime($this->rootdir);
         }
 
-        //header('Content-type: ' . any($output["type"], "text/html"));
         if ($output["type"] == "ajax" || $output["type"] == "jsonp") {
           print $this->tplmgr->PostProcess($output["content"], true);
         } else {

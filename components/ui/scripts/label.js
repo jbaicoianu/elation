@@ -11,7 +11,7 @@
  */
 elation.require("ui.base", function() {
   elation.component.add("ui.label", function() {
-    this.defaultcontainer = {tag: 'h2', classname: 'ui_label'};
+    this.defaultcontainer = {tag: 'span', classname: 'ui_label'};
 
     this.init = function() {
       if (this.args.label) {

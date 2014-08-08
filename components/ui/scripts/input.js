@@ -14,7 +14,7 @@
  * @param {boolean} args.hidden
  * @param {boolean} args.autofocus
  */
-elation.require("ui.base", function() {
+elation.require(['ui.base', 'ui.label'], function() {
   elation.component.add('ui.input', function() {
     this.defaultcontainer = {tag: 'div', classname: 'ui_input'};
 
@@ -27,18 +27,24 @@ elation.require("ui.base", function() {
       //this.value = this.container.value;
       this.hidden = false;
 
-      if (this.container instanceof HTMLInputElement) {
-        this.inputelement = this.container;
-      } else {
-        this.inputelement = elation.html.create({tag: 'input', append: this.container});
-        if (this.args.type) { 
-          this.inputelement.type = this.args.type;
-        }
+      this.create();
 
-        for (var k in this.events) {
-          elation.events.add(this.inputelement, k, this.events[k]);
-        }
+      for (var k in this.events) {
+        elation.events.add(this.inputelement, k, this.events[k]);
       }
+
+      if (this.args.hidden) this.hide();
+
+      elation.events.add(this.inputelement, 'focus', elation.bind(this, this.handlefocus));
+      elation.events.add(this.inputelement, 'blur', elation.bind(this, this.handleblur));
+      elation.events.add(this.inputelement, 'input', elation.bind(this, this.handleinput));
+      elation.events.add(this.inputelement, 'keydown', elation.bind(this, this.handlekeydown));
+
+      // Set up object setters/getters to bridge with HTML element attributes
+      Object.defineProperty(this, "value", { get: function() { return this.inputelement.value; }, set: function(v) { this.inputelement.value = v; } });
+      Object.defineProperty(this, "disabled", { get: function() { return this.inputelement.disabled; }, set: function(v) { this.inputelement.disabled = v; } });
+      Object.defineProperty(this, "autofocus", { get: function() { return this.inputelement.autofocus; }, set: function(v) { this.inputelement.autofocus = v; } });
+
       if (this.args.inputname) {
         this.inputelement.name = this.args.inputname;
       }
@@ -51,24 +57,31 @@ elation.require("ui.base", function() {
       if (this.args.autofocus) {
         this.inputelement.autofocus = true;
       }
-
-      if (this.args.hidden) this.hide();
-
+      if (this.args.value) {
+        this.value = this.args.value;
+      }
+      elation.html.addclass(this.inputelement, 'ui_input_element'); 
       if (this.args.classname) {
         elation.html.addclass(this.container, this.args.classname); 
       }
-      elation.events.add(this.inputelement, 'focus', elation.bind(this, this.handlefocus));
-      elation.events.add(this.inputelement, 'blur', elation.bind(this, this.handleblur));
-      elation.events.add(this.inputelement, 'input', elation.bind(this, this.handleinput));
-      elation.events.add(this.inputelement, 'keydown', elation.bind(this, this.handlekeydown));
+    }
+    this.create = function() {
+      if (this.args.label) {
+        this.label = elation.ui.label({ append: this, label: this.args.label });
+      }
 
-      // Set up object setters/getters to bridge with HTML element attributes
-      Object.defineProperty(this, "value", { get: function() { return this.inputelement.value; }, set: function(v) { this.inputelement.value = v; } });
-      Object.defineProperty(this, "disabled", { get: function() { return this.inputelement.disabled; }, set: function(v) { this.inputelement.disabled = v; } });
-      Object.defineProperty(this, "autofocus", { get: function() { return this.inputelement.autofocus; }, set: function(v) { this.inputelement.autofocus = v; } });
-
-      if (this.args.value) {
-        this.value = this.args.value;
+      if (this.container instanceof HTMLInputElement) {
+        this.inputelement = this.container;
+      } else {
+        var inputs = elation.find('input', this.container);
+        if (inputs.length > 0) {
+          this.inputelement = inputs[0];
+        } else {
+          this.inputelement = elation.html.create({tag: 'input', append: this.container});
+          if (this.args.type) { 
+            this.inputelement.type = this.args.type;
+          }
+        }
       }
     }
     /**

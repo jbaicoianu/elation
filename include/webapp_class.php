@@ -93,6 +93,7 @@ class WebApp extends App {
         $req["args"] = array_merge($friendlyargs, $req["args"]);
     }
 
+    $req["method"] = $_SERVER["REQUEST_METHOD"];
     $req["host"] = $_SERVER["HTTP_HOST"];
     $req["ssl"] = !empty($_SERVER["HTTPS"]);
     $req["scheme"] = "http" . ($req["ssl"] ? "s" : "");

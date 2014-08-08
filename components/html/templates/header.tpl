@@ -17,6 +17,7 @@
     {dependency type="component" name="utils.dependencies"}
     {* dependency type="component" name="utils.ui"}
     {dependency type="component" name="utils.msie-xpath" *}
+    {if !empty($theme)}{dependency type="component" name="ui.themes.`$theme`"}{/if}
     {dependency type="onload" code="elation.component.init()"}
   {/config}
   
@@ -40,4 +41,4 @@
   {/if}
   <script type="text/javascript">if (elation.onloads) elation.onloads.init();</script>
 </head>
-<body{if !empty($pagecfg.pagename)} class="tf_page_{$pagecfg.pagename}"{/if}>
+<body class="{if !empty($pagecfg.pagename)}page_{$pagecfg.pagename}{/if}{if !empty($theme)} {$theme}{/if}">

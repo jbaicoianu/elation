@@ -18,6 +18,7 @@ class Component_html extends Component {
       $cfg = ConfigManager::singleton();
       $vars["tracking"] = any(ConfigManager::get("tracking"), $cfg->servers["tracking"], array());
       $this->shown["header"] = true;
+      $vars["theme"] = any(ConfigManager::get("page.theme"), array_get($cfg->servers, "page.theme"));
       return $this->GetTemplate("./header.tpl", $vars);
     }
     return "";

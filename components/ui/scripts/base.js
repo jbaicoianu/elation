@@ -23,6 +23,13 @@
 elation.component.add("ui.base", function() {
   this.renderloopActive = false;
   this.dirty = false;
+  this.deferred = true;
+
+  this.init = function() {
+    if (this.args.classname) {
+      this.addclass(this.args.classname);
+    }
+  }
 
   /**
    * Add an HTML class to this component
@@ -43,6 +50,15 @@ elation.component.add("ui.base", function() {
     if (elation.html.hasclass(this.container, classname)) {
       elation.html.removeclass(this.container, classname);
     }
+  }
+  /**
+   * Check whether this component has the specified class
+   * @function hasclass
+   * @memberof elation.ui.base#
+   * @returns {bool}
+   */
+  this.hasclass = function(classname) {
+    return elation.html.hasclass(this.container, classname);
   }
   /**
    * Make this component visible 
@@ -82,8 +98,12 @@ elation.component.add("ui.base", function() {
    */
   this.refresh = function() {
     this.dirty = true;
-    if (!this.renderloopActive) {
-      this.renderloop();
+    if (this.deferred) {
+      if (!this.renderloopActive) {
+        this.renderloop();
+      }
+    } else {
+      this.render();
     }
   }
   /**
@@ -112,5 +132,18 @@ elation.component.add("ui.base", function() {
    * @memberof elation.ui.base#
    */
   this.render = function() {
+  }
+  this.addPropertyProxies = function(properties) {
+    for (var i = 0; i < properties.length; i++) {
+      (function(self, p) {
+        Object.defineProperty(self, p, { get: function() { return this.getPropertyValue(p); }, set: function(v) { this.setPropertyValue(p, v); } });
+      })(this, properties[i]);
+    }
+  }
+  this.getPropertyValue = function(k) {
+    return this.container[k];
+  }
+  this.setPropertyValue = function(k, v) {
+    return this.container[k] = v;
   }
 });

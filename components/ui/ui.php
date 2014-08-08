@@ -8,6 +8,7 @@ class Component_ui extends Component {
   public function controller_ui($args) {
     $vars = array();
     $vars["events"] = array(
+/*
       "button1" => array(
         "click" => "elation.notes.notes('notes1').load('test1');"
       ),
@@ -22,8 +23,19 @@ class Component_ui extends Component {
       "notes1" => array(
         "dataload" => "elation.ui.list('list1').setItems(ev.data);"
       )
+*/
     );
     $vars["listitems"] = array(
+      "item 1",
+      "item 2",
+      "item 3",
+      "item 4",
+      "item 5",
+      "item 6",
+      "item 7",
+      "item 8",
+      "item 9",
+      "item 10",
     );
     $vars["tabitems"] = array(
       array(
@@ -87,23 +99,23 @@ class Component_ui extends Component {
     $vars["accordionitems"] = array(
       array(
         "title" => "Accordion Item #1",
-        "content" => "This is the content for accordion item #1\n\nSuper cool shit"
+        "content" => "Without saying a word, Queequeg, in his wild sort of way, jumped upon the bulwarks, from thence into the bows of one of the whale-boats hanging to the side; and then bracing his left knee, and poising his harpoon, cried out in some such way as this: \"Cap'ain, you see him small drop tar on water dere? You see him? well, spose him one whale eye, well, den!\" and taking sharp aim at it, he darted the iron right over old Bildad's broad brim, clean across the ship's decks, and struck the glistening tar spot out of sight."
       ),
       array(
         "title" => "Accordion Item #2",
-        "content" => "This is the content for accordion item #2"
+        "content" => "\"Quick, Bildad,\" said Peleg, his partner, who, aghast at the close vicinity of the flying harpoon, had retreated towards the cabin gangway. \"Quick, I say, you Bildad, and get the ship's papers. We must have Hedgehog there, I mean Quohog, in one of our boats. Look ye, Quohog, we'll give ye the ninetieth lay, and that's more than ever was given a harpooneer yet out of Nantucket.\""
       ),
       array(
         "title" => "Accordion Item #3",
-        "content" => "This is the content for accordion item #2"
+        "content" => "So down we went into the cabin, and to my great joy Queequeg was soon enrolled among the same ship's company to which I myself belonged.  When all preliminaries were over and Peleg had got everything ready for signing, he turned to me and said, \"I guess, Quohog there don't know how to write, does he? I say, Quohog, blast ye! dost thou sign thy name or make thy mark?\""
       ),
       array(
         "title" => "Accordion Item #4",
-        "content" => "This is the content for accordion item #4"
+        "content" => "But at this question, Queequeg, who had twice or thrice before taken part in similar ceremonies, looked no ways abashed; but taking the offered pen, copied upon the paper, in the proper place, an exact counterpart of a queer round figure which was tattooed upon his arm; so that through Captain Peleg's obstinate mistake touching his appellative, it stood something like this: Quohog. his X mark."
       ),
       array(
         "title" => "Accordion Item #5",
-        "content" => "This is the content for accordion item #5"
+        "content" => "Meanwhile Captain Bildad sat earnestly and steadfastly eyeing Queequeg, and at last rising solemnly and fumbling in the huge pockets of his broad-skirted drab coat, took out a bundle of tracts, and selecting one entitled \"The Latter Day Coming; or No Time to Lose,\" placed it in Queequeg's hands, and then grasping them and the book with both his, looked earnestly into his eyes, and said, \"Son of darkness, I must do my duty by thee; I am part owner of this ship, and feel concerned for the souls of all its crew; if thou still clingest to thy Pagan ways, which I sadly fear, I beseech thee, remain not for aye a Belial bondsman. Spurn the idol Bell, and the hideous dragon; turn from the wrath to come; mind thine eye, I say; oh! goodness gracious! steer clear of the fiery pit!\""
       ),
     );
     return $this->GetComponentResponse("./ui.tpl", $vars);
@@ -139,7 +151,7 @@ class Component_ui extends Component {
       $vars["chunksize"] = ceil(count($listitems) / $vars["chunks"]);
     }
     $vars["itemcomponent"] = any($args["itemcomponent"], "ui.listitem");
-    $vars["listitems"] = array_chunk($listitems, $vars["chunksize"], true);
+    $vars["listitems"] = (is_array($listitems) && $vars["chunksize"] > 1 ? array_chunk($listitems, $vars["chunksize"], true) : $listitems);
     return $this->GetComponentResponse("./list.tpl", $vars);
   }
   public function controller_listitem($args) {

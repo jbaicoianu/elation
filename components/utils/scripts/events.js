@@ -12,8 +12,8 @@ elation.extend("events", {
       fn = elation.utils.arrayget(type, 'fn') || fn;
       var cloneev = type.event || {};
 
-      for (var k in this.cloneattrs) {
-        var attr = this.cloneattrs[k];
+      for (var i = 0; i < this.cloneattrs.length; i++) {
+        var attr = this.cloneattrs[i];
         if (!elation.utils.isNull(type[attr])) extras[attr] = type[attr];
         else if (!elation.utils.isNull(cloneev[attr])) extras[attr] = cloneev[attr];
       }
@@ -57,12 +57,16 @@ elation.extend("events", {
     }
     
     // fire each event
+    var extrakeys = Object.keys(extras);
     for (var i=0; i<original_events.length; i++) {
       var eventObj = original_events[i],
           // break reference to eventObj so original doesn't get overwritten
           event = elation.events.clone(eventObj, {type: type, target: target, data: data, timeStamp: new Date().getTime()});
 
-      for (var k in extras) event[k] = extras[k];
+      
+      for (var j = 0; j < extrakeys.length; j++) {
+        event[extrakeys[j]] = extras[extrakeys[j]];
+      }
 
       if (!event.origin)
         continue;

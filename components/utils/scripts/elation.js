@@ -155,6 +155,12 @@ elation.extend("component", new function() {
       //if (component.obj[realname] && container !== undefined) {
         component.obj[realname].componentinit(type, realname, container, args, events);
 
+/*
+        if (component.extendclass) {
+          component.obj[realname].initSuperClass(component.extendclass);
+        }
+*/
+
         if (typeof component.obj[realname].init == 'function') {
           component.obj[realname].init(realname, container, args, events);
         }
@@ -183,9 +189,9 @@ elation.extend("component", new function() {
   this.create = function(id, type, container, args, events) {
     var componentclass = elation.utils.arrayget(elation, type);
     if (typeof componentclass == 'function') {
-      return componentclass.call(componentclass, id, container, args, events);
+      var instance = componentclass.call(componentclass, id, container, args, events);
     } 
-    console.error("elation: tried to instantiate unknown component type '" + type + "', id '" + id + "'", componentclass);
+    //console.error("elation: tried to instantiate unknown component type '" + type + "', id '" + id + "'");
   }
   this.get = function(id, type, container, args, events) {
     var componentclass = elation.utils.arrayget(elation, type);
@@ -257,12 +263,17 @@ elation.extend("component", new function() {
         }
       }
       elation.events.fire({type: "init", fn: this, data: this, element: this.container});
-      //this.initParentClass(elation.utils.arrayget(elation, name))
     }
-    this.initParentClass = function(classdef) {
-      if (classdef && classdef.extendclass && typeof classdef.extendclass.init == 'function') {
-        classdef.extendclass.init.call(this);
+    this.initSuperClass = function(classdef) {
+      var _super = {};
+      if (classdef) {
+        for (var k in classdef) {
+          if (typeof classdef[k] == 'function') {
+            _super[k] = elation.bind(this, classdef[k]);
+          }
+        }
       }
+      return _super;
     }
 
     this.extend = function(from) {
@@ -344,6 +355,14 @@ elation.extend("component", new function() {
         delete componentclass.obj[this.id];
       }
     }
+/*
+    this.addEventListener = function(type, listener, useCapture) {
+      elation.events.add(this, type, listener);
+    }
+    this.dispatchEvent = function(event) {
+      elation.events.fire(event);
+    }
+*/
   }
   this.parseid = function(element) {
     // Parse out the data-elation-component and data-elation-name attributes, if set.  Fall back on HTML id if no name specified
@@ -672,6 +691,7 @@ elation.extend("html.hasclass", function(element, className) {
     var re = new RegExp("(^| )" + className + "( |$)", "g");
     return element.className.match(re);
   }
+  return false;
 });
 
 elation.extend("html.addclass", function(elements, className) {
@@ -1876,425 +1896,6 @@ elation.extend('require.batch', function(modules, callback) {
   this.init();
 });
 
-elation.extend('ui.gradient', function(element, first, last) {
-	switch (elation.browser.type) {
-		case "msie": 
-			element.style.filter = "progid:DXImageTransform.Microsoft.gradient(startColorstr='"+first+"', endColorstr='"+last+"')"; 
-			break;
-		
-		case "safari": 
-			element.style.cssText = "background:-webkit-gradient(linear, left top, left bottom, from("+first+"), to("+last+"));"; 
-			break;
-		
-		case "firefox": 
-			element.style.cssText = "background:-moz-linear-gradient(top, "+first+", "+last+");"; 
-			break;
-	}
-});
-
-elation.extend('ui.getCaretPosition', function(oField) {
-	// Initialize
-	var iCaretPos = 0;
-
-	// IE Support
-	if (document.selection) { 
-		// Set focus on the element
-		oField.focus();
-		
-		// To get cursor position, get empty selection range
-		var oSel = document.selection.createRange ();
-		
-		// Move selection start to 0 position
-		oSel.moveStart('character', -oField.value.length);
-		
-		// The caret position is selection length
-		iCaretPos = oSel.text.length;
-	}
-	
-	// Firefox support
-	else if (oField.selectionStart || oField.selectionStart == '0')
-		iCaretPos = oField.selectionStart;
-	
-	// Return results
-	return iCaretPos;
-});
-
-
-/*
-**  Sets the caret (cursor) position of the specified text field.
-**  Valid positions are 0-oField.length.
-*/
-elation.extend('ui.setCaretPosition', function(oField, iCaretPos) {
-	// IE Support
-	if (document.selection) { 
-		// Set focus on the element
-		oField.focus();
-		
-		// Create empty selection range
-		var oSel = document.selection.createRange ();
-		
-		// Move selection start and end to 0 position
-		oSel.moveStart('character', -oField.value.length);
-		
-		// Move selection start and end to desired position
-		oSel.moveStart('character', iCaretPos);
-		oSel.moveEnd('character', 0);
-		oSel.select();
-	}
-	
-	// Firefox support
-	else if (oField.selectionStart || oField.selectionStart == '0') {
-		oField.selectionStart = iCaretPos;
-		oField.selectionEnd = iCaretPos;
-		oField.focus();
-	}
-});
-
-elation.extend('ui.combobox', function(parent, callback) {
-	this.visible = false;
-	this.parent = parent;
-	this.callback = callback;
-	
-	this.init = function() {
-		var	selects = elation.find("select.tf_search_input_sub_navigation", this.parent),
-				select, dim, combobox, label, button, ul, lis, img, option, actions, options;
-		
-		for (var i=0; i<selects.length; i++) {
-			select = selects[i];
-			options = [];
-			
-			combobox = this.combobox = elation.html.create({
-				tag: 'div',
-				classname: 'tf_combobox',
-				append: select.parentNode,
-				before: select
-			});
-			
-			label = this.label = elation.html.create({
-				tag: 'div',
-				classname: 'tf_combobox_label',
-				append: combobox
-			});
-			
-			button = this.button = elation.html.create({
-				tag: 'div',
-				classname: 'tf_combobox_button',
-				append: combobox
-			});
-			
-			img = elation.html.create({
-				tag: 'div',
-				classname: 'tf_combobox_image',
-				append: button
-			});			
-			
-			ul = this.ul = elation.html.create({
-				tag: 'ul',
-				classname: 'tf_combobox_options',
-				append: combobox
-			});
-			
-			label.innerHTML = select.options[select.selectedIndex].innerHTML;
-			
-      for (var s=0; s<select.options.length; s++) {
-				option = select.options[s];
-				
-				li = elation.html.create({
-					tag: 'li',
-					classname: 'tf_combobox_option',
-					append: ul,
-					attributes: {
-						innerHTML: option.innerHTML
-					}
-				});
-				
-				options.push({ 
-					li: li, 
-					label: option.innerHTML, 
-					value: option.value 
-				});
-			}
-			
-			this.options = options;
-			this.actions = actions;
-			this.ul.style.display = 'block';
-			this.height = this.ul.offsetHeight;
-			this.ul.style.display = 'none';
-			
-      elation.events.add(combobox, 'click', this);
-			
-			select.parentNode.removeChild(select);
-		}
-	}
-	
-	this.show = function() {
-		this.visible = true;
-		
-		elation.html.addclass(this.button, 'selected');
-		
-		$TF(this.ul)
-			.css({display: 'block', height: 0})
-			.animate({height: this.height + 'px'}, 150, "easein");
-	}
-	
-	this.hide = function() {
-		this.visible = false;
-		
-		elation.html.removeclass(this.button, 'selected');
-		
-		(function(self) {
-			$TF(self.ul)
-				.animate({height: 0}, 200, "easeout", function() {self.ul.style.display = 'none';});
-		})(this);
-	}
-	
-	this.toggle = function(target) {
-		this.visible
-			? this.hide()
-			: this.show();
-		
-		if (target.nodeName == 'LI')
-			this.callback(target, this);
-	}
-	
-	this.handleEvent = function(event) {
-		var type = event.type || window.event,
-				target = event.target || event.srcElement;
-		
-		switch (type) {
-			case 'click':this.toggle(target);break;
-			case 'mouseover':break;
-			case 'mouseout':break;
-		}
-	}
-	
-	this.init();
-});
-
-elation.extend('ui.infoboxes.infobox_stores', function() {
-  $TF.get("/facebook/stores_match.html", function(html){
-    elation.ui.lightbox.show(html);
-  });
-});
-
-elation.extend('ui.infoboxes.tell_more_friends', function() {
-	var callback = window.location.href;
-	
-	return elation.ui.lightbox.get("/facebook/tell_more_friends.snip","callback="+encodeURIComponent(callback));
-});
-elation.extend('ui.infoboxes.infobox_privacy_settings', function() {
-	return elation.ui.lightbox.get("/user/privacy_settings.html");
-});
-
-elation.extend('ui.infoboxes.twitter_form', function() {
-  var form = document.getElementById('tf_share_twitter'),
-			item = elation.results.activeitem(),
-			infobox = elation.ui.infobox.get('product_infocard'),
-			href = window.location.href.split('#')[0],
-			query = elation.searches.tf_search_examplesearch.args.query,
-			shortHREF = '';
-  
-  if (query) {
-  	var message = "\n\nI've searched for " + query + " on @TheFind. Look at these great products I found!";
-  } else {
-  	var message = "\n\nTake a look at these great results at TheFind.com";
-  }
-  
-  if (item && infobox && infobox.visible) {
-  	href += '&ddkey=' + item.ddkey;
-  }
-
-  function setMessage(args) {
-    if(shortHREF) {
-      href = shortHREF;
-    }
-    
-    if (item && infobox && infobox.visible) {
-      message = "I'm looking at " + item.title + ", " + href + " on @TheFind.";
-      form.msg.innerHTML = message;
-    }
-    else {
-      form.msg.innerHTML = href + message;
-    }               
-  }
-  
-  $TF.ajax({
-    url: '/utils/shorturl.js',
-    data: 'url=' + encodeURIComponent(href),
-    dataType: 'json',
-    type: 'GET',
-    timeout: 5000,
-    success: function(data, textStatus) {
-      shortHREF = data.data.shorturl;
-      setMessage();
-    },
-    error: function(XMLHttpRequest, textStatus, errorThrown) {
-      setMessage();
-    }
-  });
-  
-  /*
-  ajaxlib.Queue({
-  	method: 'GET',
-  	url: '/utils/shorturl.js',
-  	args: 'url=' + encodeURIComponent(href),
-  	callback: [this, function(args) {
-  		//try {
-  		var response = elation.JSON.parse(args);
-  		shortHREF = href = response.data.shorturl;
-  		//}
-  		//catch(e) {}
-  		setMessage();
-  	}
-  ]	,
-  	failurecallback: [this, function() {
-  		setMessage();
-  	}
-  ]	,
-  	timeoutcallback: [this, function() {
-  		setMessage();
-  	}
-  ]
-  });
-  
-  ajaxlib.Get('utils/shorturl.js?url=' + encodeURIComponent(href), null, {
-  	callback: function(args) {
-  		var response = elation.JSON.parse(args);
-  		shortHREF = href = response.data.shorturl;
-  		setMessage();
-  	},
-  	failurecallback: setMessage,
-  	timeout: 5000,
-  	timeoutcallback: setMessage
-  });
-  */
-});
-
-elation.extend('ui.infoboxes.email_form', function(args) {
-	var	args = args || {},
-      data = elation.user.user,
-			to = document.getElementById('myfindsSendEmailToEmail'),
-			from = document.getElementById('myfindsSendEmailFromEmail'),
-			name = document.getElementById('myfindsSendEmailFromName'),
-			msg = document.getElementById('myfindsSendEmailMessage'),
-      url = window.location.href.split('#')[0]
-      sep = url.split('?').length > 1 ? '&' : '?';
-	
-	if (from && data.email)
-		from.value = data.email;
-	
-	if (name && data.nickname)
-		name.value = data.nickname;
-	
-	if (msg) 
-  	if (elation.utils.arrayget(args, "isproduct")) {
-  		msg.value  = "I just discovered this product on TheFind and wanted to share it with you.\n\n" + url + sep + "ddkey=" + elation.utils.arrayget(args, 'ddkey') + "\n\n";
-  	}
-  	else {
-  		msg.value = "I just discovered these products on TheFind and wanted to share them with you.\n\n" + url + "\n\nCheck them out!";
-  	}
-	
-	if (to)
-		to.focus();
-});
-
-elation.extend('data', new function() {
-	this.add = function(name, data) {
-		if (!this[name])
-			this[name] = [];
-		
-		for (var i=0; i<data.length; i++)
-			this[name].push(data[i]);
-	}
-	
-	this.find = function(name, path, value, get_all) {
-		if (elation.utils.isNull(this[name]))
-			return false;
-		
-    var ret = [];
-    
-		for (var i=0; i<this[name].length; i++) {
-			var item = this[name][i],
-					property = elation.utils.arrayget(item, path);
-			
-			if (property == value)
-				ret.push(item);
-		}
-    
-		return (ret.length == 0 ? false : get_all ? ret : ret[0]);
-	}
-});
-
-// execute callback onhover
-elation.extend('ui.hover', function() {
-  this.init = function(element, mouseover, mouseout, alternate, click) {
-    if (!element || !mouseover || !mouseout)
-      return;
-    
-    this.element = element;
-    this.mouseover = mouseover;
-    this.mouseout = mouseout;
-		this.click = click;
-    this.alternate = alternate || element;
-    
-    elation.events.add(element, "mouseover,mouseout", this);
-    
-		// onclick is optional
-		if (click)
-			elation.events.add(this.alternate, "click", this);
-  }
-  
-  this.handleEvent = function(event) {
-    var	event = this.event = event || window.event,
-        target = this.target = event.target || event.srcElement,
-				related = this.related = elation.events.getRelated(event);
-    
-		if (this.checkRelated(target, related))
-			return;
-		
-    switch(event.type) {
-      case "mouseover":
-        this.mouseover();
-        break;
-      
-      case "mouseout":
-        this.mouseout();
-        break;
-      
-			case "click":
-        this.click();
-        break;
-    }
-  }
-	
-	this.checkRelated = function(target, related) {
- 		while (!elation.utils.isNull(related)) { 
- 			if (related == this.element)
-				return true;
-			
-			related = related.parentNode;
-		}
-		
-		return false;
-	}
-});
-
-elation.extend('log_size', function(result_view_id) {
-	if (typeof result_view_id == 'undefined')
-		result_view_id = '';
-	
-	if (window.innerWidth) 
-		var	tr_width = window.innerWidth,
-				tr_height = window.innerHeight;
-	else 
-		if (document.body.offsetWidth) 
-			var	tr_width = document.body.offsetWidth,
-					tr_height = document.body.offsetHeight;
-	
-	if (elation.ajax) {
-    elation.ajax.Get('/page/sizelog?width=' + tr_width + '&height=' + tr_height + '&result_view_id=' + result_view_id);
-  }
-});
 elation.extend("utils.escapeHTML", function(str) {
    var div = document.createElement('div');
    var text = document.createTextNode(str);
@@ -2305,7 +1906,6 @@ elation.extend("utils.escapeHTML", function(str) {
 elation.extend("utils.isnumeric", function(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 });
-tr_size = elation.log_size;
 
 /* Return first non-empty value from list of args, or null if all are empty
 * Empty string, null and undefined are considered 'empty' and skipped over

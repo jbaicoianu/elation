@@ -32,7 +32,8 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
       //this.container.style.top = 0;
       //this.container.style.left = 0;
       this.offsetpos = [0, 0];
-      this.titlebar = elation.html.create({tag: 'h2', classname: 'ui_window_titlebar', append: this.container});
+      this.titlebar = elation.html.create({tag: 'div', classname: 'ui_window_titlebar', append: this.container});
+      this.toolbar = false;
       this.minimized = false;
       this.maximized = false;
       this.transformorigin = "50% 50%";
@@ -48,16 +49,24 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
       if (this.args.title) {
         this.settitle(this.args.title);
       }
+      if (this.args.toolbar) {
+        this.settoolbar(this.args.toolbar);
+      }
       if (this.args.position) {
         this.setposition(this.args.position);
       }
       this.setcontent(this.args.content);
-      elation.events.add(this.container, 'mousedown,touchstart', this);
+
       elation.events.add(window, 'resize,orientationchange', this);
+
       var curpos = elation.html.position(this.container);
       elation.html.addclass(this.container, "ui_window");
       if (this.args.classname) {
         elation.html.addclass(this.container, this.args.classname);
+      }
+      if (this.args.movable !== false) {
+        this.addclass('state_movable');
+        elation.events.add(this.container, 'mousedown,touchstart', this);
       }
       if (this.args.width) {
         this.container.style.width = this.args.width;  
@@ -65,6 +74,10 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
       this.size = this.getsize();
       if (this.args.center) {
         this.center();
+      }
+      // TODO - should "center" be an orientation too?
+      if (this.args.orientation) {
+        this.setOrientation(this.args.orientation);
       }
       if (this.args.top) {
         this.setposition([this.offsetpos[0], this.args.top]);
@@ -115,7 +128,7 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
           events: { click: elation.bind(this, this.minimize) }
         };
       }
-      if (this.args.minimize !== false) {
+      if (this.args.maximize !== false) {
         buttons.maximize = {
           label: this.labels.maximize,
           classname: 'ui_window_control_maximize',
@@ -220,15 +233,16 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
     this.setsize = function(size) {
       elation.html.transform(this.container, this.gettransform(), this.transformorigin, 'none');
       this.content.style.width = size[0] + 'px';
-      this.content.style.height = (size[1] - this.titlebar.offsetHeight) + 'px';
+      this.content.style.height = (size[1] - this.titlebar.offsetHeight - (this.toolbar ? this.toolbar.offsetHeight : 0)) + 'px';
       this.size[0] = size[0];
       this.size[1] = size[1];
   //alert('setted:' + this.size[0] + 'x' + this.size[1] + ", " + this.content.style.width + " x " + this.content.style.height);
     }
     this.center = function() {
       var dim = elation.html.dimensions(this.container);
-      var realx = (window.innerWidth - this.container.offsetWidth) / 2;
+      var realx = (document.body.offsetWidth - this.container.offsetWidth) / 2;
       var realy = (window.innerHeight - this.container.offsetHeight) / 2;
+      this.content.style.maxHeight = (window.innerHeight - this.content.offsetTop) + 'px';
       this.setposition([realx, realy]);
     }
     this.drag = function(diff) {
@@ -254,6 +268,23 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
       if (this.controls) {
         //this.titlebar.appendChild(this.controls.container);
         this.titlebar.insertBefore(this.controls.container, this.titlebar.firstChild);
+      }
+    }
+    this.settoolbar = function(newtoolbar) {
+      if (this.toolbar) {
+        this.container.removeChild(this.toolbar.container);
+      }
+      if (newtoolbar instanceof elation.component.base) {
+        newtoolbar = newtoolbar.container;
+      } else if (newtoolbar instanceof HTMLElement) {
+        // ...
+      } else {
+        newtoolbar = elation.html.create({tag: 'div', content: newtoolbar});
+      }
+      this.toolbar = newtoolbar;
+      this.container.insertBefore(newtoolbar, this.titlebar.nextSibling);
+      if (!elation.html.hasclass(this.toolbar, 'ui_window_toolbar')) {
+        elation.html.addclass(this.toolbar, 'ui_window_toolbar');
       }
     }
     this.setcontent = function(newcontent) {
@@ -405,10 +436,16 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
       if (this.maximized) {
         this.setsize([window.innerWidth, window.innerHeight]);
       }
+      if (this.args.center) {
+        this.center();
+      }
     }
     this.orientationchange = function(ev) {
       if (this.maximized) {
         this.setsize([window.innerWidth, window.innerHeight]);
+      }
+      if (this.args.center) {
+        this.center();
       }
     }
   }, elation.ui.base);

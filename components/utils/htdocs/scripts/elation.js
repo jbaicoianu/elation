@@ -1152,7 +1152,7 @@ elation.extend("utils.indexOf", function(array, object) {
 	
 	return -1;
 });
-
+/***  IE6 is old, therefore I'm removing it since this causes problems in IE10.  This can be removed sometimes, but give it a month or two.  It's currently August 12th, 2014
 elation.extend("utils.fixPNG", function() {
   if (elation.browser.type == "msie" && elation.browser.version <= 6) {
     //FIXME this breaks fixpng, I'm commenting it out, if this breaks other things... well, if you happen to see this comment maybe it will inspire you to try uncommenting out the line below to see if that has an effect -- mac daddy
@@ -1167,7 +1167,7 @@ elation.extend("utils.fixPNG", function() {
     }
   }
 });
-
+***/
 elation.extend("utils.stringify", function(parms) {
   var value, ret = '';
   

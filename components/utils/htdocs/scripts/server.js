@@ -377,9 +377,9 @@ elation.extend("server", function() {
           } else {
             //thefind.func.ie6_purge(targetel);
             
-            if (response['target'] == 'tf_search_results_main') {
-              response['_content'] += "<div style='position:absolute;background:red;width:100%;height:100%;'></div>"
-            }
+            //if (response['target'] == 'tf_search_results_main') {
+            //  response['_content'] += "<div style='position:absolute;background:red;width:100%;height:100%;'></div>"
+            //}
             var infobox = elation.ui.infobox.target(targetel);
             
             if (infobox)

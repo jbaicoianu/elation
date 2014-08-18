@@ -179,6 +179,8 @@ class ConfigManager extends Base {
 
       if ($assign)
         $this->servers =& $servers;
+
+      $this->current =& $this->servers;
       //Profiler::StopTimer("ConfigManager::LoadServers()");
 
       if (isset($this->servers["logger"]["enabled"]) && empty($this->servers["logger"]["enabled"]))
@@ -675,7 +677,7 @@ class ConfigManager extends Base {
     }
 
     if ($setcurrent) {
-      $this->current =& $ret;
+      $this->current = (is_array($this->current) ? array_merge_recursive($this->current, $ret) : $ret);
       // Update locations to reflect any new settings we got from the cobrand config
       $this->locations = $this->getLocations();
     }

@@ -242,10 +242,7 @@ elation.extend('panel.obj', function(name, parent, args) {
 						: '';
 			
 			if (href) {
-				var	input = elation.find('input.tf_search_input_element')[0],
-            query = input 
-              ? input.value
-              : '',
+				var	query = elation.utils.arrayget(search, 'args.query') || '',
 						queryString;
 				
 				// HACKY: stop tab switch reloading on default_query
@@ -255,7 +252,9 @@ elation.extend('panel.obj', function(name, parent, args) {
 				if (query)
 					query = encodeURIComponent(query);
         
-				(query) ? queryString = (href.indexOf('?') == -1 ? '?' : '&') + 'query=' + query : queryString = '';
+				(query) 
+					? queryString = (elation.utils.indexOf(href,'?') == -1 ? '?' : '&') + 'query=' + query 
+					: queryString = '';
         
 				if ((query || !input) && href.search('/myfinds') === -1) {
 				  window.location.href = href + queryString;

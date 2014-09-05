@@ -2264,6 +2264,8 @@ elation.extend('timing', function(boolSetOnInit) {
 			alert(debug);
 		else
 			console.log(debug);
+
+    return l[l.length-1] - l[0];
   }
   
   if (boolSetOnInit)

@@ -24,7 +24,6 @@
     {dependency type="component" name="utils.events"}
     {dependency type="component" name="utils.dependencies"}
     {dependency type="component" name="utils.ui"}
-    {dependency type="component" name="utils.msie-xpath"}
     {dependency type="onload" code="elation.component.init()"}
   {/config}
   

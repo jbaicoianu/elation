@@ -178,7 +178,7 @@ elation.extend("component", new function() {
           // Then, loop through the attributes and parse out any individual arguments which can be specified as attributes
           for (j = 0; j < element.attributes.length; j++) {
             if (element.attributes[j].nodeName.substring(0, argsattr.length+1) == argsattr+'.') {
-              elation.utils.arrayset(componentargs, element.attributes[j].nodeName.substring(argsattr.length+1), element.attributes[j].nodeValue);
+              elation.utils.arrayset(componentargs, element.attributes[j].nodeName.substring(argsattr.length+1), element.attributes[j].value);
             }
           }
           // Instantiate the new component with all parsed arguments
@@ -1152,7 +1152,7 @@ elation.extend("utils.indexOf", function(array, object) {
 	
 	return -1;
 });
-
+/***  IE6 is old, therefore I'm removing it since this causes problems in IE10.  This can be removed sometimes, but give it a month or two.  It's currently August 12th, 2014
 elation.extend("utils.fixPNG", function() {
   if (elation.browser.type == "msie" && elation.browser.version <= 6) {
     //FIXME this breaks fixpng, I'm commenting it out, if this breaks other things... well, if you happen to see this comment maybe it will inspire you to try uncommenting out the line below to see if that has an effect -- mac daddy
@@ -1167,7 +1167,7 @@ elation.extend("utils.fixPNG", function() {
     }
   }
 });
-
+***/
 elation.extend("utils.stringify", function(parms) {
   var value, ret = '';
   
@@ -1693,10 +1693,10 @@ elation.extend('file.dependencies', new function() {
 			ret += (ret == '' ? '?' : '&') + key + '=';
 			
 			for (var i=0; i<parms[key].length; i++) {
-				if (parms[key][i] != 'map')
+				//if (parms[key][i] != 'map')
 					ret += parms[key][i] + (i == parms[key].length-1?'':'+');
-				else if (i == parms[key].length-1)
-					ret = ret.substr(0,ret.length-1);
+				//else if (i == parms[key].length-1)
+				//	ret = ret.substr(0,ret.length-1);
 			}
 		}
 		
@@ -1729,7 +1729,6 @@ elation.extend('file.dependencies', new function() {
 		
 		if (component || type == 'css') {
 			url = this.wait(url, type);
-			
 			if (url) 
 				url = '/' + (type == 'css' ? 'css' : 'scripts') + '/main' + url;
 			else 
@@ -1747,7 +1746,7 @@ elation.extend('file.dependencies', new function() {
 						self.done(file); 
 					})(this)
 		));
-		
+
 		this.files[url] = file;
 		
 		return file;
@@ -2265,6 +2264,8 @@ elation.extend('timing', function(boolSetOnInit) {
 			alert(debug);
 		else
 			console.log(debug);
+
+    return l[l.length-1] - l[0];
   }
   
   if (boolSetOnInit)

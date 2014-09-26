@@ -523,14 +523,16 @@ class ConfigManager extends Base {
     if (count($addedcfg) > 0) {
       $keyvalues = array();
 
-      foreach ($addedcfg as $k=>$v) 
-        $keyvalues[] = array("cobrandid"=>$cobrandid,"name"=>$k,"value"=>$v["value"],"type"=>$v["type"],'role'=>$role);
+      foreach ($addedcfg as $k=>$v) {
+          $keyvalues[] = array("ccid" => md5int64($role.'-'.$cobrandid.'-'.$k) ,"cobrandid"=>$cobrandid,"name"=>$k,
+            "value"=>$v["value"],"type"=>$v["type"],'role'=>$role);
+       }
 
-      if (!empty($keyvalues)) {
+       if (!empty($keyvalues)) {
         $query = DataManager::insert("db.config.cobrand_config.{$name}-{$k}:nocache", "config.cobrand_config", $keyvalues);
         
-        $ret |= true;
-      }
+         $ret |= true;
+      } 
 
       $updaterevision = true;
     }

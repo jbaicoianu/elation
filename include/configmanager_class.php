@@ -524,20 +524,15 @@ class ConfigManager extends Base {
       $keyvalues = array();
 
       foreach ($addedcfg as $k=>$v) {
-        DataManager::query("db.config.cobrand_config.{$name}-{$newcfg['key']}:nocache",
-                             "INSERT INTO config.cobrand_config"
-                           . " SET ccid=config.hash_cobrand_config(:role, :cobrandid, :name),cobrandid=:cobrandid,name=:name,value=:value,role=:role,modified_time=:timestamp, type=:type",
-             array(":cobrandid" => $cobrandid, ":name" => $k, ":value" => $v["value"], ":role" => $role, ":timestamp" => unixtime_milli(),':type' => $v['type']));
-
+          $keyvalues[] = array("ccid" => md5int64($role.'-'.$cobrandid.'-'.$k) ,"cobrandid"=>$cobrandid,"name"=>$k,
+            "value"=>$v["value"],"type"=>$v["type"],'role'=>$role);
        }
-       $ret |= true;
-      //  $keyvalues[] = array("cobrandid"=>$cobrandid,"name"=>$k,"value"=>$v["value"],"type"=>$v["type"],'role'=>$role);
 
-      /* if (!empty($keyvalues)) {
-        //$query = DataManager::insert("db.config.cobrand_config.{$name}-{$k}:nocache", "config.cobrand_config", $keyvalues);
+       if (!empty($keyvalues)) {
+        $query = DataManager::insert("db.config.cobrand_config.{$name}-{$k}:nocache", "config.cobrand_config", $keyvalues);
         
-      //  $ret |= true;
-      } */
+         $ret |= true;
+      } 
 
       $updaterevision = true;
     }

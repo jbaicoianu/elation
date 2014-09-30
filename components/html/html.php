@@ -43,6 +43,7 @@ class Component_html extends Component {
           }
         }
       }
+      $args["native"] = any(ConfigManager::get("native"),array("enabled" => false));
       
       return $this->GetTemplate("./header.tpl", $args);
     }

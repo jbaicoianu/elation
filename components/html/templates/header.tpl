@@ -35,12 +35,11 @@
   {* FIXME - these should be dependencies *}
   <meta name="description" content="[[page.meta.description:TheFind.com - shopping search reinvented. What can we find for you?]]" />
   <meta name="keywords" content="[[page.meta.keywords]]" />
-  {*
-    <!--[if lt IE 8]>
-    <object id="elation" classid="http://www.dcsdfcv.coc/"></object>
-    <?import namespace="elation" implementation="#elation"?>
-    <![endif]-->
-  *}
+
+  {if $native.enabled && !empty($native.subscribe)}
+    {dependency name="utils.native"}
+    <script>elation.native.subscribe('{$native.subscribe}')</script>
+  {/if}
 
   <script type="application/javascript">
     {component name="tracking.autotrack"}

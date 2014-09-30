@@ -36,10 +36,6 @@
   <meta name="description" content="[[page.meta.description:TheFind.com - shopping search reinvented. What can we find for you?]]" />
   <meta name="keywords" content="[[page.meta.keywords]]" />
 
-  {if $native.enabled && !empty($native.subscribe)}
-    {dependency name="utils.native"}
-    <script>elation.native.subscribe('{$native.subscribe}')</script>
-  {/if}
 
   <script type="application/javascript">
     {component name="tracking.autotrack"}
@@ -53,4 +49,9 @@
   <script>
     if (!elation.utils.iniframe())
       console.log('{$agent}');
+
+    {if $native.enabled && !empty($native.subscribe)}
+      {dependency name="utils.native"}
+      elation.native.subscribe('{$native.subscribe}')
+    {/if}
   </script>

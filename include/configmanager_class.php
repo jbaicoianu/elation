@@ -85,7 +85,7 @@ class ConfigManager extends Base {
     }
     //load localconfig manager if enabled and role=elation
     if ($this->isLocalConfigEnabled() ) {
-      $dir = $this->locations['config'] . '/' . $this->servers['config']['manager']['localconfigdir'];
+      $dir = $this->locations['tmp'];
       $filename = $this->servers['config']['manager']['localconfigfile'];
       $this->localConfig = new LocalConfigManager($dir, $filename, $this->apcenabled);
     }

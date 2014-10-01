@@ -156,8 +156,10 @@ web_init() {
     component_enable $I
   done
 
-  chmod 766 config/localconfig/localconfig.txt
+  touch tmp/localconfig.txt
+  chmod go=rw tmp/localconfig.txt
 }
+
 web_compact() {
   MINIFIEDBASE="tmp/minified"
   MINIFIEDBASEREGEX="tmp\/minified"

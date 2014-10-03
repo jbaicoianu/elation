@@ -441,7 +441,7 @@ elation.extend('panel.add_item', function(name, panel, args) {
 
 		if (elements)
 			for (var i=0; i<elements.length; i++)
-				if (elements[i].parentNode.parentNode.id == panel.element.id)
+				if (elation.utils.arrayget(elements[i], 'parentNode.parentNode.id') == panel.element.id)
 					var element = this.element = elements[i];
 
 		if (!element)

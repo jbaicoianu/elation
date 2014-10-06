@@ -62,11 +62,17 @@ elation.extend("native", new function() {
     } catch (e) {
       console.log("Couldn't encode event data for event type " + ev.type, ev);
     }
-    if (window.external && window.external.notify) {
+
+    // We support various methods for alerting the native app of events
+    if (window.elationNative && window.elationNative.bridgeEvent) {
+      // fully-integrated with native Elation library
+      window.elationNative.bridgeEvent('{"type": "' + ev.type + '", "data": ' + data + '}');
+    } else if (window.external && window.external.notify) {
       // metro
       window.external.notify('{"type": "' + ev.type + '", "data": ' + data + '}');
     } else {
       // iOS UIWebView and android WebView
+      // (possibly subject to url length restrictions)
       var url = this.prefix + ev.type;
       if (evdata) {
         url += "/" + evdata;

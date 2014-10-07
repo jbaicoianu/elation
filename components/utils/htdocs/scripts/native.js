@@ -66,10 +66,10 @@ elation.extend("native", new function() {
     // We support various methods for alerting the native app of events
     if (window.elationNative && window.elationNative.bridgeEvent) {
       // fully-integrated with native Elation library
-      window.elationNative.bridgeEvent('{"type": "' + ev.type + '", "data": ' + data + '}');
+      window.elationNative.bridgeEvent('{"type": "' + ev.type + '", "data": ' + evdata + '}');
     } else if (window.external && window.external.notify) {
       // metro
-      window.external.notify('{"type": "' + ev.type + '", "data": ' + data + '}');
+      window.external.notify('{"type": "' + ev.type + '", "data": ' + evdata + '}');
     } else {
       // iOS UIWebView and android WebView
       // (possibly subject to url length restrictions)

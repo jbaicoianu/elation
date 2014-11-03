@@ -56,11 +56,14 @@ elation.extend("native", new function() {
     this.bridge(ev);
   }
   this.bridge = function(ev) {
-    var evdata = false;
+    var evdata = false,
+        data = ev.data;
+
     try {
-      evdata = elation.JSON.stringify(ev.data);
+      evdata = elation.JSON.stringify(data);
     } catch (e) {
-      console.log("Couldn't encode event data for event type " + ev.type, ev);
+      console.log("Couldn't encode FULL event data for event type " + ev.type, ev);
+      evdata = elation.JSON.stringify(elation.utils.nativeValidate(data));
     }
 
     // We support various methods for alerting the native app of events

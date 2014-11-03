@@ -1168,6 +1168,17 @@ elation.extend("utils.fixPNG", function() {
   }
 });
 ***/
+elation.extend("utils.nativeValidate", function(object) {
+  var ret = {};
+
+  for (var key in object) {
+    if (typeof object[key] != 'function' && typeof object[key] != 'object')
+      ret[key] = object[key];
+  }
+
+  return ret;
+});
+
 elation.extend("utils.stringify", function(parms) {
   var value, ret = '';
   
@@ -1360,18 +1371,24 @@ elation.extend('JSON', new function() {
     return this.JSON(['decode', 'parse'], text);
   }
   
-  this.stringify = function(text) {
-    return this.JSON(['encode', 'stringify'], text);
+  this.stringify = function(text, ignore_errors) {
+    return this.JSON(['encode', 'stringify'], text, ignore_errors);
   }
   
-  this.JSON = function(parms, text) {
+  this.JSON = function(parms, text, ignore_errors) {
     if (typeof text != 'string' && elation.utils.isEmptyObj(text))
       return;
     
 		var key = (typeof JSON[parms[0]] == 'function' ? parms[0] : parms[1]);
 
 		if (typeof JSON[key] == 'function') {
-			return JSON[key](text);
+			return JSON[key](text, (ignore_errors 
+        ? function(key, value) {
+            console.log(key, value, typeof(value));
+            if (typeof key == 'object') { return 'object not copied'; }
+            else { return value; }
+          }
+        : null));
 		}
   }
 });

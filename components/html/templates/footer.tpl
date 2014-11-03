@@ -2,7 +2,7 @@
   {dependency type="component" name="html.footer"}
   {dependency type="component" name="utils.panel"}
   {if $GAenabled}
-  
+    
     {literal}
       <script>
         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -34,7 +34,8 @@
           'store_name':   '{$store_name|escape:javascript}',
           'alpha':        '{$alpha|escape:javascript}',
           'browse_nodename':     '{$browse->nodename|escape:javascript}',
-          'browse_nodetype':     '{$browse->nodetype|escape:javascript}'
+          'browse_nodetype':     '{$browse->nodetype|escape:javascript}',
+          'enable_native_tracking':     '{$enable_native_tracking|escape:javascript}'
         {rdelim});
         {if !empty($request_cobrand)}
           googleAnalytics.setCustomDim(11, "{$request_cobrand|escape:javascript}");

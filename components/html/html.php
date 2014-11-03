@@ -78,6 +78,7 @@ class Component_html extends Component {
     $args['GAalerts'] = $webapp->GAalerts;
 
     $args['trackingcode'] = any(ConfigManager::get("tracking.googleanalytics.trackingcode"), $webapp->cfg->servers['tracking']['googleanalytics']['trackingcode']);
+    $args['enable_native_tracking'] = ConfigManager::get("tracking.enable_native_tracking", NULL);
 
     $args['category'] = any($analytics->category, $analytics->pandora_result['top_category'], $analytics->item->category, $analytics->qpmquery['protocolheaders']['category'], 'none');
     $args['subcategory'] = preg_replace("#\s#", "_", any($analytics->subcategory, $analytics->pandora_result['top_subcategory'], 'none'));

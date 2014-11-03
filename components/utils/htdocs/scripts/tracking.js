@@ -26,6 +26,7 @@ elation.extend('googleanalytics', function(args) {
   this.myfindspanel = '';
   this.mouseovertype = '';
   this.mouseovereventenable = 1;
+  this.enable_native_tracking = args.enable_native_tracking;
   //this.pageTracker = _gat._getTracker(this.trackingcode);
   //ga('create', this.trackingcode, 'thefind.com');
   ga('create', this.trackingcode, {'allowLinker': true});
@@ -448,14 +449,22 @@ elation.extend('googleanalytics', function(args) {
           for(i in args.metric){
             metricObj[args.metric[i]['key']] = args.metric[i]['value'];
           }
-          ga('send', 'pageview', pageurl, metricObj);
+          if(googleAnalytics.enable_native_tracking == true){
+            elation.events.fire('ga_event', {type: 'pageview', pageurl: pageurl, metric: metricObj});
+          } else {
+            ga('send', 'pageview', pageurl, metricObj);
+          }
           if (this.GAalerts){
             for(i in args.metric){
               this.displayTag('setCustomMetric('+args.metric[i]['key']+','+args.metric[i]['value']+')');
             }
           }
         } else {
-          ga('send', 'pageview', pageurl);
+          if(googleAnalytics.enable_native_tracking == true){
+            elation.events.fire('ga_event', {type: 'pageview', pageurl: pageurl});
+          } else {
+            ga('send', 'pageview', pageurl);
+          }
         }
       } catch (err) {if (this.GAalerts) this.displayTag("trackPageview Error: "+err.message)}
     }
@@ -519,9 +528,17 @@ elation.extend('googleanalytics', function(args) {
         for(i in args.metric){
           metricObj[args.metric[i]['key']] = args.metric[i]['value'];
         }
-        ga('send', 'event', args.event[0], args.event[1], args.event[2], args.event[3], metricObj);
+        if(googleAnalytics.enable_native_tracking == true){
+          elation.events.fire('ga_event', {type: 'event', category: args.event[0], action: args.event[1], label: args.event[2], value: args.event[3], metric: metricObj});
+        } else {
+          ga('send', 'event', args.event[0], args.event[1], args.event[2], args.event[3], metricObj);
+        }
       } else {
-        ga('send', 'event', args.event[0], args.event[1], args.event[2], args.event[3], args.event[4]);
+        if(googleAnalytics.enable_native_tracking == true){
+          elation.events.fire('ga_event', {type: 'event', category: args.event[0], action: args.event[1], label: args.event[2]});
+        } else {
+          ga('send', 'event', args.event[0], args.event[1], args.event[2]);
+        }
       }
       if (this.GAalerts){
         this.displayTag('trackEvent('+args.event[0]+','+args.event[1]+','+args.event[2]+','+args.event[3]+','+args.event[4]+')');
@@ -545,22 +562,28 @@ elation.extend('googleanalytics', function(args) {
       //this.pageTracker._addTrans(orderID, args.trans[0], args.trans[1], "", "", this.city, this.state, this.country);
       //this.pageTracker._addItem(orderID, args.item[0], args.item[1], args.item[2], args.item[3], args.item[4]);
       //this.pageTracker._trackTrans();
-      ga('ecommerce:addTransaction', {
-        'id': orderID,                     // Transaction ID. Required
-        'affiliation': args.trans[0],   // Affiliation or store name
-        'revenue': args.trans[1],               // Grand Total
-        'shipping': '',                  // Shipping
-        'tax': ''                     // Tax
-      });
-      ga('ecommerce:addItem', {
-        'id': orderID,                     // Transaction ID. Required
-        'sku': args.item[0],               // SKU/Code
-        'name': args.item[1],   // Product name required 
-        'category': args.item[2],                  // Category or variation
-        'price': args.item[3],                     // Unit Price
-        'quantity': args.item[4]                     // Quantity
-      });
-      ga('ecommerce:send');
+      if(googleAnalytics.enable_native_tracking == true){
+        elation.events.fire('ga_event', {type: 'transaction', id: orderID, affiliation: args.trans[0], revenue: args.trans[1], shipping: '', tax: ''});
+        elation.events.fire('ga_event', {type: 'item', id: orderID, sku: args.item[0], name: args.item[1], category: args.item[2],
+                            price: args.item[3], quantity: args.item[4]});
+      } else {
+        ga('ecommerce:addTransaction', {
+          'id': orderID,                     // Transaction ID. Required
+          'affiliation': args.trans[0],   // Affiliation or store name
+          'revenue': args.trans[1],               // Grand Total
+          'shipping': '',                  // Shipping
+          'tax': ''                     // Tax
+        });
+        ga('ecommerce:addItem', {
+          'id': orderID,                     // Transaction ID. Required
+          'sku': args.item[0],               // SKU/Code
+          'name': args.item[1],   // Product name required 
+          'category': args.item[2],                  // Category or variation
+          'price': args.item[3],                     // Unit Price
+          'quantity': args.item[4]                     // Quantity
+        });
+        ga('ecommerce:send');
+      }
     } catch (err) {if (this.GAalerts) this.displayTag("trackTrans Error: "+err.message)}
   };
 
@@ -645,7 +668,7 @@ elation.extend('autotrack.event', function(name, item) {
         _ga = typeof googleAnalytics != "undefined" ? googleAnalytics : { pagetype: 'unknown' },
         name = this.name,
         item = this.item;
-    
+
     if (item.condition) {
       try { 
         var condition = eval(item.condition); 
@@ -674,10 +697,17 @@ elation.extend('autotrack.event', function(name, item) {
         //console.log('Fired: ', condition, name, parm1, parm2, parm3, parm4, parm5, item, _data);
         
         if (typeof googleAnalytics == 'object') {
-          if (parm5) googleAnalytics.trackEvent([ parm1, parm2, parm3, parm4, parm5 ]);
-          else if (parm4) googleAnalytics.trackEvent([ parm1, parm2, parm3, parm4 ]);
-          else if (parm3) googleAnalytics.trackEvent([ parm1, parm2, parm3 ]);
-          else if (parm2) googleAnalytics.trackEvent([ parm1, parm2 ]);
+          if(googleAnalytics.enable_native_tracking == true){
+            if (parm5) elation.events.fire('ga_event', {type: 'event', category: parm1, action: parm2, label: parm3, value: parm4, parm5: parm5});
+            else if (parm4) elation.events.fire('ga_event', {type: 'event', category: parm1, action: parm2, label: parm3, value: parm4});
+            else if (parm3) elation.events.fire('ga_event', {type: 'event', category: parm1, action: parm2, label: parm3});
+            else if (parm2) elation.events.fire('ga_event', {type: 'event', category: parm1, action: parm2});
+          } else {
+            if (parm5) googleAnalytics.trackEvent([ parm1, parm2, parm3, parm4, parm5 ]);
+            else if (parm4) googleAnalytics.trackEvent([ parm1, parm2, parm3, parm4 ]);
+            else if (parm3) googleAnalytics.trackEvent([ parm1, parm2, parm3 ]);
+            else if (parm2) googleAnalytics.trackEvent([ parm1, parm2 ]);
+          }
         }
       }
     }

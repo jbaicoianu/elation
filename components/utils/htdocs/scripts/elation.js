@@ -2174,22 +2174,6 @@ elation.extend('ui.hover', function() {
 	}
 });
 
-elation.extend('log_size', function(result_view_id) {
-	if (typeof result_view_id == 'undefined')
-		result_view_id = '';
-	
-	if (window.innerWidth) 
-		var	tr_width = window.innerWidth,
-				tr_height = window.innerHeight;
-	else 
-		if (document.body.offsetWidth) 
-			var	tr_width = document.body.offsetWidth,
-					tr_height = document.body.offsetHeight;
-	
-	if (elation.ajax) {
-    elation.ajax.Get('/page/sizelog?width=' + tr_width + '&height=' + tr_height + '&result_view_id=' + result_view_id);
-  }
-});
 elation.extend("utils.escapeHTML", function(str) {
    var div = document.createElement('div');
    var text = document.createTextNode(str);
@@ -2197,7 +2181,60 @@ elation.extend("utils.escapeHTML", function(str) {
    return div.innerHTML;
 });
 
-tr_size = elation.log_size;
+elation.extend('log.size', function(result_view_id, iFrame_visible, width, height) {
+  if (typeof result_view_id == 'undefined')
+    result_view_id = '';
+  
+  if (window.innerWidth) 
+    var tr_width = window.innerWidth,
+        tr_height = window.innerHeight;
+  else 
+    if (document.body.offsetWidth) 
+      var tr_width = document.body.offsetWidth,
+          tr_height = document.body.offsetHeight;
+  
+  if (elation.ajax) {
+    var url = '/page/sizelog?width=' + tr_width + 
+              '&height=' + tr_height + 
+              '&result_view_id=' + result_view_id +
+              (iFrame_visible ? '&g.width=' + width + '&g.height=' + height : '');
+
+    elation.ajax.Get(url);
+  }
+
+  console.log('log size', iFrame_visible, elation.log.interval, result_view_id, width, height, url);
+});
+
+var tr_size = function(id) {
+  var bottom_ads = elation.id('#google-afs-google_pla_bottom');
+
+  elation.log.interval = 0;
+
+  if (bottom_ads) {
+    var iframe = elation.utils.getOnly(bottom_ads, 'iframe'),
+        iframe = iframe.length > 0 ? iframe[0] : false;
+
+    $TF(document).ready(function() {
+      elation.log.timer = setInterval(function() {
+        var visible = iframe ? iframe.style.visibility : false;
+
+        elation.log.interval++;
+
+        if (visible == 'visible' || elation.log.interval > 10 || !iframe) {
+          clearInterval(elation.log.timer);
+
+          var width = iframe ? iframe.offsetWidth : 0;
+          var height = iframe ? iframe.offsetHeight : 0;
+
+          console.log(height, iframe.style.visibility);
+          elation.log.size(id, (visible == 'visible' && height > 10), width, height);
+        }
+      }, 250);
+    });
+  } else {
+    elation.log.size(id);
+  }
+};
 
 /* Return first non-empty value from list of args, or null if all are empty
 * Empty string, null and undefined are considered 'empty' and skipped over

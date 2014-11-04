@@ -2202,7 +2202,7 @@ elation.extend('log.size', function(result_view_id, iFrame_visible, width, heigh
     elation.ajax.Get(url);
   }
 
-  console.log('log size', iFrame_visible, elation.log.interval, result_view_id, width, height, url);
+  //console.log('log size', iFrame_visible, elation.log.interval, result_view_id, width, height, url);
 });
 
 var tr_size = function(id) {
@@ -2223,10 +2223,9 @@ var tr_size = function(id) {
         if (visible == 'visible' || elation.log.interval > 10 || !iframe) {
           clearInterval(elation.log.timer);
 
-          var width = iframe ? iframe.offsetWidth : 0;
-          var height = iframe ? iframe.offsetHeight : 0;
+          var width = iframe ? iframe.offsetWidth : 0,
+              height = iframe ? iframe.offsetHeight : 0;
 
-          console.log(height, iframe.style.visibility);
           elation.log.size(id, (visible == 'visible' && height > 10), width, height);
         }
       }, 250);

@@ -2197,7 +2197,7 @@ elation.extend('log.size', function(result_view_id, iFrame_visible, width, heigh
     var url = '/page/sizelog?width=' + tr_width + 
               '&height=' + tr_height + 
               '&result_view_id=' + result_view_id +
-              (iFrame_visible ? '&g.width=' + width + '&g.height=' + height : '');
+              (iFrame_visible ? '&g_width=' + width + '&g_height=' + height : '');
 
     elation.ajax.Get(url);
   }

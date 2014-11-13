@@ -563,9 +563,22 @@ elation.extend('googleanalytics', function(args) {
       //this.pageTracker._addItem(orderID, args.item[0], args.item[1], args.item[2], args.item[3], args.item[4]);
       //this.pageTracker._trackTrans();
       if(googleAnalytics.enable_native_tracking == true){
-        elation.events.fire('ga_event', {type: 'transaction', id: orderID, affiliation: args.trans[0], revenue: args.trans[1], shipping: '', tax: ''});
-        elation.events.fire('ga_event', {type: 'item', id: orderID, sku: args.item[0], name: args.item[1], category: args.item[2],
-                            price: args.item[3], quantity: args.item[4]});
+        //Java is strict
+        var orderID = String(orderID);
+        var affiliation = String(args.trans[0]);
+        var revenue = Number(args.trans[1]);
+
+        var sku = String(args.item[0]);
+        var name = String(args.item[1]);
+        var category = String(args.item[2]);
+        var price = Number(args.item[3]);
+        var quantity = Number(args.item[4]);
+        elation.events.fire('ga_event', {type: 'transaction', id: orderID, affiliation: affiliation, revenue: revenue, shipping: 0.0, tax: 0.0});
+        elation.events.fire('ga_event', {type: 'item', id: orderID, sku: sku, name: name, category: category,
+                            price: price, quantity: quantity});
+        //elation.events.fire('ga_event', {type: 'transaction', id: '111111', affiliation: '11111', revenue: 12.2, shipping: 0.0, tax: 0.0});
+        //elation.events.fire('ga_event', {type: 'item', id: orderID, sku: args.item[0], name: args.item[1], category: args.item[2],
+                            //price: args.item[3], quantity: args.item[4]});
       } else {
         ga('ecommerce:addTransaction', {
           'id': orderID,                     // Transaction ID. Required

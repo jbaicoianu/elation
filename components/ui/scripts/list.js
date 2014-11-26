@@ -65,6 +65,7 @@ elation.require("ui.base", function() {
       } else {
         this.extractItems();
       }
+      Object.defineProperty(this, 'itemcount', { get: function() { return this.getItemCount(); } });
     }
     /**
      * Returns the UL element for this component, or create a new one if it doesn't exist yet
@@ -91,7 +92,14 @@ elation.require("ui.base", function() {
       if (elation.utils.isEmpty(attrs.name)) attrs.name = 'name';
       if (elation.utils.isEmpty(attrs.children)) attrs.children = 'items';
       if (elation.utils.isEmpty(attrs.label)) attrs.label = 'label';
+      if (elation.utils.isEmpty(attrs.disabled)) attrs.disabled = 'disabled';
       return attrs;
+    }
+    this.getItemCount = function() {
+      if (this.itemcollection) {
+        return this.itemcollection.length;
+      }
+      return this.items.length;
     }
     /**
      * Update the items associated with this list
@@ -102,6 +110,11 @@ elation.require("ui.base", function() {
       //this.clear();
       if (elation.utils.isArray(items)) {
         this.items = items;
+      } else if (elation.utils.isString(items)) {
+        var attrs = this.getDefaultAttributes();
+        this.items = items.split('|').map(function(x) {
+            return { value: x, attrs: attrs };
+          });
       } else {
         for (var k in items) {
           this.items.push(items[k]);
@@ -123,6 +136,7 @@ elation.require("ui.base", function() {
       elation.events.add(this.itemcollection, "collection_add,collection_remove,collection_move,collection_load,collection_load_begin,collection_clear", this);
       //this.setItems(this.itemcollection.items);
       Object.defineProperty(this, 'items', { get: function() { return this.itemcollection.items; } });
+      Object.defineProperty(this, 'count', { configurable: true, get: function() { return this.itemcollection.length; } });
       this.refresh();
     }
     /**
@@ -511,6 +525,7 @@ elation.require("ui.base", function() {
       this.value = this.args.item;
       this.attrs = this.args.attrs || {};
       this.selectable = this.args.selectable || false;
+      this.placeholder = false;
       elation.events.add(this.container, 'click', this);
 
       this.render();
@@ -523,6 +538,9 @@ elation.require("ui.base", function() {
       // reset classname to default
       this.container.className = this.defaultcontainer.classname;
       if (this.value) {
+        if (this.placeholder) {
+          this.placeholder = false;
+        }
         if (this.value.classname) {
           this.addclass(this.value.classname);
         }
@@ -561,6 +579,11 @@ elation.require("ui.base", function() {
         }
         if (!elation.utils.isEmpty(this.attrs.disabled) && !elation.utils.isEmpty(this.value[this.attrs.disabled])) {
           this.addclass("state_disabled");
+        }
+      } else {
+        if (!this.placeholder) {
+          this.placeholder = true;
+          this.container.innerHTML = this.attrs.itemplaceholder || '';
         }
       }
     }

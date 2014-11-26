@@ -71,6 +71,10 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
       if (this.args.width) {
         this.container.style.width = this.args.width;  
       }
+      this.refresh();
+      this.focus(true);
+    }
+    this.render = function() {
       this.size = this.getsize();
       if (this.args.center) {
         this.center();
@@ -89,7 +93,6 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
       } else if (this.args.right) {
         this.setposition([window.innerWidth - this.container.offsetWidth - this.args.right, this.offsetpos[1]]);
       }
-      this.focus(true);
     }
     this.focus = function(skipmove) {
       if (!this.active) {
@@ -257,7 +260,11 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
     }
     this.settitle = function(newtitle) {
       if (newtitle instanceof HTMLElement) {
-        this.container.replaceChild(newtitle, this.titlebar);
+        if (this.titlebar) {
+          this.container.replaceChild(newtitle, this.titlebar);
+        } else {
+          this.container.appendChild(newtitle);
+        }
         this.titlebar = newtitle;
         if (!elation.html.hasclass(this.titlebar, 'ui_window_titlebar')) {
           elation.html.addclass(this.titlebar, 'ui_window_titlebar');
@@ -301,6 +308,7 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
         }
       }
       elation.component.init();
+      this.refresh();
       elation.html.addclass(this.content, 'ui_window_content');
     }
     this.setcontenthtml = function(newcontent) {
@@ -436,17 +444,13 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
       if (this.maximized) {
         this.setsize([window.innerWidth, window.innerHeight]);
       }
-      if (this.args.center) {
-        this.center();
-      }
+      this.refresh();
     }
     this.orientationchange = function(ev) {
       if (this.maximized) {
         this.setsize([window.innerWidth, window.innerHeight]);
       }
-      if (this.args.center) {
-        this.center();
-      }
+      this.refresh();
     }
   }, elation.ui.base);
 });

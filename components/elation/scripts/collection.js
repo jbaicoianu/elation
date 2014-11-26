@@ -305,12 +305,13 @@ elation.require([], function() {
       return url;
     }
     this.load = function() {
-      if (!this.loading) {
-        this.loading = true;
-        var url = this.getURL();
-        elation.events.fire({type: "collection_load_begin", element: this});
-        elation.ajax.Get(url, this.apiargs, { callback: elation.bind(this, function(d) { this.clear(); this.processResponse(d); }) });
+      if (this.loading) {
+        this.cancel();
       }
+      this.loading = true;
+      var url = this.getURL();
+      elation.events.fire({type: "collection_load_begin", element: this});
+      this.xhr = elation.net.get(url, this.apiargs, { callback: elation.bind(this, function(d) { this.clear(); this.processResponse(d); }) });
     }
     this.clear = function() {
       if (this.data) {
@@ -318,6 +319,12 @@ elation.require([], function() {
         this.data.count = 0;
       }
       elation.events.fire({type: "collection_clear", element: this});
+    }
+    this.cancel = function() {
+      if (this.xhr) {
+        console.log('stop it!', this.xhr);
+        this.xhr.abort();
+      }
     }
     this.append = function() {
       var url = this.getURL();

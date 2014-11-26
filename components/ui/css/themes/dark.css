@@ -306,6 +306,11 @@
 .dark .ui_list.state_selectable>.ui_list_item.state_selected {
   background: rgba(128,128,255,.2);
 }
+.dark .ui_list.state_selectable>.ui_list_item.state_disabled,
+.dark .ui_list.state_selectable>.ui_list_item.state_disabled:hover {
+  color: #666;
+  background: transparent;
+}
 
 /*
  * ui.combobox

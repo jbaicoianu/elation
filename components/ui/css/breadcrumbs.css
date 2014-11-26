@@ -1,0 +1,12 @@
+.ui_breadcrumbs>.ui_list_item {
+  display: inline-block;
+}
+.ui_breadcrumbs>.ui_list_item:after {
+  content: '/';
+  display: inline-block;
+  margin-left: 1em;
+  color: #555;
+}
+.ui_breadcrumbs>.ui_list_item:last-of-type:after {
+  content: '';
+}

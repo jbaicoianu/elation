@@ -1,3 +1,5 @@
+{dependency name="utils.dust"}
+{dependency name="utils.template"}
 {dependency name="ui"}
 {dependency name="ui.themes.dark"}
 <ul class="ui_examples">
@@ -17,6 +19,14 @@
   <li>
     <h2>ui.combobox</h2>
     {component name="ui.combobox" id="combobox1" events=$events.combobox1}
+  </li>
+  <li>
+    <h2>ui.breadcrumbs</h2>
+    {component name="ui.breadcrumbs" id="breadcrumbs1" items="Apparel|Shoes|Indoor Footwear"}
+  </li>
+  <li>
+    <h2>ui.pagination</h2>
+    {component name="ui.pagination" id="pagination1"}
   </li>
   <li>
     <h2>ui.list</h2>

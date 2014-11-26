@@ -28,6 +28,10 @@
 .ui_list>.ui_list_item.state_lastselected {
   border: 1px dotted #999;
 }
+.ui_list.orientation_horizontal>.ui_list_item {
+  display: inline-block;
+}
+
 
 /* default theme */
 .ui_list {

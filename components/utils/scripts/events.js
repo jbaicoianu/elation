@@ -44,7 +44,7 @@ elation.extend("events", {
     // gather all the events associated with this event type
     // filter by [element] and/or [fn] if present
     for (var i=0; i<list.length; i++) {
-      event = elation.events.fix(list[i]);
+      event = list[i];
       if (fn || element) {
         if ((fn && event.origin == fn) || (element && event.target == element) || elation.utils.isNull(event.target)) {
           original_events.push(event);
@@ -368,6 +368,7 @@ elation.extend("events", {
   },
 
   clone: function(ev,  overrides) {
+    //var newev = new Event(ev.type);
     var newev = {};
     for (var i = 0; i < this.cloneattrs.length; i++) {
       var foo = elation.utils.any(overrides[this.cloneattrs[i]], ev[this.cloneattrs[i]]);
@@ -376,6 +377,7 @@ elation.extend("events", {
       }
     }
     return elation.events.fix(newev);
+    //return newev;
   },
 
   handleEvent: function(ev) {

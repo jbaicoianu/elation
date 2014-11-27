@@ -47,7 +47,7 @@ elation.require(['ui.list'], function() {
           known++;
         }
       }
-//console.log(sum, known, this.items.length);
+//console.log(sum, known, this.itemcount);
       if (known > 0) {
         avg = sum / known;
       }
@@ -67,8 +67,8 @@ elation.require(['ui.list'], function() {
 
       var itemheight = this.getAverageHeight();
       var firstitem = Math.max(0, Math.floor((this.container.scrollTop - buffsize) / itemheight));
-      var lastitem = Math.min(this.items.length, firstitem + Math.ceil(((1 + buffer * 2) * this.container.offsetHeight) / itemheight));
-//console.log('vis', itemheight, firstitem, lastitem, this.container.scrollTop, this.container.offsetHeight, this.items.length);
+      var lastitem = Math.min(this.itemcount, firstitem + Math.ceil(((1 + buffer * 2) * this.container.offsetHeight) / itemheight));
+//console.log('vis', itemheight, firstitem, lastitem, this.container.scrollTop, this.container.offsetHeight, this.itemcount);
       return [firstitem, lastitem];
     }
     /**
@@ -105,7 +105,7 @@ elation.require(['ui.list'], function() {
       var visible = this.getVisibleItems(1);
 
       var offset = this.getOffsetTo(visible[0]);
-      var totalheight = this.getOffsetTo(this.items.length);
+      var totalheight = this.getOffsetTo(this.itemcount);
       var lastheight = this.getOffsetTo(visible[1]);
 //console.log(visible, totalheight);
 

@@ -78,4 +78,11 @@ elation.require("ui.base", function() {
       this.setlabel(this.container.innerHTML);
     }
   }, elation.ui.base);
+
+  /**
+   * ui.labeldivider is the same thing as a ui.label, but uses a <h3> instead of a <span>
+   */
+  elation.component.add("ui.labeldivider", function() {
+    this.defaultcontainer = {tag: 'h3', classname: 'ui_label'};
+  }, elation.ui.label);
 });

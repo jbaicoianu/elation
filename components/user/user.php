@@ -7,8 +7,12 @@ class Component_user extends Component {
 
   public function controller_user($args) {
     $vars = array();
-    $vars["user"] = User::singleton();
+    $vars["user"] = User::current();
     return $this->GetComponentResponse("./user.tpl", $vars);
+  }
+  public function controller_init($args) {
+    $vars["user"] = User::current();
+    return $this->GetComponentResponse("./init.tpl", $vars);
   }
   public function controller_create($args) {
     $vars = array();
@@ -29,6 +33,13 @@ class Component_user extends Component {
       $vars["user"] = User::auth("default", $vars["userid"], $vars["credentials"]);
       if (!empty($vars["user"])) {
         $vars["success"] = true;
+        $vars["newuser"] = false;
+      } else if (!empty($args["create"])) {
+        $vars["user"] = User::create("default", $vars["userid"], $vars["credentials"]);
+        if (!empty($vars["user"])) {
+          $vars["success"] = true;
+          $vars["newuser"] = true;
+        }
       }
     }
     return $this->GetComponentResponse("./auth.tpl", $vars);

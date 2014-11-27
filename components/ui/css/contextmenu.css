@@ -1,0 +1,39 @@
+.ui_contextmenu {
+	position: absolute;
+	z-index: 1000;
+	background: -webkit-linear-gradient(top, rgba(64,64,64,.75) 0, rgba(0,0,0,.75) 2.5em);
+	box-shadow: 1px 1px 10px rgba(0,0,0,1);
+	border: 1px solid #666;
+	color: white;
+	list-style: none;
+}
+.ui_contextmenu_submenu>.ui_contextmenu {
+	left: 100%;
+	top: 0;
+	min-width: 100%;
+}
+.ui_contextmenu>.ui_contextmenu_item {
+	padding: .2em .6em;
+	cursor: pointer;
+	white-space: nowrap;
+	display: block;
+	text-align: right;
+	position: relative;
+}
+.ui_contextmenu>.ui_contextmenu_item:hover {
+	background: rgba(255,255,255,.2);
+}
+.ui_contextmenu>.ui_contextmenu_item:after {
+	padding-left: .5em;
+	font-size: .5em;
+	display: inline-block;
+	vertical-align: middle;
+	content: ' ';
+}
+.ui_contextmenu>.ui_contextmenu_submenu:after {
+	content: '▶';
+	margin-right: -.5em;
+}
+.ui_contextmenu>.ui_contextmenu_item.state_disabled {
+	color: #666;
+}

@@ -19,7 +19,7 @@ elation.require(["ui.base", "utils.dust", "utils.template"], function() {
     };
 
     this.init = function() {
-      this.addclass(this.container, 'ui_spinner');
+      this.addclass('ui_spinner');
       if (this.args.classname) {
         this.addclass(this.args.classname);
       }

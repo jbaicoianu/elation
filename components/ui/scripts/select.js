@@ -14,6 +14,8 @@ elation.require(['ui.base', 'ui.label'], function() {
     this.defaultcontainer = { tag: 'div', classname: 'ui_select' };
 
     this.init = function() {
+      elation.ui.select.extendclass.init.call(this);
+
       if (this.args.label) {
         this.label = elation.ui.label({
           append: this,

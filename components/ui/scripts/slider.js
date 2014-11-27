@@ -1,29 +1,16 @@
-elation.require(['ui.base', 'utils.math'], function() {
+elation.require(['ui.base','utils.math'], function() {
   elation.component.add("ui.slider_handle", function() {
     this.init = function() {
-      console.log('handle', this);
-      //this.handle = elation.html.create({tag: 'div', classname: 'ui_slider_handle', append: this.track});
-      this.grabber = elation.html.create({tag: 'div', classname: 'ui_slider_handle_grabber', append: this.handle});
-    }
-  }, elation.ui.base);
+      this.parent = this.args.parent;
 
-  elation.component.add("ui.slider", function() {
-    this.handles = [];
-
-    this.init = function() {
       var defaults = {
-        min: -333, 
-        max: 333,
-        value: false,
-        snap: 1,
-        center: true,
-        id: 'ui_slider',
-        handles: [{
-          name: 'handle_one',
-          bounds: 'track'
-        }],
-        labelprefix: 'value:',
-        labelsuffix: ' units.'
+        name: 'handle',
+        bounds: 'track',
+        value: 0,
+        snap: this.parent.args.snap,
+        center: false,
+        labelprefix: false,
+        labelsuffix: false
       };
 
       for (var key in defaults) {
@@ -32,27 +19,152 @@ elation.require(['ui.base', 'utils.math'], function() {
         }
       }
 
-      this.label_before = this.createLabel(this.args.labelprefix)
-      this.input = elation.ui.input({ 
-        id: this.args.id + '_input',
+      this.position = {
+        x:this.parent.track.offsetLeft,
+        y:this.parent.track.offsetTop
+      };
+
+      this.grabber = elation.html.create({
+        tag: 'div', 
+        classname: 'ui_slider_handle_grabber', 
         append: this.container
       });
 
+      this.display = elation.html.create({
+        tag: 'div', 
+        classname: 'ui_slider_handle_display', 
+        append: this.parent.container
+      });
+
+      this.label_before = this.createLabel(this.args.labelprefix);
+      this.input = this.createInput();
       this.label_after = this.createLabel(this.args.labelsuffix);
+
+      elation.events.add(this.input, 'blur', this)
+
+      if (this.args.center && elation.utils.isNull(this.args.value)) {
+        this.args.value = (this.max + this.min) / 2;
+      }
+
+      if (!elation.utils.isNull(this.args.value)) {
+        this.parent.handle = this;
+        this.parent.setValue(this.args.value);
+      }
+    }
+    this.createInput = function() {
+      return elation.ui.input({ 
+        id: 'ui_slider_' + this.id + '_input',
+        append: this.display
+      });
+    }
+    this.createLabel = function(value) {
+      if (!value) {
+        return false;
+      } else {
+        return elation.html.create({
+          tag: 'label',
+          append: this.display,
+          attributes: { 
+            innerHTML: value,
+            htmlFor: 'ui_slider_' + this.id + '_input'
+          }
+        });
+      }
+    }
+    this.getBounds = function() {
+      var bounds = [this.parent.min, this.parent.max],
+          handles = this.parent.handles,
+          handlemap = this.parent.handlemap;
+
+      if (this.args.bounds && this.args.bounds != 'track') {
+        var names = this.args.bounds.split(',');
+
+        for (var i=0; i<names.length; i++) {
+          var name = names[i],
+              index = handlemap[name],
+              handle = handles[index],
+              snap = this.args.snap;
+
+          if (handle && index > handlemap[this.id])
+            bounds[1] = Number(handle.input.value) - Number(snap);
+          else if (handle)
+            bounds[0] = Number(handle.input.value) + Number(snap);
+        }
+      }
+
+      return bounds;
+    }
+    this.blur = function(ev) {
+      var bounds = this.getBounds();
+
+      this.parent.handle = this;
+      this.parent.setValue(elation.utils.math.clamp(ev.data, bounds[0], bounds[1]));
+      
+      elation.events.fire({
+        type: 'ui_slider_change', 
+        element: this, 
+        data: this.position
+      });
+    }
+  }, elation.ui.base);
+
+  elation.component.add("ui.slider", function() {
+    this.handles = [];
+    this.handlemap = {};
+
+    this.init = function() {
+      var defaults = {
+        min: -500, 
+        max: 500,
+        snap: 50,
+        id: 'ui_slider',
+        handles: [
+          {
+            name: 'handle_one',
+            bounds: 'handle_two,handle_indicator',
+            value: -250,
+            labelprefix: 'min:'
+          },{
+            name: 'handle_indicator',
+            bounds: 'handle_one,handle_two',
+            snap: 1,
+            labelprefix: 'set:'
+          },{
+            name: 'handle_two',
+            bounds: 'handle_one,handle_indicator',
+            value: 250,
+            labelprefix: 'max:',
+            labelsuffix: '.'
+          }
+        ]
+      };
+
+      for (var key in defaults) {
+        if (elation.utils.isNull(this.args[key])) {
+          this.args[key] = defaults[key];
+        }
+      }
+
+      this.min = this.args.min;
+      this.max = this.args.max;
 
       elation.html.addclass(this.container, 'ui_slider');
 
       this.track = elation.html.create({tag: 'div', classname: 'ui_slider_track', append: this.container});
+      this.dimensions();
       
-      console.log('fart', this.args.handles);
       for (var i=0; i < this.args.handles.length; i++) {
         var handle = this.args.handles[i];
-        console.log('init handle', i, this.args.handles.length);
+        handle.parent = this;
+
+        this.handlemap[handle.name] = this.handles.length;
+        
         this.handles.push( 
           elation.ui.slider_handle(
             handle.name, 
             elation.html.create({
-              tag: 'div', 
+              tag: 'div',
+              id: 'ui_slider_handle_' + handle.name,
               classname: 'ui_slider_handle', 
               append: this.track
             }), 
@@ -61,49 +173,34 @@ elation.require(['ui.base', 'utils.math'], function() {
         );
       }
       
-      elation.events.add(this.container, 'mousedown', this);
-      elation.events.add(this.container, 'mousewheel', this);
-      elation.events.add(this.input, 'blur', this)
-      
-      if (this.args.center && elation.utils.isNull(this.args.value)) 
-        this.args.value = (this.max + this.min) / 2;
-
-      if (!elation.utils.isNull(this.args.value)) {
-        this.setValue(this.args.value);
-      }
-    }
-    this.createLabel = function(value) {
-      return elation.html.create({
-        tag: 'label',
-        append: this.container,
-        attributes: { 
-          innerHTML: value,
-          htmlFor: 'ui_slider_input'
-        }
-      });
+      elation.events.add(this.track, 'mousedown,mousewheel', this);
     }
     this.setValue = function(value) {
       var v2p = elation.utils.math.value2percent,
           clamp = elation.utils.math.clamp,
-          min = this.min, max = this.max;
+          bounds = this.handle.getBounds(),
+          min = bounds[0], max = bounds[1];
 
       this.setPercent({
-        x: v2p(clamp(value, min, max), min, max),
-        y: v2p(clamp(value, min, max), min, max)
+        x: v2p(clamp(value, min, max), this.min, this.max),
+        y: v2p(clamp(value, min, max), this.min, this.max)
       });
     }
     this.setPercent = function(percent, skipevent) {
       var getValue = elation.utils.math.percent2value,
           getPercent = elation.utils.math.value2percent,
+          bounds = this.handle.getBounds(),
+          min = bounds[0], max = bounds[1];
+          clamp = elation.utils.math.clamp,
           value = {
-            x: getValue(percent.x, this.min, this.max),
-            y: getValue(percent.y, this.min, this.max)
+            x: clamp(getValue(percent.x, this.min, this.max), min, max),
+            y: clamp(getValue(percent.y, this.min, this.max), min, max)
           };
 
-      if (this.snap) {
+      if (this.handle.args.snap) {
         value = {
-          x: Math.round(value.x / this.snap) * this.snap,
-          y: Math.round(value.y / this.snap) * this.snap
+          x: Math.round(value.x / this.handle.args.snap) * this.handle.args.snap,
+          y: Math.round(value.y / this.handle.args.snap) * this.handle.args.snap
         };
         percent = {
           x: getPercent(value.x, this.min, this.max),
@@ -111,11 +208,11 @@ elation.require(['ui.base', 'utils.math'], function() {
         };
       }
 
-      console.log('setpos', percent, value);
       this.value = value.x;
-      this.handle.style.left = percent.x * 100 + '%';
-      
-      this.input.value = this.value;
+      this.handle.container.style.left = percent.x * 100 + '%';
+      this.handle.input.value = this.value;
+      this.handle.position.x = this.handle.container.offsetLeft + this.x;
+      this.handle.position.y = this.handle.container.offsetTop + this.y;
 
       if (!skipevent) {
         elation.events.fire({
@@ -125,17 +222,49 @@ elation.require(['ui.base', 'utils.math'], function() {
         });
       }
     }
-    this.blur = function(ev) {
-      console.log('blur', ev);
-      this.setValue(elation.utils.math.clamp(ev.data, this.min, this.max));
-      //elation.events.fire({type: 'ui_slider_change', element: this, data: this.position});
+    this.distance = function(a, b) {
+      if (!a || !b) return 0;
+      var a = [a.x, a.y, 0];
+      var b = [b.x, b.y, 0];
+      return elation.utils.math.vector3.distance(a, b);
+    }
+    this.getClosestHandle = function(coords) {
+      var handle;
+
+      for (var i=0; i<this.handles.length; i++) {
+        var candidate = this.handles[i],
+            position = candidate.position,
+            distance = this.distance(position, coords);
+
+        candidate.distance = distance;
+
+        if (!handle || distance < handle.distance)
+          handle = candidate;
+      }
+
+      this.handle = handle;
+    }
+    this.dimensions = function() {
+      this.x = this.track.offsetLeft;
+      this.y = this.track.offsetTop;
+      this.width = this.track.offsetWidth;
+      this.height = this.track.offsetHeight;
     }
     this.mousedown = function(ev) {
       this.coords = elation.events.coords(ev);
-      this.top = this.handle.offsetTop;
-      this.left = this.handle.offsetLeft;
-      this.width = this.track.offsetWidth;
-      this.height = this.track.offsetHeight;
+      this.dimensions();
+
+      var clamp = elation.utils.math.clamp,
+          percent = {
+            x: clamp((this.coords.x - this.x) / this.width, 0, 1), 
+            y: clamp((this.coords.y - this.y) / this.height, 0, 1)
+          };
+
+      this.getClosestHandle(this.coords);
+      this.setPercent(percent);
+
+      this.left = this.handle.container.offsetLeft;
+      this.top = this.handle.container.offsetTop;
 
       elation.events.add(window, 'mousemove,mouseup', this);
       elation.events.fire({
@@ -143,13 +272,13 @@ elation.require(['ui.base', 'utils.math'], function() {
         element: this, 
         data: this.value
       });
-      
+
       ev.preventDefault();
     }
-    this.mousemove = function(ev) {
+    this.mousemove = function(ev, delta) {
       var clamp = elation.utils.math.clamp,
           current = elation.events.coords(ev),
-          delta = {
+          delta = delta || {
             x: current.x - this.coords.x, 
             y: current.y - this.coords.y
           },
@@ -173,9 +302,12 @@ elation.require(['ui.base', 'utils.math'], function() {
       elation.events.remove(window, 'mousemove,mouseup', this);
     }
     this.mousewheel = function(ev) {
-      var value = Number(this.input.value);
+      this.coords = elation.events.coords(ev);
+      this.dimensions();
+      this.getClosestHandle(this.coords);
+      var value = Number(this.handle.input.value);
       
-      this.setValue(value + (ev.wheelDeltaY / 120));
+      this.setValue(value + ((ev.wheelDeltaY / 120) * this.handle.args.snap));
       
       ev.preventDefault();
     }

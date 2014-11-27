@@ -23,8 +23,14 @@ elation.extend("utils.math.lcm", function(t1, t2) {
   cm = t1 * t2 / f;
   return cm;
 });
-elation.extend("utils.math.clamp", function(val, min, max) {
-  return Math.max(Math.min(val, max), min);
+elation.extend("utils.math.clamp", function(value, min, max) {
+  return Math.max(Math.min(value, max), min);
+});
+elation.extend("utils.math.percent2value", function(percent, min, max) {
+  return ((max - min) * percent) + min;
+});
+elation.extend("utils.math.value2percent", function(value, min, max) {
+  return (value - min) / (max - min);
 });
 elation.extend("utils.math.arraysub", function(a1, a2) {
   var ret = [];

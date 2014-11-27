@@ -2,6 +2,10 @@
 {dependency name="ui.themes.dark"}
 <ul class="ui_examples">
   <li>
+    <h2>ui.slider</h2>
+    {component name="ui.slider" id="slider1" events=$events.slider1 title="Slider 1" content="This is slider 1, go fuck yourself"}
+  </li>
+  <li>
     <h2>ui.button</h2>
     {component name="ui.button" type="sprite_threestate" id="button1" events=$events.button1}
     {component name="ui.button" label="Submit" id="button2" events=$events.button2}

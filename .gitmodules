@@ -13,3 +13,12 @@
 [submodule "components/filehost"]
 	path = components/filehost
 	url = git@github.com:jbaicoianu/elation-filehost.git
+[submodule "components/engine"]
+	path = components/engine
+	url = https://github.com/jbaicoianu/elation-engine.git
+[submodule "components/physics"]
+	path = components/physics
+	url = https://github.com/jbaicoianu/cyclone-physics-js.git
+[submodule "components/vrcade"]
+	path = components/vrcade
+	url = https://github.com/jbaicoianu/elation-vrcade.git

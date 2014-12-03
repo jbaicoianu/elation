@@ -558,46 +558,67 @@ elation.extend("html.dimensions", function(element, ignore_size) {
     return;
   
 	if (typeof element != 'object' || element === window) {
-		var	width = window.innerWidth		|| document.documentElement.clientWidth		|| document.body.clientWidth,
-				height = window.innerHeight	|| document.documentElement.clientHeight	|| document.body.clientHeight;
+		var	w = window.innerWidth		|| document.documentElement.clientWidth		|| document.body.clientWidth,
+				h = window.innerHeight	|| document.documentElement.clientHeight	|| document.body.clientHeight;
 		
 		return {
-			0 : width,
-			1 : height,
+			0 : w,
+			1 : h,
 			x : 0,
 			y : 0,
-			w : width,
-			h : height,
+			w : w,
+			h : h,
 			s : elation.html.getscroll()
 		};
 	}
 	
-	var width = ignore_size ? 0 : element.offsetWidth,
-			height = ignore_size ? 0 : element.offsetHeight,
-			left = element.offsetLeft,
-			top = element.offsetTop,
-			scrollleft = element.scrollLeft || 0,
+  if ('getBoundingClientRect' in element) {
+    var rect = element.getBoundingClientRect(),
+        top = rect.top,
+        left = rect.left,
+        width = rect.width,
+        height = rect.height,
+        r = Math.round,
+        x = r(left),
+        y = r(top),
+        w = r(width),
+        h = r(height);
+  } else {
+    var w = ignore_size ? 0 : element.offsetWidth,
+  			h = ignore_size ? 0 : element.offsetHeight,
+  			x = element.offsetLeft,
+  			y = element.offsetTop;
+  }
+	var scrollleft = element.scrollLeft || 0,
 			scrolltop = element.scrollTop || 0,
 			id = element.id || '';
 	
   try {
     while (element = element.offsetParent) {
-      top += element.offsetTop - element.scrollTop;
-      left += element.offsetLeft - element.scrollLeft;
+      x += element.offsetLeft - element.scrollLeft;
+      y += element.offsetTop - element.scrollTop;
     }
-  } catch(e) { console.log('html.dimensions: '+e.message); }
+  } catch(e) { 
+    console.log('html.dimensions: '+e.message); 
+  }
   
 	if (document.body.scrollTop == window.scrollY)
-		top += window.scrollY;
+		y += window.scrollY;
 	
   return {
-		0 : left,
-		1 : top,
-		x : left, 
-		y : top, 
-		w : width, 
-		h : height,
-		s : [scrollleft, scrolltop]
+		0: x,
+		1: y,
+		'x': x, 
+		'y': y, 
+		'w': w, 
+		'h': h,
+    's': [scrollleft, scrolltop],
+    'scrollTop': scrolltop,
+		'scrollLeft': scrollleft,
+    'width': width || w,
+    'height': height || h,
+    'top': top || y,
+    'left': left || x
 	};
 });
 

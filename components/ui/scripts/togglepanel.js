@@ -1,14 +1,16 @@
 /** 
- * Toggle UI component
+ * Toggle panel UI component
+ * Switches between two visible content areas based on the status of a checkbox
  *
  * @class toggle
  * @augments elation.ui.base
  * @memberof elation.ui
+ * @todo this class needs updating to use the dependency system, and inherit from ui.panel
  *
  * @param {object} args
  * @param {string} args.formname
  */
-elation.component.add("ui.toggle", {
+elation.component.add("ui.togglepanel", {
   init: function(name, container, args) {
     this.panels = container.getElementsByClassName("ui_toggle_panel");
     this.formname = args.formname;

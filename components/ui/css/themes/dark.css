@@ -214,6 +214,9 @@
 
   border-color: #1c1e22 #1c1e22 transparent #1c1e22;
 }
+.dark .ui_tabs>ul>li.state_disabled {
+  color: #777;
+}
 
 /*
  * ui.input

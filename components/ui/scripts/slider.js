@@ -1,4 +1,4 @@
-elation.require(['ui.base','utils.math'], function() {
+elation.require(['ui.base','ui.input','utils.math'], function() {
   elation.component.add("ui.slider_handle", function() {
     this.init = function() {
       this.parent = this.args.parent;
@@ -109,6 +109,7 @@ elation.require(['ui.base','utils.math'], function() {
   }, elation.ui.base);
 
   elation.component.add("ui.slider", function() {
+    this.defaultcontainer = { tag: 'div', classname: 'ui_slider' };
     this.handles = [];
     this.handlemap = {};
 
@@ -213,6 +214,11 @@ elation.require(['ui.base','utils.math'], function() {
       this.handle.input.value = this.value;
       this.handle.position.x = this.handle.container.offsetLeft + this.x;
       this.handle.position.y = this.handle.container.offsetTop + this.y;
+
+      // If a bindvar is passed in, automatically update the specified object property
+      if (this.handle.args.bindvar) {
+        this.handle.args.bindvar[0][this.handle.args.bindvar[1]] = this.value;
+      }
 
       if (!skipevent) {
         elation.events.fire({

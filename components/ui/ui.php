@@ -218,4 +218,11 @@ class Component_ui extends Component {
     $vars["content"] = any($args["content"], "");
     return $this->GetComponentResponse("./window.tpl", $vars);
   }
+  function controller_slider($args) {
+    $vars["class"] = any($args["class"], false);
+    $vars["id"] = any($args["id"], "ui_window_" . $vars["inputname"]);
+    $vars["title"] = any($args["title"], "(untitled)");
+    $vars["content"] = any($args["content"], "");
+    return $this->GetComponentResponse("./slider.tpl", $vars);
+  }
 }  

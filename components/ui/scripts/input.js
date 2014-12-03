@@ -38,6 +38,7 @@ elation.require(['ui.base', 'ui.label'], function() {
       elation.events.add(this.inputelement, 'focus', elation.bind(this, this.handlefocus));
       elation.events.add(this.inputelement, 'blur', elation.bind(this, this.handleblur));
       elation.events.add(this.inputelement, 'input', elation.bind(this, this.handleinput));
+      elation.events.add(this.inputelement, 'change', elation.bind(this, this.handleinput));
       elation.events.add(this.inputelement, 'keydown', elation.bind(this, this.handlekeydown));
 
       // Set up object setters/getters to bridge with HTML element attributes
@@ -82,6 +83,10 @@ elation.require(['ui.base', 'ui.label'], function() {
             this.inputelement.type = this.args.type;
           }
         }
+      }
+
+      if (this.args.id) {
+        this.inputelement.id = this.args.id;
       }
     }
     /**
@@ -195,7 +200,8 @@ elation.require(['ui.base', 'ui.label'], function() {
      * @param ev event
      */
     this.handleblur = function(ev) {
-      elation.events.fire(this, 'blur');
+      console.log('buhhh',ev);
+      elation.events.fire({type: 'blur', element: this, data: this.value});
     }
   }, elation.ui.base);
 });

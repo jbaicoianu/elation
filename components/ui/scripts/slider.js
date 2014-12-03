@@ -118,25 +118,12 @@ elation.require(['ui.base','utils.math'], function() {
         max: 500,
         snap: 50,
         id: 'ui_slider',
-        handles: [
-          {
-            name: 'handle_one',
-            bounds: 'handle_two,handle_indicator',
-            value: -250,
-            labelprefix: 'min:'
-          },{
-            name: 'handle_indicator',
-            bounds: 'handle_one,handle_two',
-            snap: 1,
-            labelprefix: 'set:'
-          },{
-            name: 'handle_two',
-            bounds: 'handle_one,handle_indicator',
-            value: 250,
-            labelprefix: 'max:',
-            labelsuffix: '.'
-          }
-        ]
+        handles: [{
+          name: 'handle_indicator',
+          bounds: 'handle_one,handle_two',
+          snap: 1,
+          labelprefix: 'set:'
+        }]
       };
 
       for (var key in defaults) {
@@ -151,7 +138,7 @@ elation.require(['ui.base','utils.math'], function() {
       elation.html.addclass(this.container, 'ui_slider');
 
       this.track = elation.html.create({tag: 'div', classname: 'ui_slider_track', append: this.container});
-      this.dimensions();
+      this.dimensions = elation.html.dimensions(this.track);
       
       for (var i=0; i < this.args.handles.length; i++) {
         var handle = this.args.handles[i];
@@ -179,22 +166,24 @@ elation.require(['ui.base','utils.math'], function() {
       var v2p = elation.utils.math.value2percent,
           clamp = elation.utils.math.clamp,
           bounds = this.handle.getBounds(),
-          min = bounds[0], max = bounds[1];
+          bounds_min = bounds[0], 
+          bounds_max = bounds[1];
 
       this.setPercent({
-        x: v2p(clamp(value, min, max), this.min, this.max),
-        y: v2p(clamp(value, min, max), this.min, this.max)
+        x: v2p(clamp(value, bounds_min, bounds_max), this.min, this.max),
+        y: v2p(clamp(value, bounds_min, bounds_max), this.min, this.max)
       });
     }
     this.setPercent = function(percent, skipevent) {
       var getValue = elation.utils.math.percent2value,
           getPercent = elation.utils.math.value2percent,
           bounds = this.handle.getBounds(),
-          min = bounds[0], max = bounds[1];
+          bounds_min = bounds[0], 
+          bounds_max = bounds[1],
           clamp = elation.utils.math.clamp,
           value = {
-            x: clamp(getValue(percent.x, this.min, this.max), min, max),
-            y: clamp(getValue(percent.y, this.min, this.max), min, max)
+            x: clamp(getValue(percent.x, this.min, this.max), bounds_min, bounds_max),
+            y: clamp(getValue(percent.y, this.min, this.max), bounds_min, bounds_max)
           };
 
       if (this.handle.args.snap) {
@@ -207,12 +196,12 @@ elation.require(['ui.base','utils.math'], function() {
           y: getPercent(value.y, this.min, this.max)
         };
       }
-
+      
       this.value = value.x;
-      this.handle.container.style.left = percent.x * 100 + '%';
       this.handle.input.value = this.value;
-      this.handle.position.x = this.handle.container.offsetLeft + this.x;
-      this.handle.position.y = this.handle.container.offsetTop + this.y;
+      this.handle.container.style.left = percent.x * 100 + '%';
+      this.handle.position.x = this.handle.container.offsetLeft + this.dimensions.x;
+      this.handle.position.y = this.handle.container.offsetTop + this.dimensions.y;
 
       if (!skipevent) {
         elation.events.fire({
@@ -244,20 +233,14 @@ elation.require(['ui.base','utils.math'], function() {
 
       this.handle = handle;
     }
-    this.dimensions = function() {
-      this.x = this.track.offsetLeft;
-      this.y = this.track.offsetTop;
-      this.width = this.track.offsetWidth;
-      this.height = this.track.offsetHeight;
-    }
     this.mousedown = function(ev) {
       this.coords = elation.events.coords(ev);
-      this.dimensions();
+      this.dimensions = elation.html.dimensions(this.track);
 
       var clamp = elation.utils.math.clamp,
           percent = {
-            x: clamp((this.coords.x - this.x) / this.width, 0, 1), 
-            y: clamp((this.coords.y - this.y) / this.height, 0, 1)
+            x: clamp((this.coords.x - this.dimensions.x) / this.dimensions.w, 0, 1), 
+            y: clamp((this.coords.y - this.dimensions.y) / this.dimensions.h, 0, 1)
           };
 
       this.getClosestHandle(this.coords);
@@ -287,8 +270,8 @@ elation.require(['ui.base','utils.math'], function() {
             y: this.top + delta.y
           },
           percent = {
-            x: clamp(position.x / this.width, 0, 1),
-            y: clamp(position.y / this.height, 0, 1)
+            x: clamp(position.x / this.dimensions.w, 0, 1),
+            y: clamp(position.y / this.dimensions.h, 0, 1)
           };
 
       this.setPercent(percent);
@@ -303,7 +286,7 @@ elation.require(['ui.base','utils.math'], function() {
     }
     this.mousewheel = function(ev) {
       this.coords = elation.events.coords(ev);
-      this.dimensions();
+      this.dimensions = elation.html.dimensions(this.track);
       this.getClosestHandle(this.coords);
       var value = Number(this.handle.input.value);
       

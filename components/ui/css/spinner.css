@@ -75,7 +75,10 @@
 }
 
 
-.loading-container { margin: 40px auto }
+.loading-container { 
+  overflow: hidden;
+  margin: 0px auto;
+}
 
 .loading {
   border: 2px solid transparent;

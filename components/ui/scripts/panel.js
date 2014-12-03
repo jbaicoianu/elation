@@ -44,6 +44,12 @@ elation.require(["ui.base", "ui.content"], function() {
       }
       return false;
     }
+    /**
+     * Remove the specified component from this panel
+     * @function remove
+     * @memberof elation.ui.panel#
+     * @param {elation.component.base} component
+     */
     this.remove = function(component) {
       if (component.container && component.container.parentNode == this.container) {
         this.container.removeChild(component.container);
@@ -51,6 +57,11 @@ elation.require(["ui.base", "ui.content"], function() {
         if (idx != -1) this.items.splice(idx, 1);
       }
     }
+    /**
+     * Clear all items from this panel
+     * @function clear
+     * @memberof elation.ui.panel#
+     */
     this.clear = function() {
       while (this.items.length > 0) {
         this.remove(this.items[0]);

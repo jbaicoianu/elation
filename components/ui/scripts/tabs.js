@@ -18,15 +18,23 @@ elation.require(['ui.base'], function() {
       this.tabitems = [];
       if (this.args.items) {
         for (var k in this.args.items) {
-          this.items.push(this.args.items[k]);
+          var item = this.args.items[k];
+          if (!item.name) item.name = k;
+          this.items.push(item);
         }
       }
       elation.html.addclass(this.container, 'ui_tabs');
       if (this.args.classname) {
         elation.html.addclass(this.container, this.args.classname);
       }
-      elation.events.fire({type: 'ui_tabs_create'});
       this.create();
+      setTimeout(function() {
+        if (this.args.selected) {
+          this.setActiveTab(this.args.selected);
+        } else {
+          this.setActiveTab(Object.keys(this.tabitems)[0]);
+        }
+      }.bind(this), 0);
     }
     this.create = function() {
       this.ul = elation.html.create({tag: 'ul', append: this.container});
@@ -38,6 +46,7 @@ elation.require(['ui.base'], function() {
         }
         this.add(tab);
       }
+      elation.events.fire({type: 'ui_tabs_create'});
     }
     this.add = function(tab) {
       var tabitem = elation.ui.tabitem(null, elation.html.create({tag: 'li', append: this.ul, content: tab.label}), tab);
@@ -72,32 +81,49 @@ elation.require(['ui.base'], function() {
         this.tooltip = this.args.tooltip;
         this.container.title = this.args.tooltip;
       }
+      if (this.args.disabled) {
+        this.disable();
+      }
       elation.events.add(this.container, 'mouseover,mouseout,click', this);
     }
     this.hover = function() {
-      elation.html.addclass(this.container, "state_hover");
+      this.addclass("state_hover");
       elation.events.fire({type: 'ui_tabitem_hover', element: this});
     }
     this.unhover = function() {
-      elation.html.removeclass(this.container, "state_hover");
+      this.removeclass("state_hover");
       elation.events.fire({type: 'ui_tabitem_unhover', element: this});
     }
     this.select = function() {
-      elation.html.addclass(this.container, "state_selected");
+      this.addclass("state_selected");
       elation.events.fire({type: 'ui_tabitem_select', element: this});
     }
     this.unselect = function() {
-      elation.html.removeclass(this.container, "state_selected");
+      this.removeclass("state_selected");
       elation.events.fire({type: 'ui_tabitem_unselect', element: this});
     }
     this.mouseover = function(ev) {
-      this.hover();
+      if (!this.disabled) {
+        this.hover();
+      }
     }
     this.mouseout = function(ev) {
-      this.unhover();
+      if (!this.disabled) {
+        this.unhover();
+      }
     }
     this.click = function(ev) {
-      this.select();
+      if (!this.disabled) {
+        this.select();
+      }
+    }
+    this.enable = function() {
+      this.disabled = false;
+      this.removeclass('state_disabled');
+    }
+    this.disable = function() {
+      this.disabled = true;
+      this.addclass('state_disabled');
     }
   }, elation.ui.base);
 });

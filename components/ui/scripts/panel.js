@@ -9,7 +9,7 @@
  * @param {string} args.classname
  * @param {string} args.orientation
  */
-elation.require("ui.base", function() {
+elation.require(["ui.base", "ui.content"], function() {
   elation.component.add("ui.panel", function() {
     this.defaultcontainer = {tag: 'div', classname: 'ui_panel'};
 
@@ -31,13 +31,41 @@ elation.require("ui.base", function() {
      */
     this.add = function(component) {
       if (component) {
-        this.container.appendChild(component.container);
+        if (elation.utils.isString(component)) {
+          var panel = elation.ui.content({content: component, append: this});
+          component = panel;
+        } else {
+          this.container.appendChild(component.container);
+        }
         this.items.push(component);
         return component;
       } else {
         console.log('Error: invalid component passed in to ui.panel.add');
       }
       return false;
+    }
+    /**
+     * Remove the specified component from this panel
+     * @function remove
+     * @memberof elation.ui.panel#
+     * @param {elation.component.base} component
+     */
+    this.remove = function(component) {
+      if (component.container && component.container.parentNode == this.container) {
+        this.container.removeChild(component.container);
+        var idx = this.items.indexOf(component);
+        if (idx != -1) this.items.splice(idx, 1);
+      }
+    }
+    /**
+     * Clear all items from this panel
+     * @function clear
+     * @memberof elation.ui.panel#
+     */
+    this.clear = function() {
+      while (this.items.length > 0) {
+        this.remove(this.items[0]);
+      }
     }
   }, elation.ui.base);
 });

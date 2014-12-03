@@ -27,7 +27,7 @@ elation.require(['ui.window', 'ui.spinner'], function() {
         object.url = object.image.src;
       }
 
-      if (object && object.url) {
+      if (object && object.url && !this.pendingurls[object.url]) {
         this.pendingtypes[object.type] = (this.pendingtypes[object.type] || 0) + 1;
         this.pendingurls[object.url] = object;
         this.pending++;

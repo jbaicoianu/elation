@@ -66,7 +66,6 @@ elation.require(['ui.base'], function() {
       //this.hoveritem.hover();
     }
     this.ui_tabitem_select = function(ev) {
-console.log('hey???', ev);
       if (this.selecteditem && this.selecteditem != ev.target) {
         this.selecteditem.unselect();
       }

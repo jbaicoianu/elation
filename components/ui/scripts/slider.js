@@ -114,14 +114,14 @@ elation.require(['ui.base','utils.math'], function() {
 
     this.init = function() {
       var defaults = {
-        min: -500, 
-        max: 500,
-        snap: 50,
-        id: 'ui_slider',
+        min: 0, 
+        max: 100,
+        snap: 1,
         handles: [{
-          name: 'handle_indicator',
-          bounds: 'handle_one,handle_two',
+          name: this.id + '_indicator',
+          bounds: 'track',
           snap: 1,
+          value: 50,
           labelprefix: 'set:'
         }]
       };
@@ -140,18 +140,20 @@ elation.require(['ui.base','utils.math'], function() {
       this.track = elation.html.create({tag: 'div', classname: 'ui_slider_track', append: this.container});
       this.dimensions = elation.html.dimensions(this.track);
       
-      for (var i=0; i < this.args.handles.length; i++) {
+        console.log('hey', this.args.handles);
+      for (var i in this.args.handles) {
         var handle = this.args.handles[i];
         handle.parent = this;
 
         this.handlemap[handle.name] = this.handles.length;
         
+        console.log(i,'hi',handle);
         this.handles.push( 
           elation.ui.slider_handle(
-            handle.name, 
+            handle.name + '_' + this.handles.length, 
             elation.html.create({
               tag: 'div',
-              id: 'ui_slider_handle_' + handle.name,
+              id: 'ui_slider_' + this.id + '_handle_' + handle.name,
               classname: 'ui_slider_handle', 
               append: this.track
             }), 
@@ -161,6 +163,7 @@ elation.require(['ui.base','utils.math'], function() {
       }
       
       elation.events.add(this.track, 'mousedown,mousewheel', this);
+      console.log(this);
     }
     this.setValue = function(value) {
       var v2p = elation.utils.math.value2percent,
@@ -226,7 +229,7 @@ elation.require(['ui.base','utils.math'], function() {
             distance = this.distance(position, coords);
 
         candidate.distance = distance;
-
+console.log(i, handle, candidate, coords);
         if (!handle || distance < handle.distance)
           handle = candidate;
       }

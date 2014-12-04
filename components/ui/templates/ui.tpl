@@ -2,10 +2,23 @@
 {dependency name="utils.template"}
 {dependency name="ui"}
 {dependency name="ui.themes.dark"}
+{dependency name="ui.slider"}
+
 <ul class="ui_examples">
   <li>
-    <h2>ui.slider</h2>
-    {component name="ui.slider" id="slider1" events=$events.slider1 title="Slider 1" content="This is slider 1, go fuck yourself"}
+    <h2>ui.slider one handle</h2>
+    {component name="ui.slider" id="two"}
+  </li>
+  <li>
+    <h2>ui.slider two handles</h2>
+    <div data-elation-component="ui.slider" data-elation-name="one">
+      <data class="elation-args" name="handles">
+        {literal}[
+          {"name":"one","bounds":"track","snap":"1","labelprefix":"left:","value":"25"},
+          {"name":"two","bounds":"track","snap":"1","labelprefix":"right:","value":"75"}
+        ]{/literal}
+      </data>
+    </div>
   </li>
   <li>
     <h2>ui.button</h2>

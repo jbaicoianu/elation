@@ -1,2 +1,2 @@
 {dependency name="ui.slider"}
-<div data-elation-component="ui.slider"></div>
+<div data-elation-component="ui.slider" data-elation-name={$id}></div>

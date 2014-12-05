@@ -132,7 +132,7 @@ elation.require(['ui.base', 'ui.label'], function() {
     /** Restore input value to what it was before editing began and emit appropriate events
      * @function cancel
      * @memberof elation.ui.input#
-     * @fire elation.ui.input#ui_input_fire
+     * @fire elation.ui.input#ui_input_cancel
      */
     this.cancel = function() {
       if (!elation.utils.isNull(this.lastvalue) && this.lastvalue != this.value) {

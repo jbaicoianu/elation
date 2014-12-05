@@ -200,7 +200,6 @@ elation.require(['ui.base', 'ui.label'], function() {
      * @param ev event
      */
     this.handleblur = function(ev) {
-      console.log('buhhh',ev);
       elation.events.fire({type: 'blur', element: this, data: this.value});
     }
   }, elation.ui.base);

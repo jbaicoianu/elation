@@ -289,6 +289,47 @@ system_package() {
     fi
   fi
 }
+docs_init() {
+  MEDIADIR=components/elation/media
+  DOCROOT=docs
+  if [ ! -d "$MEDIADIR" ]; then
+    mkdir -p "$MEDIADIR"
+  fi
+  if [ ! -d "$DOCROOT/js" ]; then
+    mkdir "$DOCROOT/js"
+  fi
+  if [ ! -d "$DOCROOT/php" ]; then
+    mkdir "$DOCROOT/php"
+  fi
+  if [ -L "$MEDIADIR/docs" ]; then
+    rm "$MEDIADIR/docs"
+  fi
+}
+docs_create_link() {
+  if [ ! -L "$MEDIADIR/docs" ]; then
+    ln -s "$(pwd)/$DOCROOT" "$MEDIADIR/docs"
+  fi
+}
+docs_generate_php() {
+  docs_init
+  DOCDIR=docs/php
+  if [ ! -d "$DOCDIR" ]; then
+    mkdir -p "$DOCDIR"
+  fi
+  phpdoc -d components/ -t "$DOCDIR"
+
+  docs_create_link
+}
+docs_generate_js() {
+  docs_init
+  DOCDIR=docs/js
+  if [ ! -d "$DOCDIR" ]; then
+    mkdir -p "$DOCDIR"
+  fi
+  jsdoc -c config/jsdoc.conf -d "$DOCDIR"
+
+  docs_create_link
+}
 
 # Begin main execution
 
@@ -355,8 +396,22 @@ case "$ACTION" in
         ;;
     esac
     ;;
-  *)
-    echo "Usage: $0 [system|db|web|component] help"
+  docs)
+    case "$SUBACTION" in
+      php)
+        docs_generate_php
+        ;;
+      js)
+        docs_generate_js
+        ;;
+      *)
+        echo "Usage: $0 $ACTION [php|js]"
+        ;;
+    esac
     ;;
+  *)
+    echo "Usage: $0 [system|db|web|component|docs] help"
+    ;;
+
 esac
 

@@ -1,9 +1,4 @@
 /**
- * Elation Namespace
- * @name elation
- * @namespace
- */
-/**
  * UI Namespace
  * @name elation.ui
  * @namespace

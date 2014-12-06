@@ -29,6 +29,12 @@ elation.require("ui.base", function() {
    * @param {object}    args.attrs.itemplaceholder
    *
    */
+
+  /**
+   * ui_list_select event
+   * @event elation.ui.list#ui_list_select
+   * @type {object}
+   */
   elation.component.add('ui.list', function() {
     this.defaultcontainer = {tag: 'ul', classname: 'ui_list'};
 
@@ -600,7 +606,7 @@ elation.require("ui.base", function() {
      * Set this list item as being selected
      * @function select
      * @memberof elation.ui.listitem#
-     * @emits elation.ui.listitem#ui_list_item_select
+     * @fires elation.ui.listitem#ui_list_item_select
      */
     this.select = function(extra) {
       this.selected = true;
@@ -615,7 +621,7 @@ elation.require("ui.base", function() {
      * Set this list item as being unselected
      * @function unselect
      * @memberof elation.ui.listitem#
-     * @emits elation.ui.listitem#ui_list_item_unselect
+     * @fires elation.ui.listitem#ui_list_item_unselect
      */
     this.unselect = function() {
       this.selected = false;

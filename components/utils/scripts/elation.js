@@ -765,6 +765,14 @@ elation.extend("html.toggleClass", elation.html.toggleClass);
  *
  * @function elation.html.create
  * @param {object} parms
+ * @param {string} parms.tag
+ * @param {string} parms.classname
+ * @param {string} parms.id
+ * @param {string} parms.content
+ * @param {HTMLElement|elation.ui.component} parms.append
+ * @param {boolean} parms.before
+ * @param {object} parms.style
+ * @param {object} parms.additional
  *
  * @example
  * elation.html.create({ 

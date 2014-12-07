@@ -1,4 +1,4 @@
-elation.require(['ui.base','ui.input','utils.math'], function() {
+elation.require(['ui.base','utils.math'], function() {
   elation.component.add("ui.slider_handle", function() {
     this.init = function() {
       this.parent = this.args.parent;
@@ -7,8 +7,8 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
         name: 'handle',
         bounds: 'track',
         value: 0,
-        snap: this.parent.args.snap,
-        center: false,
+        snap: this.parent.args.snap || 1,
+        center: true,
         labelprefix: false,
         labelsuffix: false
       };
@@ -43,7 +43,7 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
       elation.events.add(this.input, 'blur', this)
 
       if (this.args.center && elation.utils.isNull(this.args.value)) {
-        this.args.value = (this.max + this.min) / 2;
+        this.args.value = (this.parent.max + this.parent.min) / 2;
       }
 
       if (!elation.utils.isNull(this.args.value)) {
@@ -85,10 +85,12 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
               handle = handles[index],
               snap = this.args.snap;
 
-          if (handle && index > handlemap[this.id])
+          if (handle && i < index)
             bounds[1] = Number(handle.input.value) - Number(snap);
           else if (handle)
             bounds[0] = Number(handle.input.value) + Number(snap);
+
+          console.log('getBounds', name, i, index, handlemap, handle);
         }
       }
 
@@ -109,21 +111,15 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
   }, elation.ui.base);
 
   elation.component.add("ui.slider", function() {
-    this.defaultcontainer = { tag: 'div', classname: 'ui_slider' };
-    this.handles = [];
-    this.handlemap = {};
-
     this.init = function() {
+      this.handles = [];
+      this.handlemap = {};
+      
       var defaults = {
         min: 0, 
         max: 100,
-        snap: 1,
         handles: [{
           name: this.id + '_indicator',
-          bounds: 'track',
-          snap: 1,
-          value: 50,
-          labelprefix: 'set:'
         }]
       };
 
@@ -141,14 +137,12 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
       this.track = elation.html.create({tag: 'div', classname: 'ui_slider_track', append: this.container});
       this.dimensions = elation.html.dimensions(this.track);
       
-        console.log('hey', this.args.handles);
       for (var i in this.args.handles) {
         var handle = this.args.handles[i];
         handle.parent = this;
 
         this.handlemap[handle.name] = this.handles.length;
         
-        console.log(i,'hi',handle);
         this.handles.push( 
           elation.ui.slider_handle(
             handle.name + '_' + this.handles.length, 
@@ -164,7 +158,6 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
       }
       
       elation.events.add(this.track, 'mousedown,mousewheel', this);
-      console.log(this);
     }
     this.setValue = function(value) {
       var v2p = elation.utils.math.value2percent,
@@ -207,11 +200,6 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
       this.handle.position.x = this.handle.container.offsetLeft + this.dimensions.x;
       this.handle.position.y = this.handle.container.offsetTop + this.dimensions.y;
 
-      // If a bindvar is passed in, automatically update the specified object property
-      if (this.handle.args.bindvar) {
-        this.handle.args.bindvar[0][this.handle.args.bindvar[1]] = this.value;
-      }
-
       if (!skipevent) {
         elation.events.fire({
           type: 'ui_slider_change', 
@@ -235,7 +223,7 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
             distance = this.distance(position, coords);
 
         candidate.distance = distance;
-console.log(i, handle, candidate, coords);
+
         if (!handle || distance < handle.distance)
           handle = candidate;
       }

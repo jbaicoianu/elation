@@ -14,8 +14,8 @@
     <div data-elation-component="ui.slider" data-elation-name="one">
       <data class="elation-args" name="handles">
         {literal}[
-          {"name":"one","bounds":"track","snap":"1","labelprefix":"left:","value":"25"},
-          {"name":"two","bounds":"track","snap":"1","labelprefix":"right:","value":"75"}
+          {"name":"one","bounds":"two","labelprefix":"left:","value":"25"},
+          {"name":"two","bounds":"one","labelprefix":"right:","value":"75"}
         ]{/literal}
       </data>
     </div>

@@ -1,3 +1,7 @@
+/** @namespace elation */
+/** @namespace elation.utils */
+/** @namespace elation.html */
+
 if (typeof window == 'undefined') var window = {}; // compatibility for nodejs/worker threads
 var elation = window.elation = new function(selector, parent, first) {
   if (typeof selector == 'string' && typeof elation.find == 'function')
@@ -537,9 +541,12 @@ elation.extend('onloads',new function() {
 //elation.onloads.init();
 
 /** 
- * elation.bind(ctx, fn) - used to preserve "this" for callbacks, etc.
- * by binding a function to a specific object context
- * */ 
+ * Bind a function to a specified context, so "this" maps correctly within callbacks
+ *
+ * @function elation.bind
+ * @param {object}   ctx Context to bind to
+ * @param {function} fn  Function to bind
+ */ 
 elation.extend("bind", function(ctx, fn) {
   if (typeof fn == 'function') {
     var fnargs = Array.prototype.splice.call(arguments, 2);
@@ -753,15 +760,21 @@ elation.extend("html.addClass", elation.html.addClass);
 elation.extend("html.removeClass", elation.html.removeClass);
 elation.extend("html.toggleClass", elation.html.toggleClass);
 
-/* creates a new html element
-      example: elation.html.create({ 
-        tag:'div', 
-        classname:'example',
-        style: { width:'30px', height:'20px' },
-        attributes: { innerHTML: 'Test!' },
-        append: elementObj
-      });
-*/
+/**
+ * Create a new html element
+ *
+ * @function elation.html.create
+ * @param {object} parms
+ *
+ * @example
+ * elation.html.create({ 
+ *      tag:'div', 
+ *      classname:'example',
+ *      style: { width:'30px', height:'20px' },
+ *      attributes: { innerHTML: 'Test!' },
+ *      append: elementObj
+ *    });
+ */
 elation.extend('html.create', function(parms, classname, style, additional, append, before) {
   if (typeof parms == 'object')
     var tag = parms.tag || 'div',
@@ -1018,10 +1031,12 @@ elation.extend("utils.merge", function(entities, mergeto) {
   return mergeto;
 });
 
-/* Sets value in a multilevel object element 
-* args:
-* obj -- multilevel object
-* element -- 'quoted' object element (as string)
+/**
+ * Sets value in a multilevel object element 
+ *
+ * @function elation.utils.arrayset
+ * @param {object} obj
+ * @param {string} element
 */
 elation.extend("utils.arrayset", function(obj, element, value) {
   var ptr = obj;
@@ -1036,6 +1051,14 @@ elation.extend("utils.arrayset", function(obj, element, value) {
     ptr[x[x.length-1]] = value;
   }
 });
+/**
+ * Retrieves specified dot-separated value from a multilevel object element 
+ *
+ * @function elation.utils.arrayget
+ * @param {object} obj
+ * @param {string} name
+ * @param {object|number|string} [defval] default value if none found
+*/
 elation.extend("utils.arrayget", function(obj, name, defval) {
   var ptr = obj;
   var x = name.split(".");
@@ -1064,7 +1087,7 @@ elation.extend("utils.arraymin", function(array) {
 });
 elation.extend("utils.arraymax", function(array) {
 	var value=ret=0;
-	
+
 	for (var i=total=0; i<array.length; i++) {
 		value = array[i];
 		if (value > ret) ret = value;
@@ -1928,10 +1951,14 @@ elation.extend("utils.isnumeric", function(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 });
 
-/* Return first non-empty value from list of args, or null if all are empty
-* Empty string, null and undefined are considered 'empty' and skipped over
-* Numeric 0 is considered non-empty and returned
-*/
+/**
+ * Return first non-empty value from list of args, or null if all are empty.
+ * Empty string, null and undefined are considered 'empty' and skipped over.
+ * Numeric 0 is considered non-empty and returned
+ *
+ * @function elation.utils.any
+ * @param {...Object} arguments
+ */
 elation.extend("utils.any", function() {
 	var arg;
 	for (var i=0; i<arguments.length; i++) {
@@ -1940,13 +1967,20 @@ elation.extend("utils.any", function() {
 	return null;
 })
 
-/* JavaScript timing - Displays execution time of code blocks
-* usage:
-*   elation.timing.log();
-*   elation.timing.log();
-*   elation.timing.log();
-*   elation.timing.print();
-*/
+/**
+ * @function elation.timing.log
+ * @function elation.timing.init
+ * @function elation.timing.set
+ * @function elation.timing.get
+ * @function elation.timing.print
+ *
+ * JavaScript timing - Displays execution time of code blocks
+ * @example
+ *   elation.timing.log();
+ *   elation.timing.log();
+ *   elation.timing.log();
+ *   elation.timing.print();
+ */
 elation.extend('timing', new function() {
 	this.log = this.set;
   this.enabled = false;

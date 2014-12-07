@@ -3,8 +3,8 @@ Version: $VERSION
 Section: web
 Priority: optional
 Architecture: all
-Depends: php5 | php5-cgi | php5-cli, smarty, php5-sqlite
-Recommends: apache2, php5-mysql, php5-memcache, php5-cli, php-apc, phpunit 
+Depends: php5 | php5-cgi | php5-cli, smarty3
+Recommends: apache2, php5-sqlite, php5-mysql, php5-memcache, php5-cli, php-apc, phpunit 
 Maintainer: James Baicoianu <james@thefind.com>
 Description: Elation PHP MVC Framework
   http://github.com/jbaicoianu/elation

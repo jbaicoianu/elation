@@ -2,7 +2,7 @@
  * Toggle panel UI component
  * Switches between two visible content areas based on the status of a checkbox
  *
- * @class toggle
+ * @class togglepanel
  * @augments elation.ui.base
  * @memberof elation.ui
  * @todo this class needs updating to use the dependency system, and inherit from ui.panel

@@ -8,7 +8,33 @@ elation.require([], function() {
    * @alias elation.collection.simple
    *
    * @param {object} args
+   *
+   * @member {Array}   items
+   * @member {boolean} allowduplicates
+   * @member {number}  length
    */
+
+  /**
+   * Fired when new objects are added to this collection
+   * @event elation.collection.simple#collection_add
+   * @type {Object}
+   */
+  /**
+   * Fired when new objects are removed from this collection
+   * @event elation.collection.simple#collection_remove
+   * @type {Object}
+   */
+  /**
+   * Fired when an object is moved to a new position within this collection
+   * @event elation.collection.simple#collection_move
+   * @type {Object}
+   */
+  /**
+   * Fired when this collection is cleared
+   * @event elation.collection.simple#collection_clear
+   * @type {Object}
+   */
+
   elation.component.add("collection.simple", function() {
     this.init = function() {
       this.items = [];
@@ -140,11 +166,17 @@ elation.require([], function() {
    * @memberof elation.collection
    * @alias elation.collection.indexed
    *
-   * @param {object} args
-   * @param {string} args.index
-   * @param {string} args.indextransform
+   * @param {object}   args
+   * @param {string}   args.index          Name of property to use for indexing
+   * @param {function} args.indextransform Transform function for normalizing index keys
+   *
    */
   elation.component.add("collection.indexed", function() {
+    /**
+     * @member {string}   index
+     * @member {function} indextransform
+     * @member {Array}    itemindex
+     */
     this.init = function() {
       elation.collection.simple.base.prototype.init.call(this);
       this.index = this.args.index;
@@ -206,6 +238,23 @@ elation.require([], function() {
    * @param {object} args
    * @param {string} args.index
    * @param {string} args.storagekey
+   *
+   * @member {string}    storagekey
+   */
+  /**
+   * Fired when this collection is saved
+   * @event elation.collection.localindexed#collection_save
+   * @type {Object}
+   */
+  /**
+   * Fired when this collection starts fetching items
+   * @event elation.collection.localindexed#collection_load_begin
+   * @type {Object}
+   */
+  /**
+   * Fired when this collection has fetched items
+   * @event elation.collection.localindexed#collection_load
+   * @type {Object}
    */
   elation.component.add("collection.localindexed", function() {
     this.init = function() {
@@ -283,7 +332,26 @@ elation.require([], function() {
    * @param {object} args.datatransform
    * @param {function} args.datatransform.items
    * @param {function} args.datatransform.count
+   *
+   * @member {string}    host
+   * @member {string}    endpoint
+   * @member {object}    apiargs
+   * @member {object}    datatransform
+   * @member {function}  datatransform.items
+   * @member {function}  datatransform.count
+   * @member {object}    data
    */
+  /**
+   * Fired when this collection starts fetching items
+   * @event elation.collection.api#collection_load_begin
+   * @type {Object}
+   */
+  /**
+   * Fired when this collection has fetched items
+   * @event elation.collection.api#collection_load
+   * @type {Object}
+   */
+
   elation.component.add("collection.api", function() {
     this.init = function() {
       elation.collection.simple.base.prototype.init.call(this);
@@ -434,6 +502,15 @@ elation.require([], function() {
    * @param {object} args
    * @param {elation.collection.simple} args.parent List to filter
    * @param {function} args.filterfunc Callback function for filtering list 
+   *
+   * @member {object}   parent
+   * @member {function} filterfunc
+   *
+   */
+  /**
+   * Fired when this collection has fetched items
+   * @event elation.collection.filter#collection_load
+   * @type {Object}
    */
   elation.component.add("collection.filter", function() {
     this.init = function() {

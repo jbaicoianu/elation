@@ -1,0 +1,7 @@
+.ui_toggle input,
+.ui_toggle label {
+  cursor: pointer;
+  -webkit-user-select: none;
+  vertical-align: middle;
+}
+

@@ -1,4 +1,5 @@
 elation.require(['ui.base','ui.input','utils.math'], function() {
+  elation.requireCSS('ui.slider');
   elation.component.add("ui.slider_handle", function() {
     this.init = function() {
       this.parent = this.args.parent;

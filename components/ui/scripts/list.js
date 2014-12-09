@@ -1,4 +1,5 @@
 elation.require("ui.base", function() {
+  elation.requireCSS("ui.list");
   /** 
    * List UI element
    *

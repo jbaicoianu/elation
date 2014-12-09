@@ -19,7 +19,8 @@
  * @param {elation.collection.simple} args.itemcollection
  */
 elation.require(['ui.list'], function() {
-  elation.requireCSS("ui.grid");
+  elation.requireCSS('ui.grid');
+
   elation.component.add('ui.grid', function() {
     this.defaultcontainer = {tag: 'ul', classname: 'ui_grid'};
     this.init = function() {

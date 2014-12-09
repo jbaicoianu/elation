@@ -1,4 +1,6 @@
 elation.require(['ui.list'], function() {
+  elation.requireCSS('ui.keyvaluelist');
+
   elation.component.add('ui.keyvaluelist', function() {
     this.init = function() {
       elation.ui.keyvaluelist.extendclass.init.call(this);

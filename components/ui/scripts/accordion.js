@@ -1,4 +1,5 @@
 elation.require(['ui.base'], function() {
+  elation.requireCSS('ui.accordion');
   /** 
    * Generalized collapsible "accordion" container component
    *

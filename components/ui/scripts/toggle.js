@@ -1,4 +1,6 @@
 elation.require(['ui.base', 'ui.label'], function() {
+  elation.requireCSS('ui.toggle');
+
   elation.component.add('ui.toggle', function() {
     this.defaultcontainer = {tag: 'div', classname: 'ui_toggle'};
     this.init = function() {

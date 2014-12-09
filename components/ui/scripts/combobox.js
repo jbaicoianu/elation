@@ -1,4 +1,6 @@
 elation.require(['ui.input', 'ui.infinilist', 'ui.panel', 'ui.button', 'elation.collection'], function() {
+  elation.requireCSS('ui.combobox');
+
   elation.component.add('ui.combobox', function() {
     this.defaultcontainer = {tag: 'div', classname: 'ui_combobox'};
 

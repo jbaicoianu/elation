@@ -1,4 +1,6 @@
-elation.require([], function() {
+elation.require(['ui.list'], function() {
+  elation.requireCSS('ui.breadcrumbs');
+
   elation.template.add('ui.breadcrumbs.item', '<a href="#">{value}</a>');
 
   elation.component.add('ui.breadcrumbs', function() {

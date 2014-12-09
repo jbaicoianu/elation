@@ -1,4 +1,6 @@
 elation.require(['ui.list'], function() {
+  elation.requireCSS('ui.infinilist');
+
   elation.component.add('ui.infinilist', function() {
     this.knownheights = [];
     this.offsets = [];

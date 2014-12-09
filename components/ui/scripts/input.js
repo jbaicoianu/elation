@@ -15,7 +15,8 @@
  * @param {boolean} args.autofocus
  */
 elation.require(['ui.base', 'ui.label'], function() {
-  elation.requireCSS("ui.input");
+  elation.requireCSS('ui.input');
+
   elation.component.add('ui.input', function() {
     this.defaultcontainer = {tag: 'div', classname: 'ui_input'};
 

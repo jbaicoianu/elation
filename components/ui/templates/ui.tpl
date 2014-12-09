@@ -7,11 +7,17 @@
 <ul class="ui_examples">
   <li>
     <h2>ui.slider one handle</h2>
-    {component name="ui.slider" id="two"}
+    <div data-elation-component="ui.slider" data-elation-name="one">
+      <data class="elation-args" name="handles">
+        {literal}[
+          {"labelprefix":"value:","center":"true","input":"true"}
+        ]{/literal}
+      </data>
+    </div>
   </li>
   <li>
     <h2>ui.slider two handles</h2>
-    <div data-elation-component="ui.slider" data-elation-name="one">
+    <div data-elation-component="ui.slider" data-elation-name="two">
       <data class="elation-args" name="handles">
         {literal}[
           {"name":"one","bounds":"two","labelprefix":"left:","value":"25"},

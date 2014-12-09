@@ -35,8 +35,8 @@
 .ui_slider_handle_grabber {
   position: absolute;
   top: .2em;
-  width: 1.5em;
-  height: 1.5em;
+  width: 1.25em;
+  height: 1.25em;
   background: #888;
   box-shadow: 0 0 0 1px #000 inset, 0 0 .5em 1px rgba(255,255,255,.5) inset, 1px 1px 2px 1px rgba(64,64,64,.5);
   border-radius: 50%;
@@ -49,6 +49,7 @@
 }
 .ui_slider_handle_grabber:hover {
   background: #999;
+  z-index: 2;
 }
 #ui_slider_handle_one .ui_slider_handle_grabber {
   background: #0C0;
@@ -64,11 +65,11 @@
   border-radius: none;
   z-index: 1;
 }
-#ui_slider_handle_indicator .ui_slider_handle_grabber {
+#ui_slider_two_handle_two_indicator .ui_slider_handle_grabber {
   background: transparent;
   box-shadow: 0 0 0 1px #000 inset, 0 0 .5em 1px rgba(255,255,255,.5) inset, 0 0 0 12px #888 inset;
   border: 15px solid rgba(1,1,1,0);
 }
-#ui_slider_handle_indicator .ui_slider_handle_grabber:hover {
-  box-shadow: 0 0 0 1px #000 inset, 0 0 .5em 1px rgba(255,255,255,.5) inset, 0 0 0 12px #aaa inset;
+#ui_slider_two_handle_two_indicator .ui_slider_handle_grabber:hover {
+  box-shadow: 0 0 0 1px #000 inset, 0 0 .5em 1px rgba(255,255,255,.5) inset, 0 0 0 12px #AAA inset;
 }

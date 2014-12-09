@@ -10,6 +10,7 @@
  * @param {string} args.orientation
  */
 elation.require(["ui.base", "ui.content"], function() {
+  elation.requireCSS("ui.panel");
   elation.component.add("ui.panel", function() {
     this.defaultcontainer = {tag: 'div', classname: 'ui_panel'};
 

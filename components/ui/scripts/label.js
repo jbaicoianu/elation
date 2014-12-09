@@ -14,10 +14,10 @@ elation.require("ui.base", function() {
     this.defaultcontainer = {tag: 'span', classname: 'ui_label'};
 
     this.init = function() {
+      elation.ui.label.extendclass.init.call(this);
       if (this.args.label) {
         this.setlabel(this.args.label);
       }
-      elation.html.addclass(this.container, 'ui_label');
       if (this.args.classname) {
         elation.html.addclass(this.container, this.args.classname);
       }
@@ -84,5 +84,18 @@ elation.require("ui.base", function() {
    */
   elation.component.add("ui.labeldivider", function() {
     this.defaultcontainer = {tag: 'h3', classname: 'ui_label'};
+  }, elation.ui.label);
+  /**
+   * ui.formlabel is the same thing as a ui.label, but uses a <label> instead of a <span>
+   * @param {string} args.for id of element to link label with
+   */
+  elation.component.add("ui.formlabel", function() {
+    this.defaultcontainer = {tag: 'label', classname: 'ui_label ui_formlabel'};
+    this.init = function() {
+      elation.ui.formlabel.extendclass.init.call(this);
+      if (this.args.for) {
+        this.container.htmlFor = this.args.for;
+      }
+    }
   }, elation.ui.label);
 });

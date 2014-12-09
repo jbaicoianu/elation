@@ -765,6 +765,14 @@ elation.extend("html.toggleClass", elation.html.toggleClass);
  *
  * @function elation.html.create
  * @param {object} parms
+ * @param {string} parms.tag
+ * @param {string} parms.classname
+ * @param {string} parms.id
+ * @param {string} parms.content
+ * @param {HTMLElement|elation.ui.component} parms.append
+ * @param {boolean} parms.before
+ * @param {object} parms.style
+ * @param {object} parms.additional
  *
  * @example
  * elation.html.create({ 
@@ -1880,18 +1888,22 @@ elation.extend('file.root', function() {
 elation.extend('require', function(modules, callback) {
   //console.log('require:', modules, this.requireactivebatch);
   if (!elation.utils.isArray(modules)) modules = [modules];
-  if (!this.requireactivebatch) {
-    this.requireactivebatch = new elation.require.batch();
+  if (!this.requireactivebatchjs) {
+    this.requireactivebatchjs = new elation.require.batch(['js']);
 
     // Reinitialize modules after new dependencies have been loaded
-    this.requireactivebatch.addcallback(function() { setTimeout(elation.bind(elation.component, elation.component.init), 0); });
+    this.requireactivebatchjs.addcallback(function() { setTimeout(elation.bind(elation.component, elation.component.init), 0); });
   }
-  this.requireactivebatch.addrequires(modules);
-  if (callback) {
-    this.requireactivebatch.addcallback(callback);
-  }
+  this.requireactivebatchjs.addrequires(modules, callback);
 });
-elation.extend('require.batch', function(modules, callback) {
+elation.extend('requireCSS', function(modules, callback) {
+  if (!elation.utils.isArray(modules)) modules = [modules];
+  if (!this.requireactivebatchcss) {
+    this.requireactivebatchcss = new elation.require.batch(['css']);
+  }
+  this.requireactivebatchcss.addrequires(modules, callback);
+});
+elation.extend('require.batch', function(types) {
 
   // Handles asynchronous batch loading for dependencies
   // Loads multiple files, then fires a single callback when all are finished loading
@@ -1900,27 +1912,46 @@ elation.extend('require.batch', function(modules, callback) {
   this.pending = [];
   this.done = [];
   this.callbacks = [];
+  this.types = types || ['js'];
   
   this.init = function() {
+    this.fetch_js = (this.types.indexOf('js') != -1);
+    this.fetch_css = (this.types.indexOf('css') != -1);
   }
-  this.addrequires = function(requires) {
+  this.addrequires = function(requires, callback) {
     for (var i = 0; i < requires.length; i++) {
       this.pushqueue(requires[i]);
     }
+    if (callback) {
+      this.addcallback(callback);
+    }
   }
-  this.addcallback = function(callback) {
-    this.callbacks.push(callback);
+  this.addcallback = function(callback, dependencies) {
+    this.callbacks.push({callback: callback, dependencies: dependencies});
   }
   this.pushqueue = function(module) {
-    var existing = elation.utils.arrayget(this, module);
-    if (existing === null) {
-      if (this.pending.indexOf(module) == -1) {
-        elation.utils.arrayset(this, module, false); // prevent us from trying to load this module again
-        this.pending.push(module);
-        elation.file.get('javascript', '/scripts/' + module.replace(/\./g, '/') + '.js', elation.bind(this, function() { this.finished(module); }));
-        elation.file.get('css', '/css/' + module.replace(/\./g, '/') + '.css');
+    if (!this.isfulfilled(module)) {
+      if (!this.ispending(module)) {
+        this.setpending(module);
+        if (this.fetch_js) {
+          elation.file.get('javascript', '/scripts/' + module.replace(/\./g, '/') + '.js', elation.bind(this, function() { this.finished(module); }));
+        }
+        if (this.fetch_css) {
+          elation.file.get('css', '/css/' + module.replace(/\./g, '/') + '.css');
+        }
       }
     }
+  }
+  this.isfulfilled = function(module) {
+    var existing = elation.utils.arrayget(this, module);
+    return (existing !== null);
+  }
+  this.ispending = function(module) {
+    return (this.pending.indexOf(module) != -1);
+  }
+  this.setpending = function(module) {
+    elation.utils.arrayset(this, module, false); // prevent us from trying to load this module again
+    this.pending.push(module);
   }
   this.finished = function(module) {
     //console.log('Finished loading file:', module);
@@ -1931,9 +1962,15 @@ elation.extend('require.batch', function(modules, callback) {
     if (this.pending.length == 0) {
       var callbacks = this.callbacks;
       this.callbacks = [];
+      var failed = [];
       while (callbacks.length > 0) {
-        callback = callbacks.pop();
-        callback();
+        try {
+          callback = callbacks.pop();
+          callback.callback();
+        } catch (e) {
+          console.log(e);
+          failed.push(callback);
+        }
       }
     }
   }
@@ -2208,3 +2245,4 @@ elation.extend('net.handlereadystatechange', function(ev) {
     }
   }
 });
+elation.requireCSS('utils.elation');

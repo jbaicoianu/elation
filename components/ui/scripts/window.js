@@ -20,6 +20,7 @@
  */
 
 elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
+  elation.requireCSS("ui.window");
   elation.component.add('ui.window', function() {
     this.defaultcontainer = {tag: 'div', classname: 'ui_window'};
 
@@ -243,7 +244,7 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
     }
     this.center = function() {
       var dim = elation.html.dimensions(this.container);
-      var realx = (document.body.offsetWidth - this.container.offsetWidth) / 2;
+      var realx = (window.innerWidth - this.container.offsetWidth) / 2;
       var realy = (window.innerHeight - this.container.offsetHeight) / 2;
       this.content.style.maxHeight = (window.innerHeight - this.content.offsetTop) + 'px';
       this.setposition([realx, realy]);

@@ -1,4 +1,5 @@
-elation.require(['ui.base','utils.math'], function() {
+elation.require(['ui.base','ui.input','utils.math'], function() {
+  elation.requireCSS('ui.slider');
   /** 
    * Slider UI component
    *
@@ -12,6 +13,7 @@ elation.require(['ui.base','utils.math'], function() {
    * @param {array} args.handle
    */
   elation.component.add("ui.slider", function() {
+    this.defaultcontainer = { tag: 'div', classname: 'ui_slider' };
     this.init = function() {
       this.handles = [];
       this.handlemap = {};
@@ -302,12 +304,18 @@ elation.require(['ui.base','utils.math'], function() {
     }
     this.setValue = function(value, percent) {
       this.value = Number(value || 0);
+
       if (this.input)
         this.input.value = this.value;
       
       this.container.style.left = percent.x * 100 + '%';
       this.position.x = this.container.offsetLeft + this.parent.dimensions.x;
       this.position.y = this.container.offsetTop + this.parent.dimensions.y;
+
+      // If a bindvar is passed in, automatically update the specified object property
+      if (this.args.bindvar) {
+        this.args.bindvar[0][this.args.bindvar[1]] = this.value;
+      }
     }
     this.blur = function(ev) {
       var bounds = this.getBounds();

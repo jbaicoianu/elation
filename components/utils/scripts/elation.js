@@ -1910,10 +1910,8 @@ elation.extend('require.batch', function(type, webroot) {
   this.webroot = webroot;
 
   this.pending = [];
-  this.done = [];
 
   this.nodes = {};
-  this.modulenodes = [];
   this.rootnode = false;
   
   this.init = function() {
@@ -1966,7 +1964,6 @@ elation.extend('require.batch', function(type, webroot) {
     }
 
     this.batchnode.addEdge(modulenode);
-    this.modulenodes.push(modulenode);
 
     if (this.pending.length == 0) {
       this.finished();
@@ -2023,9 +2020,6 @@ elation.extend('require.batch', function(type, webroot) {
 
     // If nothing is pending, execute callbacks
     if (this.pending.length == 0) {
-      while (this.modulenodes.length > 0) {
-        var node = this.modulenodes.shift();
-      }
       // Resolve dependency graph
       var callbacks = this.resolve(this.batchnode);
       var failed = [];
@@ -2045,6 +2039,7 @@ elation.extend('require.node', function(name, callback) {
   this.init = function() {
     this.name = name;
     this.callback = callback;
+    this.done = false;
     this.str = (callback ? callback.toString() : false);
     this.edges = [];
   }

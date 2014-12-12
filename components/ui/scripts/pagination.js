@@ -1,4 +1,4 @@
-elation.require([ ], function() {
+elation.require(['ui.list'], function() {
   elation.component.add('ui.pagination', function() {
     this.defaultcontainer = {tag: 'ul', classname: 'ui_list ui_pagination'};
 

@@ -1935,10 +1935,13 @@ elation.extend('require.batch', function(type, webroot) {
     return modname;
   }
   this.getnode = function(module) {
-    if (!this.nodes[module]) {
-      this.nodes[module] = new elation.require.node(module); 
+    var mod = this.nodes[module];
+    if (!module || module == 'CALLBACK') {
+      mod = new elation.require.node(module); 
+    } else if (!this.nodes[module]) {
+      mod = this.nodes[module] = new elation.require.node(module); 
     }
-    return this.nodes[module];
+    return mod;
   }
   this.addrequires = function(requires, callback) {
     var modname = this.getcurrentmodule() || 'CALLBACK';
@@ -2065,6 +2068,13 @@ elation.extend('require.node', function(name, callback) {
     return success;
   }
   this.init();
+});
+elation.extend('require.debug', function() {
+  elation.require(['graph.d3', 'graph.force', 'ui.window'], function() {
+    this.debuggraph = elation.graph.force({});
+    this.debuggraph.update(elation.requireactivebatchjs.batchnode); 
+    this.debugwin = elation.ui.window({append: document.body, title: 'dependencies', content: this.debuggraph}); 
+  });
 });
 
 elation.extend("utils.escapeHTML", function(str) {

@@ -1631,9 +1631,9 @@ elation.extend('file.get', function(type, file, func) {
     return false;
   
   var	head = document.getElementsByTagName("HEAD")[0],
-      element = document.createElement((type == 'javascript' ? "SCRIPT" : "LINK"));
+      element = document.createElement((type == 'javascript' || type == 'js' ? "SCRIPT" : "LINK"));
   
-  if (type == 'javascript') {
+  if (type == 'javascript' || type == 'js') {
     element.type = "text/javascript";
     element.src = file;
   } else {
@@ -1889,90 +1889,185 @@ elation.extend('require', function(modules, callback) {
   //console.log('require:', modules, this.requireactivebatch);
   if (!elation.utils.isArray(modules)) modules = [modules];
   if (!this.requireactivebatchjs) {
-    this.requireactivebatchjs = new elation.require.batch(['js']);
-
-    // Reinitialize modules after new dependencies have been loaded
-    this.requireactivebatchjs.addcallback(function() { setTimeout(elation.bind(elation.component, elation.component.init), 0); });
+    this.requireactivebatchjs = new elation.require.batch('js', '/scripts');
   }
   this.requireactivebatchjs.addrequires(modules, callback);
 });
 elation.extend('requireCSS', function(modules, callback) {
   if (!elation.utils.isArray(modules)) modules = [modules];
   if (!this.requireactivebatchcss) {
-    this.requireactivebatchcss = new elation.require.batch(['css']);
+    this.requireactivebatchcss = new elation.require.batch('css', '/css');
   }
   this.requireactivebatchcss.addrequires(modules, callback);
 });
-elation.extend('require.batch', function(types) {
+elation.extend('require.batch', function(type, webroot) {
 
   // Handles asynchronous batch loading for dependencies
   // Loads multiple files, then fires a single callback when all are finished loading
   // TODO - needs timeout and better error handling
 
+  this.type = type;
+  this.webroot = webroot;
+
   this.pending = [];
   this.done = [];
-  this.callbacks = [];
-  this.types = types || ['js'];
+
+  this.nodes = {};
+  this.modulenodes = [];
+  this.rootnode = false;
   
   this.init = function() {
-    this.fetch_js = (this.types.indexOf('js') != -1);
-    this.fetch_css = (this.types.indexOf('css') != -1);
+    if (!this.rootnode) {
+      this.rootnode = new elation.require.node('root', function() { elation.component.init(); });
+    }
+  }
+  this.getcurrentmodule = function() {
+    // Gets the currently-executing script, (hopefully) in a cross-browser way
+    var script = document.currentScript;
+    if (!script) {
+      var scripts = document.getElementsByTagName('script');
+      script = scripts[scripts.length - 1];
+    }
+    var scriptsrc = script.src,
+        start = scriptsrc.indexOf(this.webroot) + this.webroot.length + 1,
+        end = scriptsrc.lastIndexOf('.js');
+    
+    var modname = scriptsrc.substring(start, end).replace(/\//g, '.');
+    //console.log('current script:', script, modname);
+    return modname;
+  }
+  this.getnode = function(module) {
+    if (!this.nodes[module]) {
+      this.nodes[module] = new elation.require.node(module); 
+    }
+    return this.nodes[module];
   }
   this.addrequires = function(requires, callback) {
+    var modname = this.getcurrentmodule() || 'CALLBACK';
+    //console.log('ADDREQ', modname, "=>", requires);
+    var modulenode = (modname != 'CALLBACK' ? this.getnode(modname) : new elation.require.node('CALLBACK', callback));
+    if (!modulenode.callback) modulenode.callback = callback;
+
+    var toplevel = false;
+    if (!this.batchnode) {
+      this.batchnode = new elation.require.node('batchnode', function() { elation.component.init(); });
+      toplevel = true;
+    }
+
     for (var i = 0; i < requires.length; i++) {
-      this.pushqueue(requires[i]);
+      var depname = requires[i];
+      this.pushqueue(depname);
+
+      // Add node dependency, creating node if it doesn't exist yet
+      var node = this.getnode(depname);
+      if (node !== modulenode) {
+        modulenode.addEdge(node);
+      }
     }
-    if (callback) {
-      this.addcallback(callback);
+
+    this.batchnode.addEdge(modulenode);
+    this.modulenodes.push(modulenode);
+
+    if (this.pending.length == 0) {
+      this.finished();
     }
-  }
-  this.addcallback = function(callback, dependencies) {
-    this.callbacks.push({callback: callback, dependencies: dependencies});
   }
   this.pushqueue = function(module) {
-    if (!this.isfulfilled(module)) {
-      if (!this.ispending(module)) {
-        this.setpending(module);
-        if (this.fetch_js) {
-          elation.file.get('javascript', '/scripts/' + module.replace(/\./g, '/') + '.js', elation.bind(this, function() { this.finished(module); }));
-        }
-        if (this.fetch_css) {
-          elation.file.get('css', '/css/' + module.replace(/\./g, '/') + '.css');
-        }
-      }
+    if (!this.isfulfilled(module) && !this.ispending(module)) {
+      this.setpending(module);
+
+      elation.file.get(this.type, this.webroot + '/' + module.replace(/\./g, '/') + '.' + this.type, elation.bind(this, function(ev) { this.finished(module); }));
     }
   }
   this.isfulfilled = function(module) {
-    var existing = elation.utils.arrayget(this, module);
+    var existing = elation.utils.arrayget(elation, module) || elation.utils.arrayget(this, module);
     return (existing !== null);
   }
   this.ispending = function(module) {
     return (this.pending.indexOf(module) != -1);
   }
   this.setpending = function(module) {
-    elation.utils.arrayset(this, module, false); // prevent us from trying to load this module again
+    elation.utils.arrayset(this, module, true); // prevent us from trying to load this module again
     this.pending.push(module);
   }
+  this.resolve = function(node, resolved, unresolved) {
+    // Figure out the dependency callback order based on the dependency graph
+    if (typeof resolved == 'undefined') resolved = [];
+    if (typeof unresolved == 'undefined') unresolved = [];
+
+    // Keep track of seen/unseen nodes to avoid circular dependencies
+    unresolved.push(node);
+    for (var i = 0; i < node.edges.length; i++) {
+      if (resolved.indexOf(node.edges[i]) == -1) {
+        if (unresolved.indexOf(node.edges[i]) != -1) {
+          console.log('circular dependency!', node, node.edges[i]);
+          return resolved;
+        }
+        this.resolve(node.edges[i], resolved, unresolved);
+      }
+    }
+    // Mark as resolved, and remove from unresolved list
+    resolved.push(node);
+    unresolved.splice(unresolved.indexOf(node), 1);
+    return resolved;
+  }
   this.finished = function(module) {
-    //console.log('Finished loading file:', module);
+    //console.log('Finished loading file:', module, this.pending);
+    var node = this.nodes[module];
+
+    // Remove from pending list
     var idx = this.pending.indexOf(module);
     if (idx != -1) {
       this.pending.splice(idx, 1);
     }
+
+    // If nothing is pending, execute callbacks
     if (this.pending.length == 0) {
-      var callbacks = this.callbacks;
-      this.callbacks = [];
+      while (this.modulenodes.length > 0) {
+        var node = this.modulenodes.shift();
+      }
+      // Resolve dependency graph
+      var callbacks = this.resolve(this.batchnode);
       var failed = [];
+
+      // Execute callbacks, in order
       while (callbacks.length > 0) {
-        try {
-          callback = callbacks.pop();
-          callback.callback();
-        } catch (e) {
-          console.log(e);
+        var callback = callbacks.shift();
+        if (!callback.exec()) {
           failed.push(callback);
         }
       }
     }
+  }
+  this.init();
+});
+elation.extend('require.node', function(name, callback) {
+  this.init = function() {
+    this.name = name;
+    this.callback = callback;
+    this.str = (callback ? callback.toString() : false);
+    this.edges = [];
+  }
+  this.addEdge = function(node) {
+    this.edges.push(node);
+  }
+  this.addEdges = function(nodes) {
+    this.edges = this.edges.concat(nodes);
+  }
+  this.exec = function() {
+    var success = true;
+    if (!this.done && this.callback) {
+      try {
+        if (this.callback) {
+          this.callback();
+        }
+        this.done = true;
+      } catch (e) {
+        console.error(e.stack);
+        success = false;
+      }
+    }
+    return success;
   }
   this.init();
 });

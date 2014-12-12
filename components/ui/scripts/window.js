@@ -20,7 +20,8 @@
  */
 
 elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
-  elation.requireCSS("ui.window");
+  elation.requireCSS('ui.window');
+
   elation.component.add('ui.window', function() {
     this.defaultcontainer = {tag: 'div', classname: 'ui_window'};
 

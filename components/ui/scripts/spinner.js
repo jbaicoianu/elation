@@ -9,8 +9,9 @@
  * @param {object} args
  * @param {string} args.type
  */
-elation.require(["ui.base", "utils.dust", "utils.template"], function() {
+elation.require(["ui.base", "utils.template"], function() {
   elation.requireCSS("ui.spinner");
+
   elation.component.add('ui.spinner', function() {
     this.defaultcontainer = { tag: 'div', classname: 'ui_spinner' };
 

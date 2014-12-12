@@ -8,7 +8,7 @@
  * @param {object} args
  * @param {object} args.buttons
  */
-elation.require(['ui.base', 'ui.button'], function() {
+elation.require(['ui.base', 'ui.button', 'ui.togglebutton'], function() {
   elation.component.add('ui.buttonbar', function() {
     this.defaultcontainer = { tag: 'div', classname: 'ui_buttonbar' };
     this.init = function() {

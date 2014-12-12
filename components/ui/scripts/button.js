@@ -1,5 +1,5 @@
 elation.require(['ui.base'], function() {
-  elation.requireCSS("ui.button");
+  elation.requireCSS('ui.button');
   /** 
    * Button UI element
    *

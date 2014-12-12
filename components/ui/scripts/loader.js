@@ -1,4 +1,4 @@
-elation.require(['ui.window', 'ui.spinner'], function() {
+elation.require(['ui.window', 'ui.panel', 'ui.spinner'], function() {
   elation.component.add('ui.loader', function() {
     this.defaultcontainer = { tag: 'div', classname: 'ui_loader' };
 

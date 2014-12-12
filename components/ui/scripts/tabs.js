@@ -10,7 +10,8 @@
  * @param {string} args.items
  */
 elation.require(['ui.base'], function() {
-  elation.requireCSS("ui.tabs");
+  elation.requireCSS('ui.tabs');
+
   elation.component.add("ui.tabs", function() {
     this.defaultcontainer = { tag: 'div', classname: 'ui_tabs' };
 

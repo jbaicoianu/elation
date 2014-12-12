@@ -1,8 +1,5 @@
-{dependency name="utils.dust"}
-{dependency name="utils.template"}
 {dependency name="ui"}
 {dependency name="ui.themes.dark"}
-{dependency name="ui.slider"}
 
 <ul class="ui_examples">
   <li>

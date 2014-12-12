@@ -6,22 +6,157 @@
 
 <ul class="ui_examples">
   <li>
-    <h2>ui.slider one handle</h2>
-    <div data-elation-component="ui.slider" data-elation-name="one">
+    <h2>ui.slider - simple</h2>
+    <div data-elation-component="ui.slider" data-elation-name="example">
       <data class="elation-args" name="handles">
         {literal}[
-          {"labelprefix":"value:","center":"true","input":"true"}
+          {"center":"true","input":"false"}
         ]{/literal}
       </data>
     </div>
   </li>
   <li>
-    <h2>ui.slider two handles</h2>
-    <div data-elation-component="ui.slider" data-elation-name="two">
+    <h2>ui.slider - price range</h2>
+    <div data-elation-component="ui.slider" 
+          data-elation-name="pricerange"
+          data-elation-args.max="599.99">
       <data class="elation-args" name="handles">
         {literal}[
-          {"name":"one","bounds":"two","labelprefix":"left:","value":"25"},
-          {"name":"two","bounds":"one","labelprefix":"right:","value":"75"}
+          {
+            "name":"min",
+            "bounds":"max",
+            "input":"true",
+            "anchor":"right",
+            "labelprefix":"price: $",
+            "value":"129.99",
+            "snap":"0.01",
+            "toFixed":"2"
+          },
+          {
+            "name":"max",
+            "bounds":"min",
+            "input":"true",
+            "labelprefix":"to $",
+            "value":"359.99",
+            "snap":"0.01",
+            "toFixed":"2"
+          }
+        ]{/literal}
+      </data>
+    </div>
+  </li>
+    <li>
+    <h2>ui.slider - navigation dots</h2>
+    <div data-elation-component="ui.slider" 
+          data-elation-name="dots"
+          data-elation-args.min="0"
+          data-elation-args.max="4">
+      <data class="elation-args" name="handles">
+        {literal}[
+          {
+            "name":"one",
+            "moveable":"false",
+            "input":"false",
+            "value":"0",
+            "snap":"1"
+          },
+          {
+            "name":"two",
+            "moveable":"false",
+            "input":"false",
+            "value":"1",
+            "snap":"1"
+          },
+          {
+            "name":"three",
+            "moveable":"false",
+            "input":"false",
+            "value":"2",
+            "snap":"1"
+          },
+          {
+            "name":"four",
+            "moveable":"false",
+            "input":"false",
+            "value":"3",
+            "snap":"1"
+          },
+          {
+            "name":"five",
+            "moveable":"false",
+            "input":"false",
+            "value":"4",
+            "snap":"1"
+          },
+          {
+            "name":"indicator",
+            "input":"false",
+            "value":"3",
+            "snap":"1"
+          }
+        ]{/literal}
+      </data>
+    </div>
+  </li>
+    <li>
+    <h2>ui.slider - progress bar</h2>
+    <div data-elation-component="ui.slider" 
+          data-elation-name="progressbar">
+      <data class="elation-args" name="handles">
+        {literal}[
+          {
+            "name":"progress",
+            "input":"true",
+            "anchor":"right",
+            "moveable":"false",
+            "append":"grabber",
+            "labelsuffix":"%",
+            "value":"0",
+            "snap":"0.01",
+            "toFixed":"0"
+          }
+        ]{/literal}
+      </data>
+    </div>
+    <script>{literal}
+      setInterval(function() {
+        var slider = elation.component.get('progressbar', 'ui.slider');
+
+        if (!slider)
+          return;
+
+        var value = slider.value,
+            value = value >= 100 ? 0 : value,
+            inc = Math.random() * 5;
+
+        if (slider.value >= 100)
+          slider.handles[0].container.style.transition = 'all 0 linear';
+        
+        slider.setPercent(slider.handles[0],{
+          x: parseInt(value + inc) / 100,
+          y: 0
+        });
+        
+        slider.handles[0].container.style.transition = '';
+      }, 333)
+    {/literal}</script>
+  </li>
+    <li>
+    <h2>ui.slider - input combo</h2>
+    <div data-elation-component="ui.slider" 
+          data-elation-name="adjuster">
+      <data class="elation-args" name="handles">
+        {literal}[
+          {
+            "name":"handle",
+            "input":"true",
+            "anchor":"right",
+            "append":"container",
+            "before":"track",
+            "value":"20",
+            "snap":"0.01",
+            "toFixed":"2"
+          }
         ]{/literal}
       </data>
     </div>

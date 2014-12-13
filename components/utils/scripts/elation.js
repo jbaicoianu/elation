@@ -441,7 +441,7 @@ elation.extend("component", new function() {
     var eventprefix = 'elationEvents.';
     for (var k in element.dataset) {
       if (k.substring(0, argprefix.length) == argprefix) {
-        componentargs[k.substring(argprefix.length)] = element.dataset[k];
+        elation.utils.arrayset(componentargs, k.substring(argprefix.length), element.dataset[k]);
       } else if (k.substring(0, eventprefix.length) == eventprefix) {
         events[k.substring(eventprefix.length)] = element.dataset[k];
       }

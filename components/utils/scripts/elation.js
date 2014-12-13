@@ -1920,23 +1920,28 @@ elation.extend('require.batch', function(type, webroot) {
     }
   }
   this.getcurrentmodule = function() {
+    var modname = false;
     // Gets the currently-executing script, (hopefully) in a cross-browser way
     var script = document.currentScript;
-    if (!script) {
+    if (typeof script == 'undefined') {
       var scripts = document.getElementsByTagName('script');
       script = scripts[scripts.length - 1];
     }
-    var scriptsrc = script.src,
-        start = scriptsrc.indexOf(this.webroot) + this.webroot.length + 1,
-        end = scriptsrc.lastIndexOf('.js');
-    
-    var modname = scriptsrc.substring(start, end).replace(/\//g, '.');
-    //console.log('current script:', script, modname);
+    if (script) {
+      var scriptsrc = script.src,
+          webroot = '/scripts', // FIXME - hardcode script webroot, because this method only works for JS
+          start = scriptsrc.indexOf(webroot) + webroot.length + 1,
+          end = scriptsrc.lastIndexOf('.js');
+      
+      modname = scriptsrc.substring(start, end).replace(/\//g, '.');
+      //console.log(modname, scriptsrc, start, end, this.webroot);
+      //console.log('current script:', script, modname);
+    }
     return modname;
   }
   this.getnode = function(module) {
     var mod = this.nodes[module];
-    if (!module || module == 'CALLBACK') {
+    if (!module || module == 'ANONYMOUS') {
       mod = new elation.require.node(module); 
     } else if (!this.nodes[module]) {
       mod = this.nodes[module] = new elation.require.node(module); 
@@ -1944,15 +1949,13 @@ elation.extend('require.batch', function(type, webroot) {
     return mod;
   }
   this.addrequires = function(requires, callback) {
-    var modname = this.getcurrentmodule() || 'CALLBACK';
+    var modname = this.getcurrentmodule() || 'ANONYMOUS';
     //console.log('ADDREQ', modname, "=>", requires);
-    var modulenode = (modname != 'CALLBACK' ? this.getnode(modname) : new elation.require.node('CALLBACK', callback));
+    var modulenode = (modname != 'ANONYMOUS' ? this.getnode(modname) : new elation.require.node('ANONYMOUS', callback));
     if (!modulenode.callback) modulenode.callback = callback;
 
-    var toplevel = false;
     if (!this.batchnode) {
       this.batchnode = new elation.require.node('batchnode', function() { elation.component.init(); });
-      toplevel = true;
     }
 
     for (var i = 0; i < requires.length; i++) {
@@ -1967,6 +1970,7 @@ elation.extend('require.batch', function(type, webroot) {
     }
 
     this.batchnode.addEdge(modulenode);
+    this.rootnode.addEdge(modulenode);
 
     if (this.pending.length == 0) {
       this.finished();
@@ -2034,7 +2038,17 @@ elation.extend('require.batch', function(type, webroot) {
           failed.push(callback);
         }
       }
+
+      if (this.resettimer) {
+        clearTimeout(this.resettimer);
+        this.resettimer = false;
+      }
+      this.resettimer = setTimeout(elation.bind(this, function() { if (this.pending.length == 0) { this.reset(); } }), 0);
     }
+  }
+  this.reset = function() {
+    this.batchnode = false;
+    console.log('reset');
   }
   this.init();
 });
@@ -2070,11 +2084,18 @@ elation.extend('require.node', function(name, callback) {
   this.init();
 });
 elation.extend('require.debug', function() {
-  elation.require(['graph.d3', 'graph.force', 'ui.window'], function() {
-    this.debuggraph = elation.graph.force({});
-    this.debuggraph.update(elation.requireactivebatchjs.batchnode); 
-    this.debugwin = elation.ui.window({append: document.body, title: 'dependencies', content: this.debuggraph}); 
-  });
+  this.init = function() {
+    if (!this.debuggraph) {
+      this.debuggraph = elation.graph.force({});
+    }
+    this.debuggraph.update(elation.requireactivebatchjs.rootnode); 
+    if (!this.debugwin) {
+      this.debugwin = elation.ui.window({append: document.body, title: 'dependencies', content: this.debuggraph}); 
+    } else {
+      this.debugwin.show();
+    }
+  }
+  elation.require(['graph.force', 'ui.window'], elation.bind(this, this.init));
 });
 
 elation.extend("utils.escapeHTML", function(str) {

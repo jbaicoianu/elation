@@ -1,5 +1,6 @@
 {dependency name="ui"}
 {dependency name="ui.themes.dark"}
+{dependency name="ui.slider"}
 
 <ul class="ui_examples">
   <li>
@@ -125,7 +126,7 @@
         var value = slider.value,
             value = value >= 100 ? 0 : value,
             inc = Math.random() * 5;
-
+        
         if (slider.value >= 100)
           slider.handles[0].container.style.transition = 'all 0 linear';
         

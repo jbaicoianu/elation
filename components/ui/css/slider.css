@@ -99,7 +99,7 @@
   z-index: 2;
 }
 #ui_slider_dots #ui_slider_dots_handle_indicator .ui_slider_handle_grabber {
-  background: #F74203;
+  background: darkorange;
 }
 #ui_slider_dots .ui_slider_handle_grabber {
   background: #fff;

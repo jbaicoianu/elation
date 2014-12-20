@@ -1922,7 +1922,7 @@ elation.extend('require.batch', function(type, webroot) {
   this.getcurrentmodule = function() {
     var modname = false;
     // Gets the currently-executing script, (hopefully) in a cross-browser way
-    var script = document.currentScript;
+    var script = (typeof document != 'undefined' ? document.currentScript : false);
     if (typeof script == 'undefined') {
       var scripts = document.getElementsByTagName('script');
       script = scripts[scripts.length - 1];

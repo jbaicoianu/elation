@@ -193,6 +193,17 @@ elation.require([], function() {
         if (this.items[pos] != realitem) {
           this.move(realitem, pos);
         }
+        var changed = false;
+        // Update with new properties
+        for (var k in item) {
+          if (realitem[k] != item[k]) {
+            realitem[k] = item[k];
+            changed = true;
+          }
+        }
+        if (changed) return true;
+      } else {
+        this.itemindex[idx] = item;
       }
       return false;
     }

@@ -149,11 +149,17 @@ elation.require("ui.base", function() {
       if (this.itemcollection) {
         elation.events.remove(this.itemcollection, "collection_add,collection_remove,collection_move", this);
       }
+      //this.clear();
       this.itemcollection = itemcollection;
       elation.events.add(this.itemcollection, "collection_add,collection_remove,collection_move,collection_load,collection_load_begin,collection_clear", this);
       //this.setItems(this.itemcollection.items);
-      Object.defineProperty(this, 'items', { get: function() { return this.itemcollection.items; } });
-      Object.defineProperty(this, 'count', { configurable: true, get: function() { return this.itemcollection.length; } });
+      if (this.hasOwnProperty('items')) {
+        delete this.items;
+      }
+
+      // FIXME - some interaction between this.items, this.listitems, and this.sort is causing problems when you swap out collections for a list
+      Object.defineProperty(this, 'items', { get: function() { return this.itemcollection.items; }, configurable: true });
+      Object.defineProperty(this, 'count', { configurable: true, get: function() { return this.itemcollection.length; }, configurable: true });
       this.refresh();
     }
     /**
@@ -210,7 +216,7 @@ elation.require("ui.base", function() {
         }
       }
       this.listitems = [];
-      this.items = [];
+      delete this.items;
       //ul.innerHTML = '';
     }
     /**
@@ -229,11 +235,22 @@ elation.require("ui.base", function() {
         }
       }
       
-      // no existing listitem, allocate a new one
-      var newlistitem = elation.ui.listitem({item: item, attrs: attrs, selectable: this.selectable});
-      this.listitems.push(newlistitem);
-      elation.events.add(newlistitem, 'ui_list_item_select', this);
+      if (item) {
+        // no existing listitem, allocate a new one
+        var newlistitem = this.createlistitem({item: item, attrs: attrs, selectable: this.selectable});
+        elation.events.add(newlistitem, 'ui_list_item_select', this);
+        this.listitems.push(newlistitem);
+      }
       return newlistitem;
+    }
+
+    /**
+     * Creates a new instance of an elation.ui.listitem
+     * Can be overridden by inheriting classes to override the listitem type
+     * @param {Object} args
+     */
+    this.createlistitem = function(args) {
+      return elation.ui.listitem(args);
     }
 
     /**
@@ -263,6 +280,7 @@ elation.require("ui.base", function() {
           if (listitem.container.parentNode != ul) {
             ul.appendChild(listitem.container);
           }
+          listitem.refresh();
         }
         elation.component.init();
     }
@@ -278,22 +296,35 @@ elation.require("ui.base", function() {
       if (!reverse) reverse = false; // force to bool
       var ul = this.getListElement();
 
+      // First, get the existing position of each item's listitem
+      // Then get a sorted item list, and resort the listitems in the DOM
+      // Next, apply a transform to place the listitems back in their old positions
+      // Finally, set animation parameters and transform each item to its (0,0,0) position
+
       // Resort list items
       // FIXME - should also update this.items to reflect new order
-      this.listitems.sort(function(a, b) {
-        var val1 = elation.utils.arrayget(a.value, sortby),
-            val2 =  elation.utils.arrayget(b.value, sortby);
-        if ((val1 < val2) ^ reverse) return -1;
-        else if ((val1 > val2) ^ reverse) return 1;
-        else return 0;
-      });
-      var items = [];
+      if (typeof sortby == 'function') {
+        this.sortfunc = sortby;
+      } else {
+        this.listitems.sort(function(a, b) {
+          var val1 = elation.utils.arrayget(a.value, sortby),
+              val2 =  elation.utils.arrayget(b.value, sortby);
+          if ((val1 < val2) ^ reverse) return -1;
+          else if ((val1 > val2) ^ reverse) return 1;
+          else return 0;
+        });
+      }
+      this.listitems.sort(sortby.bind(this));
+
+
       // First calculate existing position of all items
+      var items = [];
       for (var i = 0; i < this.listitems.length; i++) {
-        items[i] = {
-          container: this.listitems[i].container,
-          oldpos: [this.listitems[i].container.offsetLeft, this.listitems[i].container.offsetTop]
-        };
+        items[i] = {};
+        items[i].value = this.listitems[i].value;
+        items[i].container = this.listitems[i].container;
+        items[i].oldpos = [this.listitems[i].container.offsetLeft, this.listitems[i].container.offsetTop];
+        items[i].oldlistpos = this.items.indexOf(this.listitems[i].value);
       }
 
       // Remove and re-add all items from list, so DOM order reflects item order
@@ -333,6 +364,11 @@ elation.require("ui.base", function() {
         setTimeout(elation.bind(items[i], function() {
           elation.html.transform(this.container, 'translate3d(0, 0, 0)', '50% 50%', 'all ' + (this.animatetime / 2) + 'ms ease-out');
         }), items[i].animatetime / 2);
+
+        this.items[i] = items[i].value;
+      }
+      if (i < this.items.length) {
+        this.items.splice(i, this.items.length);
       }
 
       // Set classname based on sortby parameter
@@ -454,7 +490,7 @@ elation.require("ui.base", function() {
         // Make note of the most recently-clicked list item, for future interaction
         this.setlastselection(newselection);
       }
-      elation.events.fire({type: 'ui_list_select', element: this, data: ev.data});
+      elation.events.fire({type: 'ui_list_select', element: this, target: ev.element, data: ev.data});
     }
     /**
      * Event handler: elation.collection.simple#collection_add
@@ -554,7 +590,7 @@ elation.require("ui.base", function() {
     this.render = function() {
       // reset classname to default
       this.container.className = this.defaultcontainer.classname;
-      if (this.value) {
+      if (typeof this.value != 'undefined') {
         if (this.placeholder) {
           this.placeholder = false;
         }
@@ -562,31 +598,7 @@ elation.require("ui.base", function() {
           this.addclass(this.value.classname);
         }
 
-        this.container.innerHTML = '';
-        var filled = false;
-        if (this.value instanceof elation.component.base) {
-          this.container.appendChild(this.value.container);
-          filled = true;
-        } else if (this.attrs.itemtemplate) {
-          this.container.innerHTML = elation.template.get(this.attrs.itemtemplate, this.value);
-          filled = true;
-        } else if (this.attrs.itemcomponent) {
-          var itemcomponentclass = elation.utils.arrayget(elation, this.attrs.itemcomponent);
-          if (itemcomponentclass) {
-            var itemcomponent = itemcomponentclass(null, this.container, this.value);
-            filled = true;
-          }
-        } 
-        if (!filled) {
-          if (elation.utils.isString(this.value)) {
-            this.container.innerHTML = this.value;
-          } else {
-            var attrval = elation.utils.arrayget(this.value, this.attrs.label);
-            if (attrval !== null) {
-              this.container.innerHTML = attrval;
-            }
-          }
-        }
+        this.setcontent(this.value);
 
         if (this.selected) {
           this.addclass("state_selected");
@@ -600,7 +612,34 @@ elation.require("ui.base", function() {
       } else {
         if (!this.placeholder) {
           this.placeholder = true;
-          this.container.innerHTML = this.attrs.itemplaceholder || '';
+          this.setcontent(elation.utils.any(this.attrs.itemplaceholder, ''));
+        }
+      }
+    }
+    this.setcontent = function(value) {
+      this.container.innerHTML = '';
+      var filled = false;
+      if (value instanceof elation.component.base) {
+        this.container.appendChild(value.container);
+        filled = true;
+      } else if (this.attrs.itemtemplate) {
+        this.container.innerHTML = elation.template.get(this.attrs.itemtemplate, value);
+        filled = true;
+      } else if (this.attrs.itemcomponent) {
+        var itemcomponentclass = elation.utils.arrayget(elation, this.attrs.itemcomponent);
+        if (itemcomponentclass) {
+          var itemcomponent = itemcomponentclass(null, this.container, value);
+          filled = true;
+        }
+      } 
+      if (!filled) {
+        if (elation.utils.isString(value)) {
+          this.container.innerHTML = value;
+        } else {
+          var attrval = elation.utils.arrayget(value, this.attrs.label);
+          if (attrval !== null) {
+            this.container.innerHTML = attrval;
+          }
         }
       }
     }

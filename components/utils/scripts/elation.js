@@ -2048,7 +2048,6 @@ elation.extend('require.batch', function(type, webroot) {
   }
   this.reset = function() {
     this.batchnode = false;
-    console.log('reset');
   }
   this.init();
 });

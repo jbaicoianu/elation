@@ -25,16 +25,9 @@ elation.require("ui.base", function() {
       this.content = content;
       this.refresh();
     }
+
     this.render = function() {
-      if (elation.utils.isString(this.content)) {
-        this.container.innerHTML = this.content;
-      } else if (this.content.container instanceof HTMLElement) {
-        this.container.innerHTML = '';
-        this.container.appendChild(this.content.container);
-      } else if (this.content instanceof HTMLElement) {
-        this.container.innerHTML = '';
-        this.container.appendChild(this.content);
-      }
+      elation.html.setContent(this, this.content);
     }
   }, elation.ui.base);
 });

@@ -1,0 +1,289 @@
+div.desktop {
+	background: url('/images/desktop/hexabg3.jpg');
+}
+div.desktop,
+ul.windows,
+ul.tasks,
+ul.icons {
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	z-index: 1;
+}
+ul.tasks {
+	bottom: auto;
+	background: rgba(0,0,0,.1);
+	box-shadow: 0px 2px 3px 0px rgba(0,0,0,.4);
+	z-index: 2;
+}
+ul.tasks li {
+	margin: 0;
+	box-shadow: 4px 0px 3px 0px rgba(0,0,0,.2);
+	background: rgba(255,255,255,.3);
+	display: inline-block;
+	color: #fff;
+	padding: .25em .4em .15em;
+	text-align: center;
+	font-weight: bold;
+	font-size: 1.5em;
+	visibility: hidden;
+}
+ul.icons {
+	top: 0em;
+	z-index: 2;
+}
+ul.icons li.icon_active {
+	border: 1px dashed #aaa;
+	transition: border 100ms ease;
+}
+ul.icons li.icon_type_IMG div.hexagon.inner::after {
+	border-top-color: #36985d;
+}
+ul.icons li.icon_type_IMG div.hexagon.inner::before {
+	border-bottom-color: #36985d;
+}
+ul.icons li.icon_type_IMG div.inner {
+	background: #36985d;
+}
+ul.icons li.icon_type_SYS div.hexagon.inner::after {
+	border-top-color: #B00;
+}
+ul.icons li.icon_type_SYS div.hexagon.inner::before {
+	border-bottom-color: #B00;
+}
+ul.icons li.icon_type_SYS div.inner {
+	background: #B00;
+}
+ul.icons li {
+	position: relative;
+	border: 1px solid transparent;
+	width: 4em;
+	display: block;
+	text-align: center;
+	margin: 1em 1em 2.5em;
+	cursor: default;
+	transition: border 750ms ease;
+	font-size: .91em;
+}
+ul.icons li div {
+	position: relative;
+	margin: 1em 0 1.5em;
+	color: rgba(0,0,0,.1);
+	/*
+	margin-bottom: .25em;
+	background: #365d98;
+	border: 2px solid #365d98;
+	border-radius: 50%;
+	box-shadow: 1px 1px 10px 0px rgba(0,0,0,.3), 0 0 0 2px #333 inset;
+	*/
+}
+ul.icons li div span {
+	position: relative;
+	top: 50%;
+	left: 50%;
+	font-size: 2.3em;
+	font-weight: bold;
+	display: block;
+	-webkit-transform: translate(-50%,-50%);
+	text-shadow: #ccc -1px -1px 0,#000 1px 1px 0;
+	font-family: monospace;
+}
+ul.icons li span.icon_label {
+	position: absolute;
+	width: 100%;
+	left: 0em;
+	height: 2.2em;
+	color: #fff;
+	line-height: 1.15em;
+	text-shadow: 0px 1px 3px #000;
+	font-size: 10pt;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	display: block;
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+}
+
+.dark .ui_window.state_active {
+	border: none;
+}
+.dark .ui_window::after {
+	background: none;
+}
+.dark .ui_window {
+	border: none;
+	border-radius: 3px;
+}
+.dark .ui_window .ui_window_titlebar {
+	border: none;
+	border-radius: 0px;
+	padding: 0;
+	letter-spacing: .1em;
+	text-shadow: 1px 1px 0px #000;
+	box-shadow: 0px 2px 3px 0px rgba(0,0,0,.7);
+	background: rgba(66,66,66,.8);
+	z-index: 1;
+	border-top-left-radius: 3px;
+	border-top-right-radius: 3px;
+}
+.dark .ui_window.state_active .ui_window_titlebar span {
+	pointer-events: none;
+}
+.dark .ui_window:hover .ui_window_titlebar {
+	background: rgba(66,66,66,.9);
+}
+.dark .ui_window.state_active:hover .ui_window_titlebar,
+.dark .ui_window.state_active .ui_window_titlebar {
+	background: rgba(0,100,160,.95);
+}
+.dark .ui_window .ui_window_controls {
+	margin: 0 .2em 0 .2em;
+	font-size: 1.21em;
+	position: absolute;
+	top: 0;
+	right: 0;
+	margin: 0;
+	padding: 0;
+	background: transparent;
+	text-shadow: 1px 1px #000;
+}
+.dark .ui_window .ui_window_controls .ui_button:hover {
+	background: rgba(255,255,255,.15);
+}
+.dark .ui_window .ui_window_controls .ui_button:active {
+	background: rgba(0,0,0,.05);
+}
+.dark .ui_window .ui_window_controls .ui_button {
+	margin: 0;
+	top: 0;
+	background: transparent;
+	border-left: 1px solid #444;
+	border-right: none;
+	text-shadow: 1px 1px #000;
+	border-radius: 0;
+	font-size: 1em;
+	padding: .225em .5em .275em;
+	-webkit-appearance: none;
+	outline: none;
+	transition: all 100ms ease;
+}  
+.ui_window div.ui_window_content {
+	overflow: auto;
+	background: rgba(64,64,64,.95);
+	padding: .2em .2em 0;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	position: relative;
+  min-width: 516px;
+  min-height: 286px;
+  word-wrap: break-word;
+}
+.dark .ui_window:after {
+	border-radius: 0;
+}
+.ui_window_titlebar_span {
+	margin: .26em 6.25em .2em 0.6em;
+	display: block;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	pointer-events: none;
+}
+.noselect {
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.hexagon {
+  background: #222;
+  width: 4em;
+  height: 2.2em;
+}
+.hexagon.inner {
+  background: #365d98;
+	font-size: .94em;
+	z-index: 1;
+	top: .07em;
+	left: .15em;
+}
+.hexagon::before {
+  position: absolute;
+  content: "";
+  top: -1.1em;
+  left: 0;
+  border: 2em solid rgba(0,0,0,0);
+  border-top: 0 solid;
+  border-bottom: 1.15em solid #222;
+}
+.hexagon.inner::before {
+  border-bottom: 1.15em solid #365d98;
+}
+.hexagon::after {
+  position: absolute;
+  content: "";
+  bottom: -1.1em;
+  left: 0;
+  border: 2em solid rgba(0,0,0,0);
+  border-top: 1.15em solid #222;
+  border-bottom: 0 solid;
+}
+.hexagon.inner::after {
+  border-top: 1.15em solid #365d98;
+}
+
+.ui_window_content .ui_button:hover {
+	background: rgba(255,0,0,.85);
+}
+.ui_window_content .ui_button:active {
+	background: rgba(255,0,0,.65);
+	box-shadow: 0px 0px 2px #000;
+}
+.ui_window_content .ui_button {
+	padding: .5em 1em;
+	background: rgba(255,0,0,.75);
+	border-radius: 3px;
+	margin: .3em;
+	box-shadow: 1px 1px 3px #000;
+	outline: none;
+	transition: all 50ms linear;
+}
+.ui_window_content .ui_input_element {
+	border-radius: 3px;
+	height: 2.25em;
+	box-shadow: 1px 1px 2px rgba(0,0,0,.5) inset;
+}
+.ui_window_content .ui_input .ui_label {
+	padding-left: 0;
+	font-size: .9em;
+}
+.ui_window_content .ui_button:hover {
+	background: rgba(255,0,0,.85);
+}
+.ui_window_content .ui_button:active {
+	background: rgba(255,0,0,.65);
+	box-shadow: 0px 0px 2px #000;
+}
+.ui_window_content .ui_button {
+	padding: .5em 1em;
+	background: rgba(255,0,0,.75);
+	border-radius: 3px;
+	margin: .3em;
+	box-shadow: 1px 1px 3px #000;
+	outline: none;
+	transition: all 50ms linear;
+}
+.ui_window_content .ui_input_element {
+	border-radius: 3px;
+	height: 2.25em;
+	box-shadow: 1px 1px 2px rgba(0,0,0,.5) inset;
+}
+.ui_window_content .ui_input .ui_label {
+	padding-left: 0;
+	font-size: .9em;
+}

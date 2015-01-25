@@ -41,70 +41,6 @@ var elation = window.elation = new function(selector, parent, first) {
   }
 }
 
-/*
-// DISABLED - not really used anymore, and gets in the way of debugging
-if (!window.console) { // if no console, use tfconsole if available
-  window.console = {};
-  
-  window.console.log = function(txt) {
-     if (elation.utils.logging) 
-      elation.utils.logging(txt);
-  }
-} else { // output to both firebug console and tfconsole
-  window.console.log = function(txt) {
-    if (elation.utils.logging) 
-      elation.utils.logging(txt);
-    
-    if (console && typeof console.debug != 'undefined') 
-      console.debug.apply(this, arguments);
-  }
-}
-*/
-
-elation.extend('utils.logging', function(txt) {
-  if (elation.debug && typeof elation.debug.log != 'undefined') 
-    elation.debug.log(txt);
-  else {
-    if (!elation.utils.logging.prelog)
-      elation.utils.logging.prelog = [];
-    
-    elation.utils.logging.prelog.push(txt);
-  }
-});
-
-elation.extend("checkhash", new function() {
-  var init = function() {
-    this.timer = setInterval(function() { 
-      try { 
-        if (elation.search && elation.search.backbutton) {
-          elation.search.backbutton.check();
-        }
-      } catch(e) { }
-    }, 500);
-  }
-  this.fetch = function(url, callback) {
-    elation.ajax.Queue({
-      url: url, 
-      callback: [ 
-        this, 
-        callback
-      ]
-    });
-  }
-  
-/*
-  //(function(self) {
-  if (typeof $TF != 'undefined') {
-    $TF(document).ready(function() {
-      setTimeout(function() {
-        init();
-      }, 500);
-    });
-  }
-*/
-  //})(this);
-});
-
 elation.extend("component", new function() {
   this.init = function(root) {
     if (root == undefined) {
@@ -133,6 +69,21 @@ elation.extend("component", new function() {
     // an instance with the given name exists already.  If it doesn't we create
     // it, and then we return a reference to the specified instance.
     var component = function(name, container, args, events) {
+      /* handling for any default values if args are not specified */
+      var mergeDefaults = function(args, defaults) {
+        var args = args || {};
+
+        if (typeof defaults == 'object') {
+          for (var key in defaults) {
+            if (elation.utils.isNull(args[key])) {
+              args[key] = defaults[key];
+            }
+          }
+        }
+        
+        return args;
+      };
+
       var realname = name;
       if (elation.utils.isObject(name)) {
         // Simple syntax just takes an object with all arguments
@@ -144,7 +95,14 @@ elation.extend("component", new function() {
 
       // If no args were passed in, we're probably being used as the base for another 
       // component's prototype, so there's no need to go through full init
-      if (elation.utils.isNull(realname) && !container && !args) return new component.base(type);
+      if (elation.utils.isNull(realname) && !container && !args) {
+        obj = new component.base(type);
+        
+        // apply default args
+        obj.args = mergeDefaults(obj.args, elation.utils.clone(obj.defaults));
+        
+        return obj;
+      }
 
       // If no name was passed, use the current object count as a name instead ("anonymous" components)
       if (elation.utils.isNull(realname) || realname === "") {
@@ -152,7 +110,7 @@ elation.extend("component", new function() {
       }
 
       if (!component.obj[realname] && !elation.utils.isEmpty(args)) {
-        component.obj[realname] = new component.base(type);
+        component.obj[realname] = obj = new component.base(type);
         component.objcount++;
       //}
       // TODO - I think combining this logic would let us use components without needing HTML elements for the container
@@ -164,9 +122,22 @@ elation.extend("component", new function() {
           component.obj[realname].initSuperClass(component.extendclass);
         }
 */
+        // apply default args
+        if (typeof obj.defaults == 'object')
+          args = mergeDefaults(args, elation.utils.clone(obj.defaults));
 
-        if (typeof component.obj[realname].init == 'function') {
-          component.obj[realname].init(realname, container, args, events);
+        var parentclass = component.extendclass;
+
+        // recursively apply inherited defaults
+        while (parentclass) {
+          if (typeof parentclass.defaults == 'object')
+            elation.utils.merge(mergeDefaults(args, elation.utils.clone(parentclass.defaults)),args);
+
+          parentclass = parentclass.extendclass;
+        }
+
+        if (typeof obj.init == 'function') {
+          obj.init(realname, container, args, events);
         }
       }
       return component.obj[realname];
@@ -258,14 +229,16 @@ elation.extend("component", new function() {
         if (this.defaultcontainer && this.defaultcontainer.classname && !elation.html.hasclass(this.container, this.defaultcontainer.classname)) {
           elation.html.addclass(this.container, this.defaultcontainer.classname);
         }
+
+        if (this.args.setContent) {
+          elation.html.setContent(this.container, this.args.setContent);
+        }
+
         if (this.args.append) {
-          if (this.args.append instanceof elation.component.base) {
-            this.args.append.container.appendChild(this.container);
-          } else if (elation.utils.isElement(this.args.append)) {
-            this.args.append.appendChild(this.container);
-          }
+          elation.html.attach(this.args.append, this.container, this.args.before || false);
         }
       }
+
       elation.events.fire({type: "init", fn: this, data: this, element: this.container});
     }
     this.initSuperClass = function(classdef) {
@@ -442,6 +415,7 @@ elation.extend("component", new function() {
     for (var k in element.dataset) {
       if (k.substring(0, argprefix.length) == argprefix) {
         elation.utils.arrayset(componentargs, k.substring(argprefix.length), element.dataset[k]);
+        //componentargs[k.substring(argprefix.length)] = element.dataset[k];
       } else if (k.substring(0, eventprefix.length) == eventprefix) {
         events[k.substring(eventprefix.length)] = element.dataset[k];
       }
@@ -783,43 +757,79 @@ elation.extend("html.toggleClass", elation.html.toggleClass);
  *      append: elementObj
  *    });
  */
-elation.extend('html.create', function(parms, classname, style, additional, append, before) {
-  if (typeof parms == 'object')
+elation.extend('html.create', function(parms, classname, style, attr, append, before) {
+  if (typeof parms == 'object') {
     var tag = parms.tag || 'div',
         classname = parms.classname,
         id = parms.id,
-        style = parms.style,
+        attr = parms.attributes || parms.attr,
+        style = parms.style || parms.css,
         content = parms.content,
-        additional = parms.attributes,
-        append = (parms.append instanceof elation.component.base ? parms.append.container : parms.append),
+        append = parms.append,
         before = parms.before;
+  }
   
   var element = document.createElement(tag || parms || 'div');
   
   if (id)
     element.id = id;
+
   if (classname)
     element.className = classname;
   
   if (style)
-    for (var property in style)
-      element.style[property] = style[property];
+    elation.html.css(element, style);
 
   if (content)
-    element.innerHTML = content;
+    elation.html.setContent(element, content);
   
-  if (additional)
-    for (var property in additional) {
-      element[property] = additional[property];
+  if (typeof attr == 'object') {
+    for (var property in attr) {
+      element[property] = attr[property];
     }
+  }
   
 	if (append)
-		if (before)
-      append.insertBefore(element, before);
-    else
-      append.appendChild(element);
+		elation.html.attach(append, element, before);
 	
   return element;
+});
+
+// will do appendChild or insertBefore where appropriate
+// will sanitize for elation components to return their containers
+elation.extend("html.attach", function(container, element, before) {
+  if (!container || !element || typeof container == 'string')
+    return;
+
+  var container = elation.utils.getContainerElement(container),
+      element = elation.utils.getContainerElement(element),
+      before = elation.utils.getContainerElement(before);
+
+  if (before) {
+    container.insertBefore(element, before);
+  } else {
+    container.appendChild(element);
+  }
+});
+
+// determines how best to inject content into container
+// automatically used in components with this.args.content
+elation.extend("html.setContent", function(element, content, append) {
+  if (!element || !content)
+    return;
+
+  var element = elation.utils.getContainerElement(element);
+
+  if (elation.utils.isString(content)) {
+    if (!append) element.innerHTML = content;
+    else element.innerHTML += content;
+  } else if (content.container instanceof HTMLElement) {
+    if (!append) element.innerHTML = '';
+    element.appendChild(content.container);
+  } else if (content instanceof HTMLElement) {
+    if (!append) element.innerHTML = '';
+    element.appendChild(content);
+  }
 });
 
 elation.extend('html.getscroll', function(shpadoinkle) {
@@ -1010,7 +1020,7 @@ elation.extend("utils.makeURL", function(obj) {
 });
 
 elation.extend("utils.merge", function(entities, mergeto) {
-  if (typeof entities == 'object') {
+  if (typeof entities == 'object' && !(mergeto instanceof HTMLElement)) {
     if (typeof mergeto == 'undefined' || mergeto === null) mergeto = {}; // Initialize to same type as entities
     for (var i in entities) {
       if (entities[i] !== null) {
@@ -1169,10 +1179,18 @@ elation.extend("utils.isArray", function(obj) {
     return allow[objclass] || false;
   }
 });
+
 elation.extend("utils.isString", function(obj) {
   return (typeof obj == "string");
 });
-//
+
+// use when unsure if element is a HTMLElement or Elation Component
+elation.extend("utils.getContainerElement", function(element) {
+  return (element instanceof elation.component.base)
+    ? element.container : (elation.utils.isElement(element))
+    ? element : false;
+});
+
 // runs through direct children of obj and 
 // returns the first matching <tag> [className]
 elation.extend("utils.getFirstChild", function(obj, tag, className) {
@@ -1301,6 +1319,42 @@ elation.extend("utils.stringify", function(parms) {
   }
   
   return ret.substr(0,ret.length-1);
+});
+
+// some deep copy shit i got from stackoverflow
+elation.extend("utils.clone", function(obj) {
+  var copy;
+
+  // Handle the 3 simple types, and null or undefined
+  if (null == obj || "object" != typeof obj) 
+    return obj;
+
+  // Handle Date
+  if (obj instanceof Date) {
+    copy = new Date();
+    copy.setTime(obj.getTime());
+    return copy;
+  }
+
+  // Handle Array
+  if (obj instanceof Array) {
+    return obj.slice(0);
+  }
+
+  // Handle Object
+  if (obj instanceof Object) {
+    copy = {};
+
+    for (var attr in obj) {
+      //console.log(attr, typeof obj[attr]);
+      if (obj.hasOwnProperty(attr) && typeof obj[attr] != 'function') 
+        copy[attr] = elation.utils.clone(obj[attr]);
+    }
+
+    return copy;
+  }
+
+  throw new Error("Unable to copy obj! Its type isn't supported.");
 });
 
 elation.extend("utils.htmlentities", function(string, quote_style) {
@@ -1492,6 +1546,13 @@ elation.extend('JSON', new function() {
 		var key = (typeof JSON[parms[0]] == 'function' ? parms[0] : parms[1]);
     
 		return (key == 'parse' ? JSON.parse(text) : JSON.stringify(text));
+  }
+
+  this.clone = function(obj) {
+    if (!obj)
+      return false;
+
+    return JSON.parse(JSON.stringify(obj));
   }
 });
 elation.extend('cookie', {
@@ -1920,6 +1981,9 @@ elation.extend('require.batch', function(type, webroot) {
     }
   }
   this.getcurrentmodule = function() {
+    if (typeof document == 'undefined')
+      return;
+
     var modname = false;
     // Gets the currently-executing script, (hopefully) in a cross-browser way
     var script = document.currentScript;

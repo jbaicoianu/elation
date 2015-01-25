@@ -1986,7 +1986,7 @@ elation.extend('require.batch', function(type, webroot) {
 
     var modname = false;
     // Gets the currently-executing script, (hopefully) in a cross-browser way
-    var script = document.currentScript;
+    var script = (typeof document != 'undefined' ? document.currentScript : false);
     if (typeof script == 'undefined') {
       var scripts = document.getElementsByTagName('script');
       script = scripts[scripts.length - 1];
@@ -2112,7 +2112,6 @@ elation.extend('require.batch', function(type, webroot) {
   }
   this.reset = function() {
     this.batchnode = false;
-    console.log('reset');
   }
   this.init();
 });

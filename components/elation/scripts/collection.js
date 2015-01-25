@@ -39,6 +39,7 @@ elation.require([], function() {
     this.init = function() {
       this.items = [];
       this.allowduplicates = false;
+      this.datatransform = this.args.datatransform || {};
 
       Object.defineProperty(this, "length", { get: function() { return this.getlength(); } });
     }
@@ -156,6 +157,23 @@ elation.require([], function() {
     this.filter = function(filterfunc, filterargs) {
       return elation.collection.filter({parent: this, filterfunc: filterfunc, filterargs: filterargs});
     }
+    this.subset = function(datatransform) {
+      return elation.collection.subset({parent: this, datatransform: datatransform});
+    }
+    this.transformData = function(data) {
+      var transformed = {};
+      if (this.datatransform.items) {
+        transformed.items = this.datatransform.items(data);
+      } else {
+        transformed.items = data;
+      }
+      if (this.datatransform.count) {
+        transformed.count = this.datatransform.count(data);
+      } else {
+        transformed.count = (transformed.items ? transformed.items.length : 0);
+      }
+      return transformed;
+    }
   });
   /** 
    * Indexed data collection
@@ -193,6 +211,17 @@ elation.require([], function() {
         if (this.items[pos] != realitem) {
           this.move(realitem, pos);
         }
+        var changed = false;
+        // Update with new properties
+        for (var k in item) {
+          if (realitem[k] != item[k]) {
+            realitem[k] = item[k];
+            changed = true;
+          }
+        }
+        if (changed) return true;
+      } else {
+        this.itemindex[idx] = item;
       }
       return false;
     }
@@ -358,12 +387,10 @@ elation.require([], function() {
       this.host = this.args.host || '';
       this.endpoint = this.args.endpoint;
       this.apiargs = this.args.apiargs;
-      this.datatransform = this.args.datatransform || {};
       //this.data = { items: [], count: 0 };
       Object.defineProperties(this, {
         items: { get: this.getitems }
       });
-
     }
     this.getURL = function() {
       var url = this.host + this.endpoint;
@@ -386,6 +413,7 @@ elation.require([], function() {
         this.data.items.splice(0, this.items.length);
         this.data.count = 0;
       }
+      this.rawdata = null;
       elation.events.fire({type: "collection_clear", element: this});
     }
     this.cancel = function() {
@@ -413,7 +441,8 @@ elation.require([], function() {
       return this.data.count;
     }
     this.processResponse = function(data, args) {
-      var newdata = this.transformData(this.parseData(data));
+      this.rawdata = this.parseData(data);
+      var newdata = this.transformData(this.rawdata);
       if (!this.data) {
         this.data = { items: [], count: 0 };
       }
@@ -428,20 +457,6 @@ elation.require([], function() {
     }
     this.parseData = function(data) {
       return data;
-    }
-    this.transformData = function(data) {
-      var transformed = {};
-      if (this.datatransform.items) {
-        transformed.items = this.datatransform.items(data);
-      } else {
-        transformed.items = data;
-      }
-      if (this.datatransform.count) {
-        transformed.count = this.datatransform.count(data);
-      } else {
-        transformed.count = (transformed.items ? transformed.items.length : 0);
-      }
-      return transformed;
     }
   }, elation.collection.simple);
 
@@ -536,6 +551,56 @@ elation.require([], function() {
     }
     this.update = function() {
       elation.events.fire({type: "collection_load", element: this});
+    }
+  }, elation.collection.simple);
+  /** 
+   * Subset collection
+   * Subset the data from the parent collection
+   *
+   * @class filter
+   * @augments elation.collection.simple
+   * @memberof elation.collection
+   * @alias elation.collection.filter
+   *
+   * @param {object} args
+   * @param {elation.collection.simple} args.parent List to subset
+   *
+   * @member {object}   parent
+   * @member {function} filterfunc
+   *
+   */
+  /**
+   * Fired when this collection has fetched items
+   * @event elation.collection.filter#collection_load
+   * @type {Object}
+   */
+  elation.component.add("collection.subset", function() {
+    this.init = function() {
+      elation.collection.subset.extendclass.init.call(this);
+
+      this.parent = this.args.parent;
+
+      Object.defineProperties(this, {
+        items: { get: this.getsubsetitems },
+      });
+      // TODO - probably need to proxy the rest of the collection events as well
+      elation.events.add(this.parent, 'collection_load,collection_clear', elation.bind(this, this.proxyevent));
+    }
+    this.getsubsetitems = function() {
+      // TODO - we should cache this so we don't have to transform multiple times for the same dataser
+      var subset = this.transformData(this.parent.rawdata);
+      return subset.items || [];
+    }
+    this.getlength = function() {
+      var subset = this.transformData(this.parent.rawdata);
+      return subset.count || 0
+    }
+    this.update = function() {
+      elation.events.fire({type: "collection_load", element: this});
+    }
+    this.proxyevent = function(ev) {
+      console.log('proxy it!', ev.type, ev);
+      elation.events.fire({type: ev.type, element: this});
     }
   }, elation.collection.simple);
 });

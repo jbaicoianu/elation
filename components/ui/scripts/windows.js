@@ -20,7 +20,8 @@ elation.require(['ui.base'], function() {
 			lightbox: false,			// (Boolean)
 			animation: 'expand',	// (String) slide, sweep, roll, explode, fade, none
 			transition: false,		// (String) Overwrite css transition with a js one
-			align: 'auto',				// (String) top, left, right, bottom, center, auto
+			align: 'center',			// (String) top, left, right, bottom, center, auto
+			margin: 20,						// (Integer) pixels to pad alignment
 			tail: false,					// (Boolean)
 			tail_anchor: false,		// (Component|Element) default = parent
 			show_callback: false, // (Function) Executes on .show()
@@ -58,7 +59,10 @@ elation.require(['ui.base'], function() {
 			if (args.titlebar)
 				this.titlebar = elation.ui._window.titlebar(name, null, { parent: this });
 
-			this.rendering = elation.ui._window[args.rendering](name, this.container, {parent:this});
+			if (args.align != 'none')
+				this.alignment = elation.ui._window.alignment(name, this.container, this.args);
+			
+			this.rendering = elation.ui._window[args.rendering](name, this.container, this.args);
 
 			elation.events.add(this.container, 'mousedown', this);
       this.focus();
@@ -118,12 +122,14 @@ elation.require(['ui.base'], function() {
     }
 
 		this.render = function() {
-			var dim = elation.html.dimensions,
-					dim_container = dim(this.container),
-					dim_parent = dim(this.parent),
-					dim_window = dim(window);
-			
-			this.rendering.position(dim_container, dim_window, dim_parent);
+			var dc = elation.html.dimensions(this.container),
+					dp = elation.html.dimensions(this.args.parent),
+					dw = elation.html.dimensions(window);
+
+			dc = this.rendering.position(dc, dp, dw);
+
+			if (this.args.align != 'none')
+				this.alignment.position(dc, dp, dw);
 		}
 	}, elation.ui.base);
 
@@ -175,11 +181,22 @@ elation.require(['ui.base'], function() {
 	});
 
 	elation.component.add("ui.lightbox", function() {
-		this.init = function() { console.log('ui._window.absolute', this); }
+		this.init = function() { console.log('ui._window.lightbox', this); }
 	});
 
 	elation.component.add("ui._window.absolute", function() {
-		this.init = function() { console.log('ui._window.absolute', this); }
+		this.position = function(dc, dp, dw) {
+			dc.y = this.args.parent ? dp.y : dw.h >> 1;
+			dc.x = this.args.parent ? dp.x : dw.w >> 1;
+
+      elation.html.css(this.container, {
+      	position: 'absolute',
+	      top: dc.y + 'px',
+	      left: dc.x + 'px'
+	    });
+
+	    return dc;
+		}
 	});
 
 	elation.component.add("ui._window.relative", function() {
@@ -195,10 +212,10 @@ elation.require(['ui.base'], function() {
       elation.html.css(this.container, {
       	position: 'fixed',
 	      top: '50%',
-	      left: '50%',
-	      marginTop: -(dc.h >> 1) + 'px',
-	      marginLeft: -(dc.w >> 1) + 'px'
+	      left: '50%'
 	    });
+
+	    return dc;
 		}
 	});
 
@@ -206,9 +223,43 @@ elation.require(['ui.base'], function() {
 		this.init = function() { console.log('ui._window.css', this); }
 	});
 
+	elation.component.add("ui._window.alignment", function() {
+		this.position = function(dc, dp, dw) {
+			var top = 0, left = 0;
+
+			switch (this.args.align) {
+				case 'top':
+					top = -dc.h - this.args.margin;
+					left = (dp.w >> 1) - (dc.w >> 1);
+					break;
+				case 'bottom':
+					top = dp.h + this.args.margin ;
+					left = (dp.w >> 1) - (dc.w >> 1);
+					break;
+				case 'left':
+					top = (dp.h >> 1) + -(dc.h >> 1);
+					left = -dc.w - this.args.margin;
+					break;
+				case 'right':
+					top = (dp.h >> 1) + -(dc.h >> 1);
+					left = dp.w + this.args.margin;
+					break;
+				default:
+					top = -(dc.h >> 1);
+					left = -(dc.w >> 1);
+			}
+
+      elation.html.css(this.container, {
+	      marginTop: top + 'px',
+	      marginLeft: left + 'px'
+	    });
+		}
+	});
+
 	elation.component.add("ui.dialog", function() {
 		this.defaults = {
 			rendering: 'center',
+			align: 'center',
 			btnClose: true,
 			lightbox: true
 		};
@@ -219,10 +270,53 @@ elation.require(['ui.base'], function() {
 	}, elation.ui.window2);
 
 	elation.component.add("ui.example_dialog", function() {
+    this.defaultcontainer = { tag: 'div', classname: 'ui_example_dialog' };
+
 		this.init = function() {
-			console.log('!!! example_dialog', name, container, this.args);
-	    this.container = elation.html.create({ tag: 'div', classname: 'ui_example_dialog' });
+			var parent = elation.utils.arrayget(this.args, 'parent.args.container');
+			var args = elation.utils.arrayget(this.args, 'parent.args.args');
+
 			this.container.innerHTML = 'This is a test';
+
+			this.window = elation.ui.dialog(args.name, null, {
+				append: document.body,
+				parent: parent,
+				content: this.container,
+				title: args.name
+			})
+
+			console.log('!!! example_dialog', name, parent, args, this.args);
+		}
+	}, elation.ui.base);
+
+	elation.component.add("ui.infobox", function() {
+		this.defaults = {
+			rendering: 'absolute',
+			title: false
+		};
+		this.init = function() {
+			console.log('!!! infobox', name, [container], this);
+      elation.ui.dialog.extendclass.init.call(this);
+		}
+	}, elation.ui.window2);
+
+	elation.component.add("ui.example_infobox", function() {
+    this.defaultcontainer = { tag: 'div', classname: 'ui_example_infobox' };
+
+		this.init = function() {
+			var parent = elation.utils.arrayget(this.args, 'parent.args.container');
+			var args = elation.utils.arrayget(this.args, 'parent.args.args');
+			
+			this.container.innerHTML = 'This is a test<br><br>of an infobox!';
+
+			this.window = elation.ui.infobox(args.name, null, {
+				append: document.body,
+				parent: parent,
+				content: this.container,
+				align: 'right'
+			})
+
+			console.log('!!! example_infobox', name, parent, args, this.args);
 		}
 	}, elation.ui.base);
 });

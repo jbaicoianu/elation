@@ -50,7 +50,7 @@
         if (pegboard.value >= 100)
           return clearInterval(progress_timer);
 
-        progress.setPercent(pegboard.pegs[0],{
+        pegboard.setPercent(pegboard.pegs[0],{
           x: parseInt(value + inc) / 100,
           y: 0
         });

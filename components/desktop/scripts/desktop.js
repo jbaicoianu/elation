@@ -57,6 +57,9 @@ elation.require("ui.base", function() {
     		args || {}
     	);
 
+      if (!item.window)
+        return false;
+
 			item.window.container.style.zIndex = this.zIndexStart + this.windows.length;
     	this.windows.push(item);
 
@@ -82,22 +85,23 @@ elation.require("ui.base", function() {
 							parent: this
 						}
 					);
-          console.log('!!! content',content);
 					break;
 			}
       
 			var index = this.DesktopManager.WindowManager.windows.length,
-          wintype = args.windowtype || ui.window,
+          wintype = args.windowtype || 'ui.window',
 					winargs = {
 						append: document.body, 
 						title: args.name, 
-		        content: content//,
-		        //top: 50 + (30 * index),
-		        //left: 100 + (30 * index)
+		        content: content,
+		        top: 50 + (30 * index),
+		        left: 100 + (30 * index)
 		      };
 
-          console.log('elation.'+wintype, args.name, winargs);
-			this.window = elation.utils.arrayget(elation, wintype)(args.name, null, winargs);
+			if (wintype == 'none')
+        this.window = content.window;
+      else
+        this.window = elation.utils.arrayget(elation, wintype)(args.name, null, winargs);
     }
   }, elation.ui.base);
 
@@ -190,7 +194,7 @@ elation.require("ui.base", function() {
     		this.window = this.DesktopManager.WindowManager.add(this.args.name, this, this.args).window;
     	}
 
-    	if (!this.window.visible) {
+    	if (this.window && !this.window.visible) {
     		this.window.open();
     	}
 

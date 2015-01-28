@@ -384,11 +384,12 @@ class DataManager {
   
   static function CacheClear($id) {
     $queryid = new DatamanagerQueryID($id);
+    $data = self::singleton();
     if ($source =& DataManager::PickSource($queryid)) {
       $source->CacheClear($queryid);
-    } else if ($this->caches["memcache"]["data"] !== NULL) {
+    } else if ($data->caches["memcache"]["data"] !== NULL) {
       Logger::Notice("Forcing deletion of memcache item '%s'", $queryid->name);
-      $this->caches["memcache"]["data"]->delete($queryid->name);
+      $data->caches["memcache"]["data"]->delete($queryid->name);
     }
   }
   function CacheFlush() {

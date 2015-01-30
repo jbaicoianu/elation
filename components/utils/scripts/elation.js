@@ -233,7 +233,7 @@ elation.extend("component", new function() {
         if (this.args.setContent) {
           elation.html.setContent(this.container, this.args.setContent);
         }
-
+        
         if (this.args.append) {
           elation.html.attach(this.args.append, this.container, this.args.before || false);
         }
@@ -573,7 +573,7 @@ elation.extend("html.dimensions", function(element, ignore_size) {
 	var scrollleft = element.scrollLeft || 0,
 			scrolltop = element.scrollTop || 0,
 			id = element.id || '';
-	
+	/*
   try {
     while (element = element.offsetParent) {
       x += element.offsetLeft - element.scrollLeft;
@@ -582,7 +582,7 @@ elation.extend("html.dimensions", function(element, ignore_size) {
   } catch(e) { 
     console.log('html.dimensions: '+e.message); 
   }
-  
+  */
 	if (document.body.scrollTop == window.scrollY)
 		y += window.scrollY;
 	
@@ -700,22 +700,28 @@ elation.extend("html.addclass", function(elements, className) {
   if (!elation.utils.isArray(elements)) {
     elements = [elements];
   }
-  for (var i = 0; i < elements.length; i++) {
-    if (elements[i] && !elation.html.hasclass(elements[i], className)) {
-      elements[i].className += (elements[i].className ? " " : "") + className;
+  for (var i=0,element; i < elements.length; i++) {
+    element = elation.utils.getContainerElement(elements[i]);
+
+    if (element && !elation.html.hasclass(element, className)) {
+      element.className += (element.className ? " " : "") + className;
     }
   }
 }); 
 
 elation.extend("html.removeclass", function(elements, className) {
   var re = new RegExp("(^| )" + className + "( |$)", "g");
+
   if (elements) {
     if (!elation.utils.isArray(elements)) {
       elements = [elements];
     }
+
     for (var i = 0; i < elements.length; i++) {
-      if (elements[i] && elements[i].className && elements[i].className.match(re)) {
-        elements[i].className = elements[i].className.replace(re, " ");
+      element = elation.utils.getContainerElement(elements[i]);
+
+      if (element && element.className && element.className.match(re)) {
+        element.className = element.className.replace(re, "");
       }
     }
   } 
@@ -1310,12 +1316,12 @@ elation.extend("utils.fixPNG", function() {
   }
 });
 
-elation.extend("utils.stringify", function(parms) {
-  var value, ret = '';
+elation.extend("utils.stringify", function(parms, eq, delimeter) {
+  var value, ret = '', eq = eq || '=', delimeter = delimeter || '&';
   
   for (var key in parms) {
     value = parms[key];
-    ret += key + '=' + value + '&'; 
+    ret += key + eq + value + delimeter; 
   }
   
   return ret.substr(0,ret.length-1);

@@ -2,107 +2,12 @@ elation.require("ui.base", function() {
   elation.component.add("desktop.DesktopManager", function() {
     this.defaultcontainer = {tag: 'div', classname: 'desktop'};
     this.init = function() {
-			console.log('desktop', this);
 			var create = elation.html.create;
 
 			this.IconManager = new elation.desktop.IconManager(null, create('ul', 'icons', null, null, this.container), {});
 			this.TaskManager = new elation.desktop.TaskManager(null, create('ul', 'tasks', null, null, this.container), {});
-			this.WindowManager = new elation.desktop.WindowManager(null, create('ul', 'windows', null, null, this.container), {});
-			/*
-			this.IconManager.add('APP','System','');
-			this.IconManager.add('APP','Terminal',elation.hack.terminal(null, null, {}));
-			this.IconManager.add('APP','IRC','');
-			this.IconManager.add('APP','Network Map','');
-			this.IconManager.add('IMG','zuul','<img width="640" src="http://www.meobets.com/~lazarus/zuul.jpg">');
-			*/
+			//this.WindowManager = new elation.window.manager(null, create('ul', 'windows', null, null, this.container), {});
 		}
-  }, elation.ui.base);
-  
-  elation.component.add("desktop.WindowManager", function() {
-    this.defaultcontainer = {tag: 'div', classname: 'windows'};
-    this.init = function() {
-			console.log('WindowManager', this);
-			this.windows = [];
-			this.zIndexStart = 1000;
-			elation.events.add(null, 'focus', this);
-    }
-
-    this.focus = function(event) {
-    	if (!event.element || event.element.name != 'ui.window')
-    		return;
-
-    	for (var i=0; i<this.windows.length; i++) {
-    		if (this.windows[i].window == event.element) {
-    			var item = this.windows.splice(i, 1)[0];
-    		}
-    	}
-
-    	if (item) {
-	    	this.windows.push(item);
-
-	    	for (var i=0; i<this.windows.length; i++) {
-					this.windows[i].window.container.style.zIndex = this.zIndexStart + i;
-				}
-			}
-    }
-
-    this.add = function(name, args) {
-    	var item = elation.desktop.Window(
-    		name, 
-    		elation.html.create({
-    			tag: 'li',
-    			classname: 'window_' + name,
-    			append: this.container
-    		}), 
-    		args || {}
-    	);
-
-      if (!item.window)
-        return false;
-
-			item.window.container.style.zIndex = this.zIndexStart + this.windows.length;
-    	this.windows.push(item);
-
-    	return item;
-    }
-  }, elation.ui.base);
-
-	elation.component.add("desktop.Window", function() {
-    this.init = function() {
-			console.log('Window', this);
-			this.DesktopManager = elation.component.fetch('desktop.DesktopManager', 'main');
-
-			var args = this.args.args,
-          content = args.content;
-
-			switch(args.type) {
-				case 'IMG': 
-					break;
-				default:
-					var content = elation.utils.arrayget(elation, content)(
-						args.name, 
-						null, { 
-							parent: this
-						}
-					);
-					break;
-			}
-      
-			var index = this.DesktopManager.WindowManager.windows.length,
-          wintype = args.windowtype || 'ui.window',
-					winargs = {
-						append: document.body, 
-						title: args.name, 
-		        content: content,
-		        top: 50 + (30 * index),
-		        left: 100 + (30 * index)
-		      };
-
-			if (wintype == 'none')
-        this.window = content.window;
-      else
-        this.window = elation.utils.arrayget(elation, wintype)(args.name, null, winargs);
-    }
   }, elation.ui.base);
 
   elation.component.add("desktop.TaskManager", function() {
@@ -185,20 +90,57 @@ elation.require("ui.base", function() {
 
   		this.DesktopManager.IconManager.add(this);
 
+      // FIXME - the world isn't quite ready for this yet...
+      //this.moveable = elation.ui.moveable('icon_'+this.args.name, this.container, {});
+
   		elation.events.add(this.container, 'click,mousedown,touchstart', this);
     }
 
+    this.execute = function() {
+      var args = this.args,
+          content = args.content;
+
+      switch (args.type) {
+        case 'IMG':
+          break;
+        default:
+          var content = elation.utils.arrayget(elation, content)(
+            null, 
+            null, { 
+              parent: this
+            }
+          );
+          break;
+      }
+      
+      var index = elation.window.manager.windows.length,
+          wintype = args.windowtype || 'window.window',
+          winargs = {
+            name: args.windowname || null,
+            append: document.body,
+            parent: this.picture,
+            title: args.title, 
+            content: typeof content == 'string' ? content : content.container,
+            top: 50 + (30 * index),
+            left: 100 + (30 * index)
+          };
+
+      if (wintype == 'none')
+        this.window = content.window;
+      else {
+        this.window = new elation.utils.arrayget(elation, wintype)(winargs.name, null, winargs);
+      }
+    }
+
     this.click = function(event) {
-    	console.log(event.type, event);
-    	if (!this.window) {
-    		this.window = this.DesktopManager.WindowManager.add(this.args.name, this, this.args).window;
-    	}
+    	//if (!this.window) {
+        this.execute();
+    	//}
 
     	if (this.window && !this.window.visible) {
     		this.window.open();
+        this.window.focus();
     	}
-
-  		//this.window.focus();
     }
 
     this.mousedown = function(event) {
@@ -208,11 +150,11 @@ elation.require("ui.base", function() {
     }
 
     this.mousemove = function(event) {
-    	console.log(event.type, event);
+    	//console.log(event.type, event);
     }
 
     this.mouseup = function(event) {
-    	console.log(event.type, event);
+    	//console.log(event.type, event);
     	elation.html.removeclass(this.container, 'icon_active');
     	elation.events.remove(document.body, 'mousemove,mouseup', this)
     }

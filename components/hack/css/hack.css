@@ -1,0 +1,160 @@
+.window.application_irc .window_content,
+.window.application_network .window_content {
+	padding: .5em .5em;
+}
+.window.application_login .window_content,
+.window.application_admin .window_content {
+	background: rgba(120,120,120,.95);
+	width: 355px;
+	height: 355px;
+	padding: 0;
+}
+.window div.ui_tabs ul {
+	border-bottom: 1px inset #aaa;
+	padding: .3em .75em 0;
+}
+.window div.ui_tabs li {
+	background: rgba(255,255,255,.12);
+	margin-top: .5em;
+	border: 1px outset #999;
+	margin-bottom: 1px;
+	border-top-right-radius: 4px;
+	border-top-left-radius: 2px;
+	color: #bbb;
+	text-shadow: -1px -1px 1px #333;
+	border-bottom: transparent;
+}
+.window div.ui_tabs li.state_selected {
+	border: 1px outset #aaa;
+	border-bottom: 1px solid #737373;
+	text-shadow: 1px 1px 1px #000;
+	color: #fff;
+	margin-bottom: 0;
+}
+.window div.ui_tabs li.state_hover {
+	background: rgba(255,255,255,.12);
+	border-color: #999;
+	border-bottom-color: #737373;
+}
+.window div.ui_tabs {
+	background: rgba(0,0,0,.15);
+}
+.application_login .ui_toggle {
+	margin-bottom: 1em;
+}
+.application_login .ui_toggle label {
+	font-size: .9em;
+}
+.application_login .ui_toggle input {
+	margin-right: .4em;
+}
+.application_login .window_content .ui_input_element {
+	width: 12.5em;
+}
+.window_content .ui_input.admin_computer {
+	margin: .5em 0;
+}
+.window_content .ui_input.admin_seed {
+	margin: .5em 0 0;
+}
+.window_content .dialog_label {
+	position: relative;
+	margin: .75em 1.5em 0.1em;
+	display: block;
+	text-shadow: 1px 1px 1px #000;
+	color: #fff;
+	font-size: .97em;
+}
+.window_content .admin_worldfooter .ui_button {
+	
+}
+.window_content .admin_worldfooter {
+	margin-top: 1em;
+	text-align: right;
+}
+.window_content .box {
+	position: relative;
+	margin: 0 .75em 0;
+	border-top: 2px groove #999;
+	border-radius: 0;
+	padding: 1em;
+	text-align: right;
+	min-width: 300px;
+}
+.window_content .ui_slider .ui_pegboard_peg {
+	background: rgba(0,0,0,.4);
+	left: 0;
+	height: 100%;
+	border-radius: 3px;
+}
+.window_content .ui_slider .ui_pegboard_peg_grabber {
+	right: 0;
+	transform: translate(50%,-50%);
+	box-shadow: 1px 1px 2px 1px rgba(64,64,64,.5);
+	border: 1px outset #ccc;
+	background: #666;
+}
+.window_content .box .ui_slider .ui_slider_track {
+	margin-top: .25em;
+	border: 1px inset #ccc;
+	border-radius: 4px;
+}
+.window_content .box .ui_slider .ui_pegboard_peg_display {
+	margin-top: 1em;
+	position: static;
+	opacity: 1;
+	width: 2.5em;
+	text-align: right;
+}
+.window_content .box .ui_slider label {
+	vertical-align: middle;
+	margin-right: .5em;
+	display: inline-block;
+	font-size: .9em;
+}
+div.window.application_terminal {
+	width: 568px;
+	height: 380px;
+}
+div.window.application_terminal .window_content .terminal_response {
+	display: inline;
+}
+div.window.application_terminal div.window_content {
+	background: rgba(0,0,0,.9);
+	color: #ccc;
+  font-family: consolas;
+	font-size: 11pt;
+}
+div.window.application_terminal .window_content .ui_input_element {
+	background: transparent;
+	border: none;
+	box-shadow: none;
+	color: white;
+	padding: 0;
+	height: auto;
+	font-family: monospace;
+	font-size: 1em;
+} 
+div.window.application_admin .window_content .admin_colorbox label {
+	font-weight: normal;
+}
+div.window.application_admin .window_content .admin_colorbox {
+	height: 6em;
+	text-align: center;
+}
+div.window.application_admin .window_content .admin_colorbox #colorsquare {
+	width: 4em;
+	height: 2.8em;
+	float: none;
+	display: inline-block;
+	clear: none;
+	margin-top: 1.5em;
+	background: #000;
+	border: 1px inset #aaa;
+}
+div.window.application_admin .window_content .admin_colorbox .ui_inputslider {
+	float: none;
+}
+div.window.application_admin .window_content .admin_colorbox .ui_inputslider input.ui_input_element {
+	height: 1.5em;
+}

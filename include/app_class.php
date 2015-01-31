@@ -167,6 +167,10 @@ class App {
       if (empty($contegargs["modified"])) // Set modified time to mtime of base directory if not set
         $contegargs["modified"] = filemtime($this->rootdir);
 
+      if (!empty($contegargs["alloworigin"])) {
+        header('Access-Control-Allow-Origin: ' . $contegargs["alloworigin"]);
+      }
+
       //header('Content-type: ' . any($output["type"], "text/html"));
       if ($output["type"] == "ajax" || $output["type"] == "jsonp") {
         print $this->tplmgr->PostProcess($output["content"], true);

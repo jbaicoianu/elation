@@ -247,7 +247,12 @@ elation.require(["ui.base","ui.tabbedcontent"], function() {
   elation.component.add("hack.irc", function() {
     this.defaultcontainer = {tag: 'div', classname: 'application_irc'};
     this.init = function() {
-      this.container.innerHTML = "internetz relay chit chat";
+      var create = elation.html.create;
+      this.iframe = create({tag:'iframe',attr:{src:'http://www.thefind.com/admin/'}, append: this});
+      this.window = elation.window.window(null, null, {
+        content: this.container,
+        classname: 'application_irc'
+      });
     }
   }, elation.ui.base);
 

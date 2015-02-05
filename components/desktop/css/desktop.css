@@ -11,8 +11,7 @@ div.desktop {
 }
 div.desktop,
 ul.windows,
-ul.tasks,
-ul.icons {
+ul.tasks {
 	position: fixed;
 	top: 0;
 	bottom: 0;
@@ -38,13 +37,60 @@ ul.tasks li {
 	font-size: 1.5em;
 	visibility: hidden;
 }
-ul.icons {
-	top: 0em;
-	z-index: 2;
+ul.icons .hexagon {
+-webkit-transform-origin: bottom center;
+-moz-transform-origin: bottom center;
+transform-origin: bottom center;
+-webkit-transform: rotateX(90deg);
+-moz-transform: rotateX(90deg);
+transform: rotateX(90deg);
+-webkit-perspective: 14;
+-moz-perspective: 14;
+perspective: 14;
+-webkit-transition: all 333ms ease;
+-moz-transition: all 333ms ease;
+transition: all 333ms ease;
+pointer-events: none;
 }
-ul.icons li.icon_active {
+ul.icons {
+position: relative;
+padding: 0.22em 0.5em 0;
+margin-top: -4.5em;
+z-index: 2;
+font-size: .84em;
+overflow: hidden;
+-webkit-transform: translateZ(0);
+-moz-transform: translateZ(0);
+transform: translateZ(0);
+transition: all 333ms ease;
+}
+ul.icons:hover {
+margin-top: 0em;
+background: rgba(0,0,0,.25);
+box-shadow: 0 0px 3px 0px #000;
+z-index: 2000;
+}
+ul.icons:hover .hexagon {
+-webkit-transform: rotateX(0);
+-moz-transform: rotateX(0);
+transform: rotateX(0);
+}
+ul.icons li.icon_active.icon_spin div.icon_picture {
+	transform: rotateY(720deg);
+	transition: transform 0ms ease;
+}
+ul.icons li:active {
 	border: 1px dashed #aaa;
 	transition: border 100ms ease;
+}
+ul.icons li.icon_type_WWW div.hexagon.inner::after {
+	border-top-color: #B60;
+}
+ul.icons li.icon_type_WWW div.hexagon.inner::before {
+	border-bottom-color: #B60;
+}
+ul.icons li.icon_type_WWW div.inner {
+	background: #B60;
 }
 ul.icons li.icon_type_IMG div.hexagon.inner::after {
 	border-top-color: #36985d;
@@ -68,15 +114,14 @@ ul.icons li {
 	position: relative;
 	border: 1px solid transparent;
 	width: 4em;
-	display: block;
+	display: inline-block;
 	text-align: center;
 	padding: 0.3em .5em 2.3em;
 	cursor: default;
-	transition: border 750ms ease;
 	font-size: .91em;
-	margin: .5em;
+	margin: .2em;
 }
-ul.icons li div {
+ul.icons li div.icon_picture {
 	position: relative;
 	margin: 1em 0 1.5em;
 	color: rgba(0,0,0,.1);
@@ -102,140 +147,6 @@ ul.icons li span.icon_label {
 	display: -webkit-box;
 	-webkit-line-clamp: 2;
 	-webkit-box-orient: vertical;
-}
-.window_lightbox {
-	background: rgba(0,0,0,.5);
-	position: fixed;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	z-index: 99;
-}
-.window.state_active {
-	border: none;
-}
-.window::after {
-	background: none;
-}
-.window {
-	position: fixed;
-	background-color: transparent;
-	border: none;
-	border-radius: 3px;
-	box-shadow: 1px 1px 10px rgba(0,0,0,1);
-	color: white;
-	min-width: 12em;
-	min-height: 6.6em;
-	-webkit-transform: translateZ(0);
-	-moz-transform: translateZ(0);
-	transform: translateZ(0);
-}
-.window .window_resize_container {
-	position: absolute;
-}
-.window .window_titlebar {
-	background: rgba(66,66,66,.8);
-	position: relative;
-	border: none;
-	border-radius: 0px;
-	margin: 0;
-	padding: 0;
-	letter-spacing: .1em;
-	text-shadow: 1px 1px 0px #000;
-	box-shadow: 0px 2px 3px 0px rgba(0,0,0,.7);
-	border-top-left-radius: 3px;
-	border-top-right-radius: 3px;
-	line-height: 1.8em;
-	z-index: 1;
-	cursor: default;
-	-webkit-user-select: none;
-	text-overflow: ellipsis;
-	overflow: hidden;
-	white-space: nowrap;
-	vertical-align: middle;
-}
-.window.moveable .window_titlebar {
-	cursor: move;
-}
-.window.state_active .window_titlebar span {
-	pointer-events: none;
-}
-.window:hover .window_titlebar {
-	background: rgba(66,66,66,.9);
-}
-.window.state_active:hover .window_titlebar,
-.window.state_active .window_titlebar {
-	background: rgba(0,100,160,.95);
-}
-.window .window_controls {
-	margin: 0 .2em 0 .2em;
-	font-size: 1.21em;
-	position: absolute;
-	top: 0;
-	right: 0;
-	margin: 0;
-	padding: 0;
-	background: transparent;
-	text-shadow: 1px 1px #000;
-}
-div.window .ui_buttonbar>.ui_button:first-of-type:hover,
-.window .window_controls .ui_button:hover {
-	background: rgba(255,255,255,.15);
-	border-radius: inherit;
-}
-div.window .ui_buttonbar>.ui_button:first-of-type:active,
-.window .window_controls .ui_button:active {
-	background: rgba(0,0,0,.05);
-}
-div.window div.window_controls button.ui_button,
-div.window .ui_buttonbar>.ui_button:first-of-type {
-	background: transparent;
-	top: 0;
-	margin: 0;
-	padding: .225em .5em .275em;
-	border: 1px solid transparent;
-	border-left: 1px solid #444;
-	border-right: none;
-	border-radius: 0;
-	text-shadow: 1px 1px #000;
-	font-size: 1em;
-	color: white;
-	outline: none;
-	-webkit-appearance: none;
-	transition: all 100ms ease;
-}  
-.window div.window_content {
-	background: rgba(96,96,96,.95);
-	position: relative;
-	padding: .2em .2em 0;
-	border-radius: 3px;
-	overflow: hidden;
-	overflow-y: auto;
-}
-.window.window_window div.window_content {
-	position: absolute;
-	top: 0;
-	bottom: 0;
-	left: 0;
-	right: 0;
-}
-.window.hasTitlebar div.window_content {
-  border-top-left-radius: 0;
-	border-top-right-radius: 0;
-}
-.window.window_window.hasTitlebar div.window_content {
-	top: 2.434em;
-}
-.window:after {
-	border-radius: 0;
-}
-.window_titlebar_span {
-	margin: .26em 6.25em .2em 0.8em;
-	display: block;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	pointer-events: none;
 }
 .noselect {
 	-webkit-touch-callout: none;
@@ -282,117 +193,31 @@ div.window .ui_buttonbar>.ui_button:first-of-type {
 .hexagon.inner::after {
   border-top: 1.15em solid #365d98;
 }
-
-.window_content .ui_button:hover {
-	background: rgba(255,0,0,.85);
+div.ui_example_infobox {
+	width: 8em;
+	height: 4em;
 }
-.window_content .ui_button:active {
-	background: rgba(255,0,0,.65);
-	box-shadow: 0px 0px 2px #000;
+.animation_expand {
+	opacity: 0;
+	transform: scale(.85,.85);
 }
-.window_content .ui_button {
-	padding: .5em 1em;
-	background: rgba(255,0,0,.75);
-	border-radius: 3px;
-	margin: .3em;
-	box-shadow: 1px 1px 3px #000;
-	outline: none;
-	transition: all 50ms linear;
+.animation_contract {
+	opacity: 0;
+	transform: scale(1.15,1.15);
 }
-.window_content .ui_input_element {
-	border-radius: 3px;
-	height: 2.25em;
-	box-shadow: 1px 1px 2px rgba(0,0,0,.5) inset;
+.animation_slide_right {
+	opacity: 0;
+	transform: translateX(100%);
 }
-.window_content .ui_input .ui_label {
-	padding-left: 0;
-	font-size: .9em;
+.animation_slide_left {
+	opacity: 0;
+	transform: translateX(-100%);
 }
-.window_content .ui_button:hover {
-	background: rgba(255,0,0,.85);
+.animation_slide_up {
+	opacity: 0;
+	transform: translateY(-100%);
 }
-.window_content .ui_button:active {
-	background: rgba(255,0,0,.65);
-	box-shadow: 0px 0px 2px #000;
-}
-.window_content .ui_button {
-	padding: .5em 1em;
-	background: rgba(255,0,0,.75);
-	border-radius: 3px;
-	margin: .3em;
-	box-shadow: 1px 1px 3px #000;
-	outline: none;
-	transition: all 50ms linear;
-}
-.window_content .ui_input_element {
-	border-radius: 3px;
-	height: 2.25em;
-	box-shadow: 1px 1px 2px rgba(0,0,0,.5) inset;
-}
-.window_content .ui_input .ui_label {
-	padding-left: 0;
-	font-size: .9em;
-}
-div.window_tail {
-  position: relative;
-}
-div.window_tail:before,
-div.window_tail:after {
-  border: 10px solid transparent;
-	position: absolute;
-	content: ' ';
-	height: 0;
-	width: 0;
-  z-index: 1000;
-}
-div.window_tail:before {
-  border: 12px solid transparent;
-}
-div.window_tail_right:before,
-div.window_tail_right:after {
-  border-left-color: rgba(96,96,96,.95);
-  margin-left: 0px;
-  margin-top: -11px;
-  top: 50%;
-  left: 100%;
-}
-div.window_tail_right:before {
-  border-left-color: #3c3c3c;  
-  margin-top: -13px;
-}
-div.window_tail_left:before,
-div.window_tail_left:after {
-  border-right-color: rgba(96,96,96,.95);
-  margin-right: 0px;
-  margin-top: -11px;
-  top: 50%;
-  right: 100%;
-}
-div.window_tail_left:before {
-  border-right-color: #3c3c3c;
-  margin-top: -13px;
-}
-div.window_tail_down:before,
-div.window_tail_down:after {
-  border-top-color: rgba(96,96,96,.95);
-  margin-top: 0px;
-  margin-left: -10px;
-  left: 50%;
-  top: 100%;
-}
-div.window_tail_down:before {
-  border-top-color: #3c3c3c;  
-  margin-left: -12px;
-}
-div.window_tail_up:before,
-div.window_tail_up:after {
-  border-bottom-color: rgba(96,96,96,.95);
-  margin-bottom: 0px;
-  margin-left: -10px;
-  left: 50%;
-  bottom: 100%;
-}
-div.window_tail_up:before {
-  border-bottom-color: #3c3c3c;  
-  margin-left: -12px;
+.animation_slide_down {
+	opacity: 0;
+	transform: translateY(100%);
 }

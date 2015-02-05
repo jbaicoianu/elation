@@ -103,18 +103,18 @@ elation.require("ui.base", function() {
       switch (args.type) {
         case 'IMG':
           break;
+        case 'WWW':
+          break;
         default:
+        console.log(content);
           var content = elation.utils.arrayget(elation, content)(
-            null, 
-            null, { 
-              parent: this
-            }
+            null, null, { parent: this }
           );
           break;
       }
       
       var index = elation.window.manager.windows.length,
-          wintype = args.windowtype || 'window.window',
+          wintype = args.windowtype || 'none',
           winargs = {
             name: args.windowname || null,
             append: document.body,
@@ -124,7 +124,7 @@ elation.require("ui.base", function() {
             top: 50 + (30 * index),
             left: 100 + (30 * index)
           };
-
+console.log('muh',wintype,winargs);
       if (wintype == 'none')
         this.window = content.window;
       else {
@@ -139,13 +139,18 @@ elation.require("ui.base", function() {
 
     	if (this.window && !this.window.visible) {
     		this.window.open();
-        this.window.focus();
-    	}
+
+        (function(self) {
+          setTimeout(function(){
+            self.window.focus();
+          }, 2);
+        })(this);
+      }
     }
 
     this.mousedown = function(event) {
     	//console.log(event.type, event);
-    	elation.html.addclass(this.container, 'icon_active');
+    	elation.html.addclass(this.container, 'icon_active icon_spin');
     	elation.events.add(document.body, 'mousemove,mouseup', this)
     }
 
@@ -156,7 +161,12 @@ elation.require("ui.base", function() {
     this.mouseup = function(event) {
     	//console.log(event.type, event);
     	elation.html.removeclass(this.container, 'icon_active');
-    	elation.events.remove(document.body, 'mousemove,mouseup', this)
+    	elation.events.remove(document.body, 'mousemove,mouseup', this);
+      (function(self) {
+        setTimeout(function() {
+          elation.html.removeclass(self.container, 'icon_spin');
+        },800)
+      })(this);
     }
 
     this.touchstart = this.mousedown;

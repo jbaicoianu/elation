@@ -39,7 +39,7 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
     }
 
     this.add = function(name, item) {
-    	if (item.args.ontop)
+    	if (item.name == 'window.modal')
     		item.container.style.zIndex = (this.zIndexStart * 10) + this.windows.length;
     	else
 				item.container.style.zIndex = this.zIndexStart + this.windows.length;
@@ -75,7 +75,8 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
 	elation.component.add("window.create", function() {
     this.defaultcontainer = { tag: 'div', classname: 'window' };
 		this.defaults = {
-			content: '',					// (String|Component|HTMLElement) 
+			content: '',					// (String|Component|HTMLElement)
+			classname: false,
 			parent: false,				// (Component|Element)
 			append: false,				// (Component|Element) append.appendChild(window)
 			before: false,				// (Component|Element) append.insertBefore(window, before)
@@ -91,7 +92,7 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
 			moveable: false, 			// (Boolean)
 			ontop: false, 				// (Boolean)
 			lightbox: false,			// (Boolean)
-			animation: 'expand',	// (String) slide, sweep, roll, explode, fade, none
+			animation: 'slide_left,slide_right',	// (String) slide, sweep, roll, explode, fade, none
 			transition: false,		// (String) Overwrite css transition with a js one
 			align: 'center',			// (String) top, left, right, bottom, center, auto
 			margin: 20,						// (Integer) pixels to pad alignment
@@ -109,7 +110,10 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
 					isString = utils.isString;
 
 			console.log('### Window', this.name, this);
-			elation.html.addclass(this.container, this.name.replace(".","_") + (typeof this.id == 'string' ? ' '+this.id : ''));
+			elation.html.addclass(this.container, 
+				this.name.replace(".","_") + 
+				(typeof this.args.classname == 'string' ? ' '+this.args.classname : '') +
+				(typeof this.id == 'string' ? ' '+this.id : ''));
 
 			if (args.parent)
 				this.parent = elation.utils.getContainerElement(args.parent);
@@ -136,6 +140,11 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
 			if (args.align != 'none')
 				this.alignment = elation.window.rendering.alignment(name, this.container, this.args);
 			
+			this.args.animation = this.args.animation.split(',');
+
+			if (this.args.animation.length == 1)
+				this.args.animation.push(this.args.animation[0]);
+
 			this.rendering = elation.window.rendering[args.rendering](name, this.container, this.args);
 
 			elation.events.add(this.container, 'mousedown', this);
@@ -162,6 +171,9 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
 			this.container.style.visibility = 'hidden';
 			this.setContent(content);
 
+			if (this.args.animation)
+				elation.html.addclass(this.container, 'animation_'+this.args.animation[0]);
+
 			(function(self) {
 				setTimeout(function(){
 					self.show();
@@ -169,15 +181,28 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
 		     	self.refresh();
 					elation.events.fire('window_show', self);
 					self.container.style.visibility = 'visible';
-				}, 1);
+
+					if (self.args.animation)
+						elation.html.removeclass(self.container, 'animation_'+self.args.animation[0]);
+				}, 100);
 			})(this);
 		}
 		this.close = function() {
 			if (this.lightbox)
 				this.lightbox.hide();
 			
-			this.hide();
-      this.visible = false;
+			if (this.args.animation)
+				elation.html.addclass(this.container, 'animation_'+this.args.animation[1]);
+
+			(function(self) {
+				setTimeout(function(){
+					self.hide();
+     			self.visible = false;
+
+					if (self.args.animation)
+						elation.html.removeclass(self.container, 'animation_'+self.args.animation[1]);
+				}, 200);
+			})(this);
 
 			elation.events.fire('window_hide', this);
 		}
@@ -204,7 +229,7 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
 
 		this.render = function() {
 			var dc = elation.html.dimensions(this.container),
-					dp = elation.html.dimensions(this.args.parent),
+					dp = elation.html.dimensions(this.container.parentNode),
 					dw = elation.html.dimensions(window);
 			
 			dc = this.rendering.position(dc, dp, dw);
@@ -222,7 +247,9 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
 
 	elation.component.add("ui.moveable", function() {
 		this.init = function() {
-			console.log('ui.moveable',this);
+			//console.log('ui.moveable',this);
+			this.event_container = elation.find('div.desktop', true) || window;
+
 			this.handle = this.args.handle.container || this.container;
       elation.html.addclass(this.container, 'moveable');
 			elation.events.add(this.handle, 'mousedown,touchstart', this);
@@ -231,13 +258,18 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
     this.mousedown = function(ev) {
       this.coords = elation.events.coords(ev);
       this.dimensions = elation.html.dimensions(this.container);
+      this.moving = true;
 
-      elation.events.remove(window, 'touchmove,touchend,mousemove,mouseup', this);
+      elation.html.addclass(document.body, 'ui_moving');
       elation.events.add(window, 'touchmove,touchend,mousemove,mouseup', this);
       elation.events.fire({ type: 'ui_moveable_start', element: this });
     }
 
     this.mousemove = function(ev, delta) {
+    	if (!this.moving)
+    		return;
+
+    	//console.log(ev.type, ev, this);
       var current = elation.events.coords(ev),
           delta = delta || {
             x: current.x - this.coords.x, 
@@ -254,8 +286,11 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
       });
     }
     this.mouseup = function(ev) {
+    	this.moving = false;
+      elation.html.removeclass(document.body, 'ui_moving');
       elation.events.fire({ type: 'ui_moveable_end', element: this });
       elation.events.remove(window, 'touchmove,touchend,mousemove,mouseup', this);
+      ev.preventDefault();
     }
 	});
 
@@ -307,7 +342,6 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
     };
 
     this.close = function(event) { 
-    	console.log('close', event, this); 
     	this.args.parent.close(); 
     };
 	});
@@ -349,7 +383,6 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
 	elation.component.add("window.options.resizable", function() {
     this.defaultcontainer = {tag: 'div', classname: 'window_resize_container'};
 		this.init = function() { 
-			console.log('window.options.resizable', this);
 			this.dim_array = ['x','y','w','h'];
 			this.border_size = 7;
 			this.corner_size = 25;
@@ -374,6 +407,7 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
     	this.direction = this.getDirection(this.coords);
       this.dragging = true;
 
+      elation.html.addclass(document.body, 'ui_resizing');
       elation.events.add(window, 'mouseup', this);
       elation.events.fire({ type: 'ui_resize_start', element: this });
     }
@@ -400,7 +434,7 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
         	case 's': dim.h += delta.y; break;
         }
 
-	      console.log('drag', ev.type, direction, dim);
+	      //console.log('drag', ev.type, direction, dim);
 
 	      elation.html.css(this.parent, {
 	      	top: dim.y + this.border_size + 'px',
@@ -418,22 +452,23 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
     }
 
     this.mouseup = function(ev) {
-      console.log('resize', ev.type, this.dragging);
+      //console.log('resize', ev.type, this.dragging);
       this.dragging = false;
       this.dimensions = null;
+      elation.html.removeclass(document.body, 'ui_resizing');
       elation.events.fire({ type: 'ui_resize_end', element: this });
       //elation.events.remove(window, 'mousemove,mouseup', this);
     }
 
     this.mouseover = function(ev) {
-    	console.log('resize', ev.type, this.dragging);
+    	//console.log('resize', ev.type, this.dragging);
     	if (this.dragging == false) {
       	elation.events.add(window, 'mousemove,mouseup', this);
     	}
     }
 
     this.mouseout = function(ev) {
-    	console.log('resize', ev.type, ev, this.dragging);
+    	//console.log('resize', ev.type, ev, this.dragging);
     	if (this.dragging == false) {
     		this.container.style.cursor = '';
       	elation.events.remove(window, 'mousemove,mouseup', this);
@@ -462,9 +497,16 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
 
 	elation.component.add("window.rendering.absolute", function() {
 		this.position = function(dc, dp, dw) {
+			if (this.container.offsetParent) {
+				var offsetParent = elation.html.dimensions(this.container.offsetParent);
+
+				dp.x = dp.x - offsetParent.x;
+				dp.y = dp.y - offsetParent.y;
+			}
+
 			dc.positioning = 'absolute';
-			dc.y = this.args.parent ? dp.y : dw.h >> 1;
-			dc.x = this.args.parent ? dp.x : dw.w >> 1;
+			dc.y = dp.y;
+			dc.x = dp.x;
 
 	    return dc;
 		}
@@ -538,7 +580,7 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
 			rendering: 'fixed',
 			align: 'none',
 			btnClose: true,
-			lightbox: true,
+			lightbox: false,
 			moveable: true
 		};
 		this.init = function() {
@@ -574,7 +616,6 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
 			moveable: true
 		};
 		this.init = function() {
-			console.log('window.window',this.name, this.id, this);
       elation.window.window.extendclass.init.call(this);
 		}
 	}, elation.window.create);
@@ -592,4 +633,74 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
       elation.window.modal.extendclass.init.call(this);
 		}
 	}, elation.window.create);
+
+	elation.component.add("window.iframe", function() {
+		this.defaults = {
+      classname: 'application_iframe',
+			rendering: 'fixed',
+			align: 'none',
+			animation: 'slide_left,slide_right',
+			titlebar: true,
+			title: 'Window',
+			btnClose: true,
+			btnMaximize: true,
+			btnMinimize: true,
+			resizable: true,
+			moveable: true
+		};
+		this.init = function() {
+      this.iframe = elation.html.create({
+      	tag: 'IFRAME',
+      	attr: { src: this.args.content },
+      	append: this
+      });
+      this.args.content = this.iframe;
+      elation.window.iframe.extendclass.init.call(this);
+		}
+	}, elation.window.create);
+});
+
+elation.require(['ui.base', 'window.window'], function() {
+	elation.component.add("ui.example_dialog", function() {
+    this.defaultcontainer = { tag: 'div', classname: 'ui_example_dialog' };
+
+		this.init = function() {
+			var parent = elation.utils.arrayget(this.args, 'parent.container');
+			var args = elation.utils.arrayget(this.args, 'parent.args');
+
+			this.container.innerHTML = 'This is a test';
+
+			this.window = elation.window.dialog(args.name, null, {
+				append: document.body,
+				parent: parent,
+				content: this.container,
+				title: args.name
+			})
+		}
+	}, elation.ui.base);
+
+	elation.component.add("ui.example_infobox", function() {
+    this.defaultcontainer = { tag: 'div', classname: 'ui_example_infobox' };
+
+		this.init = function() {
+			var parent = elation.utils.arrayget(this.args, 'parent.container');
+			var args = elation.utils.arrayget(this.args, 'parent.args');
+			
+			this.container.innerHTML = 'This is a test<br><br>of an infobox!';
+			this.window = elation.window.infobox(args.name, null, {
+				content: this.container,
+				rendering: 'absolute',
+				append: this.args.parent.picture,
+				align: 'right'
+			});
+		}
+	}, elation.ui.base);
+
+	elation.component.add("ui.example_window", function() {
+    this.defaultcontainer = { tag: 'div', classname: 'ui_example_infobox' };
+
+ 		this.init = function() {
+
+ 		}
+	}, elation.ui.base);
 });

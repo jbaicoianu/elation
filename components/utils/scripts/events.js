@@ -181,6 +181,11 @@ elation.extend("events", {
         
         if (!element)
           continue;
+
+        if (type.toLowerCase() == 'transitionend') {
+          if ('onwebkittransitionend' in window) type = 'webkitTransitionEnd';
+          else if ('onotransitionend' in element || navigator.appName == 'Opera') type = 'oTransitionEnd';
+        }
         
         if ("addEventListener" in element) {
           if (type == 'mousewheel' && elation.browser.type != 'safari')

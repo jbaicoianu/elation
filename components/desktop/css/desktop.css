@@ -76,7 +76,11 @@ ul.icons:hover .hexagon {
 transform: rotateX(0);
 }
 ul.icons li.icon_active.icon_spin div.icon_picture {
-	transform: rotateY(720deg);
+	-webkit-transform: rotateY(-720deg);
+	-moz-transform: rotateY(-720deg);
+	transform: rotateY(-720deg);
+	-webkit-transition: transform 0ms ease;
+	-moz-transition: transform 0ms ease;
 	transition: transform 0ms ease;
 }
 ul.icons li:active {

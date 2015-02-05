@@ -690,10 +690,13 @@ elation.extend('html.preloader', function(elements, args) {
 // methods for css classname information and manipulation
 elation.extend("html.hasclass", function(element, className) {
   if (element && element.className) {
+    // ATTN:  do hasclass on individual classes, not multiple classes w/ spaces!
+    var className = className.split(' ');
+
     if ("classList" in element) {
-      return element.classList.contains(className);
+      return element.classList.contains(className[0]);
     } else {
-      var re = new RegExp("(^| )" + className + "( |$)", "g");
+      var re = new RegExp("(^| )" + className[0] + "( |$)", "g");
       return element.className.match(re);
     }
   }
@@ -701,7 +704,6 @@ elation.extend("html.hasclass", function(element, className) {
 });
 
 elation.extend("html.class", function(method, elements, className) {
-  console.log('html.class',method,elements,className);
   if (!elation.utils.isArray(elements)) {
     elements = [ elements ];
   }

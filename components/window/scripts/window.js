@@ -92,7 +92,7 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
 			moveable: false, 			// (Boolean)
 			ontop: false, 				// (Boolean)
 			lightbox: false,			// (Boolean)
-			animation: 'slide_left,slide_right',	// (String) slide, sweep, roll, explode, fade, none
+			animation: 'slide_up,slide_down',	// (String) slide, sweep, roll, explode, fade, none
 			transition: false,		// (String) Overwrite css transition with a js one
 			align: 'center',			// (String) top, left, right, bottom, center, auto
 			margin: 20,						// (Integer) pixels to pad alignment
@@ -639,7 +639,7 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
       classname: 'application_iframe',
 			rendering: 'fixed',
 			align: 'none',
-			animation: 'slide_left,slide_right',
+			animation: 'slide_up,slide_down',
 			titlebar: true,
 			title: 'Window',
 			btnClose: true,

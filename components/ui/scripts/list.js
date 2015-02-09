@@ -305,6 +305,7 @@ elation.require("ui.base", function() {
       // FIXME - should also update this.items to reflect new order
       if (typeof sortby == 'function') {
         this.sortfunc = sortby;
+        this.listitems.sort(sortby.bind(this));
       } else {
         this.listitems.sort(function(a, b) {
           var val1 = elation.utils.arrayget(a.value, sortby),
@@ -314,7 +315,6 @@ elation.require("ui.base", function() {
           else return 0;
         });
       }
-      this.listitems.sort(sortby.bind(this));
 
 
       // First calculate existing position of all items

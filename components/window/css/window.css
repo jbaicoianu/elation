@@ -1,0 +1,279 @@
+.window_lightbox {
+	background: rgba(0,0,0,.5);
+	position: fixed;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	z-index: 99;
+}
+.window.state_active {
+	border: none;
+}
+.window::after {
+	background: none;
+}
+.window {
+	position: fixed;
+	background-color: transparent;
+	border: none;
+	border-radius: 3px;
+	box-shadow: 1px 1px 10px rgba(0,0,0,1);
+	color: white;
+	transition: transform 200ms ease, opacity 200ms ease;
+	opacity: 1;
+	-webkit-transform: scale(1,1) translate3d(0,0,0);
+	-moz-transform: scale(1,1) translate3d(0,0,0);
+	transform: scale(1,1) translate3d(0,0,0);
+}
+.window.window_window {
+	min-width: 12em;
+	min-height: 4.2em;
+}
+.window .window_resize_container {
+	position: absolute;
+}
+.window .window_titlebar {
+	background: rgba(66,66,66,.8);
+	position: relative;
+	border: none;
+	border-radius: 0px;
+	margin: 0;
+	padding: 0;
+	letter-spacing: .1em;
+	text-shadow: 1px 1px 0px #000;
+	/* box-shadow: 0px 2px 3px 0px rgba(0,0,0,.7); */
+	border-top-left-radius: 3px;
+	border-top-right-radius: 3px;
+	line-height: 1.8em;
+	z-index: 1;
+	cursor: default;
+	-webkit-user-select: none;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+	vertical-align: middle;
+}
+.window.moveable .window_titlebar {
+	cursor: move;
+}
+.window.state_active .window_titlebar span {
+	pointer-events: none;
+}
+.window:hover .window_titlebar {
+	background: rgba(66,66,66,.9);
+}
+.window.state_active:hover .window_titlebar,
+.window.state_active .window_titlebar {
+	background: rgba(0,100,160,.95);
+}
+.window .window_controls {
+	margin: 0 .2em 0 .2em;
+	font-size: 1.21em;
+	position: absolute;
+	top: 0;
+	right: 0;
+	margin: 0;
+	padding: 0;
+	background: transparent;
+	text-shadow: 1px 1px #000;
+}
+div.window .ui_buttonbar>.ui_button:first-of-type:hover,
+.window .window_controls .ui_button:hover {
+	background: rgba(255,255,255,.15);
+	border-radius: inherit;
+}
+div.window .ui_buttonbar>.ui_button:first-of-type:active,
+.window .window_controls .ui_button:active {
+	background: rgba(0,0,0,.05);
+}
+div.window div.window_controls button.ui_button,
+div.window .ui_buttonbar>.ui_button:first-of-type {
+	background: transparent;
+	top: 0;
+	margin: 0;
+	padding: .225em .5em .275em;
+	border: 1px solid transparent;
+	border-left: 1px solid #444;
+	border-right: none;
+	border-radius: 0;
+	text-shadow: 1px 1px #000;
+	font-size: 1em;
+	color: white;
+	outline: none;
+	-webkit-appearance: none;
+	transition: all 100ms ease;
+}  
+.window div.window_content {
+	background: rgba(96,96,96,.95);
+	position: relative;
+	padding: .2em .2em 0;
+	border-radius: 3px;
+	overflow: hidden;
+	overflow-y: auto;
+}
+.window.window_window div.window_content {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+}
+.window.hasTitlebar div.window_content {
+  border-top-left-radius: 0;
+	border-top-right-radius: 0;
+}
+.window.window_window.hasTitlebar div.window_content {
+	top: 2.434em;
+}
+.window:after {
+	border-radius: 0;
+}
+.window_titlebar_span {
+	margin: .26em 6.25em .2em 0.8em;
+	display: block;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	pointer-events: none;
+}
+.window_content .ui_button:hover {
+	background: rgba(255,0,0,.85);
+}
+.window_content .ui_button:active {
+	background: rgba(255,0,0,.65);
+	box-shadow: 0px 0px 2px #000;
+}
+.window_content .ui_button {
+	padding: .5em 1em;
+	background: rgba(255,0,0,.75);
+	border-radius: 3px;
+	margin: .3em;
+	box-shadow: 1px 1px 3px #000;
+	outline: none;
+	transition: all 50ms linear;
+}
+.window_content .ui_input_element {
+	border-radius: 3px;
+	height: 2.25em;
+	box-shadow: 1px 1px 2px rgba(0,0,0,.5) inset;
+}
+.window_content .ui_input .ui_label {
+	padding-left: 0;
+	font-size: .9em;
+}
+.window_content .ui_button:hover {
+	background: rgba(255,0,0,.85);
+}
+.window_content .ui_button:active {
+	background: rgba(255,0,0,.65);
+	box-shadow: 0px 0px 2px #000;
+}
+.window_content .ui_button {
+	padding: .5em 1em;
+	background: rgba(255,0,0,.75);
+	border-radius: 3px;
+	margin: .3em;
+	box-shadow: 1px 1px 3px #000;
+	outline: none;
+	transition: all 50ms linear;
+}
+.window_content .ui_input_element {
+	border-radius: 3px;
+	height: 2.25em;
+	box-shadow: 1px 1px 2px rgba(0,0,0,.5) inset;
+}
+.window_content .ui_input .ui_label {
+	padding-left: 0;
+	font-size: .9em;
+}
+div.window_tail {
+  position: relative;[]
+}
+div.window_tail:before,
+div.window_tail:after {
+  border: 10px solid transparent;
+	position: absolute;
+	content: ' ';
+	height: 0;
+	width: 0;
+  z-index: 1000;
+}
+div.window_tail:before {
+  border: 12px solid transparent;
+}
+div.window_tail_right:before,
+div.window_tail_right:after {
+  border-left-color: rgba(96,96,96,.95);
+  margin-left: 0px;
+  margin-top: -11px;
+  top: 50%;
+  left: 100%;
+}
+div.window_tail_right:before {
+  border-left-color: #3c3c3c;  
+  margin-top: -13px;
+}
+div.window_tail_left:before,
+div.window_tail_left:after {
+  border-right-color: rgba(96,96,96,.95);
+  margin-right: 0px;
+  margin-top: -11px;
+  top: 50%;
+  right: 100%;
+}
+div.window_tail_left:before {
+  border-right-color: #3c3c3c;
+  margin-top: -13px;
+}
+div.window_tail_down:before,
+div.window_tail_down:after {
+  border-top-color: rgba(96,96,96,.95);
+  margin-top: 0px;
+  margin-left: -10px;
+  left: 50%;
+  top: 100%;
+}
+div.window_tail_down:before {
+  border-top-color: #3c3c3c;  
+  margin-left: -12px;
+}
+div.window_tail_up:before,
+div.window_tail_up:after {
+  border-bottom-color: rgba(96,96,96,.95);
+  margin-bottom: 0px;
+  margin-left: -10px;
+  left: 50%;
+  bottom: 100%;
+}
+div.window_tail_up:before {
+  border-bottom-color: #3c3c3c;  
+  margin-left: -12px;
+}
+.window.application_iframe {
+	height: 500px;
+	width: 600px;
+}
+.window.application_iframe iframe {
+	width: 100%;
+	height: 100%;
+	border: none;
+}
+.window.application_iframe .window_content {
+position: absolute;
+top: 2.2em;
+right: 0;
+bottom: 0;
+left: 0;
+padding: 0;
+overflow: hidden;
+}
+.window iframe,
+.ui_moving .window.state_active iframe,
+.ui_moving iframe,
+.ui_resizing .window.state_active iframe,
+.ui_resizing iframe {
+	pointer-events: none;
+}
+.window.state_active iframe {
+	pointer-events: auto;
+}

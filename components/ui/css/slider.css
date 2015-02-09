@@ -1,38 +1,43 @@
-.ui_slider {
+.ui_pegboard {
   white-space: nowrap; 
 }
-.ui_slider label {
+.ui_pegboard label {
   vertical-align: middle;
   margin-right: .5em;
   display: inline-block;
 }
-.ui_slider .ui_input {
+.ui_pegboard .ui_input {
   display: inline-block;
 }
-.ui_slider input.ui_input_element {
+.ui_pegboard input.ui_input_element {
   width: 3em;
   margin-right: .2em;
 }
-.ui_slider_track {
+.ui_range_track,
+.ui_dots_track,
+.ui_progressbar_track,
+.ui_slider_track,
+.ui_inputslider_track,
+.ui_pegboard_track {
   position: relative;
   width: 100%;
   height: 10px;
   background: white;
-  box-shadow: 0 0 1px 1px #888 inset;
-  border: 1px solid black;
-  border-radius: 5px;
+  box-shadow: 1px 1px 2px rgba(0,0,0,.5) inset;
+  border: 1px solid #ccc;
+  border-radius: 3px;
   box-sizing: border-box;
   -moz-box-sizing: border-box;
   vertical-align: middle;
   margin: 1em 0 .75em;
 }
-.ui_slider_handle_display {
+.ui_pegboard_peg_display {
   margin-bottom: .5em;
 }
-.ui_slider_handle {
+.ui_pegboard_peg {
   position: absolute;
 }
-.ui_slider_handle_grabber {
+.ui_pegboard_peg_grabber {
   position: absolute;
   top: 4px;
   width: 20px;
@@ -41,43 +46,72 @@
   box-shadow: 0 0 0 1px #000 inset, 0 0 .5em 1px rgba(255,255,255,.5) inset, 1px 1px 2px 1px rgba(64,64,64,.5);
   border-radius: 50%;
   cursor: pointer;
+  z-index: 1;
   -webkit-transform: translate(-50%,-50%);
   -moz-transform: translate(-50%,-50%);
   -ms-transform: translate(-50%,-50%);
   -o-transform: translate(-50%,-50%);
   transform: translate(-50%,-50%);
 }
-.ui_slider_handle_grabber:hover {
+.ui_pegboard_peg_grabber:hover {
   background: #BBB;
   z-index: 2;
 }
 
-#ui_slider_pricerange .ui_slider_handle_display {
+.ui_slider .ui_pegboard_peg_display input {
+  box-shadow: none;
+  background: #fff;
+  text-align: center;
+  width: 100%;
+  padding: 2px 2px 1px;
+  box-shadow: 1px 1px 2px rgba(0,0,0,.5) inset;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  cursor: pointer;
+  font-weight: bold;
+  color: #333;
+  text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+}
+.ui_slider:hover .ui_pegboard_peg_display,
+.ui_slider.active .ui_pegboard_peg_display {
+  top: -2em;
+  opacity: 1;
+}
+.ui_slider .ui_pegboard_peg_display {
+  position: absolute;
+  top: 0;
+  left: -1em;
+  width: 2em;
+  opacity: 0;
+  transition: all 250ms ease;
+}
+
+.ui_range .ui_pegboard_peg_display {
   width: 50%;
   display: inline;
 }
-#ui_slider_pricerange input.ui_input_element {
+.ui_range input.ui_input_element {
   width: 5em;
   margin-right: .2em;
 }
-#ui_slider_pricerange.ui_slider label {
+.ui_range.ui_range label {
   margin-right: 0.1em;
 }
-#ui_slider_pricerange .ui_slider_track {
+.ui_range .ui_range_track {
 }
-#ui_slider_pricerange .ui_slider_handle {
+.ui_range .ui_pegboard_peg {
   top: 0;
   bottom: 0;
   background: rgba(100,100,100,.5);
   left: 0;
 }
-#ui_slider_pricerange #ui_slider_pricerange_handle_min {
+.ui_range #ui_range_price_peg_min {
 
 }
-#ui_slider_pricerange #ui_slider_pricerange_handle_max {
+.ui_range #ui_range_price_peg_max {
   right: 0;
 }
-#ui_slider_pricerange .ui_slider_handle_grabber {
+.ui_range .ui_pegboard_peg_grabber {
   width: 1.2em;
   height: auto;
   top: -2px;
@@ -91,23 +125,23 @@
   -o-transform: none;
   transform: none;
 }
-#ui_slider_pricerange #ui_slider_pricerange_handle_min .ui_slider_handle_grabber {
+.ui_range #ui_range_price_peg_min .ui_pegboard_peg_grabber {
   right: 0;
 }
 
-#ui_slider_dots #ui_slider_dots_handle_indicator {
+.ui_dots #ui_dots_pagination_peg_indicator {
   z-index: 2;
 }
-#ui_slider_dots #ui_slider_dots_handle_indicator .ui_slider_handle_grabber {
+.ui_dots #ui_dots_pagination_peg_indicator .ui_pegboard_peg_grabber {
   background: darkorange;
 }
-#ui_slider_dots .ui_slider_handle_grabber {
+.ui_dots .ui_pegboard_peg_grabber {
   background: #fff;
   width: .8em;
   height: .8em;
   box-shadow: 1px 1px 0px 1px rgba(100,100,100,.75) inset;
 }
-#ui_slider_dots .ui_slider_track {
+.ui_dots .ui_dots_track {
   background: transparent;
   width: 90px;
   border: none;
@@ -115,26 +149,26 @@
   margin: 1em auto;
 }
 
-#ui_slider_progressbar .ui_slider_track {
+.ui_progressbar .ui_progressbar_track {
   height: 1.5em;
   border-radius: 3px;
   overflow: hidden;
 }
-#ui_slider_progressbar input.ui_input_element,
-#ui_slider_progressbar .ui_slider_handle_display {
+.ui_progressbar input.ui_input_element,
+.ui_progressbar .ui_pegboard_peg_display {
   color: #fff;
   font-weight: bold;
   text-shadow: -1px -1px 0 #555, 1px -1px 0 #555, -1px 1px 0 #555, 1px 1px 0 #555;
   font-size: .9em;
 }
-#ui_slider_progressbar .ui_slider_handle_display {
+.ui_progressbar .ui_pegboard_peg_display {
   margin: .1em auto;
   width: 3em;
   z-index: 3;
   position: absolute;
   right: .2em;
 }
-#ui_slider_progressbar input.ui_input_element {
+.ui_progressbar input.ui_input_element {
   width: 2em;
   padding: 0em;
   background: transparent;
@@ -146,7 +180,7 @@
   vertical-align: middle;
   cursor: default;
 }
-#ui_slider_progressbar .ui_slider_handle {
+.ui_progressbar .ui_pegboard_peg {
   top: 0;
   bottom: 0;
   background: rgba(0,64,196,.5);
@@ -155,7 +189,7 @@
   left: 0;
   transition: all 333ms linear;
 }
-#ui_slider_progressbar .ui_slider_handle_grabber {
+.ui_progressbar .ui_pegboard_peg_grabber {
   width: 1px;
   height: auto;
   right: 0;
@@ -172,38 +206,64 @@
   cursor: default;
 }
 
-#ui_slider_adjuster .ui_slider_track {
-  width: 80px;
-  height: .4em;
+div.ui_inputslider_container {
+  clear: both;
+  height: 7.5em;
+}
+#colorsquare {
+  width: 13em;
+  height: 3em;
+  float: left;
+  margin-top: 0.5em;
+  clear: both;
+}
+.ui_inputslider {
+  width: 4em;
+  margin-top: .5em;
+  margin-right: .5em;
+  display: inline-block;
+  float: left;
+}
+.ui_inputslider .ui_inputslider_track {
+  width: 100%;
+  height: .5em;
   border-radius: 0;
   overflow: hidden;
   background: white;
   margin: 0;
   box-shadow: none;
   border: none;
-  border-top: 1px solid #999;
+  border-top: 1px solid #aaa;
 }
-#ui_slider_adjuster .ui_slider_handle_display {
+.ui_inputslider .ui_pegboard_peg_display label {
+  display: block;
+  font-size: .8em;
+  text-align: center;
+  width: 100%;
+  font-weight: bold;
+}
+.ui_inputslider .ui_pegboard_peg_display {
   margin: 0;
 }
-#ui_slider_adjuster input.ui_input_element {
+.ui_inputslider input.ui_input_element {
   font-size: 1.5em;
-  width: 80px;
+  width: 100%;
   border-radius: 0;
   left: 0;
   right: 0;
   position: relative;
-  padding: .1em 0;
+  padding: 0;
   text-align: center;
+  border-bottom: none;
 }
-#ui_slider_adjuster .ui_slider_handle {
+.ui_inputslider .ui_pegboard_peg {
   top: 0;
   bottom: 0;
   background: rgba(0,64,196,.75);
   background-position: top right;
   left: 0;
 }
-#ui_slider_adjuster .ui_slider_handle_grabber {
+.ui_inputslider .ui_pegboard_peg_grabber {
   width: 0px;
   height: auto;
   right: 0;

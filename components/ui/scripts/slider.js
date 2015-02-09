@@ -1,90 +1,91 @@
 elation.require(['ui.base','ui.input','utils.math'], function() {
-  elation.requireCSS('ui.slider');
+  elation.requireCSS('ui.pegboard');
   /** 
-   * Slider UI component
+   * PegBoard UI component
    *
-   * @class slider
+   * @class pegboard
    * @augments elation.ui.base
    * @memberof elation.ui
    *
    * @param {object} args
    * @param {number} args.min
    * @param {number} args.max
-   * @param {array} args.handle
+   * @param {array} args.peg
    */
-  elation.component.add("ui.slider", function() {
-    this.defaultcontainer = { tag: 'div', classname: 'ui_slider' };
-    this.init = function() {
-      this.handles = [];
-      this.handlemap = {};
-      this.container.id = "ui_slider_" + this.id;
+  elation.component.add("ui.pegboard", function() {
+    this.defaultcontainer = { tag: 'div', classname: 'ui_pegboard' };
+    this.defaults = {
+      min: 0, 
+      max: 1,
+      prefix: "ui_pegboard",
+      pegs: [{
+        name: this.id + '_indicator'
+      }]
+    };
+    this.initialize = function() {
+      console.log('pegboard',this);
+
+      this.prefix = this.args.prefix;
+      this.pegs = [];
+      this.pegmap = {};
+      this.container.id = this.prefix + '_' + this.id;
+
+      elation.html.addclass(this.container, this.prefix);
       
-      var defaults = {
-        min: 0, 
-        max: 100,
-        handles: [{
-          name: this.id + '_indicator'
-        }]
-      };
-
-      for (var key in defaults) {
-        if (elation.utils.isNull(this.args[key])) {
-          this.args[key] = defaults[key];
-        }
-      }
-
-      elation.html.addclass(this.container, 'ui_slider');
-      this.track = elation.html.create({tag: 'div', classname: 'ui_slider_track', append: this.container});
+      this.track = elation.html.create({tag: 'div', classname: this.prefix + '_track', append: this.container});
       this.dimensions = elation.html.dimensions(this.track);
+      
       elation.events.add(this.track, 'touchstart,mousedown,mousewheel', this);
       
-      for (var i in this.args.handles) {
-        this.addHandle(this.args.handles[i]);
+      for (var i in this.args.pegs) {
+        if (this.args.pegs[i])
+          this.addPeg(this.args.pegs[i]);
       }
     }
-    this.addHandle = function(handle) {
-      handle.parent = this;
+    this.addPeg = function(peg) {
+      peg.parent = this;
 
-      this.handlemap[handle.name] = this.handles.length;
+      this.pegmap[peg.name] = this.pegs.length;
       
-      this.handles.push( 
-        elation.ui.slider_handle(
-          handle.name + '_' + this.handles.length, 
+console.log('### addpeg', peg.name);
+      this.pegs.push(
+        elation.ui.pegboard_peg(
+          this.id + '_' + peg.name, 
           elation.html.create({
             tag: 'div',
-            id: 'ui_slider_' + this.id + '_handle_' + handle.name,
-            classname: 'ui_slider_handle', 
+            id: this.args.prefix + '_' + this.id + '_peg_' + peg.name,
+            classname: 'ui_pegboard_peg', 
             append: this.track
           }), 
-          handle
+          peg
         )
       );
     }
-    this.setValue = function(handle, value) {
+    this.setValue = function(peg, value) {
       var v2p = elation.utils.math.value2percent,
           clamp = elation.utils.math.clamp,
-          bounds = handle.getBounds(),
+          bounds = peg.getBounds(),
           bounds_min = bounds[0], 
           bounds_max = bounds[1];
 
-      this.setPercent(handle, {
+      this.setPercent(peg, {
         x: v2p(clamp(value, bounds_min, bounds_max), this.args.min, this.args.max),
         y: v2p(clamp(value, bounds_min, bounds_max), this.args.min, this.args.max)
       });
     }
-    this.setPercent = function(handle, percent, skipevent) {
-      if (!handle)
+    this.setPercent = function(peg, percent, skipevent) {
+      if (!peg)
         return;
 
       var getValue = elation.utils.math.percent2value,
           getPercent = elation.utils.math.value2percent,
           clamp = elation.utils.math.clamp,
-          bounds = handle.getBounds(),
+          bounds = peg.getBounds(),
           bounds_min = Number(bounds[0]), 
           bounds_max = Number(bounds[1]),
           min = Number(this.args.min),
           max = Number(this.args.max),
-          snap = Number(handle.args.snap),
+          snap = Number(peg.args.snap),
           value = {
             x: clamp(getValue(percent.x, min, max), bounds_min, bounds_max),
             y: clamp(getValue(percent.y, min, max), bounds_min, bounds_max)
@@ -101,33 +102,33 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
         };
       }
       
-      handle.setValue(this.value = value.x, percent);
+      peg.setValue(this.value = value.x, percent);
       this.refresh();
 
       if (!skipevent) {
         elation.events.fire({
-          type: 'ui_slider_change', 
+          type: this.prefix + '_change', 
           element: this, 
           data: this.value
         });
       }
     }
     this.render = function() {
-      for (var i=0; i<this.handles.length; i++)
-        if (this.handles[i].dirty)
-          this.handles[i].render();
+      for (var i=0; i<this.pegs.length; i++)
+        if (this.pegs[i].dirty)
+          this.pegs[i].render();
     }
     this.getDistance = function(a, b) {
       if (!a || !b) 
-        return 0;
+        return -1;
       else
         return elation.utils.math.vector3.distance([a.x, a.y, 0], [b.x, b.y, 0]);
     }
-    this.getClosestHandle = function(coords) {
-      var handle;
+    this.getClosestPeg = function(coords) {
+      var peg;
 
-      for (var i=0; i<this.handles.length; i++) {
-        var candidate = this.handles[i];
+      for (var i=0; i<this.pegs.length; i++) {
+        var candidate = this.pegs[i];
 
         if (!elation.utils.isTrue(candidate.args.moveable))
           continue;
@@ -137,11 +138,11 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
 
         candidate.distance = distance;
 
-        if (!handle || distance < handle.distance)
-          handle = candidate;
+        if (!peg || distance < peg.distance)
+          peg = candidate;
       }
 
-      return this.handle = handle;
+      return this.peg = peg;
     }
     this.mousedown = function(ev) {
       this.coords = elation.events.coords(ev);
@@ -152,21 +153,22 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
             x: clamp((this.coords.x - this.dimensions.x) / this.dimensions.w, 0, 1), 
             y: clamp((this.coords.y - this.dimensions.y) / this.dimensions.h, 0, 1)
           },
-          handle = this.getClosestHandle(this.coords);
+          peg = this.getClosestPeg(this.coords);
       
-      if (!handle)
+      if (!peg)
         return;
 
-      this.setPercent(handle, percent);
+      this.setPercent(peg, percent);
 
-      this.left = handle.args.anchor == 'left'
-        ? handle.container.offsetLeft
-        : handle.container.offsetLeft + handle.container.offsetWidth;
-      this.top = handle.container.offsetTop;
+      this.left = peg.args.anchor == 'left'
+        ? peg.container.offsetLeft
+        : peg.container.offsetLeft + peg.container.offsetWidth;
+      this.top = peg.container.offsetTop;
 
+      elation.html.addclass([ this.container, peg.container ], 'active');
       elation.events.add(window, 'touchmove,touchend,mousemove,mouseup', this);
       elation.events.fire({
-        type: 'ui_slider_start', 
+        type: this.prefix + '_start', 
         element: this, 
         data: this.value
       });
@@ -189,24 +191,25 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
             y: clamp(position.y / this.dimensions.h, 0, 1)
           };
 
-      this.setPercent(this.handle, percent);
+      this.setPercent(this.peg, percent);
     }
     this.mouseup = function(ev) {
       elation.events.fire({
-        type: 'ui_slider_end', 
+        type: this.prefix + '_end', 
         element: this, 
         data: this.value
       });
 
+      elation.html.removeclass([ this.container, this.peg.container ], 'active');
       elation.events.remove(window, 'touchmove,touchend,mousemove,mouseup', this);
     }
     this.mousewheel = function(ev) {
       this.coords = elation.events.coords(ev);
       this.dimensions = elation.html.dimensions(this.track);
       
-      var handle = this.getClosestHandle(this.coords);
+      var peg = this.getClosestPeg(this.coords);
       
-      this.setValue(handle, handle.value + ((ev.wheelDeltaY / 120) * handle.args.snap));
+      this.setValue(peg, peg.value + ((ev.wheelDeltaY / 120) * peg.args.snap));
       
       ev.preventDefault();
     }
@@ -215,9 +218,9 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
     this.touchend = this.mouseup;
   }, elation.ui.base);
   /*
-   * Slider Handle UI component
+   * PegBoard Peg UI component
    *
-   * @class slider_handle
+   * @class pegboard_peg
    * @augments elation.ui.base
    * @memberof elation.ui
    *
@@ -229,27 +232,22 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
    * @param {string} args.labelprefix
    * @param {string} args.labelsuffix
    */
-  elation.component.add("ui.slider_handle", function() {
+  elation.component.add("ui.pegboard_peg", function() {
+    this.defaults = {
+      name: 'peg',
+      bounds: 'track', // csv - specify names of other pegs
+      anchor: 'left', // anchor the main peg element to one end or the other
+      moveable: 'true',
+      snap: .01,
+      toFixed: 1,
+      center: true,
+      input: false,
+      prefix: false,
+      suffix: false
+    };
     this.init = function() {
+      console.log('peg',this.args.parent.container);
       this.parent = this.args.parent;
-
-      var defaults = {
-        name: 'handle',
-        bounds: 'track', // csv - specify names of other handles
-        anchor: 'left', // anchor the main handle element to one end or the other
-        moveable: 'true',
-        snap: 1,
-        center: true,
-        input: false,
-        labelprefix: false,
-        labelsuffix: false
-      };
-
-      for (var key in defaults) {
-        if (elation.utils.isNull(this.args[key])) {
-          this.args[key] = defaults[key];
-        }
-      }
 
       this.position = {
         x:this.parent.track.offsetLeft,
@@ -258,34 +256,34 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
 
       this.grabber = elation.html.create({
         tag: 'div', 
-        classname: 'ui_slider_handle_grabber', 
+        classname: 'ui_pegboard_peg_grabber', 
         append: this.container
       });
 
-      switch(this.args.append) {
+      switch (this.args.append) {
         case "track": var append_element = this.parent.track; break;
-        case "handle": var append_element = this.container; break;
+        case "peg": var append_element = this.container; break;
         case "grabber": var append_element = this.grabber; break;
         default: var append_element = this.parent.container; break;
       }
 
       switch(this.args.before) {
         case "track": var before_element = this.parent.track; break;
-        case "handle": var before_element = this.container; break;
+        case "peg": var before_element = this.container; break;
         case "grabber": var before_element = this.grabber; break;
         default: var before_element = null; break;
       }
 
       this.display = elation.html.create({
         tag: 'div', 
-        classname: 'ui_slider_handle_display', 
+        classname: 'ui_pegboard_peg_display', 
         append: append_element,
         before: before_element
       });
 
-      this.label_before = this.createLabel(this.args.labelprefix);
+      this.label_before = this.createLabel(this.args.prefix);
       this.createInput();
-      this.label_after = this.createLabel(this.args.labelsuffix);
+      this.label_after = this.createLabel(this.args.suffix);
 
       if (this.args.center && elation.utils.isNull(this.args.value)) {
         this.args.value = (this.parent.args.max + this.parent.args.min) / 2;
@@ -305,7 +303,7 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
         return;
 
       this.input = elation.ui.input({ 
-        id: 'ui_slider_' + this.id + '_input',
+        id: 'ui_pegboard_' + this.id + '_input',
         append: this.display
       });
 
@@ -320,29 +318,29 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
           append: this.display,
           attributes: { 
             innerHTML: value,
-            htmlFor: 'ui_slider_' + this.id + '_input'
+            htmlFor: 'ui_pegboard_' + this.id + '_input'
           }
         });
       }
     }
     this.getBounds = function() {
       var bounds = [this.parent.args.min, this.parent.args.max],
-          handles = this.parent.handles,
-          handlemap = this.parent.handlemap;
+          pegs = this.parent.pegs,
+          pegmap = this.parent.pegmap;
 
       if (this.args.bounds && this.args.bounds != 'track') {
         var names = this.args.bounds.split(',');
 
         for (var i=0; i<names.length; i++) {
           var name = names[i],
-              index = handlemap[name],
-              handle = handles[index],
+              index = pegmap[name],
+              peg = pegs[index],
               snap = this.args.snap;
 
-          if (handle && handle.value && i < index)
-            bounds[1] = (handle.value) - Number(snap);
-          else if (handle && handle.value)
-            bounds[0] = (handle.value) + Number(snap);
+          if (peg && peg.value && i < index)
+            bounds[1] = (peg.value) - Number(snap);
+          else if (peg && peg.value)
+            bounds[0] = (peg.value) + Number(snap);
         }
       }
 
@@ -379,10 +377,201 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
       this.parent.setValue(this, elation.utils.math.clamp(ev.data, bounds[0], bounds[1]));
       
       elation.events.fire({
-        type: 'ui_slider_change', 
+        type: 'ui_pegboard_change', 
         element: this, 
         data: this.position
       });
     }
   }, elation.ui.base);
+  /*
+   * Range UI component
+   *
+   * @class range
+   * @augments elation.ui.pegboard
+   * @memberof elation.ui
+   */
+  elation.component.add("ui.range", function() {
+    this.defaults = {
+      prefix: 'ui_range',
+      pegs: [],
+      left: {
+        name: "min",
+        bounds: "max",
+        input: "true",
+        anchor: "right",
+        labelprefix: "",
+        value: 0,
+        snap: "0.01",
+        toFixed: "2"
+      },
+      right: {
+        name: "max",
+        bounds: "min",
+        input: "true",
+        labelprefix: "",
+        value: 100,
+        snap: "0.01",
+        toFixed: "2"
+      }
+    };
+    this.init = function() {
+      for (var key in this.args.left)
+        this.defaults.left[key] = this.args.left[key];
+
+      for (var key in this.args.right)
+        this.defaults.right[key] = this.args.right[key];
+
+      this.args.pegs.push(this.defaults['left']);
+      this.args.pegs.push(this.defaults['right']);
+
+      this.initialize();
+    }
+  }, elation.ui.pegboard);
+  /*
+   * Slider UI component
+   *
+   * @class slider
+   * @augments elation.ui.pegboard
+   * @memberof elation.ui
+   */
+  elation.component.add("ui.slider", function() {
+    this.defaults = {
+      prefix: 'ui_slider',
+      pegs: [],
+      handle: {
+        name: 'indicator',
+        toFixed: 2,
+        center: true,
+        input: true,
+        prefix: null,
+        suffix: null,
+        append: 'peg'
+      }
+    };
+    this.init = function() {
+      var handle = {};
+      
+      for (var key in this.defaults.handle) {
+        handle[key] = this.defaults.handle[key];
+      }
+      
+      handle.name += '_' + this.id;
+      
+      if (typeof this.args.handle == 'object') {
+        for (var key in this.args.handle) {
+          handle[key] = this.args.handle[key];
+        }
+      }
+
+      this.args.pegs = [ handle ];
+
+      this.initialize();
+    }
+  }, elation.ui.pegboard);
+  /*
+   * NavigationDots UI component
+   *
+   * @class navdots
+   * @augments elation.ui.pegboard
+   * @memberof elation.ui
+   */
+  elation.component.add("ui.navdots", function() {
+    this.defaults = {
+      prefix: 'ui_dots',
+      selected: 0,
+      pegs: []
+    };
+    this.init = function() {
+      var max = this.args.max;
+      var min = this.args.min || 1;
+      
+      for (var i=this.args.min; i<this.args.max; i++) {
+        this.args.pegs.push({
+          name: i,
+          moveable: false,
+          input: false,
+          value: i,
+          snap: 1
+        });
+      }
+
+      this.args.pegs.push({
+        name: "indicator",
+        input: false,
+        value: this.args.selected,
+        snap: 1
+      });
+
+      this.initialize();
+    }
+  }, elation.ui.pegboard);
+  /*
+   * ProgressBar UI component
+   *
+   * @class progressbar
+   * @augments elation.ui.pegboard
+   * @memberof elation.ui
+   */
+  elation.component.add("ui.progressbar", function() {
+    this.defaults = {
+      prefix: 'ui_progressbar',
+      pegs: [{
+        name: "progress",
+        input: true,
+        anchor: "right",
+        moveable: false,
+        append: "grabber",
+        suffix: "%",
+        value: "0",
+        snap: "0.01",
+        toFixed: "0"
+      }]
+    };
+    this.init = function() {
+      this.initialize();
+    }
+  }, elation.ui.pegboard);
+  /*
+   * InputSlider UI component
+   *
+   * @class inputslider
+   * @augments elation.ui.pegboard
+   * @memberof elation.ui
+   */
+  elation.component.add("ui.inputslider", function() {
+    this.defaults = {
+      prefix: 'ui_inputslider',
+      pegs: [],
+      handle: {
+        name: 'peg',
+        input: true,
+        anchor: "right",
+        append: "container",
+        before: "track",
+        value: 20,
+        snap: 1,
+        toFixed: 0
+      }
+    };
+    this.init = function() {
+      var handle = {};
+      
+      for (var key in this.defaults.handle) {
+        handle[key] = this.defaults.handle[key];
+      }
+      
+      handle.name += '_' + this.id;
+      
+      if (typeof this.args.handle == 'object') {
+        for (var key in this.args.handle) {
+          handle[key] = this.args.handle[key];
+        }
+      }
+
+      this.args.pegs = [ handle ];
+      console.log('inputslider', handle);
+
+      this.initialize();
+    }
+  }, elation.ui.pegboard);
 });

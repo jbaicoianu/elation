@@ -17,6 +17,12 @@
   font-weight: normal;
   font-size: 1.5em;
 }
+.ui_examples textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: white;
+}
 @media all and (max-width: 640px) {
   .ui_examples>li {
     display: block;

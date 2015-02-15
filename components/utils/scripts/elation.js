@@ -123,6 +123,10 @@ elation.extend("component", new function() {
         }
 */
         // apply default args
+        if (args.append instanceof elation.component.base) {
+          console.log('instanceof component', args);
+          args.append = args.append.container;
+        }
         if (typeof obj.defaults == 'object')
           args = mergeDefaults(args, elation.utils.clone(obj.defaults));
 

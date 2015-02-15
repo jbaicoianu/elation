@@ -1,5 +1,5 @@
 elation.require(['ui.base','ui.input','utils.math'], function() {
-  elation.requireCSS('ui.pegboard');
+  elation.requireCSS('ui.slider');
   /** 
    * PegBoard UI component
    *

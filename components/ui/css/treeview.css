@@ -7,7 +7,7 @@
 .ui_treeview ul {
   /*background: rgba(0,0,0,.8);*/
   list-style: none;
-  border-left: .1em solid;
+  border-left: 0.15em dotted;
   margin: 0 0 0 .3em;
   padding-left: .8em;
   -webkit-user-select: none;
@@ -21,6 +21,12 @@
 .ui_treeview ul li {
   position: relative;
   white-space: nowrap;
+  /*max-height: 1.2em;*/
+  overflow: hidden;
+}
+.ui_treeview ul li.state_selected, 
+.ui_treeview ul li.state_hover li.state_selected {
+  max-height: none;
 }
 .ui_treeview ul li:before {
   content: '├';

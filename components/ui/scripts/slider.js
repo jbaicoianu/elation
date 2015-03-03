@@ -23,8 +23,6 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
       }]
     };
     this.initialize = function() {
-      console.log('pegboard',this);
-
       this.prefix = this.args.prefix;
       this.pegs = [];
       this.pegmap = {};
@@ -47,7 +45,6 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
 
       this.pegmap[peg.name] = this.pegs.length;
       
-console.log('### addpeg', peg.name);
       this.pegs.push(
         elation.ui.pegboard_peg(
           this.id + '_' + peg.name, 
@@ -246,7 +243,6 @@ console.log('### addpeg', peg.name);
       suffix: false
     };
     this.init = function() {
-      console.log('peg',this.args.parent.container);
       this.parent = this.args.parent;
 
       this.position = {
@@ -449,6 +445,7 @@ console.log('### addpeg', peg.name);
       }
     };
     this.init = function() {
+      console.log('slider', this);
       var handle = {};
       
       for (var key in this.defaults.handle) {
@@ -482,6 +479,7 @@ console.log('### addpeg', peg.name);
       pegs: []
     };
     this.init = function() {
+      console.log('navdots', this);
       var max = this.args.max;
       var min = this.args.min || 1;
       
@@ -528,6 +526,7 @@ console.log('### addpeg', peg.name);
       }]
     };
     this.init = function() {
+      console.log('progressbar', this);
       this.initialize();
     }
   }, elation.ui.pegboard);

@@ -34,15 +34,15 @@ elation.extend('hack.server', new function() {
     switch (command) {
       case "shit": 
         websock.send('right now the only command is "help" and it\'s not very helpful'); 
-        this.eol();
+        this.eof();
         break;
       case "help": 
         websock.send('you get no help'); 
-        this.eol();
+        this.eof();
         break;
       case "": 
         websock.send(''); 
-        this.eol();
+        this.eof();
         break;
       case "generate": 
         websock.send('<br>');

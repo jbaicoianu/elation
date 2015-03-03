@@ -10,6 +10,9 @@
  */
 elation.require(['ui.content', 'ui.tabs'], function() {
   elation.component.add("ui.tabbedcontent", function() {
+    this.defaults = {
+      contenttype: 'content'
+    };
     this.init = function() {
       elation.ui.tabbedcontent.extendclass.init.call(this);
 
@@ -17,11 +20,15 @@ elation.require(['ui.content', 'ui.tabs'], function() {
 
       this.tabs = elation.ui.tabs({
         append: this,
-        items: this.items,
+        items: this.items
       });
-      this.content = elation.ui.content({
-        append: this
+
+      this.content = elation.ui[this.args.contenttype]({
+        append: this,
+        animation: this.args.animation,
+        items: this.items
       });
+
       elation.events.add(this.tabs, 'ui_tabs_change', this);
     }
     this.setActiveTab = function(name) {
@@ -30,7 +37,7 @@ elation.require(['ui.content', 'ui.tabs'], function() {
     this.ui_tabs_change = function(ev) {
       var tab = ev.data;
       if (tab && tab.content) {
-        this.content.setcontent(tab.content);
+        this.content.setcontent(this.args.contenttype == 'content' ? tab.content : tab.name);
       }
     }
   }, elation.ui.content);

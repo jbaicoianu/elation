@@ -5,7 +5,7 @@
 <li data-elation-component="desktop.Icon" 
 		data-elation-args.type="SYS"
 		data-elation-args.name="Sign In"
-		data-elation-args.title="Enter Credentials"
+		data-elation-args.title="TheFind Credentials"
 		data-elation-args.windowname="application_login"
 		data-elation-args.windowtype="window.modal"
 		data-elation-args.content="hack.login">
@@ -17,6 +17,14 @@
 		data-elation-args.windowname="application_admin"
 		data-elation-args.windowtype="window.dialog"
 		data-elation-args.content="hack.admin">
+</li>
+<li data-elation-component="desktop.Icon" 
+		data-elation-args.type="API"
+		data-elation-args.name="Data API Collections"
+		data-elation-args.title="APICollection Explorer"
+		data-elation-args.windowname="application_explorer"
+		data-elation-args.windowtype="window.window"
+		data-elation-args.content="hack.explorer">
 </li>
 <li data-elation-component="desktop.Icon" 
 		data-elation-args.type="APP"
@@ -46,13 +54,6 @@
 		data-elation-args.title="IncognitOS - Desktop"
 		data-elation-args.windowtype="window.iframe"
 		data-elation-args.content="/hack?{foreach from=$distinct_numbers item="value"}{$value}{/foreach}">
-</li>
-<li data-elation-component="desktop.Icon" 
-		data-elation-args.type="WWW"
-		data-elation-args.name="Windows 3.11"
-		data-elation-args.title="Windows 3.11"
-		data-elation-args.windowtype="window.iframe"
-		data-elation-args.content="http://www.vrcade.io/win311">
 </li>
 {*
 <li data-elation-component="desktop.Icon" 

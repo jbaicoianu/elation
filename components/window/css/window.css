@@ -20,8 +20,8 @@
 	border-radius: 3px;
 	box-shadow: 1px 1px 10px rgba(0,0,0,1);
 	color: white;
-	transition: transform 200ms ease, opacity 200ms ease;
 	opacity: 1;
+	transition: transform 200ms ease, opacity 200ms ease;
 	-webkit-transform: scale(1,1) translate3d(0,0,0);
 	-moz-transform: scale(1,1) translate3d(0,0,0);
 	transform: scale(1,1) translate3d(0,0,0);
@@ -91,6 +91,7 @@ div.window div.window_controls button.ui_button,
 div.window .ui_buttonbar>.ui_button:first-of-type {
 	background: transparent;
 	top: 0;
+	width: 32px;
 	margin: 0;
 	padding: .225em .5em .275em;
 	border: 1px solid transparent;
@@ -107,7 +108,7 @@ div.window .ui_buttonbar>.ui_button:first-of-type {
 .window div.window_content {
 	background: rgba(96,96,96,.95);
 	position: relative;
-	padding: .2em .2em 0;
+	padding: 0;
 	border-radius: 3px;
 	overflow: hidden;
 	overflow-y: auto;
@@ -124,7 +125,7 @@ div.window .ui_buttonbar>.ui_button:first-of-type {
 	border-top-right-radius: 0;
 }
 .window.window_window.hasTitlebar div.window_content {
-	top: 2.434em;
+	top: 35px;
 }
 .window:after {
 	border-radius: 0;
@@ -251,7 +252,7 @@ div.window_tail_up:before {
 }
 .window.application_iframe {
 	height: 500px;
-	width: 600px;
+	width: 620px;
 }
 .window.application_iframe iframe {
 	width: 100%;

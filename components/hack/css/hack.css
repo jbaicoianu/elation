@@ -39,6 +39,9 @@
 .window div.ui_tabs {
 	background: rgba(0,0,0,.15);
 }
+.pic_tabs li img {
+	width: 640px;
+}
 .application_login .ui_toggle {
 	margin-bottom: 1em;
 }
@@ -60,7 +63,7 @@
 .window_content .dialog_label {
 	position: relative;
 	margin: .75em 1.5em 0.1em;
-	display: block;
+	display: inline-block;
 	text-shadow: 1px 1px 1px #000;
 	color: #fff;
 	font-size: .97em;
@@ -157,4 +160,299 @@ div.window.application_admin .window_content .admin_colorbox .ui_inputslider {
 }
 div.window.application_admin .window_content .admin_colorbox .ui_inputslider input.ui_input_element {
 	height: 1.5em;
+}
+
+div.window.application_explorer {
+	width: 640px;
+	height: 420px;
+}
+div.fs_buttonbar {
+background: rgba(255,255,255,.14);
+position: absolute;
+height: 2.05em;
+top: 0;
+left: 0;
+right: 0;
+padding-top: .25em;
+border-bottom: 1px solid #aaa;
+}
+div.fs_tree {
+background: rgba(0,0,0,.33);
+position: absolute;
+top: 2.3em;
+bottom: 0;
+left: 0;
+right: 67%;
+border-right: 2px groove #aaa;
+padding: .25em;
+overflow: auto;
+}
+div.fs_tree * {
+	font-size: 16px;
+}
+div.fs_content {
+background: rgba(0,0,0,.33);
+position: absolute;
+top: 2.3em;
+bottom: 0;
+left: 33%;
+right: 0;
+padding: 0;
+overflow: auto;
+}
+div.fs_content li {
+	list-style: none;
+	white-space: nowrap;
+}
+div.fs_content li.column li.header:active {
+	background: #666;
+	border: 1px inset #aaa;
+}
+div.fs_content li.column li.header {
+	background: #777;
+	border: 1px outset #aaa;
+	color: #eee;
+	cursor: pointer;
+	padding: 2px 1em;
+	text-shadow: -1px -1px #444;
+	color: #ccc;
+	font-size: 14px;
+}
+div.fs_content li.column li.entry:hover {
+	border-color: #666;
+}
+div.fs_content li.column li.entry:active {
+	background: rgba(0,100,160,.95);
+	border-color: #aaa;
+}
+div.fs_content li.column li {
+	border: 1px dotted transparent;
+}
+div.fs_content li.column li {
+	padding: 0 .5em;
+	min-height: 1.12em;
+}
+div.fs_content li.column {
+	display: inline-block;
+	border-right: 1px dotted #aaa;
+	min-width: 40%;
+}
+div.fs_content li.column.two {
+	position: absolute;
+	min-width: 59%;
+}
+div.fs_status {
+background: rgba(255,255,255,.14);
+position: absolute;
+height: 1.6em;
+bottom: 0em;
+left: 0;
+right: 0;
+border-top: 1px solid #aaa;
+}
+div.fs_tree.ui_treeview ul {
+	color: inherit;
+	background: transparent;
+	border: none;
+	display: inline-block;
+}
+div.fs_tree.ui_treeview ul li {
+	position: relative;
+	white-space: nowrap;
+	overflow: visible;
+}
+div.fs_tree.ui_treeview li ul {
+	border-left: 2px dotted #aaa;
+	margin-left: 5px;
+	padding-left: 7px;
+}
+.ui_treeview ul li.state_hover span.label {
+	text-decoration: underline;
+}
+.ui_treeview ul li.state_hover li span.label {
+	text-decoration: initial;
+}
+.ui_treeview ul li span.label {
+	cursor: pointer;
+}
+.ui_treeview ul li.state_selected span.label {
+	color: #eee;
+	background: rgba(0,100,160,.95);
+	box-shadow: 0 0 0px 1px #048;
+}
+.ui_treeview ul li.state_selected ul span.label {
+	color: #fff;
+	background: initial;
+	box-shadow: none;
+}
+.ui_treeview ul li:before {
+	color: #aaa;
+}
+.ui_treeview ul li.state_hover:before, 
+.ui_treeview ul li.state_selected li.state_hover:before, 
+.ui_treeview ul li.state_selected:before, 
+.ui_treeview ul li.state_hover li.state_selected:before, 
+.ui_treeview ul li.state_selected li:before {
+	color: #aaa;
+}
+div.fs_tree.ui_treeview li div.checkbox:before {
+	font-size: 15px;
+	color: #ccc;
+	background: #004;
+	width: 12px;
+	display: list-item;
+	height: 11px;
+	line-height: 9px;
+	margin-top: 6px;
+}
+div.fs_tree.ui_treeview li.state_expanded div.checkbox:before {
+	content: '⊟';
+}
+div.fs_tree.ui_treeview li.state_collapsed div.checkbox:before {
+	content: '⊞';
+}
+div.fs_tree.ui_treeview li.state_expanded ul {
+	display: block;	
+}
+div.fs_tree.ui_treeview li.state_collapsed ul {
+	display: none;
+}
+div.fs_tree.ui_treeview li div.checkbox {
+position: absolute;
+top: -2px;
+left: 0px;
+color: #fff;
+text-shadow: 0px 0px 2px #000;
+}
+div.window div.fs_buttonbar .apicollection_controls.ui_buttonbar {
+display: inline;
+}
+div.window div.fs_buttonbar .apicollection_controls2.ui_buttonbar {
+}
+div.window div.fs_buttonbar .apicollection_controls2.ui_buttonbar>.ui_button:last-of-type {
+}
+
+div.window div.fs_buttonbar button.ui_button,
+div.window div.fs_buttonbar .ui_buttonbar>.ui_button:last-of-type,
+div.window div.fs_buttonbar .ui_buttonbar>.ui_button:first-of-type {
+	background: transparent;
+	padding: 0px;
+	margin: 2px 0em 0em;
+	border: 1px solid transparent;
+	border-radius: 50%;
+	position: relative;
+	box-shadow: none;
+	color: inherit;
+	font-size: 1em;
+	width: 1.6em;
+	height: 1.6em;
+	text-align: center;
+	text-shadow: 1px 1px 1px #000;
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+	line-height: 24px;
+}
+div.window div.fs_buttonbar .ui_buttonbar>.ui_button:first-of-type {
+	border-radius: 50%;
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+	margin-left: .3em;
+	border-right: none;
+}
+div.window div.fs_buttonbar .ui_buttonbar>.ui_button:last-of-type {
+	border-radius: .2em;
+	margin-left: .25em;
+	border: 1px solid transparent;
+	background: transparent;
+}
+div.window ul.ui_selectcrumbs button.ui_button,
+div.ui_breadcrumbs div.ui_select {
+	-webkit-transition: all 200ms ease;
+	-moz-transition: all 200ms ease;
+	transition: all 200ms ease;
+}
+div.ui_breadcrumbs div.ui_select {
+display: inline-block;
+padding: 0;
+position: relative;
+border-left: 2px groove #666;
+border-right: 2px groove #666;
+height: 100%;
+}
+div.ui_breadcrumbs div.ui_select select {
+background: transparent;
+color: white;
+height: 2.1em;
+border-radius: 3px;
+border: none;
+-webkit-appearance: none;
+-moz-appearance: none;
+outline: none;
+padding-right: 1em;
+width: 1.2em;
+}
+div.ui_breadcrumbs div.ui_select:active {
+	background: rgba(0,100,160,.95);
+	color: white;
+}
+div.ui_breadcrumbs div.ui_select:after {
+content: '▶';
+top: 0.3em;
+pointer-events: none;
+position: absolute;
+right: 2px;
+font-size: 12px;
+color: #ccc;
+text-shadow: 1px 1px #000;
+}
+div.ui_breadcrumbs div.ui_select select option {
+	background: #666;
+	padding-left: 2em;
+}
+div.fs_buttonbar div.ui_breadcrumbs {
+position: absolute;
+height: 25px;
+margin: 2px 0em;
+left: 5.8em;
+right: 0.3em;
+background: #444;
+border: 1px solid #aaa;
+border-radius: .2em;
+overflow: hidden;
+display: inline-block;
+}
+div.window ul.ui_selectcrumbs {
+position: absolute;
+top: -1px;
+bottom: -1px;
+left: 1px;
+right: 1px;
+white-space: nowrap;
+}
+div.window ul.ui_selectcrumbs button.ui_button {
+width: auto;
+border-radius: 0;
+margin: 0;
+border: 1px solid transparent;
+padding: 0px 0.25em;
+height: 100%;
+}
+div.window ul.ui_selectcrumbs button.ui_button:active {
+border: 1px solid #333;
+background: rgba(0,100,160,.95);
+color: #fff;
+position: relative;
+top: 0;
+}
+div.window button.ui_button:hover,
+div.window .ui_buttonbar>.ui_button:last-of-type:hover,
+div.window .ui_buttonbar>.ui_button:first-of-type:hover {
+	color: #ccc;
+}
+div.window button.ui_button:active,
+div.window .ui_buttonbar>.ui_button:last-of-type:active,
+div.window .ui_buttonbar>.ui_button:first-of-type:active {
+	border: 1px solid #aaa;
+	background: rgba(0,0,0,.33);
+	color: #ccc;
 }

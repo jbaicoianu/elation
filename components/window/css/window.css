@@ -78,17 +78,17 @@
 	background: transparent;
 	text-shadow: 1px 1px #000;
 }
-div.window .ui_buttonbar>.ui_button:first-of-type:hover,
+.window .ui_buttonbar>.ui_button:first-of-type:hover,
 .window .window_controls .ui_button:hover {
 	background: rgba(255,255,255,.15);
 	border-radius: inherit;
 }
-div.window .ui_buttonbar>.ui_button:first-of-type:active,
+.window .ui_buttonbar>.ui_button:first-of-type:active,
 .window .window_controls .ui_button:active {
 	background: rgba(0,0,0,.05);
 }
-div.window div.window_controls button.ui_button,
-div.window .ui_buttonbar>.ui_button:first-of-type {
+.window .ui_buttonbar button.ui_button,
+.window .ui_buttonbar>.ui_button:first-of-type {
 	background: transparent;
 	top: 0;
 	width: 32px;

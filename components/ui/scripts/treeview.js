@@ -152,7 +152,7 @@ elation.require(['ui.base','utils.template'], function() {
           obj = items[i];
       
       console.log('treeview setPath', path, this, obj);
-      obj.select();
+      obj.select(true);
     }
   }, elation.ui.base);
 
@@ -214,15 +214,18 @@ elation.require(['ui.base','utils.template'], function() {
       elation.html.removeclass(this.container, 'state_hover');
       elation.events.fire({type: 'ui_treeviewitem_unhover', element: this});
     }
-    this.select = function() {
+    this.select = function(only_select) {
       console.log('select', this);
-      if (!this.expanded) {
+      if (!this.expanded && !only_select) {
         this.expanded = true;
         this.args.parent.add(this.value, this.container, this.attrs);
       }
 
-      elation.html.toggleclass(this.container, 'state_collapsed');
-      elation.html.toggleclass(this.container, 'state_expanded');
+      if (!only_select) {
+        elation.html.toggleclass(this.container, 'state_collapsed');
+        elation.html.toggleclass(this.container, 'state_expanded');
+      }
+
       elation.events.fire({type: 'ui_treeviewitem_select', element: this});
       
       //this.container.scrollIntoView();

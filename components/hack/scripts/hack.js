@@ -404,8 +404,15 @@ elation.require([
     this.defaultcontainer = { tag: 'div', classname: 'fs_container' };
     this.init = function() {
       console.log('explorer!',this);
+      this.tree = {};
 
-      var create = elation.html.create;
+      var create = elation.html.create,
+          labels = {
+            back: '⇦',
+            forward: '⇨',
+            up: '↰',
+            home: '⌂'
+          };
 
       this.elements = {
         buttonbar: create('div', 'fs_buttonbar', null, null, this),
@@ -416,17 +423,17 @@ elation.require([
 
       var buttons = {
         back: {
-          label: "&#9664;",
+          label: labels.back,
           classname: "fs_buttonbar_back",
           events: { click: elation.bind(this, this["back"]) }
         },
         forward: {
-          label: "&#9654;",
+          label: labels.forward,
           classname: "fs_buttonbar_forward",
           events: { click: elation.bind(this, this["forward"]) }
         },
         up: {
-          label: "&#8682;",
+          label: labels.up,
           classname: "fs_buttonbar_up",
           events: { click: elation.bind(this, this["up"]) }
         }
@@ -445,7 +452,8 @@ elation.require([
       });
 
       this.breadcrumbs = elation.ui.selectcrumbs({
-        append: this.elements.path
+        append: this.elements.path,
+        root_icon: labels.home
       })
 
       this.breadcrumbs.setPath([]);
@@ -461,30 +469,6 @@ elation.require([
         append: this.elements.buttonbar
       });
 */
-      this.host = this.args.host || 'http://api.thefind.com';
-
-      this.apicollection = elation.collection.jsonapi({
-        host: this.host,
-        endpoint: '/search.js',
-        apiargs: {
-          page: 1,
-          query: 'shoes'
-        },
-        requiredargs: ['query'],
-        datatransform: {
-          items: function(data) {
-            var items = elation.utils.arrayget(data, 'data.searchobj.items.normal');
-            return items;
-          },
-          count: function(data) {
-            return +elation.utils.arrayget(data, 'data.searchobj.total.0', 0);
-          }
-        },
-        events: {
-          'collection_load': elation.bind(this, this.finished)
-        }
-      });
-
       elation.template.add('apicollection.treeview',
         '{@select key=type}' +
         '{@eq value="folder"}{?children}<div class="checkbox"></div>{/children}<span class="label">{key}</span>{/eq}' +
@@ -500,6 +484,30 @@ elation.require([
       elation.template.add('apicollection.jsoncontentvalue',
         '<li class="entry">{value}</li>');
 
+      this.addSource({
+        host: 'http://api.thefind.com',
+        endpoint: '/search.js',
+        apiargs: {
+          page: 1,
+          query: 'shoes'
+        }
+      })
+    }
+
+    this.addSource = function(parms) {
+      this.apicollection = elation.collection.jsonapi({
+        host: parms.host,
+        endpoint: parms.endpoint,
+        apiargs: parms.apiargs,
+        //requiredargs: ['query'],
+        datatransform: { },
+        events: {
+          'collection_load': elation.bind(this, this.finished)
+        }
+      });
+
+      this.parms = parms;
+
       //this.apicollection.clear();
       this.apicollection.load();
     }
@@ -513,13 +521,22 @@ elation.require([
       this.setPath(path);
     }
 
+    this.getName = function(parms) {
+      var host = parms.host.replace('http://',''),
+          endpoint = parms.endpoint,
+          name = host + endpoint;
+
+      return name;
+    }
+
     this.finished = function(data) {
       console.log('finished loading', data.target.rawdata);
-      var items = {};
+      var items = {},
+          name = this.getName(this.parms);
+      
+      items[name] = data.target.rawdata.data;
 
-      items[this.host.replace('http://','')] = data.target.rawdata.data;
-
-      this.treeview = elation.ui.treeview2('apicollection_tree', this.elements.tree, {
+      this.tree[name] = elation.ui.treeview2('apicollection_tree_'+name, this.elements.tree, {
         properties: false,
         folders: true,
         attrs: {
@@ -566,7 +583,7 @@ elation.require([
 
       console.log('setPath',path,this);
       //this.breadcrumbs.setPath(path);
-      this.treeview.setPath(path);
+      this.tree[this.getName(this.parms)].setPath(path);
     }
   }, elation.ui.base);
 });

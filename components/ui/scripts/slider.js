@@ -513,6 +513,8 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
   elation.component.add("ui.progressbar", function() {
     this.defaults = {
       prefix: 'ui_progressbar',
+      min: 0,
+      max: 100,
       pegs: [{
         name: "progress",
         input: true,
@@ -527,7 +529,15 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
     };
     this.init = function() {
       console.log('progressbar', this);
+      this.args.pegs[0].prefix = this.args.labelprefix;
+      this.args.pegs[0].suffix = this.args.labelsuffix;
       this.initialize();
+    }
+    this.set = function(percent) {
+      this.setPercent(this.pegs[0],{
+        x: percent,
+        y: 0
+      });
     }
   }, elation.ui.pegboard);
   /*

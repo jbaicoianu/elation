@@ -32,8 +32,9 @@
     <h2>ui.progressbar</h2>
     <div data-elation-component="ui.progressbar" 
          data-elation-name="download"
-         data-elation-args.min="0"
-         data-elation-args.max="100">
+         data-elation-args.labelprefix="("
+         data-elation-args.labelsuffix=")">
+
     </div>
     <script>
     {literal}
@@ -50,10 +51,7 @@
         if (pegboard.value >= 100)
           return clearInterval(progress_timer);
 
-        pegboard.setPercent(pegboard.pegs[0],{
-          x: parseInt(value + inc) / 100,
-          y: 0
-        });
+        pegboard.set(parseInt(value + inc) / 100);
         
         pegboard.pegs[0].container.style.transition = '';
       }, 333)

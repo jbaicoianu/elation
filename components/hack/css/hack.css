@@ -324,46 +324,50 @@ left: 0px;
 color: #fff;
 text-shadow: 0px 0px 2px #000;
 }
-div.window div.fs_buttonbar .apicollection_controls.ui_buttonbar {
-display: inline;
-}
-div.window div.fs_buttonbar .apicollection_controls2.ui_buttonbar {
-}
-div.window div.fs_buttonbar .apicollection_controls2.ui_buttonbar>.ui_button:last-of-type {
-}
 
-div.window div.fs_buttonbar button.ui_button,
-div.window div.fs_buttonbar .ui_buttonbar>.ui_button:last-of-type,
-div.window div.fs_buttonbar .ui_buttonbar>.ui_button:first-of-type {
+div.window div.fs_buttonbar .apicollection_controls.ui_buttonbar {
+	display: inline;
+}
+div.window div.ui_buttonbar button.ui_button {
+}
+div.window div.ui_buttonbar button.ui_button,
+div.window div.ui_buttonbar>.ui_button:last-of-type,
+div.window div.ui_buttonbar>.ui_button:first-of-type {
 	background: transparent;
 	padding: 0px;
 	margin: 2px 0em 0em;
 	border: 1px solid transparent;
 	border-radius: 50%;
-	position: relative;
 	box-shadow: none;
 	color: inherit;
 	font-size: 1em;
 	width: 1.6em;
 	height: 1.6em;
-	text-align: center;
 	text-shadow: 1px 1px 1px #000;
-	border-top-left-radius: 0;
-	border-bottom-left-radius: 0;
-	line-height: 24px;
+	line-height: 1em;
+	font-weight: bold;
 }
-div.window div.fs_buttonbar .ui_buttonbar>.ui_button:first-of-type {
-	border-radius: 50%;
-	border-top-right-radius: 0;
-	border-bottom-right-radius: 0;
+div.window div.ui_buttonbar>.ui_button:first-of-type {
 	margin-left: .3em;
-	border-right: none;
 }
-div.window div.fs_buttonbar .ui_buttonbar>.ui_button:last-of-type {
+div.window div.ui_buttonbar button.ui_button:hover,
+div.window div.ui_buttonbar>.ui_button:last-of-type:hover,
+div.window div.ui_buttonbar>.ui_button:first-of-type:hover {
+color: #f97;
+border: 1px outset #aaa;
+border-radius: 50%;
+background: transparent;
+}
+div.window div.ui_buttonbar>.ui_button:last-of-type,
+div.window div.ui_buttonbar>.ui_button:last-of-type:hover {
 	border-radius: .2em;
-	margin-left: .25em;
-	border: 1px solid transparent;
-	background: transparent;
+}
+div.window div.ui_buttonbar button.ui_button:active,
+div.window div.ui_buttonbar>.ui_button:last-of-type:active,
+div.window div.ui_buttonbar>.ui_button:first-of-type:active {
+border: 1px solid #aaa;
+background: rgba(0,0,0,.33);
+color: #eee;
 }
 div.window ul.ui_selectcrumbs button.ui_button,
 div.ui_breadcrumbs div.ui_select {
@@ -430,12 +434,20 @@ right: 1px;
 white-space: nowrap;
 }
 div.window ul.ui_selectcrumbs button.ui_button {
+background: transparent;
 width: auto;
-border-radius: 0;
-margin: 0;
-border: 1px solid transparent;
-padding: 0px 0.25em;
 height: 100%;
+margin: 0;
+padding: 0px 0.25em;
+color: #ddd;
+font-size: 1em;
+text-shadow: 1px 1px #000;
+border: 1px solid transparent;
+border-radius: 0;
+box-shadow: none;
+}
+div.window ul.ui_selectcrumbs button.ui_button:hover {
+	color: #fff;
 }
 div.window ul.ui_selectcrumbs button.ui_button:active {
 border: 1px solid #333;
@@ -443,16 +455,4 @@ background: rgba(0,100,160,.95);
 color: #fff;
 position: relative;
 top: 0;
-}
-div.window button.ui_button:hover,
-div.window .ui_buttonbar>.ui_button:last-of-type:hover,
-div.window .ui_buttonbar>.ui_button:first-of-type:hover {
-	color: #ccc;
-}
-div.window button.ui_button:active,
-div.window .ui_buttonbar>.ui_button:last-of-type:active,
-div.window .ui_buttonbar>.ui_button:first-of-type:active {
-	border: 1px solid #aaa;
-	background: rgba(0,0,0,.33);
-	color: #ccc;
 }

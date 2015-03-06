@@ -31,9 +31,7 @@
   <li>
     <h2>ui.progressbar</h2>
     <div data-elation-component="ui.progressbar" 
-         data-elation-name="download"
-         data-elation-args.labelprefix="("
-         data-elation-args.labelsuffix=")">
+         data-elation-name="download">
 
     </div>
     <script>

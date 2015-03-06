@@ -530,7 +530,7 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
     this.init = function() {
       console.log('progressbar', this);
       this.args.pegs[0].prefix = this.args.labelprefix;
-      this.args.pegs[0].suffix = this.args.labelsuffix;
+      this.args.pegs[0].suffix = this.args.labelsuffix || '%';
       this.initialize();
     }
     this.set = function(percent) {

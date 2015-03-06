@@ -45,7 +45,7 @@ elation.require("ui.base", function() {
 			this.icons = [];
     }
 
-    this.add = function(icon) {
+    this.add = function(icon) {[]
     	this.icons.push(icon);
     	this.container.appendChild(icon.container);
     }
@@ -106,7 +106,7 @@ elation.require("ui.base", function() {
         case 'WWW':
           break;
         default:
-        console.log(content);
+          console.log(content);
           var content = elation.utils.arrayget(elation, content)(
             null, null, { parent: this }
           );
@@ -124,7 +124,7 @@ elation.require("ui.base", function() {
             top: 50 + (30 * index),
             left: 100 + (30 * index)
           };
-console.log('muh',wintype,winargs);
+
       if (wintype == 'none')
         this.window = content.window;
       else {

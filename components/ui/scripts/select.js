@@ -9,7 +9,7 @@
  * @param {object} args
  * @param {string} args.items
  */
-elation.require(['ui.base', 'ui.label'], function() {
+elation.require(['ui.base','ui.label'], function() {
   elation.requireCSS('ui.select');
 
   elation.component.add('ui.select', function() {

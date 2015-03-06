@@ -26,3 +26,15 @@
 }
 .ui_tabs>ul>li.state_disabled {
 }
+
+.ui_contentlist li.ui_contentlist_item.state_selected {
+	display: block;
+}
+.ui_contentlist_item {
+	display: none;
+	opacity: 1;
+	transition: transform 200ms ease, opacity 200ms ease;
+	-webkit-transform: scale(1,1) translate3d(0,0,0);
+	-moz-transform: scale(1,1) translate3d(0,0,0);
+	transform: scale(1,1) translate3d(0,0,0);
+}

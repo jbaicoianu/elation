@@ -122,22 +122,29 @@ elation.extend("component", new function() {
           component.obj[realname].initSuperClass(component.extendclass);
         }
 */
-        // apply default args
-        if (args.append instanceof elation.component.base) {
-          console.log('instanceof component', args);
+        // fix handling for append component infinite recursion issue
+        if (args.append instanceof elation.component.base) 
           args.append = args.append.container;
-        }
-        if (typeof obj.defaults == 'object')
-          args = mergeDefaults(args, elation.utils.clone(obj.defaults));
 
-        var parentclass = component.extendclass;
+        if (args.before instanceof elation.component.base) 
+          args.before = args.before.container;
 
-        // recursively apply inherited defaults
-        while (parentclass) {
-          if (typeof parentclass.defaults == 'object')
-            elation.utils.merge(mergeDefaults(args, elation.utils.clone(parentclass.defaults)),args);
+        // apply default args
+        try {
+          if (typeof obj.defaults == 'object')
+            args = mergeDefaults(args, elation.utils.clone(obj.defaults));
 
-          parentclass = parentclass.extendclass;
+          var parentclass = component.extendclass;
+
+          // recursively apply inherited defaults
+          while (parentclass) {
+            if (typeof parentclass.defaults == 'object')
+              elation.utils.merge(mergeDefaults(args, elation.utils.clone(parentclass.defaults)),args);
+
+            parentclass = parentclass.extendclass;
+          }
+        } catch (e) {
+          console.log('-!- Error merging component args', e.msg);
         }
 
         if (typeof obj.init == 'function') {
@@ -722,9 +729,9 @@ elation.extend("html.class", function(method, elements, className) {
   }
 });
 
-elation.extend("html.addclass", function(elements, className) {
-  if ("classList" in elements || (typeof elements.length == 'number' && "classList" in elements[0])) {
-    elation.html.class('add', elements, className);
+elation.extend("html.addclass", function(element, className) {
+  if ("classList" in element || (typeof element.length == 'number' && "classList" in element[0])) {
+    elation.html.class('add', element, className);
   } else {
     if (element && !elation.html.hasclass(element, className)) {
       element.className += (element.className ? " " : "") + className;
@@ -733,10 +740,14 @@ elation.extend("html.addclass", function(elements, className) {
 }); 
 
 elation.extend("html.removeclass", function(elements, className) {
+  if (!elements || elements.length == 0)
+    return;
+
   if ("classList" in elements || (typeof elements.length == 'number' && "classList" in elements[0])) {
     elation.html.class('remove', elements, className);
   } else {
     var re = new RegExp("(^| )" + className + "( |$)", "g");
+    
     if (element && element.className && element.className.match(re)) {
       element.className = element.className.replace(re, " ");
     }
@@ -841,7 +852,7 @@ elation.extend("html.attach", function(container, element, before) {
 // determines how best to inject content into container
 // automatically used in components with this.args.content
 elation.extend("html.setContent", function(element, content, append) {
-  if (!element || !content)
+  if (!element || (!content && typeof content != 'string'))
     return;
 
   var element = elation.utils.getContainerElement(element);
@@ -2470,7 +2481,7 @@ elation.requireCSS('utils.elation');
 
 /*! @source http://purl.eligrey.com/github/classList.js/blob/master/classList.js*/
 
-if ("document" in self) {
+if (typeof self != 'undefined' && "document" in self) {
 
 // Full polyfill for browsers with no classList support
 if (!("classList" in document.createElement("_"))) {

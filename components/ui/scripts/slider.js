@@ -23,8 +23,6 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
       }]
     };
     this.initialize = function() {
-      console.log('pegboard',this);
-
       this.prefix = this.args.prefix;
       this.pegs = [];
       this.pegmap = {};
@@ -47,7 +45,6 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
 
       this.pegmap[peg.name] = this.pegs.length;
       
-console.log('### addpeg', peg.name);
       this.pegs.push(
         elation.ui.pegboard_peg(
           this.id + '_' + peg.name, 
@@ -246,7 +243,6 @@ console.log('### addpeg', peg.name);
       suffix: false
     };
     this.init = function() {
-      console.log('peg',this.args.parent.container);
       this.parent = this.args.parent;
 
       this.position = {
@@ -449,6 +445,7 @@ console.log('### addpeg', peg.name);
       }
     };
     this.init = function() {
+      console.log('slider', this);
       var handle = {};
       
       for (var key in this.defaults.handle) {
@@ -482,6 +479,7 @@ console.log('### addpeg', peg.name);
       pegs: []
     };
     this.init = function() {
+      console.log('navdots', this);
       var max = this.args.max;
       var min = this.args.min || 1;
       
@@ -515,6 +513,8 @@ console.log('### addpeg', peg.name);
   elation.component.add("ui.progressbar", function() {
     this.defaults = {
       prefix: 'ui_progressbar',
+      min: 0,
+      max: 100,
       pegs: [{
         name: "progress",
         input: true,
@@ -528,7 +528,16 @@ console.log('### addpeg', peg.name);
       }]
     };
     this.init = function() {
+      console.log('progressbar', this);
+      this.args.pegs[0].prefix = this.args.labelprefix;
+      this.args.pegs[0].suffix = this.args.labelsuffix || '%';
       this.initialize();
+    }
+    this.set = function(percent) {
+      this.setPercent(this.pegs[0],{
+        x: percent,
+        y: 0
+      });
     }
   }, elation.ui.pegboard);
   /*

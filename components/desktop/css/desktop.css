@@ -62,7 +62,7 @@ overflow: hidden;
 -webkit-transform: translateZ(0);
 -moz-transform: translateZ(0);
 transform: translateZ(0);
-transition: all 333ms ease;
+transition: all 200ms ease;
 }
 ul.icons:hover {
 margin-top: 0em;
@@ -96,14 +96,17 @@ ul.icons li.icon_type_WWW div.hexagon.inner::before {
 ul.icons li.icon_type_WWW div.inner {
 	background: #B60;
 }
+ul.icons li.icon_type_API div.hexagon.inner::after,
 ul.icons li.icon_type_IMG div.hexagon.inner::after {
-	border-top-color: #36985d;
+	border-top-color: #26984d;
 }
+ul.icons li.icon_type_API div.hexagon.inner::before,
 ul.icons li.icon_type_IMG div.hexagon.inner::before {
-	border-bottom-color: #36985d;
+	border-bottom-color: #26984d;
 }
+ul.icons li.icon_type_API div.inner,
 ul.icons li.icon_type_IMG div.inner {
-	background: #36985d;
+	background: #26984d;
 }
 ul.icons li.icon_type_SYS div.hexagon.inner::after {
 	border-top-color: #B00;
@@ -120,7 +123,7 @@ ul.icons li {
 	width: 4em;
 	display: inline-block;
 	text-align: center;
-	padding: 0.3em .5em 2.3em;
+	padding: 0.3em .75em 2.3em;
 	cursor: default;
 	font-size: .91em;
 	margin: .2em;
@@ -201,27 +204,38 @@ div.ui_example_infobox {
 	width: 8em;
 	height: 4em;
 }
-.animation_expand {
+
+body .animation_fade {
+	pointer-events: none;
+	opacity: 0;
+}
+body .animation_expand {
+	pointer-events: none;
 	opacity: 0;
 	transform: scale(.85,.85);
 }
-.animation_contract {
+body .animation_contract {
+	pointer-events: none;
 	opacity: 0;
 	transform: scale(1.15,1.15);
 }
-.animation_slide_right {
+body .animation_slide_right {
+	pointer-events: none;
 	opacity: 0;
 	transform: translateX(100%);
 }
-.animation_slide_left {
+body .animation_slide_left {
+	pointer-events: none;
 	opacity: 0;
 	transform: translateX(-100%);
 }
-.animation_slide_up {
+body .animation_slide_up {
+	pointer-events: none;
 	opacity: 0;
 	transform: translateY(-100%);
 }
-.animation_slide_down {
+body .animation_slide_down {
+	pointer-events: none;
 	opacity: 0;
 	transform: translateY(100%);
 }

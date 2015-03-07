@@ -488,7 +488,7 @@ elation.require([], function() {
    * Provides a collection interface to a JSONP REST API
    *
    * @class jsonpapi
-   * @augments elation.collection.jsonapi
+   * @augments elation.collection.api
    * @memberof elation.collection
    * @alias elation.collection.jsonpapi
    *
@@ -518,7 +518,7 @@ elation.require([], function() {
 
       document.head.appendChild(this.script);
     }
-  }, elation.collection.jsonapi);
+  }, elation.collection.api);
 
   /** 
    * Custom data collection

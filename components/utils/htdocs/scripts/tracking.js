@@ -108,7 +108,9 @@ elation.extend('googleanalytics', function(args) {
   }
 
   this.displayTag = function(content) {
-    $TF('#ga_tagbox').append(content+'<br \/>').css('display', 'block');
+    if(this.enable_native_tracking == false) {
+      $TF('#ga_tagbox').append(content+'<br \/>').css('display', 'block');
+    }
   };
 
   this.updatePageParameters = function(args) {
@@ -127,7 +129,11 @@ elation.extend('googleanalytics', function(args) {
 
   this.setCustomDim = function(index,value) {
     try {
-       ga('set', 'dimension'+index, value);
+       if(googleAnalytics.enable_native_tracking == true){
+         elation.events.fire('ga_event', {type: 'customdimension', index: Number(index), value: String(value)});
+       } else {
+         ga('set', 'dimension'+index, value);
+       }
        if (this.GAalerts) this.displayTag('setCustomDim(dimension'+index + ', ' + value + ')');
     } catch (err) {
        if (this.GAalerts) this.displayTag("setCustomDim Error: " + err.description);
@@ -138,8 +144,12 @@ elation.extend('googleanalytics', function(args) {
   //console.log('url:'+pageurl);
     try {
       //this.pageTracker._trackPageview(pageurl);
-      ga('send', 'pageview', pageurl);
-      
+      if(googleAnalytics.enable_native_tracking == true){
+        elation.events.fire('ga_event', {type: 'pageview', pageurl: pageurl});
+      } else {
+        ga('send', 'pageview', pageurl);
+     }
+
       if (this.GAalerts) {
         this.displayTag('trackPageview('+pageurl+')');
       }
@@ -492,30 +502,42 @@ elation.extend('googleanalytics', function(args) {
     switch (args.length) {
       case 2:
         try {
-          //var ga_status = this.pageTracker._trackEvent(args[0], args[1]);
-           ga('send', 'event', args[0], args[1]);
-           if (this.GAalerts) this.displayTag('trackEvent('+args[0]+','+args[1]+')');
+            if(googleAnalytics.enable_native_tracking == true){
+              elation.events.fire('ga_event', {type: 'event', category: args[0], action: args[1]});
+            } else {
+              ga('send', 'event', args[0], args[1]);
+            }
+            if (this.GAalerts) this.displayTag('trackEvent('+args[0]+','+args[1]+')');
         } catch (err) {if (this.GAalerts) this.displayTag("trackEvent Error: "+err.message)}
         break;
       case 3:
         try {
-          //var ga_status = this.pageTracker._trackEvent(args[0], args[1], args[2]);
-           ga('send', 'event', args[0], args[1], args[2]);
-           if (this.GAalerts) this.displayTag('trackEvent('+args[0]+','+args[1]+','+args[2]+')');
+          if(googleAnalytics.enable_native_tracking == true){
+            elation.events.fire('ga_event', {type: 'event', category: args[0], action: args[1], label: args[2]});
+          } else {
+            ga('send', 'event', args[0], args[1], args[2]);
+          }
+          if (this.GAalerts) this.displayTag('trackEvent('+args[0]+','+args[1]+','+args[2]+')');
         } catch (err) {if (this.GAalerts) this.displayTag("trackEvent Error: "+err.message)}
         break;
       case 4:
         try {
-          //var ga_status = this.pageTracker._trackEvent(args[0], args[1], args[2], args[3]);
-           ga('send', 'event', args[0], args[1], args[2], args[3]);
-           if (this.GAalerts) this.displayTag('trackEvent('+args[0]+','+args[1]+','+args[2]+','+args[3]+')');
+          if(googleAnalytics.enable_native_tracking == true){
+            elation.events.fire('ga_event', {type: 'event', category: args[0], action: args[1], label: args[2], value: args[3]});
+          } else {
+            ga('send', 'event', args[0], args[1], args[2], args[3]);
+          }
+          if (this.GAalerts) this.displayTag('trackEvent('+args[0]+','+args[1]+','+args[2]+','+args[3]+')');
         } catch (err) {if (this.GAalerts) this.displayTag("trackEvent Error: "+err.message)}
         break;
       case 5:
         try {
-          //var ga_status = this.pageTracker._trackEvent(args[0], args[1], args[2], args[3], args[4]);
-           ga('send', 'event', args[0], args[1], args[2], args[3], args[4]);
-           if (this.GAalerts) this.displayTag('trackEvent('+args[0]+','+args[1]+','+args[2]+','+args[3]+','+args[4]+')');
+          if(googleAnalytics.enable_native_tracking == true){
+            elation.events.fire('ga_event', {type: 'event', category: args[0], action: args[1], label: args[2], value: args[3], noninteraction: args[4]});
+          } else {
+            ga('send', 'event', args[0], args[1], args[2], args[3], args[4]);
+          }
+          if (this.GAalerts) this.displayTag('trackEvent('+args[0]+','+args[1]+','+args[2]+','+args[3]+','+args[4]+')');
         } catch (err) {if (this.GAalerts) this.displayTag("trackEvent Error: "+err.message)}
         break;
     }
@@ -610,7 +632,11 @@ elation.extend('googleanalytics', function(args) {
                  metricObj[args.metric[i]['key']] = args.metric[i]['value'];
                }
              }
-             ga('send', 'event', args.event[0], args.event[1], args.event[2], args.event[3], metricObj);
+             if(googleAnalytics.enable_native_tracking == true){
+               elation.events.fire('ga_event', {type: 'event', category: args.event[0], action: args.event[1], label: args.event[2], value: args.event[3], noninteraction: args[4], metric: metricObj});
+             } else {
+               ga('send', 'event', args.event[0], args.event[1], args.event[2], args.event[3], metricObj);
+             }
              if (this.GAalerts){
                this.displayTag('trackEvent('+args.event[0]+','+args.event[1]+','+args.event[2]+','+args.event[3]+','+args.event[4]+')');
                for(i in args.metric){

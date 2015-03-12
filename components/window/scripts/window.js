@@ -71,10 +71,12 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
 	    for (var i=0, element, component; i<elements.length; i++) {
 	    	element = elements[i];
 	    	component = elation.component.fetch(element);
-	    	obj = elation.utils.arrayget(elation, component.componentname).obj;
-	    	//console.log(i, component.componentname, component.id, typeof obj, obj);
-   			delete obj[component.id];
-	    }
+	    	if (component) {
+	    		obj = elation.utils.arrayget(elation, component.componentname).obj;
+	    		//console.log(i, component.componentname, component.id, typeof obj, obj);
+   				delete obj[component.id];
+		    }
+		  }
 
     	if (item.visible)
     		item.close();
@@ -144,7 +146,7 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
 				this.parent = elation.utils.getContainerElement(args.parent);
 
 			if (args.lightbox)
-				this.lightbox = elation.window.options.lightbox(null, null, { parent: this });
+				this.lightbox = elation.window.options.lightbox({ parent: this });
 
 			if (args.tail)
 				this.tail = elation.window.options.tail(null, this.container, this.args);
@@ -154,13 +156,13 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
 				args.titlebar = true;
 
 			if (args.titlebar)
-				this.titlebar = elation.window.options.titlebar(null, null, { parent: this });
+				this.titlebar = elation.window.options.titlebar({ parent: this });
 
 			if (args.moveable)
 				this.moveable = elation.ui.moveable(null, this.container, { handle: this.titlebar });
 
 			if (args.resizable)
-				this.resizable = elation.window.options.resizable(null, null, { parent: this });
+				this.resizable = elation.window.options.resizable({ parent: this });
 
 			if (args.align != 'none')
 				this.alignment = elation.window.rendering.alignment(null, this.container, this.args);
@@ -173,7 +175,7 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
 			this.rendering = elation.window.rendering[args.rendering](null, this.container, this.args);
 
 			elation.events.add(this.container, 'mousedown', this);
-      this.wm_index = elation.window.manager.add(this.id, this);
+			this.wm_index = elation.window.manager.add(this.id, this);
 		}
 
 		this.setContent = function(content) {
@@ -612,7 +614,7 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
 			moveable: true
 		};
 		this.init = function() {
-      elation.window.dialog.extendclass.init.call(this);
+      this.super();
 		}
 	}, elation.window.create);
 
@@ -627,7 +629,7 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
 			tail: true
 		};
 		this.init = function() {
-      elation.window.dialog.extendclass.init.call(this);
+      this.super();
 		}
 	}, elation.window.create);
 
@@ -644,7 +646,8 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
 			moveable: true
 		};
 		this.init = function() {
-      elation.window.window.extendclass.init.call(this);
+			console.log('buh');
+      this.super();
 		}
 	}, elation.window.create);
 
@@ -658,7 +661,7 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
 			ontop: true
 		};
 		this.init = function() {
-      elation.window.modal.extendclass.init.call(this);
+      this.super();
 		}
 	}, elation.window.create);
 
@@ -698,7 +701,8 @@ elation.require(['ui.base', 'window.window'], function() {
 
 			this.container.innerHTML = 'This is a test';
 
-			this.window = elation.window.dialog(args.name, null, {
+			this.window = elation.window.dialog({
+				name: args.name,
 				append: document.body,
 				parent: parent,
 				content: this.container,
@@ -715,7 +719,8 @@ elation.require(['ui.base', 'window.window'], function() {
 			var args = elation.utils.arrayget(this.args, 'parent.args');
 			
 			this.container.innerHTML = 'This is a test<br><br>of an infobox!';
-			this.window = elation.window.infobox(args.name, null, {
+			this.window = elation.window.infobox({
+				name: args.name,
 				content: this.container,
 				rendering: 'absolute',
 				append: this.args.parent.picture,

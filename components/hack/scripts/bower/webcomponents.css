@@ -1,0 +1,10 @@
+pre#messages {
+	font-family:monospace;
+	font-style:normal;
+	font-weight:normal;
+	letter-spacing:-1px;
+	line-height:1;
+	display:inline;
+	background-color:#000000;
+	color:#ffffff;
+}

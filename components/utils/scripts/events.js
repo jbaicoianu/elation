@@ -5,6 +5,7 @@ elation.extend("events", {
   
   fire: function(type, data, target, element, fn) {
     var extras = {};
+
     if (typeof type == 'object') {
       data = elation.utils.any(elation.utils.arrayget(type, 'data'), data);
       target = elation.utils.arrayget(type, 'target') || target;
@@ -27,7 +28,7 @@ elation.extend("events", {
       type = elation.utils.arrayget(type, 'type');
     }
 
-    //console.log('fire:',type,fn,element,data);
+    //console.log('fire:',type);
     if (!type)
       return false;
     
@@ -56,13 +57,19 @@ elation.extend("events", {
       }
     }
     
+    //console.log('og events',type,original_events);
     // fire each event
     var extrakeys = Object.keys(extras);
+    
     for (var i=0; i<original_events.length; i++) {
       var eventObj = original_events[i],
           // break reference to eventObj so original doesn't get overwritten
-          event = elation.events.clone(eventObj, {type: type, target: target, data: data, timeStamp: new Date().getTime()});
-
+          event = elation.events.clone(eventObj, {
+            type: type, 
+            target: target, 
+            data: data, 
+            timeStamp: new Date().getTime()
+          });
       
       for (var j = 0; j < extrakeys.length; j++) {
         event[extrakeys[j]] = extras[extrakeys[j]];
@@ -72,10 +79,13 @@ elation.extend("events", {
         continue;
       
       var cont = true;
-      if (typeof event.origin == 'function')
+      
+      if (typeof event.origin == 'function') {
         cont = event.origin(event);
-      else if (typeof event.origin.handleEvent != 'undefined')
+      } else if (typeof event.origin.handleEvent != 'undefined') {
         cont = event.origin.handleEvent(event);
+      }
+
       events.push(event);
 
       if (cont === false || event.cancelBubble) {

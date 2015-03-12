@@ -529,14 +529,15 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
     };
     this.init = function() {
       console.log('progressbar', this);
-      this.args.pegs[0].prefix = this.args.labelprefix;
-      this.args.pegs[0].suffix = this.args.labelsuffix || '%';
+      var peg = this.args.pegs[0];
+      peg.prefix = this.args.labelprefix || peg.prefix;
+      peg.suffix = this.args.labelsuffix || peg.suffix;
       this.initialize();
     }
-    this.set = function(percent) {
+    this.set = function(percentx, percenty) {
       this.setPercent(this.pegs[0],{
-        x: percent,
-        y: 0
+        x: percentx || 0,
+        y: percenty || 0
       });
     }
   }, elation.ui.pegboard);

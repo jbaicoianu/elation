@@ -7,7 +7,7 @@
 .ui_treeview ul {
   /*background: rgba(0,0,0,.8);*/
   list-style: none;
-  border-left: 0.15em dotted;
+  border-left: 0.15em dotted #999;
   margin: 0 0 0 .3em;
   padding-left: .8em;
   -webkit-user-select: none;

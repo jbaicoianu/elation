@@ -170,18 +170,26 @@
 	box-shadow: 0px 0px 2px #000;
 }
 .window_content .ui_button {
-	padding: .5em 1em;
 	background: rgba(255,0,0,.75);
-	border-radius: 3px;
 	margin: .3em;
+	padding: .5em 1em;
+  border: 1px solid transparent;
+	border-radius: 3px;
 	box-shadow: 1px 1px 3px #000;
 	outline: none;
+  color: white;
 	transition: all 50ms linear;
 }
 .window_content .ui_input_element {
-	border-radius: 3px;
+  background-color: #fff;
 	height: 2.25em;
+  padding: .15em .5em;
 	box-shadow: 1px 1px 2px rgba(0,0,0,.5) inset;
+  color: #272b30;
+  border: 1px solid #ccc;
+	border-radius: 3px;
+  line-height: 1.4em;
+  outline: 0;
 }
 .window_content .ui_input .ui_label {
 	padding-left: 0;
@@ -251,8 +259,8 @@ div.window_tail_up:before {
   margin-left: -12px;
 }
 .window.application_iframe {
-	height: 500px;
-	width: 620px;
+	height: 640px;
+	width: 800px;
 }
 .window.application_iframe iframe {
 	width: 100%;

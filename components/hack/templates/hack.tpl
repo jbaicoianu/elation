@@ -55,6 +55,21 @@
 		data-elation-args.windowtype="window.iframe"
 		data-elation-args.content="/hack?{foreach from=$distinct_numbers item="value"}{$value}{/foreach}">
 </li>
+<li data-elation-component="desktop.Icon" 
+		data-elation-args.type="WWW"
+		data-elation-args.name="Windows 3.11"
+		data-elation-args.title="Windows 3.11 Emulation"
+		data-elation-args.windowtype="window.iframe"
+		data-elation-args.content="http://www.vrcade.io/win311?noheader=1">
+</li>
+<li data-elation-component="desktop.Icon" 
+		data-elation-args.type="HTML"
+		data-elation-args.name="Telnet"
+		data-elation-args.title="Telnet by bioid"
+		data-elation-args.windowname="application_telnet"
+		data-elation-args.windowtype="window.window"
+		data-elation-args.content="<telnet-element wsurl='ws://meobets.com:12355'></telnet-element>">
+</li>
 {*
 <li data-elation-component="desktop.Icon" 
 		data-elation-args.type="APP"
@@ -64,3 +79,5 @@
 		data-elation-args.content="ui.example_infobox">
 </li>
 *}
+<script src="/scripts/hack/bower/bower_components/webcomponentsjs/webcomponents.min.js"></script>
+<link rel="import" href="/scripts/hack/bower/telnet-element.html">

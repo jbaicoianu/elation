@@ -234,8 +234,8 @@ class DependencyCSS extends Dependency {
   public $file;
   public $url;
 
-  private $format = '<link rel="stylesheet" type="text/css" href="%s" media="%s" />';
-  private $extraformat = '<script type="text/javascript">if (typeof elation != "undefined") { elation.file.dependencies.registerMany(%s, "css"); }</script>';
+  private $format = '    <link rel="stylesheet" type="text/css" href="%s" media="%s" />';
+  private $extraformat = '';//<script type="text/javascript">if (typeof elation != "undefined") { elation.file.dependencies.registerMany(%s, "css"); }</script>';
   //private $extraformat = '';
 
 
@@ -267,8 +267,8 @@ class DependencyJavascript extends Dependency {
   public $url;
   public $code;
 
-  private $format = '<script type="text/javascript" src="%s"></script>';
-  private $extraformat = '<script type="text/javascript">if (typeof elation != "undefined") { elation.file.dependencies.registerMany(%s, "javascript"); }</script>';
+  private $format = '    <script type="text/javascript" src="%s"></script>';
+  private $extraformat = '    <script type="text/javascript">if (typeof elation != "undefined") { elation.file.dependencies.registerMany(%s, "javascript"); }</script>';
 
   function Display($locations, $extras=NULL) {
     if (empty($this->media)) $this->media = "all";
@@ -345,7 +345,7 @@ class DependencyOnload extends Dependency {
 
   function Display($locations, $extras=NULL) {
     if (!empty($this->code))
-      $ret = sprintf('<script type="text/javascript">elation.onloads.add(%s);</script>'."\n", json_encode($this->code));
+      $ret = sprintf('    <script type="text/javascript">elation.onloads.add(%s);</script>'."\n", json_encode($this->code));
     return $ret;
   }
 }
@@ -380,7 +380,7 @@ class DependencyMeta extends Dependency {
   }
 
   function Display($locations, $extras=NULL) {
-    $ret = '';
+    $ret = '    ';
     if (!empty($this->meta["name"]) && !empty($this->meta["content"]))
       $ret .= sprintf('<meta name="%s" content="%s" />'."\n", $this->meta["name"], htmlspecialchars($this->meta["content"]));
     else if (!empty($this->meta["property"]) && !empty($this->meta["content"]))

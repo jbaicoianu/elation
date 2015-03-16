@@ -19,6 +19,7 @@ elation.component.add("ui.base", function() {
   this.renderloopActive = false;
   this.dirty = false;
   this.deferred = true;
+  this.defaultcontainer = { tag: 'div' };
 
   this.init = function() {
     if (this.args.classname) {

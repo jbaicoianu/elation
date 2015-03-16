@@ -101,6 +101,8 @@ elation.require("ui.base", function() {
           content = args.content;
 
       switch (args.type) {
+        case 'HTML':
+          break;
         case 'IMG':
           break;
         case 'WWW':
@@ -112,7 +114,7 @@ elation.require("ui.base", function() {
           );
           break;
       }
-      
+      console.log(content, args, typeof elation.window);
       var index = elation.window.manager.windows.length,
           wintype = args.windowtype || 'none',
           winargs = {

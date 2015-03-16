@@ -12,6 +12,7 @@
 .window div.ui_tabs ul {
 	border-bottom: 1px inset #aaa;
 	padding: .3em .75em 0;
+	  font-size: 0.8em;
 }
 .window div.ui_tabs li {
 	background: rgba(255,255,255,.12);
@@ -23,6 +24,10 @@
 	color: #bbb;
 	text-shadow: -1px -1px 1px #333;
 	border-bottom: transparent;
+  
+  min-width: 5em;
+  text-align: center;
+  padding: .25em .4em;
 }
 .window div.ui_tabs li.state_selected {
 	border: 1px outset #aaa;
@@ -53,6 +58,10 @@
 }
 .application_login .window_content .ui_input_element {
 	width: 12.5em;
+}
+.window.application_telnet {
+	width: 486px;
+	height: 618px;
 }
 .window_content .ui_input.admin_computer {
 	margin: .5em 0;
@@ -184,11 +193,47 @@ bottom: 0;
 left: 0;
 right: 67%;
 border-right: 2px groove #aaa;
+padding: 0;
+overflow: hidden;
+}
+div.tf_tree_container {
+position: absolute;
+top: 1.75em;
+bottom: 0;
+left: 0;
+right: 0;
 padding: .25em;
 overflow: auto;
 }
 div.fs_tree * {
 	font-size: 16px;
+}
+div.fs_sources {
+  background: #777;
+  height: 1.5em;
+  padding: 0 .25em .2em;
+}
+div.fs_sources .ui_select {
+  overflow: hidden;
+  margin-right: 1.6em;
+}
+div.fs_sources .ui_select select {
+  width: 100%;
+  background: #444;
+  color: #ccc;
+  border-radius: .2em;
+}
+.window_content div.fs_sources button.ui_button {
+  display: inline-block;
+  position: absolute;
+  top: 0em;
+  right: 0.3em;
+  margin: 0;
+  padding: 1px .5em;
+  box-shadow: none;
+  background: transparent;
+  text-shadow: 1px 1px #000;
+  border: 1px solid transparent;
 }
 div.fs_content {
 background: rgba(0,0,0,.33);
@@ -209,14 +254,15 @@ div.fs_content li.column li.header:active {
 	border: 1px inset #aaa;
 }
 div.fs_content li.column li.header {
-	background: #777;
-	border: 1px outset #aaa;
-	color: #eee;
 	cursor: pointer;
-	padding: 2px 1em;
-	text-shadow: -1px -1px #444;
-	color: #ccc;
-	font-size: 14px;
+  padding: 3px 0.8em 4px;
+  text-shadow: -1px -1px #444;
+  color: #ccc;
+  font-size: 15px;
+  height: 1em;
+  border-bottom: 1px dotted #aaa;
+  margin: 3px 3px 3px 2px;
+}
 }
 div.fs_content li.column li.entry:hover {
 	border-color: #666;
@@ -250,18 +296,18 @@ left: 0;
 right: 0;
 border-top: 1px solid #aaa;
 }
-div.fs_tree.ui_treeview ul {
+div.fs_tree .ui_treeview ul {
 	color: inherit;
 	background: transparent;
 	border: none;
 	display: inline-block;
 }
-div.fs_tree.ui_treeview ul li {
+div.fs_tree .ui_treeview ul li {
 	position: relative;
 	white-space: nowrap;
 	overflow: visible;
 }
-div.fs_tree.ui_treeview li ul {
+div.fs_tree .ui_treeview li ul {
 	border-left: 2px dotted #aaa;
 	margin-left: 5px;
 	padding-left: 7px;
@@ -295,7 +341,7 @@ div.fs_tree.ui_treeview li ul {
 .ui_treeview ul li.state_selected li:before {
 	color: #aaa;
 }
-div.fs_tree.ui_treeview li div.checkbox:before {
+div.fs_tree .ui_treeview li div.checkbox:before {
 	font-size: 15px;
 	color: #ccc;
 	background: #004;
@@ -305,19 +351,19 @@ div.fs_tree.ui_treeview li div.checkbox:before {
 	line-height: 9px;
 	margin-top: 6px;
 }
-div.fs_tree.ui_treeview li.state_expanded div.checkbox:before {
+div.fs_tree .ui_treeview li.state_expanded div.checkbox:before {
 	content: '⊟';
 }
-div.fs_tree.ui_treeview li.state_collapsed div.checkbox:before {
+div.fs_tree .ui_treeview li.state_collapsed div.checkbox:before {
 	content: '⊞';
 }
-div.fs_tree.ui_treeview li.state_expanded ul {
+div.fs_tree .ui_treeview li.state_expanded ul {
 	display: block;	
 }
-div.fs_tree.ui_treeview li.state_collapsed ul {
+div.fs_tree .ui_treeview li.state_collapsed ul {
 	display: none;
 }
-div.fs_tree.ui_treeview li div.checkbox {
+div.fs_tree .ui_treeview li div.checkbox {
 position: absolute;
 top: -2px;
 left: 0px;
@@ -350,6 +396,7 @@ div.window div.ui_buttonbar>.ui_button:first-of-type {
 div.window div.ui_buttonbar>.ui_button:first-of-type {
 	margin-left: .3em;
 }
+.window_content div.fs_sources button.ui_button:hover,
 div.window div.ui_buttonbar button.ui_button:hover,
 div.window div.ui_buttonbar>.ui_button:last-of-type:hover,
 div.window div.ui_buttonbar>.ui_button:first-of-type:hover {
@@ -358,10 +405,13 @@ border: 1px outset #aaa;
 border-radius: 50%;
 background: transparent;
 }
+.window_content div.fs_sources button.ui_button,
+.window_content div.fs_sources button.ui_button:hover,
 div.window div.ui_buttonbar>.ui_button:last-of-type,
 div.window div.ui_buttonbar>.ui_button:last-of-type:hover {
 	border-radius: .2em;
 }
+.window_content div.fs_sources button.ui_button:active,
 div.window div.ui_buttonbar button.ui_button:active,
 div.window div.ui_buttonbar>.ui_button:last-of-type:active,
 div.window div.ui_buttonbar>.ui_button:first-of-type:active {

@@ -56,7 +56,7 @@ elation.require(['ui.base','utils.template'], function() {
       var ul = elation.html.create({tag: 'ul', append: root});
 
       // alphabetize the keys
-      console.log('keys',items, root);
+      //console.log('keys',items, root);
       if (items && typeof items == 'object') {
         var keys = Object.keys(items);
         keys.sort();
@@ -130,7 +130,7 @@ elation.require(['ui.base','utils.template'], function() {
       }
 
       this.hover = ev.target;
-      elation.events.fire({type: 'ui_treeview_hover', element: this, data: this.hover});
+      //elation.events.fire({type: 'ui_treeview_hover', element: this, data: this.hover});
     }
 
     this.ui_treeviewitem_select = function(ev) {
@@ -151,8 +151,9 @@ elation.require(['ui.base','utils.template'], function() {
         if (items[i].container.id == path)
           obj = items[i];
       
-      console.log('treeview setPath', path, this, obj);
-      obj.select(true);
+      //console.log('treeview setPath', path, this, obj);
+      if (obj)
+        obj.select(true);
     }
   }, elation.ui.base);
 
@@ -207,12 +208,12 @@ elation.require(['ui.base','utils.template'], function() {
     }
     this.hover = function() {
       elation.html.addclass(this.container, 'state_hover');
-      elation.events.fire({type: 'ui_treeviewitem_hover', element: this});
+      //elation.events.fire({type: 'ui_treeviewitem_hover', element: this});
       //this.container.scrollIntoView();
     }
     this.unhover = function() {
       elation.html.removeclass(this.container, 'state_hover');
-      elation.events.fire({type: 'ui_treeviewitem_unhover', element: this});
+      //elation.events.fire({type: 'ui_treeviewitem_unhover', element: this});
     }
     this.select = function(only_select) {
       console.log('select', this);
@@ -226,7 +227,10 @@ elation.require(['ui.base','utils.template'], function() {
         elation.html.toggleclass(this.container, 'state_expanded');
       }
 
-      elation.events.fire({type: 'ui_treeviewitem_select', element: this});
+      elation.events.fire({
+        type: 'ui_treeviewitem_select', 
+        element: this
+      });
       
       //this.container.scrollIntoView();
 
@@ -237,7 +241,7 @@ elation.require(['ui.base','utils.template'], function() {
     }
     this.unselect = function() {
       elation.html.removeclass(this.container, 'state_selected');
-      elation.events.fire({type: 'ui_treeviewitem_unselect', element: this});
+      //elation.events.fire({type: 'ui_treeviewitem_unselect', element: this});
     }
     this.mouseover = function(ev) {
       this.hover();

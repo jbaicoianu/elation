@@ -405,6 +405,7 @@ elation.require([
     this.init = function() {
       console.log('explorer!',this);
       this.tree = {};
+      this.sources = [];
 
       var create = elation.html.create,
           labels = {
@@ -457,45 +458,93 @@ elation.require([
       })
 
       this.breadcrumbs.setPath([]);
-/*
-      this.buttonbar2 = elation.ui.buttonbar(null, elation.html.create({classname: 'apicollection_controls2'}), {
-        buttons:{
-          reload: {
-            label: "&#9166;",
-            classname: "fs_buttonbar_reload",
-            events: { click: elation.bind(this, this["reload"]) }
-          }
-        },
-        append: this.elements.buttonbar
-      });
-*/
+
+      this.sourceControls = elation.hack.explorer_source_controls({ append: this.elements.tree, parent: this })
+      
       elation.template.add('apicollection.treeview',
         '{@select key=type}' +
         '{@eq value="folder"}{?children}<div class="checkbox"></div>{/children}<span class="label">{key}</span>{/eq}' +
         '{@default}{key}={value}{/default}' + 
         '{/select}');
 
-      elation.template.add('apicollection.jsoncontentheader',
-        '<li class="header">{label}</li>');
-
-      elation.template.add('apicollection.jsoncontentname',
-        '<li class="entry">{key}</li>');
-
-      elation.template.add('apicollection.jsoncontentvalue',
-        '<li class="entry">{value}</li>');
+      elation.template.add('apicollection.jsoncontentheader', '<li class="header">{label}</li>');
+      elation.template.add('apicollection.jsoncontentname', '<li class="entry">{key}</li>');
+      elation.template.add('apicollection.jsoncontentvalue', '<li class="entry">{value}</li>');
 
       this.addSource({
+        api: 'jsonapi',
         host: 'http://api.thefind.com',
         endpoint: '/search.js',
         apiargs: {
           page: 1,
           query: 'shoes'
         }
-      })
+      });
+
+      this.addSource({
+        api: 'jsonpapi',
+        host: 'https://archive.org',
+        endpoint: '/advancedsearch.php', 
+        apiargs: { 
+          output: 'json', 
+          q:'collection:softwarelibrary_msdos', 
+          fl: ['identifier', 'title'],
+          sort: ['avg_rating desc']
+        }
+      });
     }
 
-    this.addSource = function(parms) {
-      this.apicollection = elation.collection.jsonapi({
+    this.addSource = function(args) {
+      args.parent = this;
+      args.api = args.api || 'jsonapi';
+
+      this.sources.push(elation.hack.explorer_source(args));
+    }
+
+    this.click = function(event) {
+      //console.log('parent click',event);
+      this.lastsource.click(event);
+    }
+
+    this.setPath = function(id, source) {
+      //console.log('parent setPath',id,source);
+      this.lastsource = source;
+      this.breadcrumbs.setPath(id);
+      elation.events.add(this.breadcrumbs.labels, 'click', this);
+    }
+  }, elation.ui.base);
+
+  elation.component.add("hack.explorer_source_controls", function() {
+    this.defaultcontainer = { tag: 'div', classname: 'fs_sources' };
+    this.init = function() {
+      this.select = elation.ui.select({
+        append: this,
+        items: '-- new source --'
+      });
+
+      this.button = elation.ui.button({
+        append: this,
+        label: '+'
+      });
+
+      this.sources = elation.html.create({ 
+        classname: 'tf_tree_container', 
+        append: this.args.parent.elements.tree 
+      });
+    }
+  }, elation.ui.base);
+
+  elation.component.add("hack.explorer_source", function() {
+    this.init = function() {
+      this.parent = this.args.parent;
+      this.elements = this.parent.elements;
+      this.add(); 
+    }
+
+    this.add = function() {
+      var parms = this.args;
+
+      this.apicollection = elation.collection[parms.api]({
         host: parms.host,
         endpoint: parms.endpoint,
         apiargs: parms.apiargs,
@@ -506,23 +555,11 @@ elation.require([
         }
       });
 
-      this.parms = parms;
-
-      //this.apicollection.clear();
       this.apicollection.load();
     }
 
-    this.click = function(event) {
-      var target = event.target,
-          button = elation.component.fetch(target),
-          path = button.args.path;
-
-      console.log('click', event, target, button, path);
-      this.setPath(path);
-    }
-
     this.getName = function(parms) {
-      var host = parms.host.replace('http://',''),
+      var host = parms.host.replace('http://','').replace('https://',''),
           endpoint = parms.endpoint,
           name = host + endpoint;
 
@@ -530,13 +567,14 @@ elation.require([
     }
 
     this.finished = function(data) {
-      console.log('finished loading', data.target.rawdata);
+      console.log('finished loading', data.target.rawdata,this.getName(this.args));
       var items = {},
-          name = this.getName(this.parms);
+          name = this.getName(this.args),
+          div = elation.html.create({append:this.parent.sourceControls.sources});
       
-      items[name] = data.target.rawdata.data;
+      items[name] = data.target.rawdata;
 
-      this.tree[name] = elation.ui.treeview2('apicollection_tree_'+name, this.elements.tree, {
+      this.tree = elation.ui.treeview2('apicollection_tree_' + name, div, {
         properties: false,
         folders: true,
         attrs: {
@@ -545,15 +583,16 @@ elation.require([
         items: items
       });
 
-      elation.events.add(null, 'ui_treeviewitem_select', this);
+      elation.events.add(this.tree, 'ui_treeview_select', this);
     }
 
-    this.ui_treeviewitem_select = function(event) {
-      console.log('selected', event);
-      var items = event.element.value,
+    this.ui_treeview_select = function(event) {
+      console.log('selected', event, this);
+      var selected = event.data,
+          items = selected.value,
           content = '<ul><li class="column"><ul>';
       
-      content += elation.template.get('apicollection.jsoncontentheader', { label: 'Name'  });
+      content += elation.template.get('apicollection.jsoncontentheader', { label: 'Name' });
       
       for (var key in items) 
         if (typeof items[key] != 'object') 
@@ -569,21 +608,34 @@ elation.require([
       content += '</ul></li></ul>';
       this.elements.content.innerHTML = content;
 
-      var id = event.element.container.id,
+      var id = selected.container.id,
           id = id.split(';');
 
-      //this.setPath(id);
-      this.breadcrumbs.setPath(id);
-      elation.events.add(this.breadcrumbs.labels, 'click', this);
+      this.parent.setPath(id, this);
+    }
+
+    this.click = function(event) {
+      var target = event.target,
+          button = elation.component.fetch(target),
+          path = button.args.path;
+
+      //console.log('click', event, target, button, path);
+      this.setPath(path);
     }
 
     this.setPath = function(path) {
       if (typeof path == 'string')
         path = path.split(';');
 
-      console.log('setPath',path,this);
+      //console.log('setPath',path,this);
       //this.breadcrumbs.setPath(path);
-      this.tree[this.getName(this.parms)].setPath(path);
+      this.tree.setPath(path);
     }
   }, elation.ui.base);
 });
+/* 
+    datatransform: { 
+      items: function(d) { return d.response.docs; }, 
+      count: function(d) { return d.response.numFound; } 
+    }
+*/

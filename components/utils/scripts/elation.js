@@ -297,6 +297,20 @@ elation.extend("component", new function() {
         this.events[k] = events[k];
       }
     }
+    // execute superclass init function
+    this.super = function(self) {
+      var self = self || this,
+          componentclass = elation.utils.arrayget(elation, this.name);
+      
+      if (componentclass) {
+        var extendclass = elation.utils.arrayget(componentclass, 'extendclass.init');
+
+        if (extendclass)
+          extendclass.call(self);
+      }
+
+      delete self;
+    }
     this.fetch = function(type, callback, force) {
       var ret;
       //var urlbase = "/~bai/"; // FIXME - stupid stupid stupid!  move this to the right place asap!
@@ -729,12 +743,15 @@ elation.extend("html.class", function(method, elements, className) {
   }
 });
 
-elation.extend("html.addclass", function(element, className) {
-  if ("classList" in element || (typeof element.length == 'number' && "classList" in element[0])) {
-    elation.html.class('add', element, className);
+elation.extend("html.addclass", function(elements, className) {
+  if (!elements || elements.length == 0)
+    return;
+
+  if ("classList" in elements || (typeof elements.length == 'number' && "classList" in elements[0])) {
+    elation.html.class('add', elements, className);
   } else {
-    if (element && !elation.html.hasclass(element, className)) {
-      element.className += (element.className ? " " : "") + className;
+    if (elements && !elation.html.hasclass(elements, className)) {
+      elements.className += (elements.className ? " " : "") + className;
     }
   }
 }); 
@@ -748,8 +765,8 @@ elation.extend("html.removeclass", function(elements, className) {
   } else {
     var re = new RegExp("(^| )" + className + "( |$)", "g");
     
-    if (element && element.className && element.className.match(re)) {
-      element.className = element.className.replace(re, " ");
+    if (elements && elements.className && elements.className.match(re)) {
+      elements.className = elements.className.replace(re, " ");
     }
   }
 });
@@ -758,10 +775,10 @@ elation.extend("html.toggleclass", function(elements, className) {
   if ("classList" in elements || (typeof elements.length == 'number' && "classList" in elements[0])) {
     elation.html.class('toggle', elements, className);
   } else {
-    if (this.hasclass(element, className))
-      this.removeclass(element, className)
+    if (this.hasclass(elements, className))
+      this.removeclass(elements, className)
     else
-      this.addclass(element, className);
+      this.addclass(elements, className);
   }
 });
 

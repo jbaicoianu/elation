@@ -1,0 +1,157 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="stylesheet" type="text/css" href="webcomponents.css" media="all" />
+<script type="text/javascript" src="ansi.js"></script>
+
+<polymer-element name="telnet-element" attributes="wsurl">
+    <template>
+        <style>
+            :host {
+            }
+            :host pre#messages {
+                font-family:monospace;
+                font-style:normal;
+                font-weight:normal;
+                font-size:1em;
+                letter-spacing:-1px;
+                line-height:1;
+                display:inline;
+            }
+            :host div#messagecontainer {
+                font-family:monospace;
+                font-style:normal;
+                height:{{height}};
+                width:{{width}};
+                overflow:auto;
+                background-color:#000;
+                color:#ffffff;
+                outline: none;
+            }
+            :host #width,
+            :host #height {
+                width: 6em;
+                margin-top: .4em;
+            }
+            :host div#controls {
+                padding: .5em;
+                text-align: center;
+            }
+        </style>
+        <div id="controls">
+            <label for="websocketHost">websocket relay:</label><input id="websocketHost" value="{{wsurl}}">
+            <button on-click="{{ connect }}">Connect</button>
+            <button on-click="{{ disconnect }}">Disconnect</button><br/>
+            <label for="encodingSelect">encoding:</label><select id="encodingSelect" value="{{encoding}}" selectedIndex="{{selectedIndex}}">
+                <option template repeat="{{encoding in encodings}}">{{encoding}}</option>
+            </select>
+            <label for="width">width:</label><input id="width" value="{{width}}">
+            <label for="height">height:</label><input id="height" value="{{height}}">
+        </div>
+        <div id="messagecontainer" on-click="{{focusMessages}}" on-keydown="{{keydown}}" on-keypress="{{keypress}}" tabindex="0">
+            <pre id="messages">
+            </pre>
+        </div>
+    </template>
+    
+    <script>
+        Polymer({
+            height:'40em',
+            width:'80em',
+            selectedIndex: 0,
+            bufferSize: 200,
+            encoding: 'utf-8',
+            encodings: ['utf-8', 'windows-1252'],
+            wsurl: "ws://meobets.com:12355",
+            messageData: '',
+            sendData: null,
+            wsProto: 'binary',
+            ANSI: require('ansi-graphics'),
+            ready: function() {
+                this.focusMessages();
+                this.$.messagecontainer.addEventListener('keydown', function(ev) {
+                    if (ev.keyCode == 8) {
+                        ev.preventDefault();
+                        this.send('\b');
+                    }
+                }.bind(this), false);
+            },
+            focusMessages: function() {
+                this.$.messagecontainer.focus();
+            },
+            connect: function() {
+                if (!this.wsurl) {
+                    throw new Error('no ws url');
+                }
+                if (this.ws) {
+                    throw new Error('ws already connected');
+                }
+                this.ws = new WebSocket(this.wsurl, this.wsProto);
+                this.ws.onmessage = this.onMessage.bind(this);
+                console.log('websocket connecting, encoding: ', this.encoding);
+                this.focusMessages();
+            },
+            disconnect: function() {
+                if (!this.ws) {
+                    throw new Error('ws already disconnected');
+                }
+                else {
+                    this.ws.close();
+                    this.ws = null;
+                    console.log('websocket disconnecting');
+                    this.messageData = '';
+                    this.updateMessages();
+                }
+            },
+            send: function(data) {
+                if(!this.ws) {
+                    throw new Error('no ws connection');
+                } 
+                console.log('sending', data);
+                this.ws.send(data);
+            },
+            onMessage: function(ev) {
+                var fr = new FileReader();
+                fr.readAsText(ev.data, this.encoding);
+                fr.onloadend = function() {
+                    this.addToMessages(fr.result);
+                }.bind(this);
+            },
+            addToMessages: function(msg) {
+                msg = this.removeTrailingReturns(msg);
+                this.messageData += this.parseMessage(msg);
+                this.updateMessages();
+            },
+            updateMessages: function() {
+                this.truncateMessages();
+                this.injectBoundHTML(this.messageData, this.$.messages);
+                this.$.messagecontainer.scrollTop = this.$.messagecontainer.scrollHeight;
+            },
+            parseMessage: function(msg) {
+                var parser = new this.ANSI();
+                parser.fromString(msg);
+                var parsed = parser.HTML.replace(/\n/g, '').replace(/\r/g, '');
+                parser = null;
+                return parsed;
+            },
+            truncateMessages: function() {
+                var lines = this.messageData.split('<br/>');
+                if (lines.length > this.bufferSize) {
+                    // chop off the top of messageData
+                    this.messageData = lines.slice(-this.bufferSize).join("<br/>");
+                }
+            },
+            keypress: function(ev) {
+                if (ev.keyCode == 13) {
+                    this.messageData += '<br/>';
+                }
+                var input = String.fromCharCode(ev.which);
+                this.send(input);
+            },
+            removeTrailingReturns: function(str) {
+                if (str.substr(str.length - 2) == '\r\n') {
+                    return str.substr(0, str.length - 2);
+                }
+                return str;
+            }
+        });
+    </script>
+</polymer-element>

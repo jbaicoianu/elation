@@ -20,7 +20,10 @@ elation.require(['ui.content', 'ui.tabs'], function() {
 
       this.tabs = elation.ui.tabs({
         append: this,
-        items: this.items
+        items: this.items,
+        events: {
+          'ui_tabs_change': elation.bind(this, this.ui_tabs_change)
+        }
       });
 
       this.content = elation.ui[this.args.contenttype]({
@@ -28,8 +31,6 @@ elation.require(['ui.content', 'ui.tabs'], function() {
         animation: this.args.animation,
         items: this.items
       });
-
-      elation.events.add(this.tabs, 'ui_tabs_change', this);
     }
     this.setActiveTab = function(name) {
       return this.tabs.setActiveTab(name);
@@ -37,6 +38,7 @@ elation.require(['ui.content', 'ui.tabs'], function() {
     this.ui_tabs_change = function(ev) {
       var tab = ev.data;
       if (tab && tab.content) {
+        console.log('tabitem_select', ev, this);
         this.content.setcontent(this.args.contenttype == 'content' ? tab.content : tab.name);
       }
     }

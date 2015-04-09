@@ -1,5 +1,5 @@
-{set var="page.pretitle"}TheFind - {/set}
-{set var="page.title"}Tools Testing{/set}
+{set var="page.pretitle"}Elation - {/set}
+{set var="page.title"}Window Manager{/set}
 {dependency name="ui.input"}
 {dependency name="ui.toggle"}
 {dependency name="ui.slider"}

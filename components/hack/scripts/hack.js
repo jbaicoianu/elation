@@ -6,12 +6,626 @@ elation.require([
     "ui.breadcrumbs",
     "elation.collection"
   ], function() {
+  elation.component.add("hack.wsUsers", function() {
+    this.defaultcontainer = {tag: 'ul', classname: 'ws_users'};
+    this.init = function() {
+      this.ws = elation.network.WebSocket({
+        host: 'meobets.com',
+        port: 8087,
+        path: 'peer',
+        events: {
+          'ws_connect': elation.bind(this, this.connect),
+          'ws_disconnect': elation.bind(this, this.disconnect),
+          'ws_receive': elation.bind(this, this.receive)
+        }
+      });
+
+      elation.events.add(this, 'wsUsers_list', elation.bind(this, this.list));
+    }
+    this.connect = function(event) {
+      console.log('wsUsers_connect', event);
+      //this.send('users');
+    }   
+    this.disconnect = function(event) {
+      console.log('wsUsers_disconnect', event);
+    }
+    this.receive = function(event) {
+      console.log('wsUsers_receive', event);
+      var data = JSON.parse(event.data.data);
+      elation.events.fire({type:'wsUsers_list',data:data});
+    }
+    this.list = function(event) {
+      console.log('wsUsers: redrawing list',event);
+      var data = event.data;
+      var conns = this.args.parent.connections;
+      var selected = {};
+      var labels = elation.find('div.state_toggled label', this.container);
+      
+      for (var i=0; label = labels[i]; i++) {
+        var address = label.textContent;
+        selected[address] = true;
+      }
+
+      this.container.innerHTML = '';
+      
+      for (var key in data) {
+        if (key == this.args.id)
+          continue;
+
+        var sid = selected[key],
+            li = elation.html.create({
+              tag: 'li',
+              classname: (conns[key] ? 'connected' : '') + (sid == key ? ' selected' : ''),
+              append: this.container
+            });
+
+        elation.ui.toggle({
+          append: li,
+          label: key,
+          selected: sid
+        });
+
+        elation.events.add(li, 'click', this);
+      }
+    }
+    this.click = function(event) {
+      if (event.target.tagName != 'LI')
+        return;
+
+      var lis = elation.find('li.selected', this.container);
+
+      elation.html.addClass(event.target, 'selected');
+      elation.html.removeClass(lis, 'selected');
+    }
+    this.send = function(txt) {
+      console.log('WS Sending',txt);
+      this.ws.send(txt);
+    }
+  }, elation.ui.base);
+  elation.component.add("hack.WebRTC_WhiteBoard", function() {
+    this.defaultcontainer = { tag: 'canvas' };
+    this.init = function() {
+      this.ctx = this.container.getContext('2d');
+      (function(self) {
+        setTimeout(function() {
+          self.setEvents();
+        }, 1);
+      })(this);
+    }
+
+    this.setEvents = function() {
+      //console.log('setEvents', this);
+      var parent = this.args.parent;
+
+      elation.events.add(parent._window.resizable, 'window_resize', elation.bind(this, this.resize));
+      elation.events.add(this.container, 'mousedown,mousemove,mouseup', this);
+      elation.events.add(this.container, 'touchstart', elation.bind(this, this.mousedown));
+      elation.events.add(this.container, 'touchmove', elation.bind(this, this.mousemove));
+      elation.events.add(this.container, 'touchend', elation.bind(this, this.mouseup));
+      this.resize();
+    }
+
+    this.resize = function(event) {
+      //console.log('resize', event);
+      this.container.setAttribute('width', this.container.parentNode.offsetWidth);
+      this.container.setAttribute('height', this.container.parentNode.offsetHeight);
+    }
+
+    this.mousedown = function(event) {
+      //console.log(event.type,event);
+      this.dimensions = elation.html.dimensions(this.container);
+      this.coords = elation.events.coords(event);
+      
+      var x = this.coords.x - this.dimensions.x,
+          y = this.coords.y - this.dimensions.y,
+          width = "4",
+          color = "rgba(0, 0, 0, 1)";
+
+      this.drawing = true;
+      this.ctx.beginPath();
+      this.ctx.lineWidth = width;
+      this.ctx.strokeStyle = color;
+      this.ctx.moveTo(x, y);
+      this.ctx.lineTo(x, y);
+      this.send([
+        { beginPath: null },
+        { lineWidth: width },
+        { strokeStyle: color },
+        { moveTo: [ x, y ] },
+        { lineTo: [ x, y ] },
+        { stroke: null }
+      ]);
+    }
+
+    this.mousemove = function(event) {
+      if (!this.drawing)
+        return;
+
+      var coords = elation.events.coords(event);
+      
+      var x = coords.x - this.dimensions.x,
+          y = coords.y - this.dimensions.y;
+
+      this.ctx.lineTo(x, y);
+      this.ctx.stroke();
+
+      this.send([
+        { lineTo: [ x, y ] },
+        { stroke: null }
+      ]);
+
+      //console.log(event.type,event);
+      event.preventDefault();
+    }
+
+    this.mouseup = function(event) {
+      //console.log(event.type,event);
+      this.drawing = false;
+      this.ctx.stroke();
+
+      this.send([{ stroke: null }]);
+    }
+
+    this.send = function(json) {
+      var json = JSON.stringify(json);
+      console.log('WB Sending', json, this);
+
+      this.args.parent.send('DRAW|' + json, true);
+    }
+  }, elation.ui.base);
+
+  elation.component.add("hack.WebRTC_Video", function() {
+    this.defaultcontainer = { tag: 'div', classname: 'webrtc_video_container' };
+
+    this.init = function() {
+      this.container.autoplay = true;
+
+      this.them = elation.html.create({
+        tag: 'video',
+        classname: 'webrtc_video_them',
+        append: this.container,
+        attributes: {
+          width: "300",
+          height: "250",
+          autoplay: true
+        }
+      });
+      this.me = elation.html.create({
+        tag: 'video',
+        classname: 'webrtc_video_me',
+        append: this.container,
+        attributes: {
+          width: "100",
+          height: "75",
+          autoplay: true
+        }
+      });
+      this.enable_button = elation.ui.button({ 
+        append: this.container, 
+        label: "Enable Camera", 
+        classname: "webrtc_video_enable" 
+      });
+      this.connect_button = elation.ui.button({ 
+        append: this.container, 
+        label: "Call", 
+        classname: "webrtc_video_connect" 
+      });
+      elation.events.add(this.enable_button.container, 'click', elation.bind(this, this.enable));
+      elation.events.add(this.connect_button.container, 'click', this);
+    }
+
+    this.enable = function() {
+      var venderUrl = window.URL || window.webkitURL,
+          me = this.me,
+          them = this.them;
+
+      navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+
+      navigator.getUserMedia({
+        video: true,
+        audio: false
+      }, function(stream) {
+        me.src = venderUrl.createObjectURL(stream);
+        window.localStream = stream;
+      }, function(error) {
+        console.log('WebRTC Video Error:', error.code);
+      });
+
+      this.enable_button.container.style.display = 'none';
+      this.connect_button.container.style.display = 'block';
+      
+      var peer = this.args.parent.webrtc.peer;
+
+      peer.on('call', function(call) {
+        if (window.existingCall) {
+          window.existingCall.close();
+        }
+        
+        window.existingCall = call;
+
+        call.on('stream', function(stream) {
+          console.log('creating');
+          them.src = venderUrl.createObjectURL(stream)
+        });
+        console.log('answering');
+        call.answer(window.localStream);
+      });
+    }
+
+    this.click = function(event) {
+      var peer = this.args.parent.webrtc.peer,
+          label = elation.find('div.state_toggled label', this.args.parent.container, true),
+          address = label.textContent,
+          call = peer.call(address, window.localStream);
+
+    }
+  }, elation.ui.base);
+
+  elation.component.add("hack.WebRTC_Client", function() {
+    this.defaultcontainer = { tag: 'div', classname: 'application_peer' };
+
+    this.init = function() {
+      this.id = prompt('enter your name');
+      this.connections = {};
+
+      this.webrtc = elation.network.WebRTC({
+        id: this.id,
+        host: 'meobets.com',
+        port: 8088, 
+        path: '/peer',
+        events: {
+          'rtc_connect': elation.bind(this, this.rtc_connect),
+          'rtc_disconnect': elation.bind(this, this.rtc_disconnect),
+          'rtc_receive': elation.bind(this, this.rtc_receive),
+          'rtc_svrconnect': elation.bind(this, this.rtc_svrconnect)
+        }
+      });
+      
+      this.left = elation.html.create({
+        tag: 'div',
+        classname: 'webrtc_left',
+        append: this.container
+      });
+
+      this.users = elation.hack.wsUsers({
+        parent: this,
+        id: this.id, 
+        append:this.left 
+      });
+
+      this.top = elation.html.create({
+        tag: 'div',
+        classname: 'webrtc_top',
+        append: this.container
+      });
+
+      this.tabs = {};
+
+      this.tabs.chat = elation.html.create({ tag: 'div', classname: 'ui_tabs_item_container' });
+      this.tabs.draw = elation.html.create({ tag: 'div', classname: 'ui_tabs_item_container' });
+      this.tabs.video = elation.html.create({ tag: 'div', classname: 'ui_tabs_item_container' });
+
+      this.tabs.control = elation.ui.tabbedcontent({
+        append: this.top,
+        classname: 'webrtc_tabs',
+        contenttype: 'contentlist',
+        animation: 'fade',
+        items: [
+          { label: 'Chat', name: 'chat', content: this.tabs.chat },
+          { label: 'Draw', name: 'draw', content: this.tabs.draw },
+          //{ label: 'Talk', name: 'talk', content: this.tabs.talk },
+          { label: 'Video', name: 'video', content: this.tabs.video }
+        ]
+      });
+
+      this.whiteboard = elation.hack.WebRTC_WhiteBoard({
+        append: this.tabs.draw,
+        parent: this
+      });
+
+      this.video = elation.hack.WebRTC_Video({
+        append: this.tabs.video,
+        parent: this
+      });
+
+      this.viewport = elation.html.create({
+        tag: 'ul',
+        classname: 'webrtc_chat_viewport',
+        append: this.tabs.chat
+      });
+
+      this.bottom = elation.html.create({
+        tag: 'div',
+        classname: 'webrtc_bottom',
+        append: this.tabs.chat
+      });
+
+      this.connect_button = elation.ui.button({ 
+        append: this.left, 
+        label: "Connect", 
+        classname: "webrtc_connect" 
+      });
+      
+      this.text_input = elation.ui.input({ 
+        append: this.bottom,
+        events: { 
+          'ui_input_accept': elation.bind(this, this.submit) 
+        }
+      });
+
+      this.send_button = elation.ui.button({ append: this.bottom, label: "Send", classname: "webrtc_send" });
+
+      elation.events.add([
+        this.viewport,
+        this.connect_button.container,
+        this.send_button.container
+      ], 'click', this);
+    }
+
+    this.rtc_connect = function(event) {
+      console.log('rtc_connect', event);
+      this.log('*** Connection established to '+event.data.peer+'.');
+      this.text_input.focus();
+
+      this.connect(event.data);
+    }
+
+    this.rtc_disconnect = function(event) {
+      console.log('rtc_disconnect', event);
+      this.log('*** Peer has disconnected.')
+    }
+
+    this.rtc_receive = function(event) {
+      var phrase = event.split('|'),
+          word = phrase[0],
+          ctx = this.whiteboard.ctx;
+      
+      if (word == "DRAW") {
+        var json = JSON.parse(phrase[1]);
+
+        for (var i=0; i<json.length; i++) {
+          var item = json[i]
+          
+          for (var cmd in item) {
+            var value = item[cmd],
+                val1 = Array.isArray(value) ? value[0] : value,
+                val2 = Array.isArray(value) ? value[1] : null;
+
+            if (typeof ctx[cmd] == 'function') {
+              (value == null) 
+                ? ctx[cmd]() 
+                : ctx[cmd](val1, val2);
+            } else {
+              ctx[cmd] = val1;
+            }
+          }
+        }
+      } else {
+        this.log(event, this.conn.peer);
+      }
+    }
+
+    this.rtc_error = function(event) {
+      console.log('rtc_error', event);
+    }
+
+    this.rtc_svrconnect = function(event) {
+      console.log('rtc_svrconnect', event);
+      var id = event.data;
+
+      // register hide callback with the containing window to close up connections
+      this._window.args.hide_callback = elation.bind(this, this.destroy);
+      this._window.titlebar.setTitle('Connected as '+id);
+    }
+
+    this.log = function(txt, name) {
+      var li = elation.html.create({
+            tag: 'li',
+            append: this.viewport,
+            before: this.viewport.firstChild || false
+          });
+
+      if (name) {
+        var label = elation.html.create({
+              tag: 'label',
+              append: li
+            }),
+            span = elation.html.create({
+              tag: 'span',
+              append: li
+            });
+
+            label.textContent = name;
+            span.textContent = txt;
+      } else {
+        li.textContent = txt;
+      }
+    }
+
+    this.click = function(event) {
+      if (event.target == this.connect_button.container) {
+        this.establish();
+      } else if (event.target == this.send_button.container) {
+        this.send();
+      } else {
+        this.text_input.focus();
+      }
+    }
+
+    this.establish = function() {
+      var labels = elation.find('div.state_toggled label', this.container);
+  
+      for (var i=0; label = labels[i]; i++) {
+        var address = label.textContent;
+        
+        if (!address || this.connections[address]) 
+          continue;
+        
+        var conn = this.webrtc.peer.connect(address);
+        this.connect(conn);
+        this.log('*** Connection to '+address+'.');
+      }
+
+      this.text_input.focus();
+    }
+
+    this.send = function(txt, nolog) {
+      var labels = elation.find('div.state_toggled label', this.container);
+      var txt = txt || this.text_input.value || alert('type something...');
+
+      for (var i=0; label = labels[i]; i++) {
+        var address = label.textContent;
+        
+        if (!txt || !this.connections[address]) 
+          return;
+        
+        console.log(this.webrtc.peer.id, ': ', txt, this.conn, this);
+        this.connections[address].send(txt);
+        
+        if (!nolog)
+          this.log(txt, address+'>');
+      }
+
+      this.text_input.value = '';
+      this.text_input.focus();
+    }
+
+    this.submit = function(event) {
+      this.send();
+    }
+
+    this.connect = function(conn) {
+      console.log('connect', conn);
+      this.connections[conn.peer] = conn;
+      this.conn = conn;
+
+      this.users.send('users');
+
+      conn.on('data', elation.bind(this, this.rtc_receive));
+      conn.on('error', elation.bind(this, this.rtc_error));
+    }
+
+    this.destroy = function() {
+      console.log('destroying...',this);
+      this.log('*** You have been disconnected from the server.')
+      
+      // close all peer2peer connections
+      for (var key in this.connections)
+        this.connections[key].close();
+
+      // disengage from broker server
+      if (this.webrtc.peer)
+        this.webrtc.peer.disconnect();
+
+      // close websocket to broker server
+      this.users.ws.websocket.close();
+    }
+  });
+
+  elation.component.add("network.WebSocket", function() {
+    this.init = function() {
+      this.websocket = new WebSocket('ws://' +
+        this.args.host + ':' +
+        this.args.port + '/' +
+        this.args.path
+      );
+
+      this.websocket.onopen = elation.bind(this, this.connect);
+      this.websocket.onclose = elation.bind(this, this.disconnect);
+      this.websocket.onmessage = elation.bind(this, this.receive);
+      this.websocket.onerror = elation.bind(this, this.receive);
+    }
+    this.connect = function(event) {
+      console.log('WebSocket connect',event);
+      elation.events.fire({ 
+        type:'ws_connect', 
+        data: event, 
+        element: this 
+      });
+    }
+    this.disconnect = function(event) {
+      console.log('WebSocket disconnect',event);
+      elation.events.fire({ 
+        type:'ws_disconnect', 
+        data: event, 
+        element: this 
+      });
+    }
+    this.receive = function(event) {
+      console.log('WebSocket receive',event);
+      elation.events.fire({ 
+        type:'ws_receive', 
+        data: event, 
+        element: this 
+      }); 
+    }
+    this.error = function(event) {
+      console.log('WebSocket error', event);
+      this.send({ 
+        data: event
+      });
+    }
+    this.send = function(txt) {
+      this.websocket.send(txt);
+    }
+  }, elation.ui.base);
+
+  elation.component.add("network.WebRTC", function() {
+    this.init = function() {
+      this.connections = {};
+      var id = this.args.id || 'RTC'+(Math.round(Math.random() * 10e5));
+
+      var peer = this.peer = new Peer(id, {
+        host: this.args.host, 
+        port: this.args.port, 
+        path: this.args.path,
+        debug: this.args.debug || true,
+        config: this.args.config || { 
+          'iceServers': [
+            { url: 'stun:stun.l.google.com:19302' },
+            { url: 'turn:192.158.29.39:3478?transport=udp', credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=', username:'28224511:1379330808' },
+            { url: 'turn:192.158.29.39:3478?transport=tcp', credential: 'JZEOEt2V3Qb0y27GRntt2u2PAYA=', username:'28224511:1379330808' }
+          ]
+        }
+      });
+
+      peer.on('open', elation.bind(this, this.server_open));
+      peer.on('connection', elation.bind(this, this.peer_connection));
+    }
+
+    this.peer_connection = function(conn) {
+      this.connections[conn.peer] = conn;
+      
+      (function(self) {
+        conn.on('open', function() {
+          console.log('peer_connection',conn);
+          elation.events.fire({ type:'rtc_connect', data: conn, element: self });
+        });
+      })(this);
+    }
+
+    this.peer_error = function(err) {
+      console.log('peer_error', err);
+      elation.events.fire({ type:'rtc_error', data: err, element: this });
+    }
+
+    this.peer_data = function(data) {
+      console.log('peer_data', data);
+      elation.events.fire({ type:'rtc_receive', data: { value: data, conn: this.conn }, element: this });
+    }
+
+    this.server_open = function(id) {
+      console.log('server_svrconnect', id, this);
+      elation.events.fire({ type:'rtc_svrconnect', data: id, element: this });
+    }
+  });
+
   elation.component.add("hack.terminal", function() {
     this.defaultcontainer = {tag: 'div', classname: 'application_terminal'};
     this.init = function() {
       this.message({data:'Connecting... '})
       elation.events.add(this.container, 'click', this);
-      this.connection = new WebSocket('ws://meobets.com:8086');
+      this.connection = new WebSocket('ws://meobets.com:8086/terminal');
       this.connection.onmessage = elation.bind(this, this.message);
 
       (function(self) {
@@ -639,3 +1253,29 @@ elation.require([
       count: function(d) { return d.response.numFound; } 
     }
 */
+  elation.component.add("animal", function() {
+    this.init = function() {
+      console.log('animal init', this);
+    }
+    this.breath = function() {
+      console.log('breathing');
+    }
+  });
+  elation.component.add("animal.fish", function() {
+    this.init = function() {
+      console.log('animal.fish init', this);
+      //this.super();
+    }
+    this.swim = function() {
+      console.log('swimming');
+    }
+  }, elation.animal);
+  elation.component.add("animal.fish.trout", function() {
+    this.init = function() {
+      console.log('animal.fish.trout init', this);
+      this.super();
+    }
+    this.tasty = function() {
+      console.log('yum');
+    }
+  }, elation.animal.fish);

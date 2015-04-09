@@ -126,6 +126,7 @@
 }
 .window.window_window.hasTitlebar div.window_content {
 	top: 35px;
+  border-top: 1px solid #333;
 }
 .window:after {
 	border-radius: 0;
@@ -285,4 +286,8 @@ overflow: hidden;
 }
 .window.state_active iframe {
 	pointer-events: auto;
+}
+.window.application_iframe.simperia {
+  height: 640px;
+  width: 1024px;
 }

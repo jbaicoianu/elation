@@ -2,19 +2,27 @@
 {assign var="distinct_numbers" value=array_fill(1,15,'x')}
 {assign var="distinct_numbers" value=array_keys($distinct_numbers)}
 {assign var="x" value=shuffle($distinct_numbers)}
+<script src="http://cdn.peerjs.com/0.3/peer.min.js"></script>
+<li data-elation-component="desktop.Icon" 
+		data-elation-args.type="WWW"
+		data-elation-args.name="Resume"
+		data-elation-args.title="Jamey Lazarus Resume"
+		data-elation-args.windowtype="window.iframe"
+		data-elation-args.content="http://meobets.com/~lazarus/Jamey-Lazarus-Resume-sm.pdf">
+</li>
 <li data-elation-component="desktop.Icon" 
 		data-elation-args.type="SYS"
-		data-elation-args.name="Sign In"
-		data-elation-args.title="TheFind Credentials"
-		data-elation-args.windowname="application_login"
+		data-elation-args.name="Modal Test"
+		data-elation-args.title="Modal Dialog"
+		data-elation-args.windowid="application_login"
 		data-elation-args.windowtype="window.modal"
 		data-elation-args.content="hack.login">
 </li>
 <li data-elation-component="desktop.Icon" 
 		data-elation-args.type="SYS"
-		data-elation-args.name="Settings"
-		data-elation-args.title="Settings Panel"
-		data-elation-args.windowname="application_admin"
+		data-elation-args.name="Dialog Test"
+		data-elation-args.title="Some Dialog Window"
+		data-elation-args.windowid="application_admin"
 		data-elation-args.windowtype="window.dialog"
 		data-elation-args.content="hack.admin">
 </li>
@@ -28,25 +36,27 @@
 </li>
 <li data-elation-component="desktop.Icon" 
 		data-elation-args.type="APP"
-		data-elation-args.name="Terminal"
-		data-elation-args.title="Terminal v0.1a"
-		data-elation-args.windowname="application_terminal"
+		data-elation-args.name="WebSocket Client"
+		data-elation-args.title="WebSocket Test Client"
+		data-elation-args.windowid="application_terminal"
 		data-elation-args.windowtype="window.window"
 		data-elation-args.content="hack.terminal">
 </li>
 <li data-elation-component="desktop.Icon" 
-		data-elation-args.type="WWW"
-		data-elation-args.name="Config Editor"
-		data-elation-args.title="TheFind Config Tool"
-		data-elation-args.windowtype="window.iframe"
-		data-elation-args.content="http://lazarus.newdev.thefind.com/admin?role=elation&adminaction=cobrand.load&cobrandname=base">
+		data-elation-args.type="APP"
+		data-elation-args.name="WebRTC Client"
+		data-elation-args.title="Connecting..."
+		data-elation-args.windowname="application_peer"
+		data-elation-args.windowtype="window.window"
+		data-elation-args.content="hack.WebRTC_Client">
 </li>
 <li data-elation-component="desktop.Icon" 
 		data-elation-args.type="WWW"
-		data-elation-args.name="JIRA Tickets"
-		data-elation-args.title="Ticket Shit"
+		data-elation-args.name="WebGL Demo"
+		data-elation-args.title="Stella Imperia: a WebGL/Three.js Demo by Jamey Lazarus [WIP]"
+		data-elation-args.windowid="simperia"
 		data-elation-args.windowtype="window.iframe"
-		data-elation-args.content="https://thefind.atlassian.net/secure/Dashboard.jspa">
+		data-elation-args.content="http://www.meobets.com/~lazarus/elation/index.php/space/imperium.popup">
 </li>
 <li data-elation-component="desktop.Icon" 
 		data-elation-args.type="WWW"
@@ -55,6 +65,7 @@
 		data-elation-args.windowtype="window.iframe"
 		data-elation-args.content="/hack?{foreach from=$distinct_numbers item="value"}{$value}{/foreach}">
 </li>
+{*
 <li data-elation-component="desktop.Icon" 
 		data-elation-args.type="WWW"
 		data-elation-args.name="Windows 3.11"
@@ -66,11 +77,10 @@
 		data-elation-args.type="HTML"
 		data-elation-args.name="Telnet"
 		data-elation-args.title="Telnet by bioid"
-		data-elation-args.windowname="application_telnet"
+		data-elation-args.windowid="application_telnet"
 		data-elation-args.windowtype="window.window"
 		data-elation-args.content="<telnet-element wsurl='ws://meobets.com:12355'></telnet-element>">
 </li>
-{*
 <li data-elation-component="desktop.Icon" 
 		data-elation-args.type="APP"
 		data-elation-args.name="IRC"

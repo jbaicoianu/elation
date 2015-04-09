@@ -11,7 +11,21 @@ elation.require(['ui.base', 'ui.label'], function() {
     }
     this.create = function() {
       var checkboxid = "ui_toggle_checkbox_" + this.id;
-      this.checkbox = elation.html.create({tag: 'input', id: checkboxid, append: this, attributes: { type: 'checkbox', name: this.args.formname }});
+      var selected = this.args.selected || this.args.checked;
+
+      this.checkbox = elation.html.create({
+        tag: 'input', 
+        id: checkboxid, 
+        append: this, 
+        attributes: { 
+          type: 'checkbox', 
+          name: this.args.formname
+        }
+      });
+
+      if (selected)
+        this.toggle();
+
       this.formlabel = elation.ui.formlabel({label: this.args.label || this.name, for: checkboxid, append: this});
       elation.events.add(this.checkbox, 'click', elation.bind(this, this.toggle));
       this.refresh();

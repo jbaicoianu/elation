@@ -192,7 +192,6 @@ top: 2.3em;
 bottom: 0;
 left: 0;
 right: 67%;
-border-right: 2px groove #aaa;
 padding: 0;
 overflow: hidden;
 }
@@ -210,8 +209,8 @@ div.fs_tree * {
 }
 div.fs_sources {
   background: #777;
-  height: 1.5em;
-  padding: 0 .25em .2em;
+  padding: 2px 4px 2px 5px;
+  border-bottom: 2px groove #aaa;
 }
 div.fs_sources .ui_select {
   overflow: hidden;
@@ -226,7 +225,7 @@ div.fs_sources .ui_select select {
 .window_content div.fs_sources button.ui_button {
   display: inline-block;
   position: absolute;
-  top: 0em;
+  top: 2px;
   right: 0.3em;
   margin: 0;
   padding: 1px .5em;
@@ -236,14 +235,16 @@ div.fs_sources .ui_select select {
   border: 1px solid transparent;
 }
 div.fs_content {
-background: rgba(0,0,0,.33);
-position: absolute;
-top: 2.3em;
-bottom: 0;
-left: 33%;
-right: 0;
-padding: 0;
-overflow: auto;
+  background: rgba(0,0,0,.33);
+  position: absolute;
+  top: 2.3em;
+  bottom: 0;
+  left: 33%;
+  right: 0;
+  padding: 0;
+  overflow: auto;
+  border-top: 2px groove #aaa;
+  border-left: 2px groove #aaa;
 }
 div.fs_content li {
 	list-style: none;
@@ -254,15 +255,14 @@ div.fs_content li.column li.header:active {
 	border: 1px inset #aaa;
 }
 div.fs_content li.column li.header {
-	cursor: pointer;
-  padding: 3px 0.8em 4px;
+  cursor: pointer;
+  padding: 2px 0.8em 4px;
   text-shadow: -1px -1px #444;
   color: #ccc;
   font-size: 15px;
   height: 1em;
   border-bottom: 1px dotted #aaa;
-  margin: 3px 3px 3px 2px;
-}
+  margin: 1px 3px 3px 2px;
 }
 div.fs_content li.column li.entry:hover {
 	border-color: #666;
@@ -500,9 +500,219 @@ div.window ul.ui_selectcrumbs button.ui_button:hover {
 	color: #fff;
 }
 div.window ul.ui_selectcrumbs button.ui_button:active {
-border: 1px solid #333;
-background: rgba(0,100,160,.95);
-color: #fff;
-position: relative;
-top: 0;
+	border: 1px solid #333;
+	background: rgba(0,100,160,.95);
+	color: #fff;
+	position: relative;
+	top: 0;
+}
+div.window div.webrtc_top {
+  position: absolute;
+  top: 0;
+  bottom: 0em;
+  left: 154px;
+  right: 0;
+}
+.window.application_peer {
+	width: 600px;
+	height: 350px;
+}
+.window.application_peer li {
+  list-style: none;
+}
+div.window div.webrtc_top ul * {
+  -webkit-user-select: text;
+  -khtml-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+div.window div.webrtc_bottom div input,
+div.window div.webrtc_left ul,
+div.window div.webrtc_top ul li {
+	color: burlywood;
+  font-family: monospace;
+  text-shadow: 2px 2px 2px #000;
+  font-size: 1.1em;
+}
+.window.application_peer li {
+  list-style: none;
+}
+div.window div.webrtc_top li label {
+  border-right: 1px dotted #777;
+  font-weight: bold;
+  color: #ddd;
+  display: inline-block;
+  text-align: right;
+  padding-right: .2em;
+  margin-right: .2em;
+}
+div.window div.webrtc_top li span {
+	color: #ccc;
+}
+div.window div.webrtc_top div.ui_tabs {
+  height: 1.7em;
+  background: transparent;
+}
+div.window div.webrtc_top div.ui_tabs ul {
+  overflow: hidden;
+  padding: 0;
+  position: relative;
+  top: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  margin: .3em .75em;
+  overflow: hidden;
+  height: 1.8em;
+}
+div.window div.webrtc_top div.ui_tabs ul li.state_selected {
+	color: #eee;
+}
+div.window div.webrtc_top div.ui_tabs ul li {
+	margin-top: .1em;
+  color: #bbb;
+  box-shadow: none;
+  text-shadow: 1px 1px 0px #000;
+}
+div.window div.webrtc_top ul.ui_contentlist li.ui_item_chat,
+div.window div.webrtc_top ul.ui_contentlist li.ui_item_draw,
+div.window div.webrtc_top ul.ui_contentlist li.ui_item_talk,
+div.window div.webrtc_top ul.ui_contentlist li.ui_item_video,
+div.window li.ui_item_draw canvas,
+div.window div.webrtc_top ul.ui_contentlist {
+	position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: block;
+}
+div.window li.ui_item_draw canvas {
+	background: #fff;
+}
+div.window div.webrtc_top ul.ui_contentlist {
+  top: 1.4em;
+  margin: .25em 0.4em 0.4em 0.25em;
+}
+div.window div.webrtc_top ul.ui_contentlist div.ui_tabs_item_container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+div.window div.webrtc_top ul.ui_contentlist li.ui_item_chat {
+
+}
+.webrtc_video_them,
+.webrtc_video_me {
+	border: 1px inset #888;
+}
+div.window div.webrtc_top ul button.webrtc_video_enable,
+div.window div.webrtc_top ul button.webrtc_video_connect {
+  position: absolute;
+  top: 0;
+  left: 305px;
+  margin: 0;
+  display: none;
+}
+div.window div.webrtc_top ul button.webrtc_video_enable {
+	display: block;
+}
+div.window div.webrtc_top ul.ui_contentlist ul.webrtc_chat_viewport {
+  position: absolute;
+  top: 0;
+  bottom: 2.55em;
+  left: 0;
+  right: .25em;
+  background: rgba(0,0,0,.33);
+  border: 1px inset #888;
+  border-radius: .2em;
+  box-shadow: 1px 1px 2px rgba(0,0,0,.5) inset;
+  overflow: auto;
+}
+div.window div.webrtc_top ul.ui_contentlist li.ui_item_draw {
+  position: absolute;
+  top: 0;
+  bottom: 1px;
+  left: 0;
+  right: 1px;
+  border: 1px outset #aaa;
+}
+div.window div.webrtc_left {
+	position: absolute;
+	top: 0.25em;
+	bottom: 0;
+	left: 0;
+	width: 150px;
+}
+div.window div.webrtc_left ul {
+  position: absolute;
+  top: 0;
+  bottom: 3em;
+  left: 0;
+  right: 0;
+  margin: .25em 0 0 .5em;
+  background: rgba(0,0,0,.33);
+  border: 1px inset #888;
+  border-radius: .2em;
+  box-shadow: 1px 1px 2px rgba(0,0,0,.5) inset;
+  overflow: auto;
+}
+div.window div.webrtc_left ul li {
+	color: #aaa;
+	text-shadow: none;
+	padding: .1em .25em;
+	border: 1px solid transparent;
+}
+div.window div.webrtc_left ul li:hover {
+	border: 1px dotted #999;
+}
+div.window div.webrtc_left ul li.selected {
+	background: rgba(0,100,160,.95);
+	color: #eee;
+}
+div.window div.webrtc_left ul li.connected {
+	color: #0F0;
+}
+div.window div.webrtc_left button.webrtc_connect {
+  position: absolute;
+  bottom: .3em;
+  left: .25em;
+  right: 0;
+  display: inline-block;
+  width: 141px;
+  height: 30px;
+}
+div.window div.webrtc_bottom {
+	position: absolute;
+	height: 2.2em;
+	bottom: 0;
+	left: 0;
+	right: 0;
+}
+div.window div.webrtc_bottom div.ui_input {
+	display: inline;
+}
+div.window div.webrtc_bottom button.webrtc_send {
+  position: absolute;
+  bottom: 0;
+  right: .1em;
+  width: 58px;
+  height: 30px;
+  margin: .15em;
+}
+div.window div.webrtc_bottom div {
+	position: absolute;
+  left: 0;
+  right: 4.75em;
+}
+div.window div.webrtc_bottom div input {
+  width: 100%;
+  background: rgba(0,0,0,.33);
+  border: 1px inset #888;
+  border-radius: .2em;
+  height: 2.05em;
+  color: #eee;
 }

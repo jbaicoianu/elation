@@ -12,7 +12,6 @@ elation.require("ui.base", function() {
 
   elation.component.add("desktop.TaskManager", function() {
     this.init = function() {
-			console.log('TaskManager', this);
 			this.tasks = [];
     }
 
@@ -41,7 +40,6 @@ elation.require("ui.base", function() {
 
   elation.component.add("desktop.IconManager", function() {
     this.init = function() {
-			console.log('IconManager', this);
 			this.icons = [];
     }
 
@@ -54,7 +52,6 @@ elation.require("ui.base", function() {
 	elation.component.add("desktop.Icon", function() {
     this.defaultcontainer = {tag: 'div', classname: 'icon noselect'};
     this.init = function() {
-			console.log('Icon', this);
 			elation.html.addclass(this.container, 'icon_type_'+this.args.type);
 
 			this.DesktopManager = elation.component.fetch('desktop.DesktopManager', 'main');
@@ -108,17 +105,17 @@ elation.require("ui.base", function() {
         case 'WWW':
           break;
         default:
-          console.log(content);
           var content = elation.utils.arrayget(elation, content)(
             null, null, { parent: this }
           );
           break;
       }
-      console.log(content, args, typeof elation.window);
+
       var index = elation.window.manager.windows.length,
           wintype = args.windowtype || 'none',
           winargs = {
-            name: args.windowname || null,
+            windowname: args.windowname || null,
+            name: args.windowid || null,
             append: document.body,
             parent: this.picture,
             title: args.title, 
@@ -127,10 +124,15 @@ elation.require("ui.base", function() {
             left: 100 + (30 * index)
           };
 
+      console.log('init window', args.windowname, wintype, winargs, index, content)
       if (wintype == 'none')
         this.window = content.window;
       else {
         this.window = new elation.utils.arrayget(elation, wintype)(winargs.name, null, winargs);
+      }
+
+      if (typeof content == 'object') {
+        content._window = this.window;
       }
     }
 

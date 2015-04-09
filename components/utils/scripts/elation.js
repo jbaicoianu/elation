@@ -164,6 +164,11 @@ elation.extend("component", new function() {
     component.base.prototype = new this.base(type);
     if (extendclass) {
       component.extendclass = new extendclass();
+      
+      if (!component.extendclass._inherited)
+        component.extendclass._inherited = [];
+
+      component.extendclass._inherited.push(component.extendclass);
       component.base.prototype.extend(component.extendclass);
     }
     if (classdef) {
@@ -298,9 +303,10 @@ elation.extend("component", new function() {
       }
     }
     // execute superclass init function
-    this.super = function(self) {
+    this.super = function(classname) {
+      console.log('super',this.name, this);
       var self = self || this,
-          componentclass = elation.utils.arrayget(elation, this.name);
+          componentclass = elation.utils.arrayget(elation, classname || this.name);
       
       if (componentclass) {
         var extendclass = elation.utils.arrayget(componentclass, 'extendclass.init');
@@ -1074,7 +1080,7 @@ elation.extend("utils.makeURL", function(obj) {
 });
 
 elation.extend("utils.merge", function(entities, mergeto) {
-  if (typeof entities == 'object' && !(mergeto instanceof HTMLElement)) {
+  if (typeof entities == 'object' && !entities.tagName && !(mergeto instanceof HTMLElement)) {
     if (typeof mergeto == 'undefined' || mergeto === null) mergeto = {}; // Initialize to same type as entities
     for (var i in entities) {
       if (entities[i] !== null) {
@@ -1241,7 +1247,7 @@ elation.extend("utils.isString", function(obj) {
 // use when unsure if element is a HTMLElement or Elation Component
 elation.extend("utils.getContainerElement", function(element) {
   return (element instanceof elation.component.base)
-    ? element.container : (elation.utils.isElement(element))
+    ? element.container : (element && element.tagName)
     ? element : false;
 });
 

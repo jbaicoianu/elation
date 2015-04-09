@@ -30,7 +30,7 @@ elation.require("ui.base", function() {
     }
 
     this.setcontent = function(name) {
-      var li = elation.find('li.ui_item_' + name, true),
+      var li = elation.find('li.ui_item_' + name, this.container, true),
           animation = this.args.animation,
           delay = animation ? 200 : 1;
 

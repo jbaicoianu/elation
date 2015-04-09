@@ -48,10 +48,14 @@ elation.require(['ui.base'], function() {
         }
         this.add(tab);
       }
-      elation.events.fire({type: 'ui_tabs_create'});
+      elation.events.fire({ type: 'ui_tabs_create', element: this });
     }
     this.add = function(tab) {
-      var tabitem = elation.ui.tabitem(null, elation.html.create({tag: 'li', append: this.ul, content: tab.label}), tab);
+      var tabitem = elation.ui.tabitem(null, elation.html.create({
+        tag: 'li', 
+        append: this.ul, 
+        content: tab.label
+      }), tab);
       elation.events.add(tabitem, "ui_tabitem_hover,ui_tabitem_select", this);
       this.tabitems[tabitem.tabname] = tabitem;
     }

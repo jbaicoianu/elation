@@ -2,21 +2,114 @@ if (typeof require != 'undefined') {
   var elation = require("utils/elation"),
       ws = require("ws"),
       net = require('net'),
-      fs = require('fs');
+      fs = require('fs'),
+      peer = require('peer');
 
   require('utils/events');
 }
 
-elation.extend('hack.server', new function() {
+elation.extend('hack.PeerServer', new function() {
   this.init = function() {
-    websockserver = this.websockserver = new ws.Server({ host: "meobets.com", port: 8086 });
-    websockserver.on('connection', elation.bind(this, this.connected));
+    this.connections = {};
+    this.sockets = {};
+    this.peerInit();
+    this.wsInit();
+    console.log('[PeerServer] Listening for websockets and webrtc');
+  }
 
-    console.log('Listening');
+  this.peerInit = function() {
+    this.peer = peer.PeerServer({
+      port: 8088, 
+      path: '/peer'
+    });
+    this.peer.on('connection', elation.bind(this, this.peerConnect));
+    this.peer.on('disconnect', elation.bind(this, this.peerDisconnect));
+  }
+
+  this.peerConnect = function(id) {
+    console.log('[PeerServer] RTC Connected:', id);
+    this.connections[id] = true;
+    this.send();
+  }
+
+  this.peerDisconnect = function(id) {
+    console.log('[PeerServer] RTC Disconnected:', id);
+    delete this.connections[id];
+    this.send();
+  }
+
+  this.wsInit = function() {
+    var WebSocketServer = ws.Server;
+    var wss = this.wss = new WebSocketServer({ 
+      host: "meobets.com", 
+      port: 8087, 
+      path: '/peer' 
+    });
+
+    wss.on('connection', elation.bind(this, this.wsConnect));
+    
+    (function(self) {
+      wss.broadcast = function broadcast(data) {
+        console.log('[PeerServer] WS Broadcast:',data);
+        wss.clients.forEach(function each(client) {
+          client.send(data, elation.bind(self, self.wsError));
+        });
+      };
+    })(this);
+  }
+
+  this.wsConnect = function(ws) {
+    var address = ws.upgradeReq.client.remoteAddress;
+    console.log('[PeerServer] WS Connected: ', address);
+
+    this.sockets[address] = ws;
+
+    ws.on('message', elation.bind(this, this.wsReceive));
+    ws.on('close', elation.bind(this, this.wsDisconnect));
+
+    this.send();
+  }
+
+
+  this.wsDisconnect = function(code, message) {
+    //var address = ws.upgradeReq.client.remoteAddress;
+    console.log('[PeerServer] WS Disconnected: ', code, message);
+    //delete this.sockets[address];
+  }
+
+  this.wsReceive = function(data, flags) {
+    console.log('[PeerServer] WS Received: ', data, flags);
+    if (data == 'users') {
+      this.send();
+    }
+  }
+
+  this.send = function() {
+    var json = JSON.stringify(this.connections);
+
+    this.wss.broadcast(json);
+
+    delete self;
+  }
+
+  this.wsError = function(error) {
+    if (error) {
+      console.log('[PeerServer] WS Error:', error);
+    }
+  }
+
+  this.init();
+});
+
+elation.extend('hack.TerminalServer', new function() {
+  this.init = function() {
+    websockserver = this.websockserver = new ws.Server({ host: "meobets.com", port: 8086, path: '/terminal' });
+    websockserver.on('connection', elation.bind(this, this.connected));
+    console.log('[TerminalServer] Listening for websockets');
   }
 
   this.connected = function(websock) {
-    console.log('Client connected: ', websock.upgradeReq.client.remoteAddress);
+    console.log('[TerminalServer] Connected: ', websock.upgradeReq.client.remoteAddress);
     this.websock = websock;
     websock.send('established.<br>');
     
@@ -26,7 +119,7 @@ elation.extend('hack.server', new function() {
   }
 
   this.message = function(data, flags) {
-    console.log('Message: ', data);
+    console.log('[TerminalServer] Message: ', data);
     var split = data.split(' '),
         command = split[0],
         websock = this.websock;
@@ -62,7 +155,7 @@ elation.extend('hack.server', new function() {
   }
 
   this.initdb = function() {
-    console.log('Connecting to Database...');
+    console.log('[TerminalServer] Connecting to Database...');
     this.file = 'hack.db';
     this.exists = fs.existsSync(this.file);
     this.sqlite3 = require("sqlite3").verbose();
@@ -74,7 +167,7 @@ elation.extend('hack.server', new function() {
         websock = this.websock;
 
     db.serialize(function() {
-      console.log('Generating World...');
+      console.log('[TerminalServer] Generating World...');
       db.run("DROP TABLE IF EXISTS network");
       db.run("CREATE TABLE network (router TEXT)");
       
@@ -93,7 +186,7 @@ elation.extend('hack.server', new function() {
       db.each("SELECT rowid AS id, router FROM network", function(err, row) {
         websock.send(row.id + ":" + row.router + " ");
       }, function() {
-        console.log('Operation Completed.');
+        console.log('[TerminalServer] Operation Completed.');
         websock.send("<br><br>Operation Completed.");
         websock.send('<EOL>');
         db.close();

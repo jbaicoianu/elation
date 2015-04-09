@@ -42,7 +42,6 @@ a.elation_button_large {
   background-image:-ms-linear-gradient(top, #5fb0f4, #4682b4);
   background-image:-o-linear-gradient(top, #5fb0f4, #4682b4);
   background-image:linear-gradient(top, #5fb0f4, #4682b4);
-    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#5fb0f4, endColorstr=#4682b4);
   border:1px solid #386890;
   color:#fff;
   text-shadow:0 1px 0 #386890;
@@ -62,7 +61,6 @@ a.elation_button_large:hover {
   background-image:-ms-linear-gradient(top, #4682b4, #4682b4);
   background-image:-o-linear-gradient(top, #4682b4, #4682b4);
   background-image:linear-gradient(top, #4682b4, #4682b4);
-    filter:progid:DXImageTransform.Microsoft.gradient(startColorstr=#4682b4, endColorstr=#4682b4);
   border:1px solid #386890;
   color:#fff;
   text-shadow:0 1px 0 #386890;

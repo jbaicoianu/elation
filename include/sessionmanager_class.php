@@ -305,52 +305,9 @@ class SessionManager
     $this->persist =& $_SESSION["persist"];
     $this->temporary =& $_SESSION["temporary"];
 
+    
+    ComponentManager::fetch('user.session', array('event' => 'start', 'session' => $this));
     // get from the persist session data if this is a new or registered user
-    $userid = $_SESSION["persist"]["user"]["userid"];
-    $usertype = $_SESSION["persist"]["user"]["usertype"];
-
-    $userTypeArray = User::$usertypes;
-    $pandoraUserTypeNum = any($userTypeArray[$usertype], 0);
-
-    // log this into Pandora
-    $pandora_session = array(
-      "timestamp"           => time(),
-      "session_id"          => $this->flsid,
-      "fluid"               => $this->fluid,
-      "is_new_user"         => $this->is_new_user,
-      "is_registered_user"  => ($userid) ? 1 : 0,
-      "ip_addr"             => $_SERVER['REMOTE_ADDR'],
-      "user_agent"          => $_SERVER['HTTP_USER_AGENT'],
-      "referrer_url"        => $_SERVER['HTTP_REFERER'],
-      "landing_page_url"    => "http" . (!empty($_SERVER["HTTPS"]) ? "s" : "") . "://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'],
-      "referrer_id"         => $webapp->request["args"]["rid"],
-      "widget_id"           => $webapp->request["args"]["wid"],
-      "user_registration_id"=> "$pandoraUserTypeNum.$userid",
-      "version"             => 0,
-      "cobrand"             => $this->root->cobrand,
-      "first_session_for_day" => $this->first_session_for_day,
-      "session_count"       => $this->session_count,
-      "days_since_last_session" => $this->days_since_last_session
-    );
-
-    // log this session for data warehouse (once per session)
-    if (!$has_flsid) {
-      //store the session start time in session
-      $_SESSION['session_start_time'] = time();
-
-      $pandora->addData("session", $pandora_session);
-    }
-    else {
-      Logger::Notice("Pandora: Session already has an flsid. Current start time from session is: " . var_export($_SESSION['session_start_time'], true));
-
-      if(!array_key_exists('session_start_time', $_SESSION)) {
-        $_SESSION['session_start_time'] = time();
-        Logger::Warn("Pandora: Set or reset the session start time as one did not exist before. Time is: " . var_export($_SESSION['session_start_time'], true));
-      }
-      else {
-        Logger::Notice("Pandora: Session start time was not reset. Time is: " . var_export($_SESSION['session_start_time'], true));
-      }
-    }
 
     //save session data once per session
 //    if(!array_key_exists('pandora_session_data_added', $_SESSION)) {

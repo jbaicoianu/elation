@@ -566,14 +566,14 @@ dust.escapeJs = function(s) {
 
 })(dust);
 
-if (typeof exports !== "undefined") {
-  //TODO: Remove the helpers from dust core in the next release.
-  dust.helpers = require("./dust-helpers").helpers;
-  if (typeof process !== "undefined") {
-      require('./server')(dust);
-  }
-  module.exports = dust;
-}
+// if (typeof exports !== "undefined") {
+//   //TODO: Remove the helpers from dust core in the next release.
+//   dust.helpers = require("./dust-helpers").helpers;
+//   if (typeof process !== "undefined") {
+//       require('./server')(dust);
+//   }
+//   module.exports = dust;
+// }
 (function(dust){
 
 /* make a safe version of console if it is not available

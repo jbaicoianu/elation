@@ -2,8 +2,13 @@
 /** @namespace elation.utils */
 /** @namespace elation.html */
 
-if (typeof window == 'undefined') var window = {}; // compatibility for nodejs/worker threads
-var elation = window.elation = new function(selector, parent, first) {
+ENV_IS_NODE = (typeof process === 'object' && typeof require === 'function') ? true : false;
+ENV_IS_BROWSER = (typeof window !== 'undefined') ? true : false;
+
+if (typeof window == 'undefined') var window = {}; 
+//  compatibility for nodejs/worker threads
+
+elation = window.elation = new function(selector, parent, first) {
   if (typeof selector == 'string' && typeof elation.find == 'function')
     elation.find(selector, parent, first);
   
@@ -43,9 +48,9 @@ var elation = window.elation = new function(selector, parent, first) {
 
 elation.extend("component", new function() {
   this.init = function(root) {
-    if (root == undefined) {
-      root = document;
-    }
+    // if (root == undefined) {
+    //   root = document;
+    // }
 
     // Find all elements which have a data-elation-component attribute
     var elements = elation.find('[data-elation-component]');
@@ -749,15 +754,12 @@ elation.extend("html.class", function(method, elements, className) {
   }
 });
 
-elation.extend("html.addclass", function(elements, className) {
-  if (!elements || elements.length == 0)
-    return;
-
-  if ("classList" in elements || (typeof elements.length == 'number' && "classList" in elements[0])) {
-    elation.html.class('add', elements, className);
-  } else {
-    if (elements && !elation.html.hasclass(elements, className)) {
-      elements.className += (elements.className ? " " : "") + className;
+elation.extend("html.addclass", function(element, className) {
+  if (element) {
+    if ("classList" in element || (typeof element.length == 'number' && "classList" in element[0])) {
+      elation.html.class('add', element, className);
+    } else if (!elation.html.hasclass(element, className)) {
+      element.className += (element.className ? " " : "") + className;
     }
   }
 }); 
@@ -771,8 +773,8 @@ elation.extend("html.removeclass", function(elements, className) {
   } else {
     var re = new RegExp("(^| )" + className + "( |$)", "g");
     
-    if (elements && elements.className && elements.className.match(re)) {
-      elements.className = elements.className.replace(re, " ");
+    if (element && element.className && element.className.match(re)) {
+      element.className = element.className.replace(re, " ");
     }
   }
 });
@@ -781,10 +783,10 @@ elation.extend("html.toggleclass", function(elements, className) {
   if ("classList" in elements || (typeof elements.length == 'number' && "classList" in elements[0])) {
     elation.html.class('toggle', elements, className);
   } else {
-    if (this.hasclass(elements, className))
-      this.removeclass(elements, className)
+    if (this.hasclass(element, className))
+      this.removeclass(element, className)
     else
-      this.addclass(elements, className);
+      this.addclass(element, className);
   }
 });
 
@@ -818,6 +820,9 @@ elation.extend("html.toggleClass", elation.html.toggleclass);
  *    });
  */
 elation.extend('html.create', function(parms, classname, style, attr, append, before) {
+  if (ENV_IS_NODE) {
+    return;
+  }
   if (typeof parms == 'object') {
     var tag = parms.tag || 'div',
         classname = parms.classname,
@@ -1672,6 +1677,9 @@ elation.extend("find", function(selectors, parent, first) {
     this code is used for browsers which dont have their own selector engines
     this could be made a lot better.
   */
+  if (ENV_IS_NODE) {
+    return [];
+  }
   this.findCore = function(selectors, oparent) {
     if (!selectors)
       return;
@@ -2103,8 +2111,16 @@ elation.extend('require.batch', function(type, webroot) {
   this.pushqueue = function(module) {
     if (!this.isfulfilled(module) && !this.ispending(module)) {
       this.setpending(module);
-
-      elation.file.get(this.type, this.webroot + '/' + module.replace(/\./g, '/') + '.' + this.type, elation.bind(this, function(ev) { this.finished(module); }));
+      if (ENV_IS_BROWSER) {
+        // browser
+        elation.file.get(this.type, this.webroot + '/' + module.replace(/\./g, '/') + '.' + this.type, elation.bind(this, function(ev) { this.finished(module); }));
+      }
+      else if (ENV_IS_NODE) {
+        // running in node.js
+      console.log('loading elation module: ', module);
+        require(module.replace(/\./g, '/'));
+        this.finished(module);
+      }
     }
   }
   this.isfulfilled = function(module) {

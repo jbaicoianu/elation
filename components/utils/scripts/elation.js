@@ -755,11 +755,14 @@ elation.extend("html.class", function(method, elements, className) {
 });
 
 elation.extend("html.addclass", function(element, className) {
-  if (element) {
-    if ("classList" in element || (typeof element.length == 'number' && "classList" in element[0])) {
-      elation.html.class('add', element, className);
-    } else if (!elation.html.hasclass(element, className)) {
-      element.className += (element.className ? " " : "") + className;
+  if (!elements || elements.length == 0)
+    return;
+
+  if ("classList" in elements || (typeof elements.length == 'number' && "classList" in elements[0])) {
+    elation.html.class('add', elements, className);
+  } else {
+    if (elements && !elation.html.hasclass(elements, className)) {
+      elements.className += (elements.className ? " " : "") + className;
     }
   }
 }); 

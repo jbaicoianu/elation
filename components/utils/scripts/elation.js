@@ -754,7 +754,7 @@ elation.extend("html.class", function(method, elements, className) {
   }
 });
 
-elation.extend("html.addclass", function(element, className) {
+elation.extend("html.addclass", function(elements, className) {
   if (!elements || elements.length == 0)
     return;
 

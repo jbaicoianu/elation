@@ -73,9 +73,13 @@ elation.require(['ui.base','utils.template'], function() {
         if (visible && (this.args.folders && items[k] && typeof items[k] == 'object' || this.args.properties)) {
           var parent = elation.utils.getParent(ul, 'li', 'ui_treeview_folder');
               path = parent ? parent.id + ';' : '',
+              isFolder = typeof items[k] == 'object',
+              classname = isFolder
+                          ? 'ui_treeview_folder state_collapsed'
+                          : 'ui_treeview_property',
               li = elation.html.create({
                 tag: 'li',
-                classname: 'ui_treeview_folder state_collapsed',
+                classname: classname,
                 id: path + k,
                 append: ul
               }),
@@ -170,7 +174,7 @@ elation.require(['ui.base','utils.template'], function() {
 
       this.children = this.hasChildren();
 
-      if (this.value) {
+      if (typeof this.value != 'undefined') {
         if (this.attrs.itemtemplate) {
           this.container.innerHTML = elation.template.get(this.attrs.itemtemplate, { 
             type: this.type, 

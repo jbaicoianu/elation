@@ -1,4 +1,4 @@
-<?
+<?php
 function smarty_block_set($params, $content, &$smarty) {
   if (!empty($params["var"])) {
     $mode = any($params["mode"], "set");

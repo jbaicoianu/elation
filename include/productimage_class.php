@@ -1,4 +1,4 @@
-<?
+<?php
 class TFProductImage {
   protected $realurl;
   public $urls = array();

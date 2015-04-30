@@ -1,4 +1,4 @@
-<?
+<?php
 //include_once("include/hashdispenser_class.php");
 include_once("include/datawrappers/connectionwrapper_class.php");
 

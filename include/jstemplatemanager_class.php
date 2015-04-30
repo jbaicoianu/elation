@@ -1,4 +1,4 @@
-<?
+<?php
 
 class JSTemplateManager extends Base {
   protected static $instance;

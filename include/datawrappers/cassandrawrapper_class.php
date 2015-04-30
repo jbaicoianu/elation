@@ -1,4 +1,4 @@
-<?
+<?php
 include_once("include/datawrappers/connectionwrapper_class.php");
 if (dir_exists_in_path('thrift/')) {
   require_once 'thrift/Thrift.php';

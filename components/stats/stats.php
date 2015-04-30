@@ -1,4 +1,4 @@
-<?
+<?php
 class Component_stats extends Component {
   function controller_graph($args) {
     $vars["graphdata"] = $args["graphdata"];

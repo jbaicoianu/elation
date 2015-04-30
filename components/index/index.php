@@ -1,4 +1,4 @@
-<?
+<?php
 
 class Component_index extends Component {
   function init() {

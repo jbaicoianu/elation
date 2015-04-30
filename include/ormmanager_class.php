@@ -1,4 +1,4 @@
-<?
+<?php
 if (file_exists_in_path("outlet/Outlet.php")) {
   include_once("outlet/Outlet.php");
 }

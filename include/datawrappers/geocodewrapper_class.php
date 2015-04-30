@@ -1,4 +1,4 @@
-<?
+<?php
 include_once("include/common_funcs.php");
 include_once("include/datawrappers/connectionwrapper_class.php");
 

@@ -1,4 +1,4 @@
-<?
+<?php
 
 class Component_utils extends Component {
   function init() {

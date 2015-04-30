@@ -1,4 +1,4 @@
-<?
+<?php
 class DNSResolver {
   protected static $initialized = false;
   protected static $ttl = NULL;

@@ -1,4 +1,4 @@
-<?
+<?php
 class Component_html_form extends Component {
   function init() {
   }

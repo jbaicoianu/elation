@@ -1,4 +1,4 @@
-<?
+<?php
 require_once("PHPUnit/Framework.php");
 include_once("lib/logger.php");
 include_once("lib/profiler.php");

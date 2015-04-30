@@ -1,4 +1,4 @@
-<?
+<?php
 // FIXME/TODO - this is a dummy class, and does not actually implement any of 
 //              the methods necessary to represent a logged-in user.
 

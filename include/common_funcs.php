@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * Function: print_pre
  * Args    : array, buffer, tag

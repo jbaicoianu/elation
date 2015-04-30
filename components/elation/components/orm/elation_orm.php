@@ -1,4 +1,4 @@
-<?
+<?php
 include_once("include/component_class.php");
 include_once("include/ormmanager_class.php");
 

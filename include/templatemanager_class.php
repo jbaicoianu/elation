@@ -1,4 +1,4 @@
-<?
+<?php
 /*
   Copyright (c) 2005 James Baicoianu
 

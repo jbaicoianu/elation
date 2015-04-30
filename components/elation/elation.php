@@ -1,4 +1,4 @@
-<?
+<?php
 
 class Component_elation extends Component {
   function init() {

@@ -381,11 +381,13 @@ elation.require("ui.base", function() {
      * @param {string} sortby
      */
     this.setSortBy = function(sortby) {
-      if (this.sortby) {
-        elation.html.removeclass(this.container, 'ui_list_sortby_' + this.sortby);
+      if (this.sortby && elation.utils.isString(this.sortby)) {
+        this.removeclass('ui_list_sortby_' + this.sortby);
       }
       this.sortby = sortby;
-      elation.html.addclass(this.container, 'ui_list_sortby_' + this.sortby);
+      if (elation.utils.isString(this.sortby)) {
+        this.addclass('ui_list_sortby_' + this.sortby);
+      }
     }
     /**
      * Returns a list of which items are currently visible in this list

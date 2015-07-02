@@ -407,5 +407,30 @@ elation.extend("events", {
     elation.events.schedule({ev: foo, every: 200});
     elation.events.schedule({ev: foo, at: Date().getTime() + 3600});
     */
+  },
+
+  getEventsByTarget: function(target) {
+    var results = [];
+    for (var evname in this.events) {
+      for (var i = 0; i < this.events[evname].length; i++) {
+        var ev = this.events[evname][i];
+        if (ev.target === target) {
+          results.push(ev);
+        }
+      }
+    }
+    return results;
+  },
+  getEventsByOrigin: function(origin) {
+    var results = [];
+    for (var evname in this.events) {
+      for (var i = 0; i < this.events[evname].length; i++) {
+        var ev = this.events[evname][i];
+        if (ev.origin === origin) {
+          results.push(ev);
+        }
+      }
+    }
+    return results;
   }
 });

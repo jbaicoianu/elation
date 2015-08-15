@@ -133,6 +133,32 @@
   /*box-shadow: 4px 4px 4px rgba(0,0,0,.5);*/
   color: white;
 }
+.dark .ui_window.orientation_top,
+.dark .ui_window.orientation_top.state_active {
+  border-top: 0;
+}
+.dark .ui_window.orientation_bottom,
+.dark .ui_window.orientation_bottom.state_active {
+  border-bottom: 0;
+}
+.dark .ui_window.orientation_left,
+.dark .ui_window.orientation_left.state_active {
+  border-left: 0;
+}
+.dark .ui_window.orientation_right,
+.dark .ui_window.orientation_right.state_active {
+  border-right: 0;
+}
+.dark .ui_window.orientation_bottom.orientation_center {
+  border-radius: .5em .5em 0 0;
+}
+.dark .ui_window.orientation_bottom.orientation_left {
+  border-radius: 0 .5em 0 0;
+}
+.dark .ui_window.orientation_bottom.orientation_right {
+  border-radius: .5em 0 0 0;
+}
+
 .dark .ui_window:after {
   background: #303030 url(/images/elation/background-dark.png);
   opacity: 0.9;

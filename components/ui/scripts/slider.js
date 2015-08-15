@@ -30,6 +30,10 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
 
       elation.html.addclass(this.container, this.prefix);
       
+      if (this.args.label) {
+        this.formlabel = elation.ui.formlabel({label: this.args.label, append: this});
+      }
+
       this.track = elation.html.create({tag: 'div', classname: this.prefix + '_track', append: this.container});
       this.dimensions = elation.html.dimensions(this.track);
       
@@ -39,6 +43,7 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
         if (this.args.pegs[i])
           this.addPeg(this.args.pegs[i]);
       }
+      elation.ui.pegboard.extendclass.init.call(this);
     }
     this.addPeg = function(peg) {
       peg.parent = this;
@@ -528,7 +533,6 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
       }]
     };
     this.init = function() {
-      console.log('progressbar', this);
       var peg = this.args.pegs[0];
       peg.prefix = this.args.labelprefix || peg.prefix;
       peg.suffix = this.args.labelsuffix || peg.suffix;

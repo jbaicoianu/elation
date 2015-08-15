@@ -18,15 +18,11 @@
       {dependency type="component" name="utils.msie-xpath" *}
       {if !empty($theme)}{dependency type="component" name="ui.themes.`$theme`"}{/if}
       {dependency type="onload" code="elation.component.init()"}
+      {dependency type="meta" httpequiv="Content-Type" content="text/html; charset=utf-8"}
+      {* dependency type="meta" name="viewport" content="initial-scale=1.0, user-scalable=yes, maximum-scale=5.0" *}
+      {dependency type="meta" name="viewport" content="initial-scale=1.0, user-scalable=no, maximum-scale=1.0, width=device-width"}
     {/config}
 [[dependencies]]
-    {dependency type="meta" httpequiv="Content-Type" content="text/html; charset=utf-8"}
-    {* dependency type="meta" name="viewport" content="initial-scale=1.0, user-scalable=yes, maximum-scale=5.0" *}
-    {dependency type="meta" name="viewport" content="initial-scale=1.0, user-scalable=no, maximum-scale=1.0, width=device-width"}
-
-    {* FIXME - these should be dependencies *}
-    <meta name="description" content="[[page.meta.description:TheFind.com - shopping search reinvented. What can we find for you?]]" />
-    <meta name="keywords" content="[[page.meta.keywords]]" />
     {if $tracking.enabled}{component name="tracking.autotrack"}{/if}
 
     <script type="text/javascript">if (elation.onloads) elation.onloads.init();</script>

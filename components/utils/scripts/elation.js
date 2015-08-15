@@ -1099,7 +1099,7 @@ elation.extend("utils.makeURL", function(obj) {
 });
 
 elation.extend("utils.merge", function(entities, mergeto) {
-  if (typeof entities == 'object' && !entities.tagName && !(mergeto instanceof HTMLElement)) {
+  if (typeof entities == 'object' && !entities.tagName && !(typeof HTMLElement != 'undefined' && mergeto instanceof HTMLElement)) {
     if (typeof mergeto == 'undefined' || mergeto === null) mergeto = {}; // Initialize to same type as entities
     for (var i in entities) {
       if (entities[i] !== null) {
@@ -2465,12 +2465,26 @@ elation.extend('net.get', function(url, params, args) {
   return elation.net.xhr('GET', fullurl, false, args);  
 });
 elation.extend('net.post', function(url, params, args) {
-  var formdata = new FormData();
-  for (var k in params) {
-    formdata.append(k, params[k]);
+  var formdata = params;
+  if (!(formdata instanceof Uint8Array || formdata instanceof ArrayBuffer || formdata instanceof Blob || formdata instanceof FormData || elation.utils.isString(formdata))) {
+    formdata = new FormData();
+    for (var k in params) {
+      formdata.append(k, params[k]);
+    }
   }
 
   return elation.net.xhr('POST', url, formdata, args);  
+});
+elation.extend('net.put', function(url, params, args) {
+  var formdata = params;
+  if (!(formdata instanceof Uint8Array || formdata instanceof ArrayBuffer || formdata instanceof Blob || formdata instanceof FormData || elation.utils.isString(formdata))) {
+    formdata = new FormData();
+    for (var k in params) {
+      formdata.append(k, params[k]);
+    }
+  }
+
+  return elation.net.xhr('PUT', url, formdata, args);  
 });
 elation.extend('net.xhr', function(method, url, formdata, args) {
   if (!args) args = {};
@@ -2484,6 +2498,13 @@ elation.extend('net.xhr', function(method, url, formdata, args) {
 
   xhr.open(method, url);
   if (args.nocache) xhr.setRequestHeader("If-Modified-Since", "Thu, 01 Jan 1970 00:00:00 GMT");
+  if (args.headers) {
+    var headers = Object.keys(args.headers);
+    for (var i = 0; i < headers.length; i++) {
+      var header = headers[i];
+      xhr.setRequestHeader(header, args.headers[header]);
+    }
+  }
   xhr.send(formdata);
 
   return xhr;

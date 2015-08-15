@@ -64,12 +64,18 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
       var curpos = elation.html.position(this.container);
       elation.html.addclass(this.container, "ui_window");
       if (this.args.classname) {
-        elation.html.addclass(this.container, this.args.classname);
+        this.addclass(this.args.classname);
       }
       if (this.args.movable !== false) {
         this.addclass('state_movable');
         elation.events.add(this.container, 'mousedown,touchstart', this);
       }
+      if (this.args.left) this.addclass('orientation_left');
+      if (this.args.right) this.addclass('orientation_right');
+      if (this.args.top) this.addclass('orientation_top');
+      if (this.args.bottom) this.addclass('orientation_bottom');
+      if (this.args.center) this.addclass('orientation_center');
+
       if (this.args.width) {
         this.container.style.width = this.args.width;  
       }

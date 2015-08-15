@@ -621,18 +621,18 @@ elation.require("ui.base", function() {
     this.setcontent = function(value) {
       this.container.innerHTML = '';
       var filled = false;
-      if (value instanceof elation.component.base) {
-        this.container.appendChild(value.container);
-        filled = true;
-      } else if (this.attrs.itemtemplate) {
-        this.container.innerHTML = elation.template.get(this.attrs.itemtemplate, value);
-        filled = true;
-      } else if (this.attrs.itemcomponent) {
+      if (this.attrs.itemcomponent) {
         var itemcomponentclass = elation.utils.arrayget(elation, this.attrs.itemcomponent);
         if (itemcomponentclass) {
           var itemcomponent = itemcomponentclass(null, this.container, value);
           filled = true;
         }
+      } else if (value instanceof elation.component.base) {
+        this.container.appendChild(value.container);
+        filled = true;
+      } else if (this.attrs.itemtemplate) {
+        this.container.innerHTML = elation.template.get(this.attrs.itemtemplate, value);
+        filled = true;
       } 
       if (!filled) {
         if (elation.utils.isString(value)) {

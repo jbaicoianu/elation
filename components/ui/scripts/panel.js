@@ -70,4 +70,29 @@ elation.require(["ui.base", "ui.content"], function() {
       }
     }
   }, elation.ui.base);
+
+  elation.component.add("ui.panel_horizontal", function() {
+    this.init = function() {
+      this.args.orientation = 'horizontal';
+      elation.ui.panel_horizontal.extendclass.init.call(this);
+    }
+  }, elation.ui.panel);
+  elation.component.add("ui.panel_vertical", function() {
+    this.init = function() {
+      this.args.orientation = 'vertical';
+      elation.ui.panel_vertical.extendclass.init.call(this);
+    }
+  }, elation.ui.panel);
+  elation.component.add("ui.panel_float", function() {
+    this.init = function() {
+      this.args.orientation = 'float';
+      elation.ui.panel_float.extendclass.init.call(this);
+    }
+  }, elation.ui.panel);
+  elation.component.add("ui.panel_inline", function() {
+    this.init = function() {
+      this.args.orientation = 'inline';
+      elation.ui.panel_inline.extendclass.init.call(this);
+    }
+  }, elation.ui.panel);
 });

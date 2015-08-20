@@ -286,7 +286,9 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
       this.createInput();
       this.label_after = this.createLabel(this.args.suffix);
 
-      if (this.args.center && elation.utils.isNull(this.args.value)) {
+      if (this.args.bindvar) {
+        this.args.value = this.args.bindvar[0][this.args.bindvar[1]];
+      } else if (this.args.center && elation.utils.isNull(this.args.value)) {
         this.args.value = (this.parent.args.max + this.parent.args.min) / 2;
       }
 

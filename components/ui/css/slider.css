@@ -30,6 +30,7 @@
   -moz-box-sizing: border-box;
   vertical-align: middle;
   margin: 1em 0 .75em;
+  display: inline-block;
 }
 .ui_pegboard_peg_display {
   margin-bottom: .5em;

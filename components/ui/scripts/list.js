@@ -600,7 +600,9 @@ elation.require("ui.base", function() {
           this.addclass(this.value.classname);
         }
 
-        this.setcontent(this.value);
+        if (this.value) {
+          this.setcontent(this.value);
+        }
 
         if (this.selected) {
           this.addclass("state_selected");
@@ -625,6 +627,7 @@ elation.require("ui.base", function() {
         var itemcomponentclass = elation.utils.arrayget(elation, this.attrs.itemcomponent);
         if (itemcomponentclass) {
           var itemcomponent = itemcomponentclass(null, this.container, value);
+          this.itemcomponent = itemcomponent;
           filled = true;
         }
       } else if (value instanceof elation.component.base) {

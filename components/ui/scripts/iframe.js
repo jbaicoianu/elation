@@ -6,6 +6,10 @@ elation.require(['ui.base'], function() {
       this.addPropertyProxies(['src', 'contentWindow']);
       elation.events.add(this.container, 'load', elation.bind(this, this.handle_load));
       elation.events.add(this.container, 'error', elation.bind(this, this.handle_error));
+
+      if (this.args.src) {
+        this.src = this.args.src;
+      }
     }
 
     this.addcss = function(url) {

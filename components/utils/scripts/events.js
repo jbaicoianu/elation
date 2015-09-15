@@ -198,9 +198,8 @@ elation.extend("events", {
         }
         
         if ("addEventListener" in element) {
-          if (type == 'mousewheel' && elation.browser.type != 'safari')
-            type = 'DOMMouseScroll';
-          
+          //if (type == 'mousewheel' && elation.browser.type != 'safari')
+          //  type = 'DOMMouseScroll';
           if (typeof fn == "object" && fn.handleEvent) {
             element[type+fn] = function(e) { 
               if (custom_event_name)

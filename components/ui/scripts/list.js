@@ -640,7 +640,7 @@ elation.require("ui.base", function() {
       if (!filled) {
         if (elation.utils.isString(value)) {
           this.container.innerHTML = value;
-        } else {
+        } else if (this.attrs.label) {
           var attrval = elation.utils.arrayget(value, this.attrs.label);
           if (attrval !== null) {
             this.container.innerHTML = attrval;

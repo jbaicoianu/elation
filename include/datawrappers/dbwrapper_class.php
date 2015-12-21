@@ -1437,7 +1437,7 @@ class DataBase {
     return $this->db->beginTransaction();
   }
   public function commit() {
-    return $this->db->commit($str);
+    return $this->db->commit();
   }
   public function rollBack() {
     return $this->db->rollBack();

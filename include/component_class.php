@@ -61,8 +61,10 @@ class Component extends Base {
               //print_pre($e);
               print "[Could not load component: " . htmlspecialchars($name) . "]";
             }
-          } else if ($this->HasTemplate("./" . $name . ".tpl", $path)) {
+          } else if ($this->HasTemplate("./" . $name . ".tpl")) {
             $ret = $this->CreateComponent($name, "ComponentTemplate", $this->path . "/" . $componentdir . "/templates/" . $name . ".tpl", $path, $args);
+          } else if ($this->HasTemplate("./" . $name . ".tpl", "components/$name")) {
+            $ret = $this->CreateComponent($name, "ComponentTemplate", "components/" . $name . "/templates/" . $name . ".tpl", $path, $args);
           }
         }
         if ($ret === false) {

@@ -1,9 +1,10 @@
 /** @namespace elation */
 /** @namespace elation.utils */
 /** @namespace elation.html */
+"use strict";
 
-ENV_IS_NODE = (typeof process === 'object' && typeof require === 'function') ? true : false;
-ENV_IS_BROWSER = (typeof window !== 'undefined') ? true : false;
+var ENV_IS_NODE = (typeof process === 'object' && typeof require === 'function') ? true : false;
+var ENV_IS_BROWSER = (typeof window !== 'undefined') ? true : false;
 
 if (typeof window == 'undefined') var window = {}; 
 //  compatibility for nodejs/worker threads
@@ -44,7 +45,147 @@ elation = window.elation = new function(selector, parent, first) {
       }
 		}
   }
+  this.define = function(name, definition, extendclass) {
+    var constructor = definition._construct;
+    if (!constructor) {
+      constructor = (extendclass ? extendclass.prototype.constructor : false); 
+    }
+    // FIXME - need to figure out a non-horrible way of overriding the class name that's shown in console.log
+    var func = false;
+    var funcstr = "elation.utils.arrayset(elation, '" + name + "', false); elation." + name + " = function (args) { if (constructor) constructor.call(this, args); }; func = elation." + name + ";";
+    //var funcstr = "console.log('serrr');";
+    eval(funcstr);
+    var objdef = func;
+    if (extendclass) {
+      if (!constructor) {
+        objdef = extendclass.prototype.constructor;
+      }
+      objdef.prototype = Object.create(extendclass.prototype);
+      objdef.prototype.constructor = objdef;
+    }
+    var keys = Object.keys(definition);
+    keys.forEach(function(key) { objdef.prototype[key] = definition[key]; });
+    return objdef;
+  }
 }
+
+/**
+ * Sets value in a multilevel object element 
+ *
+ * @function elation.utils.arrayset
+ * @param {object} obj
+ * @param {string} element
+*/
+elation.extend("utils.arrayset", function(obj, element, value) {
+  var ptr = obj;
+  var x = element.split(".");
+  for (var i = 0; i < x.length - 1; i++) {
+    if (ptr==null || (typeof ptr[x[i]] != 'array' && typeof ptr[x[i]] != 'object' && i != x.length-1)) {
+      ptr[x[i]] = {};
+    }
+    ptr = ptr[x[i]];
+  }
+  if (typeof ptr == "object") {
+    ptr[x[x.length-1]] = value;
+  }
+});
+/**
+ * Retrieves specified dot-separated value from a multilevel object element 
+ *
+ * @function elation.utils.arrayget
+ * @param {object} obj
+ * @param {string} name
+ * @param {object|number|string} [defval] default value if none found
+*/
+elation.extend("utils.arrayget", function(obj, name, defval) {
+  var ptr = obj;
+  var x = name.split(".");
+  for (var i = 0; i < x.length; i++) {
+    if (ptr==null || (!elation.utils.isArray(ptr[x[i]]) && !elation.utils.isObject(ptr[x[i]]) && i != x.length-1)) {
+      ptr = null;
+      break;
+    }
+    ptr = ptr[x[i]];
+  }
+  if (typeof ptr == "undefined" || ptr === null) {
+    return (typeof defval == "undefined" ? null : defval);
+  }
+  return ptr;
+});
+//Returns true if it is a DOM node
+elation.extend("utils.isnode", function(obj) {
+  return (
+    typeof Node === "object" ? obj instanceof Node : 
+    typeof obj === "object" && typeof obj.nodeType === "number" && typeof obj.nodeName==="string"
+  );
+});
+
+//Returns true if it is a DOM element    
+elation.extend("utils.iselement", function(obj) {
+  return (
+    typeof HTMLElement === "object" ? obj instanceof HTMLElement : //DOM2
+    typeof obj === "object" && obj.nodeType === 1 && typeof obj.nodeName==="string"
+  );
+});
+elation.extend("utils.isTrue", function(obj) {
+  if (obj == true || obj == 'true') 
+    return true;
+  
+  return false;
+});
+	
+elation.extend("utils.isNull", function(obj) {
+  if (obj == null || typeof obj == 'undefined') 
+    return true;
+  
+  return false;
+});
+	
+elation.extend("utils.isEmpty", function(obj) {
+  if (obj !== null && 
+      obj !== "" && 
+      obj !== 0 && 
+      typeof obj !== "undefined" && 
+      obj !== false) 
+    return false;
+  
+  return true;
+});
+elation.extend("utils.isObject", function(obj) {
+  return (obj instanceof Object);
+});
+elation.extend("utils.isArray", function(obj) {
+  var objclass = Object.prototype.toString.call(obj),
+      allow = {
+        '[object Array]': true,
+        '[object NodeList]': true,
+        '[object HTMLCollection]': true
+      };
+  
+  if (elation.browser && elation.browser.type == 'msie' && objclass == '[object Object]') {
+    return !elation.utils.isNull(elation.utils.arrayget(obj, 'length'));
+  } else {
+    return allow[objclass] || false;
+  }
+});
+
+elation.extend("utils.isString", function(obj) {
+  return (typeof obj == "string");
+});
+elation.define("class", {
+  _construct: function(args) {
+    if (args) {
+      var keys = Object.keys(args);
+      keys.forEach(elation.bind(this, function(k) { this[k] = args[k]; }));
+    }
+  },
+  toJSON: function() {
+    var keys = Object.keys(this).filter(function(n) { return n[0] != '_'; });
+    var obj = {};
+    keys.map(elation.bind(this, function(k, v) { obj[k] = this[k]; }));
+    return obj;
+  }
+});
 
 elation.extend("component", new function() {
   this.init = function(root) {
@@ -101,7 +242,7 @@ elation.extend("component", new function() {
       // If no args were passed in, we're probably being used as the base for another 
       // component's prototype, so there's no need to go through full init
       if (elation.utils.isNull(realname) && !container && !args) {
-        obj = new component.base(type);
+        var obj = new component.base(type);
         
         // apply default args
         obj.args = mergeDefaults(obj.args, elation.utils.clone(obj.defaults));
@@ -320,7 +461,7 @@ elation.extend("component", new function() {
           extendclass.call(self);
       }
 
-      delete self;
+      //delete self;
     }
     this.fetch = function(type, callback, force) {
       var ret;
@@ -1128,49 +1269,6 @@ elation.extend("utils.merge", function(entities, mergeto) {
   return mergeto;
 });
 
-/**
- * Sets value in a multilevel object element 
- *
- * @function elation.utils.arrayset
- * @param {object} obj
- * @param {string} element
-*/
-elation.extend("utils.arrayset", function(obj, element, value) {
-  var ptr = obj;
-  var x = element.split(".");
-  for (var i = 0; i < x.length - 1; i++) {
-    if (ptr==null || (typeof ptr[x[i]] != 'array' && typeof ptr[x[i]] != 'object' && i != x.length-1)) {
-      ptr[x[i]] = {};
-    }
-    ptr = ptr[x[i]];
-  }
-  if (typeof ptr == "object") {
-    ptr[x[x.length-1]] = value;
-  }
-});
-/**
- * Retrieves specified dot-separated value from a multilevel object element 
- *
- * @function elation.utils.arrayget
- * @param {object} obj
- * @param {string} name
- * @param {object|number|string} [defval] default value if none found
-*/
-elation.extend("utils.arrayget", function(obj, name, defval) {
-  var ptr = obj;
-  var x = name.split(".");
-  for (var i = 0; i < x.length; i++) {
-    if (ptr==null || (!elation.utils.isArray(ptr[x[i]]) && !elation.utils.isObject(ptr[x[i]]) && i != x.length-1)) {
-      ptr = null;
-      break;
-    }
-    ptr = ptr[x[i]];
-  }
-  if (typeof ptr == "undefined" || ptr === null) {
-    return (typeof defval == "undefined" ? null : defval);
-  }
-  return ptr;
-});
 elation.extend("utils.arraymin", function(array) {
 	var value=ret=0;
 	
@@ -1202,66 +1300,6 @@ elation.extend("utils.arraysum", function(array) {
   return total;
 });
 
-//Returns true if it is a DOM node
-elation.extend("utils.isnode", function(obj) {
-  return (
-    typeof Node === "object" ? obj instanceof Node : 
-    typeof obj === "object" && typeof obj.nodeType === "number" && typeof obj.nodeName==="string"
-  );
-});
-
-//Returns true if it is a DOM element    
-elation.extend("utils.iselement", function(obj) {
-  return (
-    typeof HTMLElement === "object" ? obj instanceof HTMLElement : //DOM2
-    typeof obj === "object" && obj.nodeType === 1 && typeof obj.nodeName==="string"
-  );
-});
-elation.extend("utils.isTrue", function(obj) {
-  if (obj == true || obj == 'true') 
-    return true;
-  
-  return false;
-});
-	
-elation.extend("utils.isNull", function(obj) {
-  if (obj == null || typeof obj == 'undefined') 
-    return true;
-  
-  return false;
-});
-	
-elation.extend("utils.isEmpty", function(obj) {
-  if (obj !== null && 
-      obj !== "" && 
-      obj !== 0 && 
-      typeof obj !== "undefined" && 
-      obj !== false) 
-    return false;
-  
-  return true;
-});
-elation.extend("utils.isObject", function(obj) {
-  return (obj instanceof Object);
-});
-elation.extend("utils.isArray", function(obj) {
-  var objclass = Object.prototype.toString.call(obj),
-      allow = {
-        '[object Array]': true,
-        '[object NodeList]': true,
-        '[object HTMLCollection]': true
-      };
-  
-  if (elation.browser && elation.browser.type == 'msie' && objclass == '[object Object]') {
-    return !elation.utils.isNull(elation.utils.arrayget(obj, 'length'));
-  } else {
-    return allow[objclass] || false;
-  }
-});
-
-elation.extend("utils.isString", function(obj) {
-  return (typeof obj == "string");
-});
 
 // use when unsure if element is a HTMLElement or Elation Component
 elation.extend("utils.getContainerElement", function(element) {
@@ -2224,7 +2262,7 @@ elation.extend('require.node', function(name, callback) {
     if (!this.done && this.callback) {
       try {
         if (this.callback) {
-          this.callback();
+          this.callback(elation);
         }
         this.done = true;
       } catch (e) {

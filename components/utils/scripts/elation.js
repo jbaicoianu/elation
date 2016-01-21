@@ -5,11 +5,12 @@
 
 var ENV_IS_NODE = (typeof process === 'object' && typeof require === 'function') ? true : false;
 var ENV_IS_BROWSER = (typeof window !== 'undefined') ? true : false;
+var ENV_IS_WORKER = (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope);
 
 if (typeof window == 'undefined') var window = {}; 
 //  compatibility for nodejs/worker threads
 
-elation = window.elation = new function(selector, parent, first) {
+var elation = window.elation = new function(selector, parent, first) {
   if (typeof selector == 'string' && typeof elation.find == 'function')
     elation.find(selector, parent, first);
   
@@ -192,7 +193,7 @@ elation.extend("component", new function() {
     // if (root == undefined) {
     //   root = document;
     // }
-
+    if (!ENV_IS_BROWSER) return;
     // Find all elements which have a data-elation-component attribute
     var elements = elation.find('[data-elation-component]');
 
@@ -796,7 +797,7 @@ elation.extend("html.size", function(obj) {
 });
 
 elation.extend("html.position", function(obj) {
-  var curleft = curtop = 0;
+  var curleft = 0, curtop = 0;
   if (obj.offsetParent) {
     curleft = obj.offsetLeft;
     curtop = obj.offsetTop;
@@ -1714,7 +1715,7 @@ elation.extend("url", function(hash) {
   for (var i=0; i<hash.length; i++) {
     var parm = hash[i].split('=');
     
-    this.hash[parm[0]] = parm[1];
+    this.hash[parm[0]] = decodeURIComponent(parm[1]);
   }
   
   return this.hash;
@@ -2075,11 +2076,13 @@ elation.extend('require', function(modules, callback) {
   this.requireactivebatchjs.addrequires(modules, callback);
 });
 elation.extend('requireCSS', function(modules, callback) {
-  if (!elation.utils.isArray(modules)) modules = [modules];
-  if (!this.requireactivebatchcss) {
-    this.requireactivebatchcss = new elation.require.batch('css', '/css');
+  if (ENV_IS_BROWSER) {
+    if (!elation.utils.isArray(modules)) modules = [modules];
+    if (!this.requireactivebatchcss) {
+      this.requireactivebatchcss = new elation.require.batch('css', '/css');
+    }
+    this.requireactivebatchcss.addrequires(modules, callback);
   }
-  this.requireactivebatchcss.addrequires(modules, callback);
 });
 elation.extend('require.batch', function(type, webroot) {
 
@@ -2166,10 +2169,13 @@ elation.extend('require.batch', function(type, webroot) {
       if (ENV_IS_BROWSER) {
         // browser
         elation.file.get(this.type, this.webroot + '/' + module.replace(/\./g, '/') + '.' + this.type, elation.bind(this, function(ev) { this.finished(module); }));
-      }
-      else if (ENV_IS_NODE) {
+      } else if (ENV_IS_WORKER) {
+        //console.log('loading elation module: ', module);
+        importScripts(this.webroot + '/' + module.replace(/\./g, '/') + '.' + this.type);
+        this.finished(module);
+      } else if (ENV_IS_NODE) {
         // running in node.js
-      console.log('loading elation module: ', module);
+        console.log('loading elation module: ', module);
         require(module.replace(/\./g, '/'));
         this.finished(module);
       }
@@ -2396,7 +2402,7 @@ elation.extend('timing', new function() {
 			console.log(debug);
   }
 });
-elation.extend("utils.parseXML", function(imgxml, leaf) {
+elation.extend("utils.parseXML", function(imgxml, leaf, forceLower) {
   var node, root, parent;
   if (imgxml.nodeName) {
     node = imgxml;
@@ -2412,8 +2418,10 @@ elation.extend("utils.parseXML", function(imgxml, leaf) {
   }
   root = {};
   if (!leaf) {
-    root[node.tagName] = {};
-    parent = root[node.tagName];
+    var rootname = node.tagName;
+    if (forceLower) rootname = rootname.toLowerCase();
+    root[rootname] = {};
+    parent = root[rootname];
     //node = parent[node.tagName];
   } else {
     parent = root;
@@ -2421,6 +2429,7 @@ elation.extend("utils.parseXML", function(imgxml, leaf) {
   if (node.attributes) {
     for (var i = 0; i < node.attributes.length; i++) {
       var name = node.attributes[i].nodeName;
+      if (forceLower) name = name.toLowerCase();
       var value = node.attributes[i].nodeValue;
       parent[name] = value;
     }
@@ -2428,12 +2437,14 @@ elation.extend("utils.parseXML", function(imgxml, leaf) {
   if (node.childNodes) {
     for (var j = 0; j < node.childNodes.length; j++) {
       var child = node.childNodes[j];
+      var nodename = child.nodeName;
+      if (forceLower) nodename = nodename.toLowerCase();
       if (node.getElementsByTagName(child.tagName).length > 1) {
         if (!parent._children) parent._children = {};
-        if (!parent._children[child.nodeName]) {
-          parent._children[child.nodeName] = [];
+        if (!parent._children[nodename]) {
+          parent._children[nodename] = [];
         }
-        parent._children[child.nodeName].push(elation.utils.parseXML(child, true));
+        parent._children[nodename].push(elation.utils.parseXML(child, true, forceLower));
       } else if (child.nodeName) {
         if (child.nodeName == "#text" || child.nodeName == "#cdata-section") {
           // this gets confused if you have multiple text/cdata nodes...
@@ -2442,7 +2453,7 @@ elation.extend("utils.parseXML", function(imgxml, leaf) {
           }
         } else {
           if (!parent._children) parent._children = {};
-          parent._children[child.nodeName] = elation.utils.parseXML(child, true);
+          parent._children[nodename] = elation.utils.parseXML(child, true, forceLower);
         }
       }
     }
@@ -2531,7 +2542,10 @@ elation.extend('net.xhr', function(method, url, formdata, args) {
   var xhr = new XMLHttpRequest();
   xhr.onreadystatechange = elation.bind(args, elation.net.handlereadystatechange);
   if (args.onload) xhr.onload = args.onload;
-  if (args.onprogress) xhr.upload.onprogress = args.onprogress;
+  if (args.onprogress) {
+    xhr.upload.onprogress = args.onprogress;
+    xhr.onprogress = args.onprogress;
+    }
   if (args.onerror) xhr.onerror = args.onerror;
 
   xhr.open(method, url);
@@ -2567,7 +2581,7 @@ elation.extend('net.handlereadystatechange', function(ev) {
         }
         if (this.callback) {
           //elation.ajax.executeCallback(obj.callback, xhr.responseText);
-          this.callback(response);
+          this.callback(response, xhr);
         }
       }
     } else {

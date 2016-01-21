@@ -37,6 +37,9 @@ elation.require(['ui.input'], function() {
           this.inputelement = elation.html.create({tag: 'textarea', append: this.container});
         }
       }
+      if (this.args.value) {
+        this.value = this.args.value;
+      }
     }
     /**
      * Event handler for HTML input element's keydown event

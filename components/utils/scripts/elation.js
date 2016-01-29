@@ -2545,10 +2545,11 @@ elation.extend('net.xhr', function(method, url, formdata, args) {
   if (args.onprogress) {
     xhr.upload.onprogress = args.onprogress;
     xhr.onprogress = args.onprogress;
-    }
+  }
   if (args.onerror) xhr.onerror = args.onerror;
 
   xhr.open(method, url);
+  if (args.responseType) xhr.responseType = args.responseType;
   if (args.nocache) xhr.setRequestHeader("If-Modified-Since", "Thu, 01 Jan 1970 00:00:00 GMT");
   if (args.headers) {
     var headers = Object.keys(args.headers);
@@ -2566,7 +2567,11 @@ elation.extend('net.handlereadystatechange', function(ev) {
   var xhr = ev.target;
   if (xhr.readyState == 4) {
     if (xhr.status == 200) {
-      if (xhr.responseText) {
+      if (xhr.responseType == 'arraybuffer') {
+        if (this.callback) {
+          this.callback(xhr.response, xhr);
+        }
+      } else if (xhr.responseText) {
         var response = xhr.responseText;
         if (this.parse) {
           try {

@@ -16,6 +16,7 @@ elation.require([], function() {
       this.promises = {};
     },
     createWorkers: function() {
+      if (ENV_IS_WORKER || typeof Worker == 'undefined') return;
       this.pool = [];
       if (this.src) {
         for (var i = 0; i < this.num; i++) {
@@ -25,6 +26,13 @@ elation.require([], function() {
           this.update();
         }
       }
+    },
+    sendMessage: function(type, msg) {
+      var jobid = this.getJobID();
+      var encmsg = {type: type, data: msg};
+      this.pool.forEach(function(worker) {
+        worker.postMessage(encmsg);
+      });
     },
     addJob: function(jobdata) {
       var promise = new Promise(elation.bind(this, function(resolve, reject) {
@@ -40,7 +48,7 @@ elation.require([], function() {
         // If we have pending items and an available worker, let's go
         var worker = this.pool.shift();
         var job = this.queue.shift();
-        worker.postMessage(job);
+        worker.postMessage({type: 'job', data: job});
       }
     },
     getJobID: function() {

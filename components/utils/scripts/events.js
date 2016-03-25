@@ -2,6 +2,8 @@
 elation.extend("events", {
   events: {},
   cloneattrs: ['type', 'bubbles', 'cancelable', 'view', 'detail', 'screenX', 'screenY', 'clientX', 'clientY', 'ctrlKey', 'shiftKey', 'altKey', 'metaKey', 'button', 'relatedTarget', 'target', 'element', 'data', 'origin', 'timeStamp', 'returnValue', 'cancelBubble'],
+
+  eventstats: {},
   
   fire: function(type, data, target, element, fn) {
     var extras = {};
@@ -31,6 +33,9 @@ elation.extend("events", {
     //console.log('fire:',type);
     if (!type)
       return false;
+
+    if (!this.eventstats[type]) this.eventstats[type] = 0;
+    this.eventstats[type]++;
     
     var list = this.events[type],
         original_events = [],
@@ -150,11 +155,17 @@ elation.extend("events", {
   },
   _unregister: function(element, type, fn) {
     if (elation.events.events[type]) {
+      var remaining = [];
       for (var i = 0; i < elation.events.events[type].length; i++) {
         var ev = elation.events.events[type][i];
         if (ev.type == type && ev.target == element && ev.origin == fn) {
-          elation.events.events[type].splice(i--, 1);
+          //elation.events.events[type].splice(i--, 1);
+        } else {
+          remaining.push(ev);
         }
+      }
+      if (elation.events.events[type].length != remaining.length) {
+        elation.events.events[type] = remaining;
       }
     }
   },

@@ -1,4 +1,4 @@
-elation.require(["utils.dust"], function() {
+elation.require(["utils.events", "utils.dust"], function() {
   elation.extend("template", new function() {
     this.types = {};
     this.templates = {};

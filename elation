@@ -331,6 +331,26 @@ docs_generate_js() {
   docs_create_link
 }
 
+node_run() {
+  COMPONENTNAME=$1
+  shift
+  echo 'run it' $COMPONENTNAME
+  COMPONENTPATH=$(echo $COMPONENTNAME |sed 's/\./\//g').js
+  SCRIPTROOT=htdocs/scripts
+
+  NODE_PATH=$SCRIPTROOT node $SCRIPTROOT/$COMPONENTPATH $*
+}
+
+bundle() {
+  COMPONENTNAME=$1
+  BUNDLEPATH=$2
+
+  node_run "utils.pack" "$COMPONENTNAME"
+  mv bundle-pack.js $BUNDLEPACK.js
+  mv bundle-pack.css $BUNDLEPACK.css
+
+}
+
 # Begin main execution
 
 case "$ACTION" in
@@ -391,8 +411,11 @@ case "$ACTION" in
       run)
         component_run $*
         ;;
+      runjs)
+        node_run $*
+        ;;
       *)
-        echo "Usage: $0 $ACTION [create|enable|disable|run]"
+        echo "Usage: $0 $ACTION [create|enable|disable|run|runjs]"
         ;;
     esac
     ;;

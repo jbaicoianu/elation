@@ -268,7 +268,8 @@ class DependencyJavascript extends Dependency {
   public $code;
 
   private $format = '    <script type="text/javascript" src="%s"></script>';
-  private $extraformat = '    <script type="text/javascript">if (typeof elation != "undefined") { elation.file.dependencies.registerMany(%s, "javascript"); }</script>';
+  //private $extraformat = '    <script type="text/javascript">if (typeof elation != "undefined") { elation.file.dependencies.registerMany(%s, "javascript"); }</script>';
+  private $extraformat = '';
 
   function Display($locations, $extras=NULL) {
     if (empty($this->media)) $this->media = "all";

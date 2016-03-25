@@ -1,15 +1,15 @@
 /** @namespace elation */
 /** @namespace elation.utils */
 /** @namespace elation.html */
-"use strict";
 
 var ENV_IS_NODE = (typeof process === 'object' && typeof require === 'function') ? true : false;
 var ENV_IS_BROWSER = (typeof window !== 'undefined') ? true : false;
 var ENV_IS_WORKER = (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope);
 
-if (typeof window == 'undefined') var window = {}; 
+if (typeof window == 'undefined') var window = global || {}; 
 //  compatibility for nodejs/worker threads
 
+"use strict";
 var elation = window.elation = new function(selector, parent, first) {
   if (typeof selector == 'string' && typeof elation.find == 'function')
     elation.find(selector, parent, first);
@@ -69,6 +69,11 @@ var elation = window.elation = new function(selector, parent, first) {
     return objdef;
   }
 }
+elation.extend('env', {
+  isNode: (typeof process === 'object' && typeof require === 'function') ? true : false,
+  isBrowser: (typeof window !== 'undefined' && typeof Window == 'function' && window instanceof Window) ? true : false,
+  isWorker: (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope)
+});
 
 /**
  * Sets value in a multilevel object element 
@@ -193,7 +198,7 @@ elation.extend("component", new function() {
     // if (root == undefined) {
     //   root = document;
     // }
-    if (!ENV_IS_BROWSER) return;
+    if (!elation.env.isBrowser) return;
     // Find all elements which have a data-elation-component attribute
     var elements = elation.find('[data-elation-component]');
 
@@ -976,7 +981,7 @@ elation.extend("html.toggleClass", elation.html.toggleclass);
  *    });
  */
 elation.extend('html.create', function(parms, classname, style, attr, append, before) {
-  if (ENV_IS_NODE) {
+  if (elation.env.isNode) {
     return;
   }
   if (typeof parms == 'object') {
@@ -1730,7 +1735,7 @@ elation.extend("find", function(selectors, parent, first) {
     this code is used for browsers which dont have their own selector engines
     this could be made a lot better.
   */
-  if (ENV_IS_NODE) {
+  if (elation.env.isNode) {
     return [];
   }
   this.findCore = function(selectors, oparent) {
@@ -2076,13 +2081,13 @@ elation.extend('require', function(modules, callback) {
   this.requireactivebatchjs.addrequires(modules, callback);
 });
 elation.extend('requireCSS', function(modules, callback) {
-  if (ENV_IS_BROWSER) {
+  //if (elation.env.isBrowser) {
     if (!elation.utils.isArray(modules)) modules = [modules];
     if (!this.requireactivebatchcss) {
       this.requireactivebatchcss = new elation.require.batch('css', '/css');
     }
     this.requireactivebatchcss.addrequires(modules, callback);
-  }
+  //}
 });
 elation.extend('require.batch', function(type, webroot) {
 
@@ -2094,6 +2099,7 @@ elation.extend('require.batch', function(type, webroot) {
   this.webroot = webroot;
 
   this.pending = [];
+  this.fulfilled = {};
 
   this.nodes = {};
   this.rootnode = false;
@@ -2104,8 +2110,25 @@ elation.extend('require.batch', function(type, webroot) {
     }
   }
   this.getcurrentmodule = function() {
-    if (typeof document == 'undefined')
-      return;
+    if (typeof document == 'undefined') {
+      if (typeof module != 'undefined') {
+        var mod = module.children[module.children.length-1];
+        if (mod) {
+          var modid = mod.id;
+
+          var search = '/components/';
+          var idx = modid.indexOf(search);
+          modid = modid.substr(idx + search.length);
+          modid = modid.replace('/scripts/', '.');
+          modid = modid.replace(/\.js$/, '');
+          modid = modid.replace(/\//g, '.');
+          return modid;
+        }
+        return null;
+      } else {
+        return;
+      }
+    }
 
     var modname = false;
     // Gets the currently-executing script, (hopefully) in a cross-browser way
@@ -2139,7 +2162,7 @@ elation.extend('require.batch', function(type, webroot) {
     var modname = this.getcurrentmodule() || 'ANONYMOUS';
     //console.log('ADDREQ', modname, "=>", requires);
     var modulenode = (modname != 'ANONYMOUS' ? this.getnode(modname) : new elation.require.node('ANONYMOUS', callback));
-    if (!modulenode.callback) modulenode.callback = callback;
+    modulenode.callback = callback;
 
     if (!this.batchnode) {
       this.batchnode = new elation.require.node('batchnode', function() { elation.component.init(); });
@@ -2147,8 +2170,9 @@ elation.extend('require.batch', function(type, webroot) {
 
     for (var i = 0; i < requires.length; i++) {
       var depname = requires[i];
-      this.pushqueue(depname);
-
+      if (!this.ispending(depname)) {
+        this.pushqueue(depname);
+      }
       // Add node dependency, creating node if it doesn't exist yet
       var node = this.getnode(depname);
       if (node !== modulenode) {
@@ -2164,26 +2188,36 @@ elation.extend('require.batch', function(type, webroot) {
     }
   }
   this.pushqueue = function(module) {
+    //console.log('get it', module, this.isfulfilled(module), this.ispending(module));
     if (!this.isfulfilled(module) && !this.ispending(module)) {
       this.setpending(module);
-      if (ENV_IS_BROWSER) {
+      if (elation.env.isBrowser) {
         // browser
         elation.file.get(this.type, this.webroot + '/' + module.replace(/\./g, '/') + '.' + this.type, elation.bind(this, function(ev) { this.finished(module); }));
-      } else if (ENV_IS_WORKER) {
+      } else if (elation.env.isWorker) {
         //console.log('loading elation module: ', module);
         importScripts(this.webroot + '/' + module.replace(/\./g, '/') + '.' + this.type);
         this.finished(module);
-      } else if (ENV_IS_NODE) {
+      } else if (elation.env.isNode) {
         // running in node.js
-        console.log('loading elation module: ', module);
-        require(module.replace(/\./g, '/'));
+        //console.log('loading elation module: ', module);
+        try {
+          require(module.replace(/\./g, '/'));
+        } catch (e) {
+          console.log('ERROR ERROR', e);
+        }
+        this.finished(module);
+      } else {
+        console.log('dunno, just run it', module);
         this.finished(module);
       }
+    } else {
+      this.finished(module);
     }
   }
   this.isfulfilled = function(module) {
-    var existing = elation.utils.arrayget(elation, module) || elation.utils.arrayget(this, module);
-    return (existing !== null);
+    var existing = elation.utils.arrayget(elation, module) || elation.utils.arrayget(this, module) || this.fulfilled[module];
+    return (existing !== null && existing !== undefined);
   }
   this.ispending = function(module) {
     return (this.pending.indexOf(module) != -1);
@@ -2191,6 +2225,25 @@ elation.extend('require.batch', function(type, webroot) {
   this.setpending = function(module) {
     elation.utils.arrayset(this, module, true); // prevent us from trying to load this module again
     this.pending.push(module);
+  }
+  this.fulfill = function(modules, callback) {
+    if (!elation.utils.isArray(modules)) {
+      modules = [modules];
+    }
+    modules.forEach(elation.bind(this, function(module) {
+      this.fulfilled[module] = true;
+      var node = this.getnode(module);
+      /*if (!node.callback) */node.callback = callback;
+      if (callback && !node.callbackstr) node.callbackstr = callback.toString();
+      if (!this.batchnode) {
+        this.batchnode = new elation.require.node('batchnode', function() { elation.component.init(); });
+      }
+      this.setpending(module);
+      this.batchnode.addEdge(node);
+      //this.rootnode.addEdge(node);
+      setTimeout(elation.bind(this, this.finished, module), 0);
+      //this.finished(module);
+    }));
   }
   this.resolve = function(node, resolved, unresolved) {
     // Figure out the dependency callback order based on the dependency graph
@@ -2222,6 +2275,7 @@ elation.extend('require.batch', function(type, webroot) {
     if (idx != -1) {
       this.pending.splice(idx, 1);
     }
+    this.fulfilled[module] = true;
 
     // If nothing is pending, execute callbacks
     if (this.pending.length == 0) {
@@ -2597,7 +2651,7 @@ elation.extend('net.handlereadystatechange', function(ev) {
     }
   }
 });
-elation.requireCSS('utils.elation');
+//elation.requireCSS('utils.elation');
 
 /* 
  * classList.js: Cross-browser full element.classList implementation.

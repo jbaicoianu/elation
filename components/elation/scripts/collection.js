@@ -577,17 +577,24 @@ elation.require([], function() {
       // TODO - attach events to the parent, so we can respond to its events and emit our own as necessary
     }
     this.getfiltereditems = function() {
-      var items = this.parent.items;
-      var filtered = [];
-      for (var i = 0; i < items.length; i++) {
-        if (this.filterfunc(items[i])) {
-          filtered.push(items[i]);
+      if (!this.filtered) {
+        var items = this.parent.items;
+        var filtered = [];
+        for (var i = 0; i < items.length; i++) {
+          if (this.filterfunc(items[i])) {
+            filtered.push(items[i]);
+          }
         }
+        this.filtered = filtered;
       }
-      return filtered;
+      return this.filtered;
     }
     this.update = function() {
       elation.events.fire({type: "collection_load", element: this});
+    }
+    this.clear = function() {
+      this.filtered = false;
+      elation.events.fire({type: "collection_clear", element: this});
     }
   }, elation.collection.simple);
   /** 

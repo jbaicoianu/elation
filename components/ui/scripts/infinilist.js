@@ -119,17 +119,26 @@ elation.require(['ui.list'], function() {
         this.container.removeChild(this.placeholder_bottom.container);
       }
 */
+      var items = this.items;
+      var listitems = [];
       for (var i = visible[0], j = 0; i < visible[1]; i++) {
-        var li = this.getlistitem(j++);
-        li.setValue(this.items[i]);
+        var li = this.getlistitem(j);
+        listitems[j] = li;
+        j++;
+        li.setValue(items[i]);
         //if (this.knownheights[i] === undefined) {
-          this.knownheights[i] = li.container.offsetHeight;
+          //this.knownheights[i] = li.container.offsetHeight;
         //}
       }
       while (j < this.listitems.length) {
         var extrali = this.listitems.pop();
         this.container.removeChild(extrali.container);
         this.listitempool.push(extrali);
+      }
+      for (var i = 0; i < listitems.length; i++) {
+        if (this.knownheights[i] === undefined) {
+          this.knownheights[i] = listitems[i].container.offsetHeight;
+        }
       }
       if (this.placeholder_top) {
         this.placeholder_top.setheight(offset);

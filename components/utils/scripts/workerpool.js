@@ -1,6 +1,7 @@
-elation.require([], function() {
+elation.require(['utils.worker'], function() {
   elation.define('utils.workerpool', {
     src: false,
+    component: false,
     num: 4,
     pool: false,
     queue: false,
@@ -16,11 +17,18 @@ elation.require([], function() {
       this.promises = {};
     },
     createWorkers: function() {
-      if (ENV_IS_WORKER || typeof Worker == 'undefined') return;
+      if (elation.env.isWorker || typeof Worker == 'undefined') return;
       this.pool = [];
       if (this.src) {
         for (var i = 0; i < this.num; i++) {
           var worker = new Worker(this.src);
+          elation.events.add(worker, 'message', elation.bind(this, this.workerMessage));
+          this.pool.push(worker);
+          this.update();
+        }
+      } else if (this.component) {
+        for (var i = 0; i < this.num; i++) {
+          var worker = new elation.worker.thread(this.component);
           elation.events.add(worker, 'message', elation.bind(this, this.workerMessage));
           this.pool.push(worker);
           this.update();

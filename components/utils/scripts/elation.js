@@ -6,7 +6,7 @@ var ENV_IS_NODE = (typeof process === 'object' && typeof require === 'function')
 var ENV_IS_BROWSER = (typeof window !== 'undefined') ? true : false;
 var ENV_IS_WORKER = (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope);
 
-if (typeof window == 'undefined') var window = global || {}; 
+if (typeof window == 'undefined') var window = {}; 
 //  compatibility for nodejs/worker threads
 
 "use strict";
@@ -117,6 +117,18 @@ elation.extend("utils.arrayget", function(obj, name, defval) {
     return (typeof defval == "undefined" ? null : defval);
   }
   return ptr;
+});
+elation.extend('config', {
+  data: {},
+  set: function(name, value) {
+    return elation.utils.arrayset(this.data, name, value);
+  },
+  get: function(name, defaultvalue) {
+    return elation.utils.arrayget(this.data, name, defaultvalue);
+  },
+  merge: function(config) {
+    elation.utils.merge(config, this.data);
+  }
 });
 //Returns true if it is a DOM node
 elation.extend("utils.isnode", function(obj) {
@@ -2081,13 +2093,13 @@ elation.extend('require', function(modules, callback) {
   this.requireactivebatchjs.addrequires(modules, callback);
 });
 elation.extend('requireCSS', function(modules, callback) {
-  //if (elation.env.isBrowser) {
+  if (!elation.env.isWorker) {
     if (!elation.utils.isArray(modules)) modules = [modules];
     if (!this.requireactivebatchcss) {
       this.requireactivebatchcss = new elation.require.batch('css', '/css');
     }
     this.requireactivebatchcss.addrequires(modules, callback);
-  //}
+  }
 });
 elation.extend('require.batch', function(type, webroot) {
 
@@ -2096,7 +2108,7 @@ elation.extend('require.batch', function(type, webroot) {
   // TODO - needs timeout and better error handling
 
   this.type = type;
-  this.webroot = webroot;
+  this.webroot = elation.utils.any(webroot, elation.config.get('dependencies.path', '/scripts'));;
 
   this.pending = [];
   this.fulfilled = {};
@@ -2188,7 +2200,7 @@ elation.extend('require.batch', function(type, webroot) {
     }
   }
   this.pushqueue = function(module) {
-    //console.log('get it', module, this.isfulfilled(module), this.ispending(module));
+    //console.log('get it', module, this.isfulfilled(module), this.ispending(module), this.webroot);
     if (!this.isfulfilled(module) && !this.ispending(module)) {
       this.setpending(module);
       if (elation.env.isBrowser) {
@@ -2216,14 +2228,16 @@ elation.extend('require.batch', function(type, webroot) {
     }
   }
   this.isfulfilled = function(module) {
-    var existing = elation.utils.arrayget(elation, module) || elation.utils.arrayget(this, module) || this.fulfilled[module];
+    if (module == 'root' || module == 'ANONYMOUS') return false;
+    //var existing = elation.utils.arrayget(elation, module) || elation.utils.arrayget(this, module) || this.fulfilled[module];
+    var existing = this.fulfilled[module];
     return (existing !== null && existing !== undefined);
   }
   this.ispending = function(module) {
     return (this.pending.indexOf(module) != -1);
   }
   this.setpending = function(module) {
-    elation.utils.arrayset(this, module, true); // prevent us from trying to load this module again
+    //elation.utils.arrayset(this, module, true); // prevent us from trying to load this module again
     this.pending.push(module);
   }
   this.fulfill = function(modules, callback) {

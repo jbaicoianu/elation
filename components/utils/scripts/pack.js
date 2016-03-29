@@ -19,9 +19,9 @@ elation.require(requires);
 
 var resolved = elation.requireactivebatchjs.resolve(elation.requireactivebatchjs.rootnode);
 resolved.unshift({name: 'utils.elation'});
-var resolvednames = [];
-resolved.forEach(function(r) { resolvednames.push(r.name); });
-console.log('===== RESOLVED ORDER =====', resolvednames);
+var resolvednamesjs = [];
+resolved.forEach(function(r) { resolvednamesjs.push(r.name); });
+console.log('===== RESOLVED ORDER =====', resolvednamesjs);
 var files = [];
 var sources = [];
 resolved.forEach(function(module) {
@@ -39,7 +39,7 @@ resolved.forEach(function(module) {
     sources.push(source);
   }
 });
-sources.push('setTimeout(elation.component.init, 0); elation.onloads.add("elation.component.init()"); ');
+sources.push('setTimeout(function() { elation.component.init(); }, 0); elation.onloads.add("elation.component.init()"); ');
 
 function wrapSource(name, source) {
   var pre = '// ===== BEGIN FILE: ' + name + ' ====\n(\n';
@@ -49,10 +49,10 @@ function wrapSource(name, source) {
 
 if (elation.requireactivebatchcss) {
   var resolvedcss = elation.requireactivebatchcss.resolve(elation.requireactivebatchcss.rootnode);
-  var resolvednames = [];
+  var resolvednamescss = [];
   var csssources = [];
   resolvedcss.forEach(function(module) { 
-    resolvednames.push(module.name);
+    resolvednamescss.push(module.name);
     var fname = 'htdocs/css/' + module.name.replace(/\./g, '/') + '.css';
     console.log(fname);
     if (fs.existsSync(fname)) {
@@ -62,12 +62,12 @@ if (elation.requireactivebatchcss) {
       csssources.push(source);
     }
   });
-  console.log('===== RESOLVED ORDER =====', resolvednames);
+  console.log('===== RESOLVED ORDER =====', resolvednamescss);
 
-  fs.writeFileSync('bundle-pack.css', csssources.join('\n'));
-  //sources.push('elation.requireactivebatchcss.fulfill(' + JSON.stringify(resolvednames) + ');');
-  sources.splice(1, 0, 'elation.requireactivebatchcss = new elation.require.batch("css", "/css"); elation.requireactivebatchcss.fulfill(' + JSON.stringify(resolvednames) + ');');
-     
+  fs.writeFileSync('bundle.css', csssources.join('\n'));
+  //sources.push('elation.requireactivebatchcss.fulfill(' + JSON.stringify(resolvednamescss) + ');');
+  sources.splice(1, 0, 'elation.requireactivebatchcss = new elation.require.batch("css", "/css"); elation.requireactivebatchcss.fulfill(' + JSON.stringify(resolvednamescss) + ');');
+  sources.splice(1, 0, 'elation.requireactivebatchjs = new elation.require.batch("js", "/scripts"); elation.requireactivebatchjs.fulfill(' + JSON.stringify(resolvednamesjs) + ');');
 }
-fs.writeFileSync('bundle-pack.js', sources.join('\n'));
+fs.writeFileSync('bundle.js', sources.join('\n'));
 console.log(elation.env);

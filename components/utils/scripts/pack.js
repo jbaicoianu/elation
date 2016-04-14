@@ -10,15 +10,28 @@ elation.env.isWorker = false;
 
 var depname = process.argv[2];
 var requires = ['utils.events'];
+var config = false;
 if (process.argv.length > 2) {
   for (var i = 2; i < process.argv.length; i++) {
-    requires.push(process.argv[i]);
+    var arg = process.argv[i];
+    if (arg == '-config') {
+      config = process.argv[++i];
+    } else {
+      requires.push(process.argv[i]);
+    }
   }
 }
+
 elation.require(requires);
+elation.requireCSS('utils.elation');
+elation.requireCSS(requires);
 
 var resolved = elation.requireactivebatchjs.resolve(elation.requireactivebatchjs.rootnode);
+if (config) {
+  resolved.unshift({name: config});
+}
 resolved.unshift({name: 'utils.elation'});
+
 var resolvednamesjs = [];
 resolved.forEach(function(r) { resolvednamesjs.push(r.name); });
 console.log('===== RESOLVED ORDER =====', resolvednamesjs);

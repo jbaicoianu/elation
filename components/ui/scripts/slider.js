@@ -452,7 +452,7 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
       }
     };
     this.init = function() {
-      console.log('slider', this);
+      //console.log('slider', this);
       var handle = {};
       
       for (var key in this.defaults.handle) {

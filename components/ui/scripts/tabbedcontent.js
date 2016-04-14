@@ -38,7 +38,7 @@ elation.require(['ui.content', 'ui.tabs'], function() {
     this.ui_tabs_change = function(ev) {
       var tab = ev.data;
       if (tab && tab.content) {
-        console.log('tabitem_select', ev, this);
+        //console.log('tabitem_select', ev, this);
         this.content.setcontent(this.args.contenttype == 'content' ? tab.content : tab.name);
       }
     }

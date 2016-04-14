@@ -38,7 +38,7 @@ elation.require([], function() {
   elation.component.add("collection.simple", function() {
     this.init = function() {
       this.items = [];
-      this.allowduplicates = false;
+      this.allowduplicates = elation.utils.any(this.args.allowduplicates, false);
       this.datatransform = this.args.datatransform || {};
 
       Object.defineProperty(this, "length", { get: function() { return this.getlength(); } });

@@ -14,7 +14,6 @@ elation.require(['utils.events'], function() {
       //var file = '/bundle.js';
       var root = elation.config.get('dependencies.path', document.location.protocol + '//' + document.location.host);
       var file = elation.config.get('dependencies.main', '/scripts/utils/elation.js');
-console.log('DERP', root, file);
       var script = [
         "importScripts('" + root + file + "');",
         "if (elation.requireactivebatchjs) {",
@@ -22,14 +21,12 @@ console.log('DERP', root, file);
         "} else {",
         "  elation.requireactivebatchjs = new elation.require.batch('js', '" + root + "/scripts');",
         "}",
-        "console.log(elation.requireactivebatchjs);",
         "var msgqueue = [];",
-        "onmessage = function(ev) { msgqueue.push(ev); consolelog('queue it', ev); };",
+        "onmessage = function(ev) { msgqueue.push(ev); };",
         "elation.require('" + component + "', function() {",
         "  var handler = new elation." + component + "();",
         "  onmessage = handler.onmessage.bind(handler);",
-        "  console.log('bound the mesage handler', handler);",
-        "  msgqueue.forEach(function(msg) { console.log('run queued message', msg); handler.onmessage(msg); });",
+        "  msgqueue.forEach(function(msg) { handler.onmessage(msg); });",
         "});"
       ];
 
@@ -44,7 +41,6 @@ console.log('DERP', root, file);
       return this.thread.postMessage(msg);
     },
     handlemessage: function(ev) {
-      console.log('got message from worker thread', ev);
       elation.events.fire({element: this, type: 'message', data: ev.data});
     }
   });

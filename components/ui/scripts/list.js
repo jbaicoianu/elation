@@ -450,6 +450,22 @@ elation.require("ui.base", function() {
       this.lastselection.setlastselected(true);
     }
     /**
+     * Scrolls to the bottom of the list
+     * @function scrollToBottom
+     * @memberof elation.ui.list#
+     */
+    this.scrollToBottom = function() {
+      this.container.scrollTop = this.container.scrollHeight;
+    }
+    /**
+     * Is the list currently scrolled to the bottom?
+     * @function isScrollAtBottom
+     * @memberof elation.ui.list#
+     */
+    this.isScrollAtBottom = function() {
+      return this.container.scrollTop + this.container.offsetHeight >= this.container.scrollHeight;
+    }
+    /**
      * Event handler: elation.ui.listitem#ui_list_item_select
      * @function ui_list_item_select
      * @memberof elation.ui.list#

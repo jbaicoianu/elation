@@ -344,7 +344,7 @@ node_run() {
   COMPONENTPATH=$(echo $COMPONENTNAME |sed 's/\./\//g').js
   SCRIPTROOT=htdocs/scripts
 
-  NODE_PATH=$SCRIPTROOT node $SCRIPTROOT/$COMPONENTPATH $*
+  NODE_PATH=$SCRIPTROOT nodejs $SCRIPTROOT/$COMPONENTPATH $*
 }
 
 bundle() {

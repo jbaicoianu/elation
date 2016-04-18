@@ -81,6 +81,12 @@ component_create() {
   fi
 }
 component_enable() {
+  COMPONENTNAMES=$*
+  for COMPONENTNAME in $COMPONENTNAMES; do
+    component_enable_single $COMPONENTNAME
+  done
+}
+component_enable_single() {
   COMPONENTNAME=$1
   COMPONENTDIR=$(component_get_dir $COMPONENTNAME)
   LINKPATH=$(echo $COMPONENTNAME |tr '.' '/')
@@ -117,7 +123,7 @@ component_enable() {
       cd include/model && ln -sf $COMPONENTDIR/model/*_class.php . && cd $BASEDIR
       echo -n "classes "
     fi
-    echo "DONE"
+    echo ""
   else
     error "Unknown component '${COMPONENTNAME}'"
   fi

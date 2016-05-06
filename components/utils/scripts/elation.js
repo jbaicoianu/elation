@@ -194,7 +194,7 @@ elation.define("class", {
   _construct: function(args) {
     if (args) {
       var keys = Object.keys(args);
-      keys.forEach(elation.bind(this, function(k) { this[k] = args[k]; }));
+      keys.forEach(elation.bind(this, function(k) { if (typeof args[k] != 'undefined') this[k] = args[k]; }));
     }
   },
   toJSON: function() {
@@ -2660,7 +2660,7 @@ elation.extend('net.handlereadystatechange', function(ev) {
     } else {
       if (this.failurecallback) {
         //elation.ajax.executeCallback(obj.failurecallback);
-        this.failurecallback();
+        this.failurecallback(xhr);
       }
     }
   }

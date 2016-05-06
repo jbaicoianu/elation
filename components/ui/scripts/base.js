@@ -140,6 +140,11 @@ elation.require(['utils.events'], function() {
         })(this, properties[i]);
       }
     }
+    this.addEventProxies = function(element, events) {
+      for (var i = 0; i < events.length; i++) {
+        elation.events.add(element, events[i], elation.bind(this, function(ev) { elation.events.fire({element: this, type: ev.type, event: ev }); }));
+      }
+    }
     this.getPropertyValue = function(k) {
       return this.container[k];
     }

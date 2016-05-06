@@ -31,9 +31,11 @@ elation.require(['ui.base'], function() {
       this.create();
       elation.events.add(this.container, 'click', this);
 
+      this.addEventProxies(this.container, ['mouseover','mouseout','mousedown', 'mouseup', 'mousemove', 'touchstart', 'touchmove', 'touchend', 'focus', 'blur']);
       for (var k in this.events) {
         elation.events.add(this.container, k, this.events[k]);
       }
+
     }
     /**
      * Initialize HTML element

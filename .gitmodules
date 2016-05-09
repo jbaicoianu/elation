@@ -1,18 +1,15 @@
 [submodule "components/deepzoom"]
 	path = components/deepzoom
-	url = git://github.com/jbaicoianu/elation-component-deepzoom.git
+	url = https://github.com/jbaicoianu/elation-component-deepzoom.git
 [submodule "components/games"]
 	path = components/games
-	url = git@github.com:jbaicoianu/elation-component-games.git
-[submodule "components/pandora"]
-	path = components/pandora
-	url = /data/elation/components/pandora/
+	url = https://github.com/jbaicoianu/elation-component-games.git
 [submodule "components/space"]
 	path = components/space
-	url = git@github.com:jbaicoianu/elation-component-space.git
+	url = https://github.com/jbaicoianu/elation-component-space.git
 [submodule "components/filehost"]
 	path = components/filehost
-	url = git@github.com:jbaicoianu/elation-filehost.git
+	url = https://github.com/jbaicoianu/elation-filehost.git
 [submodule "components/engine"]
 	path = components/engine
 	url = https://github.com/jbaicoianu/elation-engine.git
@@ -21,4 +18,7 @@
 	url = https://github.com/jbaicoianu/cyclone-physics-js.git
 [submodule "components/vrcade"]
 	path = components/vrcade
-	url = https://github.com/jbaicoianu/elation-vrcade.git
+    url = https://github.com/jbaicoianu/elation-vrcade.git
+[submodule "components/share"]
+	path = components/share
+	url = https://github.com/jbaicoianu/elation-share.git

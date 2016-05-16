@@ -8,22 +8,20 @@ elation.require(['utils.events'], function() {
   elation.define('worker.thread', {
     _construct: function(component) {
       var bloburl = "";
-      //var root = document.location.protocol + '//' + document.location.host;
-      //var file = '/scripts/utils/elation.js';
-      //var root = document.location.protocol + '//' + document.location.host + document.location.pathname;
-      //var file = '/bundle.js';
-      var root = elation.config.get('dependencies.path', document.location.protocol + '//' + document.location.host);
+      var origin = document.location.origin;
+      var root = elation.config.get('dependencies.rootdir', '/');
       var file = elation.config.get('dependencies.main', '/scripts/utils/elation.js');
       var script = [
-        "importScripts('" + root + file + "');",
+        "importScripts('" + origin + root + file + "');",
         "if (elation.requireactivebatchjs) {",
-        "  elation.requireactivebatchjs.webroot = '" + root + "/scripts';",
+        "  elation.requireactivebatchjs.webroot = '" + origin + root + "scripts';",
         "} else {",
-        "  elation.requireactivebatchjs = new elation.require.batch('js', '" + root + "/scripts');",
+        "  elation.requireactivebatchjs = new elation.require.batch('js', '" + origin + root + "scripts');",
         "}",
         "var msgqueue = [];",
         "onmessage = function(ev) { msgqueue.push(ev); };",
         "elation.require('" + component + "', function() {",
+        "  elation.config.merge(" + JSON.stringify(elation.config.data) + ");",
         "  var handler = new elation." + component + "();",
         "  onmessage = handler.onmessage.bind(handler);",
         "  msgqueue.forEach(function(msg) { handler.onmessage(msg); });",

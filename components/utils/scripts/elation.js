@@ -2143,12 +2143,7 @@ elation.extend('require.batch', function(type, webroot) {
     }
 
     var modname = false;
-    // Gets the currently-executing script, (hopefully) in a cross-browser way
-    var script = (typeof document != 'undefined' ? document.currentScript : false);
-    if (typeof script == 'undefined') {
-      var scripts = document.getElementsByTagName('script');
-      script = scripts[scripts.length - 1];
-    }
+    var script = elation.utils.getCurrentScript();
     if (script) {
       var scriptsrc = script.src,
           webroot = '/scripts', // FIXME - hardcode script webroot, because this method only works for JS
@@ -2667,6 +2662,15 @@ elation.extend('net.handlereadystatechange', function(ev) {
 });
 //elation.requireCSS('utils.elation');
 
+elation.extend('utils.getCurrentScript', function() {
+  // Gets the currently-executing script, (hopefully) in a cross-browser way
+  var script = (typeof document != 'undefined' ? document.currentScript : false);
+  if (typeof script == 'undefined') {
+    var scripts = document.getElementsByTagName('script');
+    script = scripts[scripts.length - 1];
+  }
+  return script;
+});
 /* 
  * classList.js: Cross-browser full element.classList implementation.
  * 2014-07-23

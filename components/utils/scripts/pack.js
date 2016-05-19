@@ -25,11 +25,17 @@ if (process.argv.length > 2) {
   }
 }
 
-elation.require(requires);
+try {
+  elation.require(requires);
+} catch (e) {
+}
 elation.requireCSS('utils.elation');
 elation.requireCSS(requires);
 
-var resolved = elation.requireactivebatchjs.resolve(elation.requireactivebatchjs.rootnode);
+try {
+  var resolved = elation.requireactivebatchjs.resolve(elation.requireactivebatchjs.rootnode);
+} catch (e) {
+}
 if (config) {
   // If config is specified, make sure it's loaded immediately after utils.elation
   var idx = -1;
@@ -43,28 +49,31 @@ resolved.unshift({name: 'utils.elation'});
 
 var resolvednamesjs = [];
 resolved.forEach(function(r) { resolvednamesjs.push(r.name); });
-//console.log('===== RESOLVED ORDER =====', resolvednamesjs);
+
 var files = [];
 var sources = [];
 resolved.forEach(function(module) {
   var fname = 'htdocs/scripts/' + module.name.replace(/\./g, '/') + '.js';
   if (fs.existsSync(fname)) {
     files.push(fname);
-    //var source = fs.readFileSync(fname, 'utf8');
-    var source = '';
-    if (module.callback) source = wrapSource(module.name, module.callback.toString());
-    else source = fs.readFileSync(fname, 'utf8');
 
-    //source += '\nsetTimeout(function() { elation.requireactivebatchjs.finished("' + module.name + '"); }, 0)\n';
-    //source = 'elation.utils.arrayset(elation, "' + module + '", true);\n' + source;
+    var source = '';
+    if (module.callback) source = wrapComponent(module.name, module.callback.toString());
+    else source = wrapExternal(module.name, fs.readFileSync(fname, 'utf8'));
+
     sources.push(source);
   }
 });
 sources.push('setTimeout(function() { elation.component.init(); }, 0); elation.onloads.add("elation.component.init()"); ');
 
-function wrapSource(name, source) {
+function wrapComponent(name, source) {
   var pre = '// ===== BEGIN FILE: ' + name + ' ====\n(\n';
   var post = ')();\n// ===== END FILE: ' + name + ' =====\n';
+  return pre + source + post;
+}
+function wrapExternal(name, source) {
+  var pre = '// ===== BEGIN EXTERNAL FILE: ' + name + ' ====\n';
+  var post = '\n// ===== END EXTERNAL FILE: ' + name + ' =====\n';
   return pre + source + post;
 }
 

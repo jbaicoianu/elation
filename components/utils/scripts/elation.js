@@ -2211,7 +2211,7 @@ elation.extend('require.batch', function(type, webroot) {
         try {
           require(module.replace(/\./g, '/'));
         } catch (e) {
-          console.log('ERROR ERROR', e);
+          //console.log('ERROR ERROR', e);
         }
         this.finished(module);
       } else {
@@ -2335,7 +2335,7 @@ elation.extend('require.node', function(name, callback) {
         }
         this.done = true;
       } catch (e) {
-        console.error(e.stack);
+        //console.error(e.stack);
         success = false;
       }
     }

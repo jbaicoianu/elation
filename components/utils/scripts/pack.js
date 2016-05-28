@@ -67,8 +67,8 @@ resolved.forEach(function(module) {
 sources.push('setTimeout(function() { elation.component.init(); }, 0); elation.onloads.add("elation.component.init()"); ');
 
 function wrapComponent(name, source) {
-  var pre = '// ===== BEGIN FILE: ' + name + ' ====\n(\n';
-  var post = ')();\n// ===== END FILE: ' + name + ' =====\n';
+  var pre = '// ===== BEGIN COMPONENT: ' + name + ' ====\n(\n';
+  var post = ')();\n// ===== END COMPONENT: ' + name + ' =====\n';
   return pre + source + post;
 }
 function wrapExternal(name, source) {

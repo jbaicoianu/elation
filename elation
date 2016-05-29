@@ -340,11 +340,18 @@ docs_generate_js() {
 node_run() {
   COMPONENTNAME=$1
   shift
-  echo 'run it' $COMPONENTNAME
   COMPONENTPATH=$(echo $COMPONENTNAME |sed 's/\./\//g').js
   SCRIPTROOT=htdocs/scripts
 
-  NODE_PATH=$SCRIPTROOT nodejs $SCRIPTROOT/$COMPONENTPATH $*
+  NODE=nodejs
+  if [ ! -x `which $NODE` ]; then
+    NODE=node
+  fi
+  if [ ! -x `which $NODE` ]; then
+    echo "ERROR - could not find nodejs executable"
+  else
+    NODE_PATH=$SCRIPTROOT $NODE $SCRIPTROOT/$COMPONENTPATH $*
+  fi
 }
 
 bundle() {

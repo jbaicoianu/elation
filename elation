@@ -343,13 +343,13 @@ node_run() {
   COMPONENTPATH=$(echo $COMPONENTNAME |sed 's/\./\//g').js
   SCRIPTROOT=htdocs/scripts
 
-  NODE=nodejs
+  NODE=`which nodejs`
   echo "check exists: $NODE"
-  if [ ! -x `which $NODE` ]; then
+  if [ -z "$NODE" ]; then
     echo "$NODE doesn't exist, try alternate"
-    NODE=node
+    NODE=`which node`
   fi
-  if [ ! -x `which $NODE` ]; then
+  if [ -z "$NODE" ]; then
     echo "ERROR - could not find nodejs executable"
   else
     echo "Found: $NODE"

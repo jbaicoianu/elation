@@ -8,9 +8,10 @@ elation.require(['utils.worker'], function() {
 
     _construct: function(args) {
       elation.class.call(this, args);
+      this.pool = [];
 
       this.clearQueue();
-      this.createWorkers();
+      //this.createWorkers();
     },
     clearQueue: function() {
       this.queue = [];
@@ -18,7 +19,6 @@ elation.require(['utils.worker'], function() {
     },
     createWorkers: function() {
       if (elation.env.isWorker || typeof Worker == 'undefined') return;
-      this.pool = [];
       if (this.src) {
         for (var i = 0; i < this.num; i++) {
           var worker = new Worker(this.src);
@@ -52,12 +52,37 @@ elation.require(['utils.worker'], function() {
       return promise;
     },
     update: function() {
-      if (this.queue.length > 0 && this.pool.length > 0) {
+      if (this.queue.length > 0 && this.isWorkerAvailable()) {
         // If we have pending items and an available worker, let's go
-        var worker = this.pool.shift();
-        var job = this.queue.shift();
-        worker.postMessage({type: 'job', data: job});
+        var worker = this.getWorker();
+        if (worker) {
+          var job = this.queue.shift();
+          worker.postMessage({type: 'job', data: job});
+        }
       }
+    },
+    isWorkerAvailable: function() {
+      return (this.pool.length > 0 || this.pool.length < this.num);
+    },
+    getWorker: function() {
+      if (this.pool.length > 0) {
+        return this.pool.shift();
+      } else if (this.pool.length < this.num) {
+        return this.createWorker();
+      }
+    },
+    createWorker: function() {
+      if (elation.env.isWorker || typeof Worker == 'undefined') return;
+      if (this.src) {
+        var worker = new Worker(this.src);
+        elation.events.add(worker, 'message', elation.bind(this, this.workerMessage));
+        return worker;
+      } else if (this.component) {
+        var worker = new elation.worker.thread(this.component);
+        elation.events.add(worker, 'message', elation.bind(this, this.workerMessage));
+        return worker;
+      }
+      return null;
     },
     getJobID: function() {
       return Math.round(Math.random() * 1e10);

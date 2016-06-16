@@ -341,7 +341,7 @@ node_run() {
   COMPONENTNAME=$1
   shift
   COMPONENTPATH=$(echo $COMPONENTNAME |sed 's/\./\//g').js
-  SCRIPTROOT=htdocs/scripts
+  SCRIPTROOT=`pwd`/htdocs/scripts
 
   NODE=`which nodejs`
   echo "check exists: $NODE"

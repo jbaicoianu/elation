@@ -15,6 +15,7 @@ elation.require(['utils.worker'], function() {
     },
     clearQueue: function() {
       this.queue = [];
+      this.inprogress = 0;
       this.promises = {};
     },
     createWorkers: function() {
@@ -66,8 +67,10 @@ elation.require(['utils.worker'], function() {
     },
     getWorker: function() {
       if (this.pool.length > 0) {
+        this.inprogress++;
         return this.pool.shift();
-      } else if (this.pool.length < this.num) {
+      } else if (this.pool.length + this.inprogress < this.num) {
+        this.inprogress++;
         return this.createWorker();
       }
     },
@@ -96,6 +99,7 @@ elation.require(['utils.worker'], function() {
           this.promises[id].resolve(data);
           delete this.promises[id];
         }
+        this.inprogress--;
         this.pool.push(ev.target);
         this.update();
       }

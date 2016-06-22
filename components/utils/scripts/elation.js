@@ -53,7 +53,7 @@ var elation = window.elation = new function(selector, parent, first) {
     }
     // FIXME - need to figure out a non-horrible way of overriding the class name that's shown in console.log
     var func = false;
-    var funcstr = "elation.utils.arrayset(elation, '" + name + "', false); elation." + name + " = function (args) { if (constructor) constructor.call(this, args); }; func = elation." + name + ";";
+    var funcstr = "elation.utils.arrayset(elation, '" + name + "', false); elation." + name + " = function (args) { if (constructor) return constructor.apply(this, arguments); }; func = elation." + name + ";";
     //var funcstr = "console.log('serrr');";
     eval(funcstr);
     var objdef = func;
@@ -2472,7 +2472,7 @@ elation.extend("utils.parseXML", function(imgxml, leaf, forceLower) {
   } else {
     if (window.DOMParser) {
       var parser = new DOMParser();
-      node = parser.parseFromString(imgxml,"text/xml").firstChild;
+      node = parser.parseFromString(imgxml,"application/xml").firstChild;
     } else {
       node = new ActiveXObject("Microsoft.XMLDOM");
       node.async = "false";

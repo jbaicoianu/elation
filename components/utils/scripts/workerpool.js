@@ -91,18 +91,27 @@ elation.require(['utils.worker'], function() {
       return Math.round(Math.random() * 1e10);
     },
     workerMessage: function(ev) {
+      var id = ev.data.id,
+          data = ev.data.data,
+          worker = ev.target;
       if (ev.data.message == 'finished') {
-        // return worker to pool
-        var id = ev.data.id,
-            data = ev.data.data;
         if (this.promises[id]) {
           this.promises[id].resolve(data);
           delete this.promises[id];
         }
-        this.inprogress--;
-        this.pool.push(ev.target);
-        this.update();
+        this.releaseWorker(worker);
+      } else if (ev.data.message == 'error') {
+        if (this.promises[id]) {
+          this.promises[id].reject(data);
+          delete this.promises[id];
+        }
+        this.releaseWorker(worker);
       }
+    },
+    releaseWorker: function(worker) {
+        this.inprogress--;
+        this.pool.push(worker);
+        this.update();
     }
   });
 });

@@ -2,69 +2,147 @@ elation.require(['utils.events'], function() {
   elation.define('proxy', {
     _proxytarget: null,
     _proxydefs: {},
-    _construct: function(target, defs) {
+    _proxyobj: null,
+    _proxypassthrough: true,
+    _scriptprops: {},
+    _construct: function(target, defs, passthrough) {
       this._proxytarget = target;
       if (defs) this._proxydefs = defs;
+      var self = this;
+      var proxydefs = this._proxydefs,
+          scriptprops = this._scriptprops;
+      var changetimer = false,
+          proxyobj = this._proxyobj;
+
+      function setProxyChangeTimer(data) {
+        if (!changetimer) {
+          changetimer = setTimeout(function() {
+            elation.events.fire({element: proxyobj, type: 'proxy_change', data: data});
+            changetimer = false;
+          }, 0);
+        }
+      }
+
+      var getProxyValue = function(target, name) {
+        if (proxydefs && proxydefs.hasOwnProperty(name)) {
+          var def = proxydefs[name];
+          var value;
+          if (def[1] && def[1].split) {
+            value = elation.utils.arrayget(target, def[1]);
+          } else {
+            console.log('wtf d00d', name, def, defs);
+          }
+          if (def[0] == 'property') {
+            return value;
+          } else if (def[0] == 'function') {
+            var bindobj = target;
+            if (def[1].indexOf('.') != -1) {
+              var parts = def[1].split('.');
+              parts.pop();
+              bindobj = elation.utils.arrayget(target, parts.join('.'));
+            }
+            return elation.bind(bindobj, value);
+          }
+        } else if (name in scriptprops) {
+          return scriptprops[name];
+        } else {
+          scriptprops[name] = target[name];
+        }
+        if (passthrough) {
+          return target[name];
+        }
+      }
+
 
       var proxyhandler = {
-        get: function(target, name) {
-          if (name in defs) {
-            var def = defs[name];
-            var value = elation.utils.arrayget(target, def[1]);
-            if (def[0] == 'property') {
-              if (target.refresh) target.refresh();
-              return value;
-            } else if (def[0] == 'function') {
-              var bindobj = target;
-              if (def[1].indexOf('.') != -1) {
-                var parts = def[1].split('.');
-                parts.pop();
-                bindobj = elation.utils.arrayget(target, parts.join('.'));
-              }
-              return elation.bind(bindobj, value);
-            }
-          }
-          return target[name];
-        },
+        construct: target.constructor,
+        get: getProxyValue,
         set: function(target, name, value) {
-          if (name in defs) {
-            var def = defs[name];
-            if (def[0] == 'property') {
-              var propargs = def[2] || {};
+          if (proxydefs && name in proxydefs) {
+            var def = proxydefs[name],
+                deftype = def[0],
+                defname = def[1],
+                defargs = def[2];
+            if (deftype == 'property') {
+              var propargs = defargs || {};
               if (!propargs.readonly) {
-                elation.utils.arrayset(target, def[1], value);
-                if (target.refresh) target.refresh();
+                elation.utils.arrayset(target, defname, value);
+                //elation.events.fire({element: this._proxyobj, type: 'proxy_change', data: {key: defname, value: value}});
+                setProxyChangeTimer({key: defname, value: value});
                 return value;
               }
-            } else if (def[0] == 'callback') {
+            } else if (deftype == 'callback') {
               var evobj = target;
-              if (def[2]) {
-                evobj = elation.utils.arrayget(target, def[2]);
+              if (defargs) {
+                evobj = elation.utils.arrayget(target, defargs);
               }
               elation.utils.arrayset(target, name, value);
               if (evobj) {
-                elation.events.add(evobj, def[1], elation.bind(target, value))
+                var bindargs = def[3] || [];
+                //elation.events.add(evobj, def[1], elation.bind.apply(null, bindargs));
+                elation.events.add(evobj, def[1], elation.bind(target, function(ev) {
+                  var funcargs = [];
+                  for (var i = 0; i < bindargs.length; i++) {
+                    funcargs.push(bindargs[i]);
+                  }
+                  for (var i = 0; i < arguments.length; i++) {
+                    funcargs.push(arguments[i]);
+                  }
+                  try { 
+                    value.apply(target, funcargs); 
+                  } catch (e) { 
+                    console.log(e.stack); 
+                  }
+                }));
               }
+              //elation.events.fire({element: this._proxyobj, type: 'proxy_change', data: {key: defname, value: value}});
+              setProxyChangeTimer({key: defname, value: value});
               return value;
             } else {
               console.log('why set function?', target, name, def);
             }
+          } else if (name == '_proxydefs') {
+            elation.utils.merge(value, proxydefs);
           } else {
-            target[name] = value;
+            scriptprops[name] = value;
+            //target[name] = value;
+            //elation.events.fire({element: target, type: 'proxy_change', data: {key: name, value: value}});
+            setProxyChangeTimer({key: name, value: value});
           }
         },
         has: function(key) {
-          return (key in defs);
+          return (proxydefs && (key in proxydefs || key in self._scriptprops));
         },
-        enumerate: function() {
-          return Object.keys(defs);
+        getOwnPropertyDescriptor: function(target, prop) {
+          if (prop in proxydefs || prop in self._scriptprops) {
+            return {enumerable: true, configurable: true, value: getProxyValue(target, prop)};
+          }
         },
-        ownKeys: function() {
-          return Object.keys(defs);
+        enumerate: function(target) {
+          var scriptkeys = (self._scriptprops ? Object.keys(self._scriptprops) : []);
+          var proxykeys = [];//(self._proxydefs ? Object.keys(self._proxydefs) : []);
+          for (var k in self._proxydefs) {
+            if (self._proxydefs[0] == 'property') {
+              proxykeys.push(k);
+            }
+          }
+          return proxykeys.concat(scriptkeys);
+        },
+        ownKeys: function(target) {
+          var scriptkeys = (self._scriptprops ? Object.keys(self._scriptprops) : []);
+          var proxykeys = [];//(self._proxydefs ? Object.keys(self._proxydefs) : []);
+          for (var k in self._proxydefs) {
+            if (self._proxydefs[k][0] == 'property') {
+              proxykeys.push(k);
+            }
+          }
+          var ret = proxykeys.concat(scriptkeys);
+          return ret;
         }
       };
 
-      return new Proxy(this._proxytarget, proxyhandler);
+      this._proxyobj = new Proxy(this._proxytarget, proxyhandler);
+      return this._proxyobj;
     },
   });
 });

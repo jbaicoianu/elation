@@ -1,5 +1,5 @@
 elation.require([], function() {
-  elation.extend("utils.math.gcd", function(t1, t2) {
+  elation.extend("utils.math.gcd", function(r0, r1) {
     var tmp;
     if (r1 > r0) {
       tmp = r1;

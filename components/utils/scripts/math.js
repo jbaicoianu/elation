@@ -1,22 +1,17 @@
 elation.require([], function() {
   elation.extend("utils.math.gcd", function(t1, t2) {
-    var gcd = 1;
-    if (t1 > t2) {
-      t1 = t1 + t2;
-      t2 = t1 - t2;
-      t1 = t1 - t2;
+    var tmp;
+    if (r1 > r0) {
+      tmp = r1;
+      r1 = r0;
+      r0 = tmp;
     }
-    if ((t2 == (Math.round(t2 / t1)) * t1)) {
-      gcd = t1
-    } else {
-      for (var i = Math.round(t1 / 2); i > 1; i--) {
-        if ((t1 == (Math.round(t1 / i)) * i) && (t2 == (Math.round(t2 / i)) * i)) {
-          gcd = i;
-          i=-1;
-        }
-      }
-    }
-    return gcd;  
+    while (r1 != 0) {
+      tmp = r1;
+      r1 = r0 % r1;
+      r0 = tmp;
+    } 
+    return Math.abs(r0);
   });
   elation.extend("utils.math.lcm", function(t1, t2) {
     var cm = 1;

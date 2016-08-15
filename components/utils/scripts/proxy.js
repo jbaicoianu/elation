@@ -15,11 +15,14 @@ elation.require(['utils.events'], function() {
           proxyobj = this._proxyobj;
 
       function setProxyChangeTimer(data) {
-        if (!changetimer) {
-          changetimer = setTimeout(function() {
-            elation.events.fire({element: proxyobj, type: 'proxy_change', data: data});
-            changetimer = false;
-          }, 0);
+        elation.events.fire({element: proxyobj, type: 'proxy_change', data: data});
+      }
+
+      function executeCallback(fn, target, args) {
+        try { 
+          fn.apply(target, args);
+        } catch (e) { 
+          console.log(e.stack); 
         }
       }
 
@@ -45,6 +48,8 @@ elation.require(['utils.events'], function() {
           }
         } else if (name in scriptprops) {
           return scriptprops[name];
+        } else if (name == '_target') {
+          return target;
         } else {
           scriptprops[name] = target[name];
         }
@@ -58,7 +63,7 @@ elation.require(['utils.events'], function() {
         construct: target.constructor,
         get: getProxyValue,
         set: function(target, name, value) {
-          if (proxydefs && name in proxydefs) {
+          if (proxydefs && proxydefs[name]) {
             var def = proxydefs[name],
                 deftype = def[0],
                 defname = def[1],
@@ -88,11 +93,7 @@ elation.require(['utils.events'], function() {
                   for (var i = 0; i < arguments.length; i++) {
                     funcargs.push(arguments[i]);
                   }
-                  try { 
-                    value.apply(target, funcargs); 
-                  } catch (e) { 
-                    console.log(e.stack); 
-                  }
+                  executeCallback(value, target, funcargs);
                 }));
               }
               //elation.events.fire({element: this._proxyobj, type: 'proxy_change', data: {key: defname, value: value}});

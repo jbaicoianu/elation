@@ -25,6 +25,9 @@ elation.require(['ui.base','ui.label'], function() {
           classname: 'ui_select_label' 
         });
       }
+      if (this.args.bindvar) {
+        this.args.selected = elation.utils.arrayget(this.args.bindvar[0], this.args.bindvar[1]);
+      }
       if (this.container instanceof HTMLSelectElement) {
         this.select = this.container;
       } else {
@@ -78,6 +81,12 @@ elation.require(['ui.base','ui.label'], function() {
     }
     this.change = function(ev) {
       this.value = this.select.value;
+
+      // If a bindvar is passed in, automatically update the specified object property
+      if (this.args.bindvar) {
+        elation.utils.arrayset(this.args.bindvar[0], this.args.bindvar[1], this.value);
+      }
+
       // FIXME - instead of having custom events per-type, we should reuse common names like "change".  
       //          Here we fire both for compatibility
       elation.events.fire({type: "ui_select_change", data: this.select.value, element: this});

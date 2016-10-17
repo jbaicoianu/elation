@@ -40,7 +40,7 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
       this.maximized = false;
       this.transformorigin = "50% 50%";
       this.labels = {
-        minimize: '_',
+        minimize: '–',
         maximize: '□',
         restore: '₪',
         close: 'x'

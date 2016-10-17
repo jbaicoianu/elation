@@ -143,6 +143,15 @@ elation.require(['ui.base', 'ui.label'], function() {
       }
       this.blur();
     }
+    /** Select all text
+     * @function selectall
+     * @memberof elation.ui.input#
+     * @fire elation.ui.input#ui_input_select
+     */
+    this.selectall = function() {
+      this.inputelement.setSelectionRange(0, this.value.length)
+      elation.events.fire({type: 'ui_input_select', element: this, data: this.value});
+    }
     /**
      * Reset input to blank, optionally focusing it
      * @function clear

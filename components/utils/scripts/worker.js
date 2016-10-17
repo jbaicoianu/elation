@@ -8,7 +8,7 @@ elation.require(['utils.events'], function() {
   elation.define('worker.thread', {
     _construct: function(component) {
       var bloburl = "";
-      var origin = document.location.origin;
+      var origin = elation.config.get('dependencies.path', document.location.origin).replace(/\/$/, '');
       var root = elation.config.get('dependencies.rootdir', '/');
       var file = elation.config.get('dependencies.main', '/scripts/utils/elation.js');
       var script = [

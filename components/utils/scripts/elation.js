@@ -2215,7 +2215,7 @@ elation.extend('require.batch', function(type, webroot) {
         }
         this.finished(module);
       } else {
-        console.log('dunno, just run it', module);
+        //console.log('dunno, just run it', module);
         this.finished(module);
       }
     } else {

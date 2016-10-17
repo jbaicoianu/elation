@@ -34,6 +34,10 @@ elation.require(['ui.base', 'ui.button', 'ui.togglebutton'], function() {
         }
       }
     }
+    this.add = function(name, button) {
+      this.buttons[name] = button;
+      button.reparent(this.container);
+    }
     this.enable = function() {
       for (var k in this.buttons) {
         this.buttons[k].disabled = false;

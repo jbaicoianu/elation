@@ -1,4 +1,5 @@
 elation.require(['utils.events'], function() {
+
   elation.define('proxy', {
     _proxytarget: null,
     _proxydefs: {},
@@ -103,6 +104,12 @@ elation.require(['utils.events'], function() {
               console.log('why set function?', target, name, def);
             }
           } else if (name == '_proxydefs') {
+            var keys = Object.keys(value);
+            for (var i = 0; i < keys.length; i++) {
+              if (proxydefs[keys[i]]) {
+                delete proxydefs[keys[i]];
+              }
+            }
             elation.utils.merge(value, proxydefs);
           } else {
             scriptprops[name] = value;
@@ -142,8 +149,11 @@ elation.require(['utils.events'], function() {
         }
       };
 
-      this._proxyobj = new Proxy(this._proxytarget, proxyhandler);
-      return this._proxyobj;
-    },
+      if (typeof Proxy != 'undefined') {
+        this._proxyobj = new Proxy(this._proxytarget, proxyhandler);
+        return this._proxyobj;
+      }
+      return target;
+    }
   });
 });

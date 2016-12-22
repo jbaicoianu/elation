@@ -27,7 +27,7 @@ elation.require([
   'ui.loadingindicator',
   'ui.pagination',
   'ui.panel',
-  'ui.progressbar',
+  //'ui.progressbar',
   //'ui.radial',
   //'ui.scrollable',
   'ui.select',

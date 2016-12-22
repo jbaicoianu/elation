@@ -21,7 +21,12 @@ elation.require(['utils.events'], function() {
 
       function executeCallback(fn, target, args) {
         try { 
-          fn.apply(target, args);
+          if (elation.utils.isString(fn)) {
+
+            eval(fn);
+          } else if (fn instanceof Function) {
+            fn.apply(target, args);
+          }
         } catch (e) { 
           console.log(e.stack); 
         }
@@ -113,7 +118,7 @@ elation.require(['utils.events'], function() {
             elation.utils.merge(value, proxydefs);
           } else {
             scriptprops[name] = value;
-            //target[name] = value;
+            target[name] = value;
             //elation.events.fire({element: target, type: 'proxy_change', data: {key: name, value: value}});
             setProxyChangeTimer({key: name, value: value});
           }

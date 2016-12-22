@@ -9,10 +9,13 @@ elation.require(['utils.events'], function() {
     _construct: function(component) {
       var bloburl = "";
       var origin = elation.config.get('dependencies.path', document.location.origin).replace(/\/$/, '');
+      if (origin[origin.length-1] != '/') origin += '/';
       var root = elation.config.get('dependencies.rootdir', '/');
       var file = elation.config.get('dependencies.main', '/scripts/utils/elation.js');
+      var scriptfile = origin + (origin.indexOf(root) == -1 ? root : '') + file;
+
       var script = [
-        "importScripts('" + origin + root + file + "');",
+        "importScripts('" + scriptfile + "');",
         "if (elation.requireactivebatchjs) {",
         "  elation.requireactivebatchjs.webroot = '" + origin + root + "scripts';",
         "} else {",

@@ -1,7 +1,7 @@
 // if (typeof require == 'function') var elation = require("utils/elation");
 elation.extend("events", {
   events: {},
-  cloneattrs: ['type', 'bubbles', 'cancelable', 'view', 'detail', 'screenX', 'screenY', 'clientX', 'clientY', 'ctrlKey', 'shiftKey', 'altKey', 'metaKey', 'button', 'relatedTarget', 'target', 'element', 'data', 'origin', 'timeStamp', 'returnValue', 'cancelBubble'],
+  cloneattrs: ['type', 'bubbles', 'cancelable', 'view', 'detail', 'screenX', 'screenY', 'clientX', 'clientY', 'ctrlKey', 'shiftKey', 'altKey', 'metaKey', 'button', 'relatedTarget', 'target', 'element', 'data', 'origin', 'timeStamp', 'returnValue', 'cancelBubble', 'keyCode'],
 
   eventstats: {},
   
@@ -20,12 +20,12 @@ elation.extend("events", {
         if (!elation.utils.isNull(type[attr])) extras[attr] = type[attr];
         else if (!elation.utils.isNull(cloneev[attr])) extras[attr] = cloneev[attr];
       }
-/*
+
       if (!elation.utils.isNull(type.clientX)) extras.clientX = type.clientX;
       if (!elation.utils.isNull(type.clientY)) extras.clientY = type.clientY;
       if (!elation.utils.isNull(type.button)) extras.button = type.button;
       if (!elation.utils.isNull(type.keyCode)) extras.keyCode = type.keyCode;
-*/
+
 
       type = elation.utils.arrayget(type, 'type');
     }
@@ -442,5 +442,17 @@ elation.extend("events", {
       }
     }
     return results;
+  },
+  hasEventListener: function(target, type) {
+    var allevents = elation.events.events[type];
+    if (allevents) {
+      for (var i = 0; i < allevents.length; i++) {
+        var ev = allevents[i];
+        if (ev.target === target || ev.origin === target) {
+          return true;
+        }
+      }
+    }
+    return false;
   }
 });

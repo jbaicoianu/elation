@@ -6,6 +6,12 @@ elation.extend("events", {
   eventstats: {},
   
   fire: function(type, data, target, element, fn) {
+    var ev = this.getEvent(type, data, target, element, fn);
+
+    //console.log('fire!', ev, type, data, target, element, fn);
+    return elation.events.fireEvent(ev);
+  },
+  getEvent: function(type, data, target, element, fn) {
     var extras = {};
 
     if (typeof type == 'object') {
@@ -26,11 +32,34 @@ elation.extend("events", {
       if (!elation.utils.isNull(type.button)) extras.button = type.button;
       if (!elation.utils.isNull(type.keyCode)) extras.keyCode = type.keyCode;
 
+      extras.fn = fn;
 
       type = elation.utils.arrayget(type, 'type');
     }
 
-    //console.log('fire:',type);
+    extras.data = data;
+    extras.target = target;
+    extras.element = element;
+    extras.fn = fn;
+/*
+    var ev = {
+      type: type,
+      element: element,
+      fn: fn,
+      extras: extras,
+      data: data
+    };
+*/
+    return extras;
+  },
+  fireEvent: function(realevent) {
+    //console.log('fireEvent:',realevent);
+    var type = realevent.type,
+        data = realevent.data,
+        element = realevent.element,
+        target = realevent.target,
+        fn = realevent.fn;
+
     if (!type)
       return false;
 
@@ -62,24 +91,24 @@ elation.extend("events", {
       }
     }
     
-    //console.log('og events',type,original_events);
     // fire each event
-    var extrakeys = Object.keys(extras);
+    var extrakeys = Object.keys(realevent);
     
     for (var i=0; i<original_events.length; i++) {
-      var eventObj = original_events[i],
+      var eventObj = original_events[i];
+      
           // break reference to eventObj so original doesn't get overwritten
-          event = elation.events.clone(eventObj, {
+      var event = elation.events.clone(eventObj, {
             type: type, 
             target: target, 
             data: data, 
             timeStamp: new Date().getTime()
           });
-      
       for (var j = 0; j < extrakeys.length; j++) {
-        event[extrakeys[j]] = extras[extrakeys[j]];
+        if (typeof realevent[extrakeys[j]] != 'undefined') {
+          event[extrakeys[j]] = realevent[extrakeys[j]];
+        }
       }
-
       if (!event.origin)
         continue;
       

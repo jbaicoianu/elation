@@ -21,6 +21,7 @@ elation.require(['ui.content', 'ui.tabs'], function() {
       this.tabs = elation.ui.tabs({
         append: this,
         items: this.items,
+        selected: this.args.selected,
         events: {
           'ui_tabs_change': elation.bind(this, this.ui_tabs_change)
         }
@@ -40,6 +41,7 @@ elation.require(['ui.content', 'ui.tabs'], function() {
       if (tab && tab.content) {
         //console.log('tabitem_select', ev, this);
         this.content.setcontent(this.args.contenttype == 'content' ? tab.content : tab.name);
+        elation.events.fire({element: this, type: 'tab_change', data: tab});
       }
     }
   }, elation.ui.content);

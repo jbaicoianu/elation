@@ -2493,7 +2493,7 @@ elation.extend("utils.parseXML", function(imgxml, leaf, forceLower) {
     for (var i = 0; i < node.attributes.length; i++) {
       var name = node.attributes[i].nodeName;
       if (forceLower) name = name.toLowerCase();
-      var value = node.attributes[i].nodeValue;
+      var value = node.attributes[i].value;
       parent[name] = value;
     }
   }

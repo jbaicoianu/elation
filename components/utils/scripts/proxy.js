@@ -16,7 +16,10 @@ elation.require(['utils.events'], function() {
           proxyobj = this._proxyobj;
 
       function setProxyChangeTimer(data) {
-        elation.events.fire({element: proxyobj, type: 'proxy_change', data: data});
+        // FIXME - it seems like we're not actually using this, and it's incredibly expensive
+        //         to throw this many events, especially since many properties tend to change
+        //          at the same time.  Disabling for now, we'll see if anything breaks...
+        //elation.events.fire({element: proxyobj, type: 'proxy_change', data: data});
       }
 
       function executeCallback(fn, target, args) {

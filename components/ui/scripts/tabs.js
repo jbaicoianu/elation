@@ -19,10 +19,17 @@ elation.require(['ui.base'], function() {
       this.items = [];
       this.tabitems = [];
       if (this.args.items) {
-        for (var k in this.args.items) {
-          var item = this.args.items[k];
-          if (!item.name) item.name = k;
-          this.items.push(item);
+        if (elation.utils.isArray(this.args.items)) {
+          for (var i = 0; i < this.args.items.length; i++) {
+            var item = { name: this.args.items[i], label: this.args.items[i] };
+            this.items.push(item);
+          }
+        } else {
+          for (var k in this.args.items) {
+            var item = this.args.items[k];
+            if (!item.name) item.name = k;
+            this.items.push(item);
+          }
         }
       }
       elation.html.addclass(this.container, 'ui_tabs');

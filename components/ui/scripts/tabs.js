@@ -21,7 +21,10 @@ elation.require(['ui.base'], function() {
       if (this.args.items) {
         if (elation.utils.isArray(this.args.items)) {
           for (var i = 0; i < this.args.items.length; i++) {
-            var item = { name: this.args.items[i], label: this.args.items[i] };
+            var item = this.args.items[i];
+            if (elation.utils.isString(item)) {
+              item = { name: item, label: item };
+            }
             this.items.push(item);
           }
         } else {

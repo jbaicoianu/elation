@@ -993,7 +993,7 @@ elation.extend("html.toggleClass", elation.html.toggleclass);
  *    });
  */
 elation.extend('html.create', function(parms, classname, style, attr, append, before) {
-  if (elation.env.isNode) {
+  if (typeof document == 'undefined') {
     return;
   }
   if (typeof parms == 'object') {
@@ -1747,7 +1747,7 @@ elation.extend("find", function(selectors, parent, first) {
     this code is used for browsers which dont have their own selector engines
     this could be made a lot better.
   */
-  if (elation.env.isNode) {
+  if (typeof document == 'undefined') {
     return [];
   }
   this.findCore = function(selectors, oparent) {

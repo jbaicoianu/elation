@@ -35,7 +35,8 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
       }
 
       this.track = elation.html.create({tag: 'div', classname: this.prefix + '_track', append: this.container});
-      this.dimensions = elation.html.dimensions(this.track);
+      //this.dimensions = elation.html.dimensions(this.track);
+      this.dimensions = {x: 0, y: 0, w: 0, h: 0};
       
       elation.events.add(this.track, 'touchstart,mousedown,mousewheel', this);
       
@@ -168,7 +169,7 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
       this.top = peg.container.offsetTop;
 
       elation.html.addclass([ this.container, peg.container ], 'active');
-      elation.events.add(window, 'touchmove,touchend,mousemove,mouseup', this);
+      elation.events.add(window, 'touchmove,touchend,mousemove,mouseup', this, {passive: true});
       elation.events.fire({
         type: this.prefix + '_start', 
         element: this, 
@@ -203,7 +204,7 @@ elation.require(['ui.base','ui.input','utils.math'], function() {
       });
 
       elation.html.removeclass([ this.container, this.peg.container ], 'active');
-      elation.events.remove(window, 'touchmove,touchend,mousemove,mouseup', this);
+      elation.events.remove(window, 'touchmove,touchend,mousemove,mouseup', this, {passive: true});
     }
     this.mousewheel = function(ev) {
       this.coords = elation.events.coords(ev);

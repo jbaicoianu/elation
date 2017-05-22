@@ -39,11 +39,13 @@ elation.require(['ui.base', 'ui.button', 'ui.togglebutton'], function() {
       button.reparent(this.container);
     }
     this.enable = function() {
+      elation.ui.buttonbar.extendclass.enable.call(this);
       for (var k in this.buttons) {
         this.buttons[k].disabled = false;
       }
     }
     this.disable = function() {
+      elation.ui.buttonbar.extendclass.disable.call(this);
       for (var k in this.buttons) {
         this.buttons[k].disabled = true;
       }

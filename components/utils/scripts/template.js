@@ -20,6 +20,19 @@ elation.require(["utils.events", "utils.dust"], function() {
       this.templates[name] = {type: type, name: name, tpl: tpl}; 
       return this.templates[name];
     }
+    this.addAsync = function(name, tpl, type) {
+      return new Promise(elation.bind(this, function(resolve, reject) {
+        var handleAsyncLoad = elation.bind(this, function() {
+          var template = this.add(name, tpl, type);
+          resolve(template);
+        });
+        if (typeof requestIdleCallback != 'undefined') {
+          requestIdleCallback(handleAsyncLoad);
+        } else {
+          setTimeout(handleAsyncLoad, 0);
+        }
+      }));
+    }
     this.remove = function(name) {
       if (this.templates[name] && this.types[this.templates[name].type]) {
         this.types[this.templates[name].type].remove();

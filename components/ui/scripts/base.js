@@ -20,6 +20,8 @@ elation.require(['utils.events'], function() {
     this.dirty = false;
     this.deferred = true;
     this.defaultcontainer = { tag: 'div' };
+    this.hidden = false;
+    this.enabled = true;
 
     this.init = function() {
       if (this.args.classname) {
@@ -73,6 +75,24 @@ elation.require(['utils.events'], function() {
     this.hide = function() {
       this.hidden = true;
       this.addclass('state_hidden');
+    }
+    /**
+     * Enable this component
+     * @function enable
+     * @memberof elation.ui.base#
+     */
+    this.enable = function() {
+      this.enabled = true;
+      this.removeclass('state_disabled');
+    }
+    /**
+     * Disable this component
+     * @function disable
+     * @memberof elation.ui.base#
+     */
+    this.disable = function() {
+      this.enabled = false;
+      this.addclass('state_disabled');
     }
     /**
      * Sets the orientation of this component
@@ -141,8 +161,9 @@ elation.require(['utils.events'], function() {
       }
     }
     this.addEventProxies = function(element, events) {
+      var passiveEvents = ['touchstart', 'touchmove', 'touchend', 'mousewheel'];
       for (var i = 0; i < events.length; i++) {
-        elation.events.add(element, events[i], elation.bind(this, function(ev) { elation.events.fire({element: this, type: ev.type, event: ev }); }));
+        elation.events.add(element, events[i], elation.bind(this, function(ev) { elation.events.fire({element: this, type: ev.type, event: ev }); }), (passiveEvents.indexOf(events[i]) != -1 ? {passive: true} : false));
       }
     }
     this.getPropertyValue = function(k) {

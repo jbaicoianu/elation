@@ -147,40 +147,23 @@ elation.extend("events", {
     }
   },
   
-  _register: function(element, type, fn, custom_event_name) {
-    if (custom_event_name)
-      custom_event_name = custom_event_name.replace('.','_');
+  _register: function(element, type, fn, options) {
     
     var event = { 
       type: type, 
       target: element, 
       origin: fn,
-      custom_event: custom_event_name,
       preventDefault: function() { this.returnValue = false; return; },
       stopPropagation: function() { this.cancelBubble = true; return; },
       returnValue: true,
       cancelBubble: false
     };
     
-    if (custom_event_name) {
-      if (!elation.events.events[custom_event_name])
-        elation.events.events[custom_event_name] = [];
-      
-      //console.log('BINDING '+type+' -> '+custom_event_name);
-    }
     
     if (!elation.events.events[type])
       elation.events.events[type] = [];
     
     elation.events.events[type].push(event);
-    /*
-    if (custom_event_name) {
-      if (!elation.events.events[custom_event_name])
-        elation.events.events[custom_event_name] = [];
-      
-      elation.events.events[custom_event_name].push(event);
-    }
-    */
   },
   _unregister: function(element, type, fn) {
     if (elation.events.events[type]) {
@@ -200,10 +183,7 @@ elation.extend("events", {
   },
   
   // syntax: add(element || [ elements ], "type1,type2,type3", function || object);
-  add: function(elements, types, fn, custom_event_name) {
-    if (custom_event_name)
-      custom_event_name = custom_event_name.replace('.','_');
-
+  add: function(elements, types, fn, options) {
     if (!types || !fn || typeof types != "string")
       return;
 
@@ -227,7 +207,7 @@ elation.extend("events", {
       for (var i=0; i<types.length; i++) {
         var type = types[i];
         
-        elation.events._register(element, type, fn, custom_event_name);
+        elation.events._register(element, type, fn);
         
         if (!element)
           continue;
@@ -242,21 +222,15 @@ elation.extend("events", {
           //  type = 'DOMMouseScroll';
           if (typeof fn == "object" && fn.handleEvent) {
             element[type+fn] = function(e) { 
-              if (custom_event_name)
-                elation.events.fire({ type: custom_event_name, data: fn });
-              
               fn.handleEvent(e); 
             }
-            element.addEventListener(type, element[(type + fn)], false);
+            element.addEventListener(type, element[(type + fn)], options);
           } else {
-            element.addEventListener(type, fn, false);
+            element.addEventListener(type, fn, options);
           }
         } else if (element.attachEvent) {
           if (typeof fn == "object" && fn.handleEvent) { 
             element[type+fn] = function() { 
-              if (custom_event_name)
-                elation.events.fire({ type: custom_event_name, data: fn });
-              
               fn.handleEvent(elation.events.fix(window.event)); 
             }
           } else {

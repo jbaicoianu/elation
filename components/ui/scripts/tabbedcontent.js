@@ -33,6 +33,10 @@ elation.require(['ui.content', 'ui.tabs'], function() {
         items: this.items
       });
     }
+    this.add = function(name, tab) {
+      this.items[name] = tab;
+      this.tabs.add(tab);
+    }
     this.setActiveTab = function(name) {
       return this.tabs.setActiveTab(name);
     }

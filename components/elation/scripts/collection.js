@@ -221,7 +221,14 @@ elation.require([], function() {
         }
         if (changed) return true;
       } else {
+        var i = this.find(this.itemindex[idx]);
         this.itemindex[idx] = item;
+        if (i != -1) {
+          this.items[i] = item;
+        } else {
+          this.items.push(item);
+        }
+        return true;
       }
       return false;
     }

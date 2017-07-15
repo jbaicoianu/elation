@@ -11,7 +11,7 @@ elation.require(['utils.events'], function() {
       if (defs) this._proxydefs = defs;
       var self = this;
       var proxydefs = this._proxydefs,
-          scriptprops = this._scriptprops;
+          scriptprops = {};//this._scriptprops;
       var changetimer = false,
           proxyobj = this._proxyobj;
 
@@ -46,7 +46,20 @@ elation.require(['utils.events'], function() {
           }
           if (def[0] == 'property') {
             return value;
+          } else if (def[0] == 'accessor') {
+            var bindobj = target;
+            if (def[1].indexOf('.') != -1) {
+              var parts = def[1].split('.');
+              parts.pop();
+              bindobj = elation.utils.arrayget(target, parts.join('.'));
+            }
+            return value.call(bindobj);
+
           } else if (def[0] == 'function') {
+            if (!value.hasOwnProperty('prototype')) {
+              // If the function has no prototype, it's a bound function, and we don't need to rebind
+              return value;
+            }
             var bindobj = target;
             if (def[1].indexOf('.') != -1) {
               var parts = def[1].split('.');

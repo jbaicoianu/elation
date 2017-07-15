@@ -120,6 +120,7 @@ elation.require(['ui.base'], function() {
      */
     this.click = function(ev) {
       elation.events.fire({type: 'ui_button_click', element: this});
+      elation.events.fire({type: 'click', element: this});
       if (this.autoblur) {
         this.container.blur();
       }

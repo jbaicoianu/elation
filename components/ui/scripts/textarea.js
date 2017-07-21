@@ -39,6 +39,7 @@ elation.require(['ui.input'], function() {
       }
       if (this.inputelement) {
         elation.events.add(this.inputelement, 'change,input,keydown,keypress,keyup', elation.bind(this, function(ev) { elation.events.fire({event: ev, element: this}); }));
+        this.addEventProxies(this.inputelement, ['dragover', 'dragenter', 'dragleave', 'drop']);
       }
       if (this.args.value) {
         this.value = this.args.value;

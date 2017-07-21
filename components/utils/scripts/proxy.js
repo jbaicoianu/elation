@@ -25,7 +25,6 @@ elation.require(['utils.events'], function() {
       function executeCallback(fn, target, args) {
         try { 
           if (elation.utils.isString(fn)) {
-
             eval(fn);
           } else if (fn instanceof Function) {
             fn.apply(target, args);

@@ -27,6 +27,11 @@ elation.extend("events", {
         else if (!elation.utils.isNull(cloneev[attr])) extras[attr] = cloneev[attr];
       }
 
+      if (type.event) {
+        extras.stopPropagation = elation.bind(type.event, type.event.stopPropagation);
+        extras.preventDefault = elation.bind(type.event, type.event.preventDefault);
+      }
+
       if (!elation.utils.isNull(type.clientX)) extras.clientX = type.clientX;
       if (!elation.utils.isNull(type.clientY)) extras.clientY = type.clientY;
       if (!elation.utils.isNull(type.button)) extras.button = type.button;
@@ -52,11 +57,11 @@ elation.extend("events", {
 */
     return extras;
   },
-  fireEvent: function(realevent) {
+  fireEvent: function(realevent, element) {
     //console.log('fireEvent:',realevent);
     var type = realevent.type,
         data = realevent.data,
-        element = realevent.element,
+        element = element || realevent.element,
         target = realevent.target,
         fn = realevent.fn;
 

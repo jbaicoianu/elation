@@ -13,6 +13,7 @@
  * @param {array} args.position
  * @param {boolean} args.center
  * @param {int} args.width
+ * @param {int} args.height
  * @param {int} args.top
  * @param {int} args.bottom
  * @param {int} args.left
@@ -78,6 +79,9 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
 
       if (this.args.width) {
         this.container.style.width = this.args.width;  
+      }
+      if (this.args.height) {
+        this.content.style.height = this.args.height;
       }
       this.refresh();
       this.focus(true);
@@ -245,6 +249,8 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
     }
     this.setsize = function(size) {
       elation.html.transform(this.container, this.gettransform(), this.transformorigin, 'none');
+      if (this.container.style.width != 'auto') this.container.style.width = 'auto';
+      if (this.container.style.height != 'auto') this.container.style.height = 'auto';
       this.content.style.width = size[0] + 'px';
       this.content.style.height = (size[1] - this.titlebar.offsetHeight - (this.toolbar ? this.toolbar.offsetHeight : 0)) + 'px';
       this.size[0] = size[0];

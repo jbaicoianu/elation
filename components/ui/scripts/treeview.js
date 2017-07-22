@@ -220,7 +220,6 @@ elation.require(['ui.base','utils.template'], function() {
       //elation.events.fire({type: 'ui_treeviewitem_unhover', element: this});
     }
     this.select = function(only_select) {
-      console.log('select', this);
       if (!this.expanded && !only_select) {
         this.expanded = true;
         this.args.parent.add(this.value, this.container, this.attrs);
@@ -347,6 +346,18 @@ elation.require(['ui.base','utils.template'], function() {
       });
       return items;
     }
+    this.enable = function() {
+      elation.ui.treeview.extendclass.enable.call(this);
+      for (var i = 0; i < this.items.length; i++) {
+        this.items[i].enable();
+      }
+    }
+    this.disable = function() {
+      elation.ui.treeview.extendclass.disable.call(this);
+      for (var i = 0; i < this.items.length; i++) {
+        this.items[i].disable();
+      }
+    }
     this.ui_treeviewitem_hover = function(ev) {
       if (this.hover && this.hover != ev.target) {
         this.hover.unhover();
@@ -407,24 +418,33 @@ elation.require(['ui.base','utils.template'], function() {
       elation.events.fire({type: 'ui_treeviewitem_unselect', element: this});
     }
     this.mouseover = function(ev) {
-      this.hover();
-      ev.stopPropagation();
+      if (this.enabled) {
+        this.hover();
+        ev.stopPropagation();
+      }
     }
     this.mouseout = function(ev) {
-      this.unhover();
-      ev.stopPropagation();
+      if (this.enabled) {
+        this.unhover();
+        ev.stopPropagation();
+      }
     }
     this.mousedown = function(ev) {
+      if (this.enabled) ev.stopPropagation();
     }
     this.mouseup = function(ev) {
+      if (this.enabled) ev.stopPropagation();
     }
     this.click = function(ev) {
-      if (this.lastclick && ev.timeStamp - this.lastclick < 250) {
-        console.log('doubleclick');
+      if (this.enabled) {
+        if (this.lastclick && ev.timeStamp - this.lastclick < 250) {
+          console.log('doubleclick');
+        }
+  console.log('select', this, ev);
+        this.lastclick = ev.timeStamp;
+        this.select();
+        ev.stopPropagation();
       }
-      this.lastclick = ev.timeStamp;
-      this.select();
-      ev.stopPropagation();
     }
     this.doubleclick = function(ev) {
       console.log('doubleclicky');

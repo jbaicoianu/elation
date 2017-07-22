@@ -28,8 +28,8 @@ elation.extend("events", {
       }
 
       if (type.event) {
-        extras.stopPropagation = elation.bind(type.event, type.event.stopPropagation);
-        extras.preventDefault = elation.bind(type.event, type.event.preventDefault);
+        //if (!extras.stopPropagation) extras.stopPropagation = elation.bind(type.event, type.event.stopPropagation);
+        //if (!extras.preventDefault) extras.preventDefault = elation.bind(type.event, type.event.preventDefault);
       }
 
       if (!elation.utils.isNull(type.clientX)) extras.clientX = type.clientX;

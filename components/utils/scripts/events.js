@@ -28,8 +28,15 @@ elation.extend("events", {
       }
 
       if (type.event) {
-        //if (!extras.stopPropagation) extras.stopPropagation = elation.bind(type.event, type.event.stopPropagation);
-        //if (!extras.preventDefault) extras.preventDefault = elation.bind(type.event, type.event.preventDefault);
+        var realevent = type.event;
+        // If we have a real event, we want our synthesized event to pass stopPropagation and preventDefault calls through
+        if (!extras.stopPropagation) {
+          extras.stopPropagation = elation.bind(extras, function() {
+            realevent.stopPropagation();
+            this.cancelBubble = true;
+          });
+        }
+        if (!extras.preventDefault) extras.preventDefault = elation.bind(type.event, type.event.preventDefault);
       }
 
       if (!elation.utils.isNull(type.clientX)) extras.clientX = type.clientX;
@@ -127,7 +134,7 @@ elation.extend("events", {
 
       events.push(event);
 
-      if (cont === false || event.cancelBubble) {
+      if (cont === false || event.cancelBubble || realevent.cancelBubble) {
         break;
       }
     }

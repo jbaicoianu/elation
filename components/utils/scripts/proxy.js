@@ -73,6 +73,7 @@ elation.require(['utils.events'], function() {
           return target;
         } else {
           scriptprops[name] = target[name];
+          return scriptprops[name];
         }
         if (passthrough) {
           return target[name];

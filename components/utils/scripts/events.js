@@ -135,6 +135,7 @@ elation.extend("events", {
       events.push(event);
 
       if (cont === false || event.cancelBubble || realevent.cancelBubble) {
+        event.cancelBubble = true;
         break;
       }
     }

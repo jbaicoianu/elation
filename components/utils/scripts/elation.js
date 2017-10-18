@@ -2,9 +2,9 @@
 /** @namespace elation.utils */
 /** @namespace elation.html */
 
-var ENV_IS_NODE = (typeof process === 'object' && typeof require === 'function') ? true : false;
-var ENV_IS_BROWSER = (typeof window !== 'undefined') ? true : false;
-var ENV_IS_WORKER = (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope);
+var ENV_IS_NODE = (typeof process === 'object' && typeof require === 'function') ? true : false,
+    ENV_IS_BROWSER = (typeof window !== 'undefined') ? true : false,
+    ENV_IS_WORKER = (typeof WorkerGlobalScope !== 'undefined' && self instanceof WorkerGlobalScope);
 
 if (typeof window == 'undefined') var window = {}; 
 //  compatibility for nodejs/worker threads
@@ -38,37 +38,37 @@ var elation = window.elation = new function(selector, parent, first) {
 		}
 	  if (typeof exports != 'undefined') exports.extend = this.extend;
 	}
-  this.implement = function(obj, iface, ifaceargs) {
-		if (typeof iface == 'function') {
-      var foo = new iface(ifaceargs);
-      for (var k in foo) {
-        obj[k] = foo[k];
-      }
-		}
-  }
-  this.define = function(name, definition, extendclass) {
-    var constructor = definition._construct;
-    if (!constructor) {
-      constructor = (extendclass ? extendclass.prototype.constructor : false); 
-    }
-    // FIXME - need to figure out a non-horrible way of overriding the class name that's shown in console.log
-    var func = false;
-    var funcstr = "elation.utils.arrayset(elation, '" + name + "', false); elation." + name + " = function (args) { if (constructor) return constructor.apply(this, arguments); }; func = elation." + name + ";";
-    //var funcstr = "console.log('serrr');";
-    eval(funcstr);
-    var objdef = func;
-    if (extendclass) {
-      if (!constructor) {
-        objdef = extendclass.prototype.constructor;
-      }
-      objdef.prototype = Object.create(extendclass.prototype);
-      objdef.prototype.constructor = objdef;
-    }
-    var keys = Object.keys(definition);
-    keys.forEach(function(key) { objdef.prototype[key] = definition[key]; });
-    return objdef;
-  }
 }
+
+elation.extend('implement', function(obj, iface, ifaceargs) {
+  if (typeof iface == 'function') {
+    var foo = new iface(ifaceargs);
+    for (var k in foo) {
+      obj[k] = foo[k];
+    }
+  }
+});
+elation.extend('define', function(name, definition, extendclass) {
+  var constructor = definition._construct;
+  if (!constructor) {
+    constructor = (extendclass ? extendclass.prototype.constructor : false);
+  }
+  // FIXME - need to figure out a non-horrible way of overriding the class name that's shown in console.log
+  var func = false;
+  var funcstr = "elation.utils.arrayset(elation, '" + name + "', false); elation." + name + " = function (args) { if (constructor) return constructor.apply(this, arguments); }; func = elation." + name + ";";
+  eval(funcstr);
+  var objdef = func;
+  if (extendclass) {
+    if (!constructor) {
+      objdef = extendclass.prototype.constructor;
+    }
+    objdef.prototype = Object.create(extendclass.prototype);
+    objdef.prototype.constructor = objdef;
+  }
+  var keys = Object.keys(definition);
+  keys.forEach(function(key) { objdef.prototype[key] = definition[key]; });
+  return objdef;
+});
 elation.extend('env', {
   isNode: (typeof process === 'object' && typeof require === 'function') ? true : false,
   isBrowser: (typeof window !== 'undefined' && typeof Window == 'function' && window instanceof Window) ? true : false,
@@ -2201,17 +2201,17 @@ elation.extend('require.batch', function(type, webroot) {
       if (elation.env.isBrowser) {
         // browser
         elation.file.get(this.type, this.webroot + '/' + module.replace(/\./g, '/') + '.' + this.type, elation.bind(this, function(ev) { this.finished(module); }));
-      } else if (elation.env.isWorker) {
+      } else if (elation.env.isWorker && this.type == 'js') {
         //console.log('loading elation module: ', module);
         importScripts(this.webroot + '/' + module.replace(/\./g, '/') + '.' + this.type);
         this.finished(module);
-      } else if (elation.env.isNode) {
+      } else if (elation.env.isNode && this.type == 'js') {
         // running in node.js
-        //console.log('loading elation module: ', module);
+        console.log('loading elation module: ', module);
         try {
           require(module.replace(/\./g, '/'));
         } catch (e) {
-          //console.log('ERROR ERROR', e);
+          console.log('ERROR ERROR', e);
         }
         this.finished(module);
       } else {
@@ -2356,6 +2356,10 @@ elation.extend('require.debug', function() {
     }
   }
   elation.require(['graph.force', 'ui.window'], elation.bind(this, this.init));
+});
+elation.extend('register', function(name, func) {
+  elation.requireactivebatchjs.fulfill(name, func);
+  return func;
 });
 
 elation.extend("utils.escapeHTML", function(str) {

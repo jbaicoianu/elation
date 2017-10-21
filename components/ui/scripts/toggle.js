@@ -13,6 +13,10 @@ elation.require(['ui.base', 'ui.label'], function() {
       var checkboxid = "ui_toggle_checkbox_" + this.id;
       var selected = this.args.selected || this.args.checked;
 
+      if (this.args.bindvar && this.args.bindvar[0][this.args.bindvar[1]]) {
+        selected = true;
+      }
+
       this.formlabel = elation.ui.formlabel({label: this.args.label || this.name, for: checkboxid, append: this});
 
       this.checkbox = elation.html.create({
@@ -28,6 +32,7 @@ elation.require(['ui.base', 'ui.label'], function() {
       if (selected)
         this.toggle();
 
+
       elation.events.add(this.checkbox, 'click', elation.bind(this, this.toggle));
       this.refresh();
     }
@@ -40,15 +45,16 @@ elation.require(['ui.base', 'ui.label'], function() {
     }
     this.setstate = function(newstate) {
       this.togglestate = newstate;
-      var evname = "toggle_" + (this.togglestate ? "on" : "off");
-      // Fire two events - separate toggle_on/toggle_off events, plus a general toggle event
-      elation.events.fire({type: evname, element: this, data: this.togglestate});
-      elation.events.fire({type: 'toggle', element: this, data: this.togglestate});
 
       // If a bindvar is passed in, automatically update the specified object property
       if (this.args.bindvar) {
         this.args.bindvar[0][this.args.bindvar[1]] = this.togglestate;
       }
+
+      var evname = "toggle_" + (this.togglestate ? "on" : "off");
+      // Fire two events - separate toggle_on/toggle_off events, plus a general toggle event
+      elation.events.fire({type: evname, element: this, data: this.togglestate});
+      elation.events.fire({type: 'toggle', element: this, data: this.togglestate});
 
       this.refresh();
     }

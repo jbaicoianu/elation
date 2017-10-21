@@ -85,7 +85,7 @@ elation.extend("events", {
     
     if (!list) {
       this.events[type] = [];
-      return;
+      return [];
     }
 
     // gather all the events associated with this event type

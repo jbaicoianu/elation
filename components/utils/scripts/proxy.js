@@ -25,7 +25,10 @@ elation.require(['utils.events'], function() {
       function executeCallback(fn, target, args) {
         try { 
           if (elation.utils.isString(fn)) {
-            eval(fn);
+            (function(fn) {
+              var event = args[0];
+              return eval(fn);
+            }).call(self._proxyobj, fn);
           } else if (fn instanceof Function) {
             fn.apply(target, args);
           }

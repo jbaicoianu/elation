@@ -6,13 +6,17 @@ elation.require(['utils.events'], function() {
     }
   });
   elation.define('worker.thread', {
-    _construct: function(component) {
+    _construct: function(component, scriptsuffix) {
       var bloburl = "";
       var origin = elation.config.get('dependencies.path', document.location.origin).replace(/\/$/, '');
       if (origin[origin.length-1] != '/') origin += '/';
       var root = elation.config.get('dependencies.rootdir', '/');
       var file = elation.config.get('dependencies.main', '/scripts/utils/elation.js');
       var scriptfile = origin + (origin.indexOf(root) == -1 ? root : '') + file;
+      var m = scriptfile.match(/((:?\.min)?\.js)$/);
+      if (scriptsuffix && m) {
+        scriptfile = scriptfile.replace(m[1], '.' + scriptsuffix + m[1]);
+      }
 
       var script = [
         "importScripts('" + scriptfile + "');",

@@ -2,6 +2,7 @@ elation.require(['utils.worker'], function() {
   elation.define('utils.workerpool', {
     src: false,
     component: false,
+    scriptsuffix: null,
     num: 4,
     pool: false,
     queue: false,
@@ -29,7 +30,7 @@ elation.require(['utils.worker'], function() {
         }
       } else if (this.component) {
         for (var i = 0; i < this.num; i++) {
-          var worker = new elation.worker.thread(this.component);
+          var worker = new elation.worker.thread(this.component, this.scriptsuffix);
           elation.events.add(worker, 'message', elation.bind(this, this.workerMessage));
           this.pool.push(worker);
           this.update();
@@ -81,7 +82,7 @@ elation.require(['utils.worker'], function() {
         elation.events.add(worker, 'message', elation.bind(this, this.workerMessage));
         return worker;
       } else if (this.component) {
-        var worker = new elation.worker.thread(this.component);
+        var worker = new elation.worker.thread(this.component, this.scriptsuffix);
         elation.events.add(worker, 'message', elation.bind(this, this.workerMessage));
         return worker;
       }

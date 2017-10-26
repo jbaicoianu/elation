@@ -98,7 +98,7 @@ elation.require(['utils.events'], function() {
               if (!propargs.readonly) {
                 elation.utils.arrayset(target, defname, value);
                 //elation.events.fire({element: this._proxyobj, type: 'proxy_change', data: {key: defname, value: value}});
-                setProxyChangeTimer({key: defname, value: value});
+                //setProxyChangeTimer({key: defname, value: value});
                 return value;
               }
             } else if (deftype == 'callback') {
@@ -122,7 +122,7 @@ elation.require(['utils.events'], function() {
                 }));
               }
               //elation.events.fire({element: this._proxyobj, type: 'proxy_change', data: {key: defname, value: value}});
-              setProxyChangeTimer({key: defname, value: value});
+              //setProxyChangeTimer({key: defname, value: value});
               return value;
             } else {
               console.log('why set function?', target, name, def);
@@ -139,7 +139,7 @@ elation.require(['utils.events'], function() {
             scriptprops[name] = value;
             target[name] = value;
             //elation.events.fire({element: target, type: 'proxy_change', data: {key: name, value: value}});
-            setProxyChangeTimer({key: name, value: value});
+            //setProxyChangeTimer({key: name, value: value});
           }
         },
         has: function(key) {

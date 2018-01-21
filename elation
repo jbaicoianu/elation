@@ -353,7 +353,7 @@ node_run() {
     echo "ERROR - could not find nodejs executable"
   else
     echo "Found: $NODE"
-    NODE_PATH=$SCRIPTROOT $NODE $SCRIPTROOT/$COMPONENTPATH $*
+    NODE_PATH="$SCRIPTROOT" "$NODE" "$SCRIPTROOT/$COMPONENTPATH" $*
   fi
 }
 

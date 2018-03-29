@@ -57,6 +57,13 @@ elation.require(["utils.events", "utils.dust"], function() {
     this.exists = function(name) {
       return (typeof this.templates[name] != 'undefined');
     }
+    this.initFromDOM = function() {
+      var templates = document.querySelectorAll('template[id]');
+      console.log(templates);
+      for (var i = 0; i < templates.length; i++) {
+        elation.template.add(templates[i].id, templates[i].innerHTML);
+      }
+    }
   });
   elation.template.addtype("dust", new function() {
     this.failed = false;

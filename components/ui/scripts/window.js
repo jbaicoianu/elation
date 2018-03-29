@@ -259,6 +259,9 @@ elation.require(['ui.base', 'ui.button', 'ui.buttonbar'], function() {
     }
     this.center = function() {
       var dim = elation.html.dimensions(this.container);
+      if (dim.w > window.innerWidth) {
+        this.setsize([window.innerWidth, window.innerHeight]);
+      }
       var realx = (window.innerWidth - this.container.offsetWidth) / 2;
       var realy = (window.innerHeight - this.container.offsetHeight) / 2;
       this.content.style.maxHeight = (window.innerHeight - this.content.offsetTop) + 'px';

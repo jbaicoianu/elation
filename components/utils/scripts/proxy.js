@@ -55,7 +55,7 @@ elation.require(['utils.events'], function() {
               parts.pop();
               bindobj = elation.utils.arrayget(target, parts.join('.'));
             }
-            return value.call(bindobj);
+            return (value ? value.call(bindobj) : null);
 
           } else if (def[0] == 'function') {
             if (!value.hasOwnProperty('prototype')) {

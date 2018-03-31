@@ -1,0 +1,13 @@
+elation.require([
+  'elements.base',
+  'elements.collection.simple',
+  'elements.collection.indexed',
+  'elements.collection.localindexed',
+  'elements.collection.api',
+  'elements.collection.jsonapi',
+  'elements.collection.jsonpapi',
+  'elements.collection.custom',
+  'elements.collection.filter',
+  'elements.collection.subset',
+  //'elements.collection.sqlite',
+]);

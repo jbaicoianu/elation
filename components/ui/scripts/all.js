@@ -24,7 +24,7 @@ elation.require([
   'ui.list',
   'ui.listtest',
   'ui.loader',
-  'ui.loadingindicator',
+  //'ui.loadingindicator',
   'ui.pagination',
   'ui.panel',
   //'ui.progressbar',

@@ -584,7 +584,7 @@ elation.require([], function() {
       // TODO - attach events to the parent, so we can respond to its events and emit our own as necessary
     }
     this.getfiltereditems = function() {
-      if (!this.filtered) {
+      //if (!this.filtered) {
         var items = this.parent.items;
         var filtered = [];
         for (var i = 0; i < items.length; i++) {
@@ -593,7 +593,7 @@ elation.require([], function() {
           }
         }
         this.filtered = filtered;
-      }
+      //}
       return this.filtered;
     }
     this.update = function() {

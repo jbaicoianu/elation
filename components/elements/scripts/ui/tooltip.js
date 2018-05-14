@@ -2,11 +2,15 @@ elation.require(['elements.ui.window'], function() {
   elation.elements.define('ui.tooltip', class extends elation.elements.ui.window {
     init() {
       super.init();
+      this.controls = false;
       this.handleMouseMove = elation.bind(this, this.handleMouseMove);
       this.handleMouseOut = elation.bind(this, this.handleMouseOut);
     }
     create() {
       super.create();
+      if (this.preview) {
+        this.setcontent('This is a tooltip');
+      }
     }
     show() {
       if (!this.visible) {

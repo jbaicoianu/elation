@@ -57,9 +57,11 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
         titleattr: { type: 'string', default: 'title' },
         disabledattr: { type: 'string', default: 'disabled' },
         collection: { type: 'object', default: null },
-        itemtemplate: { type: 'string', default: null },
+        itemtemplate: { type: 'string', default: '' },
         itemcomponent: { type: 'object', default: 'ui.item' },
         itemplaceholder: { type: 'object', default: null },
+        emptytemplate: { type: 'string' },
+        emptycontent: { type: 'string' },
       });
       this.items = [];
       this.listitems = [];
@@ -71,6 +73,9 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
 
     }
     create() {
+      if (this.preview) {
+        this.items = [{value: 1, label: 'One'}, {value: 2, label: 'Two'}, {value: 2, label: 'Three'}];
+      }
       if (this.collection) {
         this.setItemCollection(this.collection);
       } else if (this.items && this.items.length > 0) {
@@ -92,6 +97,19 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
       }
       if (this.hidden) {
         this.hide();
+      }
+
+      let emptycontent = this.emptycontent;
+      if (this.emptytemplate) {
+        emptycontent = elation.templates.get(this.emptytemplate, this);
+      }
+      if (emptycontent) {
+        this.emptyitem = this.createlistitem({
+          value: emptycontent,
+          innerHTML: emptycontent,
+          selectable: false,
+          disabled: true
+        });
       }
     }
     /**
@@ -330,12 +348,19 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
         }
       }
 */
-      for (var i = 0; i < items.length; i++) {
-        var listitem = this.getlistitem(i);
-        if (listitem.parentNode != ul) {
-          ul.appendChild(listitem);
+      if (items.length > 0) {
+        if (this.emptyitem && this.emptyitem.parentNode == ul) {
+          ul.removeChild(this.emptyitem);
         }
-        listitem.refresh();
+        for (var i = 0; i < items.length; i++) {
+          var listitem = this.getlistitem(i);
+          if (listitem.parentNode != ul) {
+            ul.appendChild(listitem);
+          }
+          listitem.refresh();
+        }
+      } else if (this.emptyitem) {
+        ul.appendChild(this.emptyitem);
       }
     }
 

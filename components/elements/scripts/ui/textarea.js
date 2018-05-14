@@ -22,7 +22,11 @@ elation.require(['ui.input'], function() {
 
     create() {
       if (this.label) {
-        this.labelobject = elation.ui.label({ append: this, label: this.label });
+        this.labelobject = elation.elements.create('ui.label', {
+          append: this,
+          label: this.label
+        });
+        elation.events.add(this.labelobject, 'click', (ev) => { this.focus(); ev.stopPropagation(); });
       }
 
       this.inputelement = elation.html.create({tag: 'textarea', append: this});
@@ -32,6 +36,7 @@ elation.require(['ui.input'], function() {
           'change', 'input', 'keydown', 'keypress', 'keyup', 
           'mouseover', 'mouseout', 'mousedown', 'mouseup', 'click',
           'touchstart', 'touchend', 'touchmove']);
+        this.addPropertyProxies(this.inputelement, 'value,disabled,autofocus,form,name,type,required');
       }
     }
     /**

@@ -7,6 +7,7 @@ elation.require([
   'elements.ui.dropdownbutton',
   'elements.ui.notificationbutton',
   'elements.ui.buttonbar',
+  'elements.ui.buttonlist',
   'elements.ui.input',
   'elements.ui.textarea',
   'elements.ui.toggle',
@@ -23,4 +24,7 @@ elation.require([
   'elements.ui.window',
   'elements.ui.tooltip',
   'elements.ui.formgroup',
+  'elements.ui.columnlayout',
+  'elements.ui.collapsiblepanel',
+  'elements.ui.content',
 ]);

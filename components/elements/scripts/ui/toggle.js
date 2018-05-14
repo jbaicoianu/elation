@@ -10,6 +10,10 @@ elation.require(['elements.elements', 'elements.ui.label'], function() {
         label: { type: 'string' }
       });
       if (this.checked === '') this.checked = true; // FIXME - type hinting should handle this
+
+      if (this.preview) {
+        this.label = 'Toggle';
+      }
     }
     create() {
       var checked = this.checked || this.checked === '';
@@ -29,19 +33,19 @@ elation.require(['elements.elements', 'elements.ui.label'], function() {
           append: this, 
         });
 
-        elation.events.add(this, 'click', (ev) => { console.log('i clicked', ev); this.toggle(); ev.stopPropagation(); });
+        elation.events.add(this, 'click', (ev) => { this.toggle(); ev.stopPropagation(); });
       }
       this.refresh();
     }
     createlabel(value) {
       if (!this.formlabel) {
-        this.formlabel = elation.elements.create('ui.text', {
-          text: value,
+        this.formlabel = elation.elements.create('ui.label', {
+          label: value,
           append: this,
         });
-        this.formlabel.settext(value);
+        this.formlabel.setLabel(value);
       } else {
-        this.formlabel.settext(value);
+        this.formlabel.setLabel(value);
       }
     }
     toggle() {
@@ -51,9 +55,8 @@ elation.require(['elements.elements', 'elements.ui.label'], function() {
     }
     setlabel(newlabel) {
       this.label = newlabel;
-console.log(this.formlabel, newlabel);
       if (this.formlabel) {
-        this.formlabel.settext(newlabel);
+        this.formlabel.setLabel(newlabel);
       } else {
         this.createlabel(newlabel);
       }

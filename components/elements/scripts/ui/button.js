@@ -26,6 +26,9 @@ elation.require(['elements.ui.item'], function() {
         autoblur: { type: 'boolean', default: false },
         tabIndex: { type: 'boolean', default: false }
       });
+      if (this.preview) {
+        this.label = 'Click Here';
+      }
     }
     /**
      * Initialize HTML element
@@ -44,7 +47,6 @@ elation.require(['elements.ui.item'], function() {
       //this.addPropertyProxies(this.buttonelement, ['disabled']);
       //this.addEventProxies(this.buttonelement, ['mouseover','mouseout','mousedown', 'mouseup', 'mousemove', 'touchstart', 'touchmove', 'touchend', 'focus', 'blur']);
       this.addEventListener('click', (ev) => this.handleClick(ev));
-      this.addclass('ui-button');
     }
     /**
      * Add as a child of the specified element, removing from current parent if necessary
@@ -68,8 +70,7 @@ elation.require(['elements.ui.item'], function() {
      */
     setLabel(label) {
       this.label = label;
-      if (this.buttonelement)
-        this.buttonelement.innerHTML = label;
+      this.innerHTML = label;
     }
     /**
      * Sets the title text of the button

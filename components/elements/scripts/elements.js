@@ -1,5 +1,6 @@
 elation.require(['utils.template', 'janusweb.external.document-register-element'], function() {
   elation.extend('elements', {
+    uniqueids: {},
     define: function(name, classdef, notag) {
       var elementname = name.replace(/\./g, '-'),
           componentname = name.replace(/-/g, '.');
@@ -68,6 +69,16 @@ elation.require(['utils.template', 'janusweb.external.document-register-element'
         ev[k] = args[k];
       }
       return ev;
+    },
+    getUniqueId: function(type) {
+      if (!type) {
+        type = 'element';
+      }
+      // Initialize to zero
+      if (!this.uniqueids[type]) this.uniqueids[type] = 0;
+
+      // Increment the counter for this type as we generate our new name
+      return type + '_' + (++this.uniqueids[type]);
     },
     mixin: function(BaseClass) {
       return class extends BaseClass {
@@ -509,6 +520,12 @@ console.log('done fucker', this.styletext, content);
             return proxyurl + src;
           }
           return src;
+        }
+        toString() {
+          if (!this.id) {
+            this.id = elation.elements.getUniqueId(this.nodeName.toLowerCase());
+          }
+          return '#' + this.id;
         }
       };
     }

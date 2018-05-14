@@ -18,13 +18,15 @@ elation.require(["elements.elements"], function() {
       });
     }
     create() {
-      this.innerHTML = this.label;
+      this.setLabel(this.label);
 
       elation.events.add(this, 'click', this.handleFocus);
-console.log('made the label', this.forf, typeof this.forf, this);
+    }
+    setLabel(label) {
+      this.label = label;
+      this.innerHTML = label;
     }
     handleFocus(ev) {
-console.log('click', this, this.forf);
       if (this.forf) {
         this.forf.focus();
       }

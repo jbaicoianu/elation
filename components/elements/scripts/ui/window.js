@@ -27,13 +27,19 @@ elation.require(['elements.elements', 'elements.ui.button', 'elements.ui.buttonb
     init() {
       super.init();
       this.defineAttributes({
-        title:     { type: 'string' },
+        title:     { type: 'string', default: '' },
         //toolbar:   { type: 'object' },
         position:  { type: 'vector2' },
-        //content:   { type: 'object' },
-        title:     { type: 'string' },
+        content:   { type: 'object' },
         movable:   { type: 'boolean' },
+        controls: { type: 'boolean' },
+        center: { type: 'boolean' },
+        left: { type: 'boolean' },
+        right: { type: 'boolean' },
+        top: { type: 'boolean' },
+        bottom: { type: 'boolean' },
         resizable: { type: 'boolean' },
+        scrollable: { type: 'boolean' },
         minimizable:  { type: 'boolean' },
         maximizable:  { type: 'boolean' },
         closable:     { type: 'boolean' },
@@ -48,13 +54,18 @@ elation.require(['elements.elements', 'elements.ui.button', 'elements.ui.buttonb
       //this.style.top = 0;
       //this.style.left = 0;
 
-      if (this.childNodes.length > 0) {
-        this.content = document.createElement('div');
-        var children = [];
-        while (this.childNodes.length > 0) {
-          var child = this.childNodes[0];
-          this.removeChild(child);
-          this.content.appendChild(child);
+      var content = this.getElementsByTagName('ui-window-content');
+      if (content.length > 0) {
+        this.content = content[0];
+      } else {
+        if (this.childNodes.length > 0) {
+          this.content = document.createElement('ui-window-content');
+          var children = [];
+          while (this.childNodes.length > 0) {
+            var child = this.childNodes[0];
+            this.removeChild(child);
+            this.content.appendChild(child);
+          }
         }
       }
 
@@ -72,9 +83,7 @@ elation.require(['elements.elements', 'elements.ui.button', 'elements.ui.buttonb
       if (this.controls !== false) {
         this.createcontrols();
       }
-      if (this.title) {
-        this.settitle(this.title);
-      }
+      this.settitle(this.title);
       if (this.toolbar) {
         this.settoolbar(this.toolbar);
       }
@@ -292,7 +301,9 @@ elation.require(['elements.elements', 'elements.ui.button', 'elements.ui.buttonb
       }
       var realx = (window.innerWidth - this.offsetWidth) / 2;
       var realy = (window.innerHeight - this.offsetHeight) / 2;
-      this.content.style.maxHeight = (window.innerHeight - this.content.offsetTop) + 'px';
+      // TODO - border width should be detected automatically using getComputedStyle
+      var borderwidth = 4;
+      this.content.style.maxHeight = (window.innerHeight - this.content.offsetTop - borderwidth) + 'px';
       this.setposition([realx, realy]);
     }
     drag(diff) {
@@ -348,7 +359,7 @@ elation.require(['elements.elements', 'elements.ui.button', 'elements.ui.buttonb
         this.setcontenthtml(newcontent.container);
       } else {
         if (!this.content) {
-          this.content = elation.html.create({tag: 'div', classname: 'ui_window_content', append: this});
+          this.content = elation.html.create({tag: 'ui-window-content', classname: 'ui_window_content', append: this});
         }
         if (!elation.utils.isNull(newcontent)) {
           this.content.innerHTML = newcontent;
@@ -512,6 +523,8 @@ elation.require(['elements.elements', 'elements.ui.button', 'elements.ui.buttonb
     }
   });
   elation.elements.define('ui.window.titlebar', class extends elation.elements.base {
+  });
+  elation.elements.define('ui.window.content', class extends elation.elements.base {
   });
 });
 

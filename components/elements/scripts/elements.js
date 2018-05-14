@@ -259,10 +259,7 @@ elation.require(['utils.template', 'janusweb.external.document-register-element'
             this.style.flex = this.flex;
           }
           if (this.canvas) {
-setTimeout(() => { 
-console.log('DO CANVAS UPDATE', this);
             this.updateCanvas();
-}, 100);
           }
         }
         /**
@@ -366,7 +363,6 @@ console.log('DO CANVAS UPDATE', this);
               // Set current value
               if (typeof this[p] != 'undefined' && this[p] !== null) {
                 element[p] = this[p];
-console.log(p, element[p]);
               }
               // Define getter and setter to proxy requests for this property to another element
               Object.defineProperty(this, p, { get: function() { return element[p]; }, set: function(v) { element[p] = v; } });
@@ -470,7 +466,6 @@ console.log(imgdata, images);
             }
 
 
-console.log('done fucker', this.styletext, content);
             var img = new Image();
             var data = '<svg xmlns="http://www.w3.org/2000/svg" width="' + width + '" height="' + height + '">' +
                        '<foreignObject requiredExtensions="http://www.w3.org/1999/xhtml" width="' + (width / this.canvasscale) + '" height="' + (height / this.canvasscale) + '" transform="scale(' + this.canvasscale + ')">' +

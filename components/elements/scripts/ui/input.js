@@ -24,20 +24,27 @@ elation.require(['elements.elements'], function() {
      * @memberof elation.ui.input#
      */
     init() {
+      super.init();
       this.defineAttributes({
         hidden: { type: 'boolean', default: false },
         label: { type: 'string' },
         type: { type: 'string' },
+        placeholder: { type: 'string' },
         value: { type: 'string', get: this.getValue, set: this.setValue },
         disabled: { type: 'boolean', default: false },
         autofocus: { type: 'boolean', get: this.getAutofocus, set: this.setAutofocus },
         onaccept: { type: 'callback' },
       });
+
+      if (this.preview) {
+        this.value = 'Lorem ipsum dolor sit amet...';
+      }
     }
     create() {
       if (this.label) {
         //this.labelobj = elation.ui.label({ append: this, label: this.label });
-        this.labelobject = elation.elements.create('ui.text', { append: this, text: this.label });
+        this.labelobject = elation.elements.create('ui.label', { append: this, label: this.label });
+        elation.events.add(this.labelobject, 'click', (ev) => { this.focus(); ev.stopPropagation(); });
       }
 
       this.inputelement = elation.html.create({tag: 'input', append: this});
@@ -52,9 +59,11 @@ elation.require(['elements.elements'], function() {
 
       if (this.hidden) this.hide();
 
-      //elation.events.add(this, 'keydown', this.handlekeydown.bind(this));
+      let value = this.value;
+      elation.events.add(this, 'keydown', this.handlekeydown.bind(this));
       this.addEventProxies(this.inputelement, 'keydown,keyup,keypress,focus,blur,input,select,change');
       this.addPropertyProxies(this.inputelement, 'value,disabled,autofocus,form,name,type,required');
+      this.value = value;
 
       elation.events.add(this, 'focus', this.handlefocus.bind(this));
 

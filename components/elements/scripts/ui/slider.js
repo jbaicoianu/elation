@@ -11,13 +11,12 @@ elation.require(['elements.elements', 'elements.ui.input', 'elements.ui.text'], 
       });
     }
     create() {
-console.log('this is me, the slider', this, this.min, this.max, this.value, this.values);
       if (this.values) return;
       this.values = [];
       if (this.label) {
-        this.labelelement = elation.elements.create('ui-text', {
+        this.labelelement = elation.elements.create('ui-label', {
           append: this,
-          innerHTML: this.label
+          label: this.label
         });
       }
       this.trackelement = elation.elements.create('ui-slider-track', { append: this });
@@ -30,6 +29,7 @@ console.log('this is me, the slider', this, this.min, this.max, this.value, this
         onchange: (ev) => this.updateHandle(handle),
         value: this.value
       });
+      handle.slider = this;
       this.handles = [handle];
     }
     updateHandle(handle) {

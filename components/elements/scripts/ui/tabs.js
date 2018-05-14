@@ -15,7 +15,6 @@ elation.require(['elements.ui.list', 'elements.ui.tabbar', 'elements.ui.tab'], f
   elation.elements.define('ui.tabs', class extends elation.elements.ui.list {
     init() {
       super.init();
-console.log(this.innerHTML);
       this.defineAttributes({
         itemcomponent: { type: 'string', default: 'ui.tab' }
       });
@@ -41,7 +40,6 @@ console.log(this.innerHTML);
 */
     }
     create() {
-console.log(this.innerHTML);
       if (this.tabbar) return; // FIXME - create is being called twice
       this.buttons = false;
 /*
@@ -55,20 +53,38 @@ console.log(this.innerHTML);
         this.add(tab);
       }
 */
-      this.tabbar = elation.elements.create('ui-tabbar', {
-        append: this,
-/*
-        buttons: [
-          { label: 'Foo', name: 0 },
-          { label: 'Bar', name: 1 },
-          { label: 'Baz', name: 2 },
-          { label: 'Blah', name: 3 },
-        ]
-*/
-        //collection: this.tabcollection,
-      });
-      elation.events.add(this.tabbar, 'click', (ev) => this.handleTabbarClick(ev));
       super.create();
+
+      if (this.preview) {
+        this.setItems([
+          elation.elements.create('ui-tab', {
+            append: this,
+            label: 'One',
+            content: 'Welcome to Tab One'
+          }),
+          elation.elements.create('ui-tab', {
+            append: this,
+            label: 'Two',
+            content: 'You are now seeing Tab Two'
+          }),
+          elation.elements.create('ui-tab', {
+            append: this,
+            label: 'Three',
+            content: 'And this is the final tab, Tab Three'
+          })
+        ]);
+      }
+      this.dispatchEvent({type: 'create'});
+    }
+    setItems(items) {
+      this.items = items;
+
+      if (!this.tabbar) {
+        this.tabbar = elation.elements.create('ui-tabbar', {
+          append: this,
+        });
+        elation.events.add(this.tabbar, 'click', (ev) => this.handleTabbarClick(ev));
+      }
 //console.log('create it!', this.items);
       this.tabbar.setButtons(this.getTabButtons());
       this.buttons = this.tabbar.items;
@@ -77,20 +93,30 @@ console.log(this.innerHTML);
       } else {
         this.updateActiveTab();
       }
-      this.dispatchEvent({type: 'create'});
     }
     setActiveTab(name) {
       for (var k in this.items) {
+        let tab = this.items[k],
+            button = this.buttons[k];
+
+        if (!(tab instanceof elation.elements.ui.tab)) continue;
         //if (this.items[name]) {
           //console.log('bing', name, this.items[name]);
           //this.items[name].select();
         //}
         if (k == name) {
-          this.items[k].select();
-          this.buttons[k].selected = true;
+          tab.select();
+          button.selected = true;
+          if (tab.parentNode !== this) {
+            this.appendChild(tab);
+          }
+          tab.refresh();
         } else {
-          this.items[k].unselect();
-          this.buttons[k].selected = false;
+          tab.unselect();
+          button.selected = false;
+          if (tab.parentNode === this) {
+            this.removeChild(tab);
+          }
         }
       }
     }

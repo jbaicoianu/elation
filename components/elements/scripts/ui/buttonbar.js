@@ -18,6 +18,9 @@ elation.require(['elements.ui.list', 'elements.ui.button', 'elements.ui.togglebu
     }
     create() {
       //this.buttonelements = [];
+      if (this.preview) {
+        this.items = [{value: 1, label: 'One'}, {value: 2, label: 'Two'}, {value: 2, label: 'Three'}];
+      }
       if (this.collection) {
         this.setItemCollection(this.collection);
       } else if (this.buttons) {

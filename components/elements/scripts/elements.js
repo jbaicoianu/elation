@@ -98,7 +98,11 @@ elation.require(['utils.template', 'janusweb.external.document-register-element'
         init() {
           this.defineAttributes({
             deferred: { type: 'boolean', default: true },
+            template: { type: 'string' },
+            name: { type: 'string' },
+            preview: { type: 'boolean', default: false },
             hover: { type: 'boolean', default: false },
+            editable: { type: 'boolean', default: false },
             flex: { type: 'string' }
           });
           elation.events.add(this, 'mouseover', (ev) => this.onhover(ev));
@@ -195,6 +199,15 @@ elation.require(['utils.template', 'janusweb.external.document-register-element'
           ev.element = this;
           elation.events.fire(ev);
         }
+         /*
+         * Handle default element creation.  If template is specified, use it for our contents.
+         */
+        create() {
+          if (this.template) {
+            this.innerHTML = elation.template.get(this.template, this);
+          }
+        }
+
         /**
          * Mark data as dirty, and then start the render loop if not already active
          * @function refresh

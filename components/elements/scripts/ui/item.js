@@ -121,7 +121,7 @@ this.innerHTML = value.innerHTML;
     extractcontent() {
       var root;
       if (!this.value && this.innerHTML != '') {
-        this.value = this.innerHTML;
+        //this.value = this.innerHTML;
       }
     }
     /**

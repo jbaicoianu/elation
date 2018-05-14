@@ -21,6 +21,9 @@ elation.require(["elements.elements"], function() {
         hidden: { type: 'boolean', default: false },
         text: { type: 'string', /*set: this.settext*/ }
       });
+      if (this.preview) {
+        this.text = 'The quick brown fox jumped over the lazy dog';
+      }
     }
     create() {
       if (this.editable) {

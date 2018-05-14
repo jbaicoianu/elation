@@ -168,6 +168,7 @@ elation.require(['utils.template', 'janusweb.external.document-register-element'
             setTimeout(() => this.create(), 0);
             this.created = true;
           }
+          this.dispatchEvent({type: 'elementconnect'});
         }
         handleEvent(ev) {
           if (typeof this['on' + ev.type] == 'function') {

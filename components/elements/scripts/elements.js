@@ -37,6 +37,31 @@ elation.require(['utils.template', 'janusweb.external.document-register-element'
       }
       return element;
     },
+    fromString: function(str, parent) {
+      let container = document.createElement('div');
+      container.innerHTML = str;
+
+      var nodes = container.querySelectorAll('*');
+      var elements = {
+        length: nodes.length
+      };
+      for (var i = 0; i < elements.length; i++) {
+        elements[i] = nodes[i];
+        if (elements[i].name) {
+          elements[elements[i].name] = elements[i];
+        }
+      }
+
+      if (parent) {
+        while (container.childNodes.length > 0) {
+          parent.appendChild(container.childNodes[0]);
+        }
+      }
+      return elements;
+    },
+    fromTemplate: function(tplname, parent) {
+      return elation.elements.fromString(elation.template.get(tplname, parent), parent);
+    },
     getEvent: function(type, args) {
       var ev = new Event(type);
       for (var k in args) {

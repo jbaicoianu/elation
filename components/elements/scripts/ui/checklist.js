@@ -33,7 +33,8 @@ elation.require(['elements.ui.list', 'elements.ui.checkbox'], function() {
         this.checkbox = elation.elements.create('ui.checkbox', {
           label: '',
           checked: this.checked,
-          append: this
+          append: this,
+          align: 'left'
         });
         elation.events.add(this.checkbox, 'toggle', elation.bind(this, this.handletoggle));
       }

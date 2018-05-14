@@ -35,11 +35,13 @@ elation.require(['ui.base','ui.label'], function() {
           label: this.label,
           class: 'ui_select_label' 
         });
+        elation.events.add(this.labelobj, 'click', (ev) => { this.focus(); ev.stopPropagation(); });
       }
       if (this.bindvar) {
         this.selected = elation.utils.arrayget(this.bindvar[0], this.bindvar[1]);
       }
       elation.events.add(this.select, "change", this);
+
 /*
       if (this.items) {
         this.setItems(this.items, this.selected);
@@ -47,6 +49,7 @@ elation.require(['ui.base','ui.label'], function() {
         this.extractItems();
       }
 */
+
       //this.value = this.select.value;
       this.addPropertyProxies(this.select, ['value']);
     }
@@ -68,8 +71,13 @@ elation.require(['ui.base','ui.label'], function() {
     }
     addItem(value, selected) {
       var option = elation.elements.create('option');
-      option.value = value;
-      option.innerHTML = value;
+      if (value instanceof HTMLElement) {
+        option.value = value.value || value.innerHTML;
+        option.innerHTML = value.label || value.innerHTML;
+      } else {
+        option.value = value;
+        option.innerHTML = value;
+      }
       if (selected) {
         option.selected = selected;
       }
@@ -100,14 +108,14 @@ elation.require(['ui.base','ui.label'], function() {
       var items = [];
       for (var i = 0; i < this.childNodes.length; i++) {
         var node = this.childNodes[i];
-        if (node instanceof HTMLOptionElement) {
-          //items.push({label: node.innerHTML});
-          items.push(node.innerHTML);
-          node.parentNode.removeChild(node);
+        if (node instanceof HTMLOptionElement || node instanceof elation.elements.ui.option) {
+          items.push(node);
         }
       }
-console.log('buh', items);
       this.setItems(items);
+      for (var i = 0; i < items.length; i++) {
+        items[i].parentNode.removeChild(items[i]);
+      }
     }
     onchange(ev) {
       //this.value = this.select.value;
@@ -119,5 +127,14 @@ console.log('buh', items);
 
       //this.dispatchEvent({type: "change", data: this.value});
     }
+    focus() {
+      this.select.focus();
+    }
+    blur() {
+      this.select.blur();
+    }
+  });
+
+  elation.elements.define('ui.option', class extends elation.elements.base {
   });
 });

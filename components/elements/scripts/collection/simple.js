@@ -39,12 +39,13 @@ elation.require(['elements.base'], function() {
     init() {
       super.init();
       this.defineAttributes({
+        items: { type: 'array', default: [] },
         length: { type: 'integer', get: this.getlength },
         allowduplicates: { type: 'boolean', default: false },
         datatransform: { type: 'object', default: {} }
       });
 
-      this.items = [];
+      //this.items = [];
     }
 
     /**
@@ -158,7 +159,13 @@ elation.require(['elements.base'], function() {
       elation.events.fire({type: "collection_clear", element: this});
     }
     filter(filterfunc, filterargs) {
-      return elation.collection.filter({parent: this, filterfunc: filterfunc, filterargs: filterargs});
+      //return elation.collection.filter({parent: this, filterfunc: filterfunc, filterargs: filterargs});
+      var filtered = elation.elements.create('collection-filter', {
+        append: this,
+        filterfunc: filterfunc,
+        filterargs: filterargs
+      });
+      return filtered;
     }
     subset(datatransform) {
       return elation.collection.subset({parent: this, datatransform: datatransform});

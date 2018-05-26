@@ -173,21 +173,22 @@ elation.require(['elements.elements', 'elements.ui.button', 'elements.ui.buttonb
         buttons.minimize = { 
           label: this.labels.minimize,
           classname: 'ui_window_control_minimize',
-          onclick: (ev) => this.minimize()
+          onclick: (ev) => this.minimize(ev)
         };
       }
       if (this.maximizable !== false) {
         buttons.maximize = {
           label: this.labels.maximize,
           classname: 'ui_window_control_maximize',
-          onclick: (ev) => this.maximize()
+          onclick: (ev) => this.maximize(ev)
         };
       }
       if (this.closable !== false) {
         buttons.close = { 
           label: this.labels.close,
           classname: 'ui_window_control_close',
-          onclick: (ev) => this.close()
+          onclick: (ev) => this.close(ev),
+          ontouchend: (ev) => this.close(ev)
         }
       }
 
@@ -229,8 +230,8 @@ elation.require(['elements.elements', 'elements.ui.button', 'elements.ui.buttonb
         this.windownum = -1;
         elation.html.transform(this, this.gettransform(false, false, .25), this.transformorigin, 'all 100ms ease-out');
         this.addclass('state_minimized');
-        this.controls.buttons.minimize.setLabel(this.labels.restore);
-        this.controls.buttons.maximize.setLabel(this.labels.maximize);
+        //this.controls.buttons.minimize.setLabel(this.labels.restore);
+        //this.controls.buttons.maximize.setLabel(this.labels.maximize);
         this.minimized = true;
         this.blur();
         elation.events.fire({type: 'ui_window_minimize', element: this});
@@ -240,7 +241,7 @@ elation.require(['elements.elements', 'elements.ui.button', 'elements.ui.buttonb
         if (this.oldtransform) {
           this.oldtransform = false;
         }
-        this.controls.buttons.minimize.setLabel(this.labels.minimize);
+        //this.controls.buttons.minimize.setLabel(this.labels.minimize);
         this.minimized = false;
         elation.html.transform(this, this.gettransform(), this.transformorigin, 'all 100ms ease-out');
         elation.events.fire({type: 'ui_window_restore', element: this});
@@ -261,8 +262,8 @@ elation.require(['elements.elements', 'elements.ui.button', 'elements.ui.buttonb
         this.setposition([0,0]);
         this.setsize([window.innerWidth, window.innerHeight]);
 
-        this.controls.buttons.minimize.setLabel(this.labels.minimize);
-        this.controls.buttons.maximize.setLabel(this.labels.restore);
+        //this.controls.buttons.minimize.setLabel(this.labels.minimize);
+        //this.controls.buttons.maximize.setLabel(this.labels.restore);
         this.maximized = true;
         elation.events.fire({type: 'ui_window_maximize', element: this});
       } else {
@@ -271,7 +272,7 @@ elation.require(['elements.elements', 'elements.ui.button', 'elements.ui.buttonb
         this.setposition(this.restorestate[0]);
         this.setsize(this.restorestate[1]);
         //elation.html.transform(this, this.gettransform(), this.transformorigin, 'none'); //'all 100ms ease-out');
-        this.controls.buttons.maximize.setLabel(this.labels.maximize);
+        //this.controls.buttons.maximize.setLabel(this.labels.maximize);
         this.maximized = false;
         elation.events.fire({type: 'ui_window_restore', element: this});
       }
@@ -297,7 +298,8 @@ elation.require(['elements.elements', 'elements.ui.button', 'elements.ui.buttonb
     centerwindow() {
       var dim = elation.html.dimensions(this);
       if (dim.w > window.innerWidth) {
-        this.setsize([window.innerWidth, window.innerHeight]);
+        this.maximize();
+        //this.setsize([window.innerWidth, window.innerHeight]);
       }
       var realx = (window.innerWidth - this.offsetWidth) / 2;
       var realy = (window.innerHeight - this.offsetHeight) / 2;
@@ -494,13 +496,13 @@ elation.require(['elements.elements', 'elements.ui.button', 'elements.ui.buttonb
       }
     }
     ontouchstart(ev) {
-      if (ev.touches.length == 1) {
+      if (ev.touches.length == 1 && !this.maximized) {
         this.dragstart(ev);
       }
       this.focus();
     }
     ontouchmove(ev) {
-      if (ev.touches.length == 1) {
+      if (ev.touches.length == 1 && !this.maximized) {
         this.dragmove(ev);
       }
     }

@@ -59,11 +59,17 @@ elation.require(['elements.elements'], function() {
 
       if (this.hidden) this.hide();
 
+      if (this.placeholder) {
+        this.inputelement.placeholder = this.placeholder;
+      }
+
       let value = this.value;
       elation.events.add(this, 'keydown', this.handlekeydown.bind(this));
       this.addEventProxies(this.inputelement, 'keydown,keyup,keypress,focus,blur,input,select,change');
-      this.addPropertyProxies(this.inputelement, 'value,disabled,autofocus,form,name,type,required');
-      this.value = value;
+      this.addPropertyProxies(this.inputelement, 'value,disabled,autofocus,form,name,type,required,placeholder');
+      if (value) {
+        this.value = value;
+      }
 
       elation.events.add(this, 'focus', this.handlefocus.bind(this));
 

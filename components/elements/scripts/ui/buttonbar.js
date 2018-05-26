@@ -32,7 +32,7 @@ elation.require(['elements.ui.list', 'elements.ui.button', 'elements.ui.togglebu
       }
     }
     createButton(buttonargs) {
-      return elation.elements.create(buttonargs.toggle ? 'ui.togglebutton' : 'ui.button', buttonargs);
+      return elation.elements.create(this.itemcomponent, buttonargs);
     }
     createButtons(buttons) {
       for (var i in buttons) {

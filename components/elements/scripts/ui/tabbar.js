@@ -8,7 +8,7 @@
  * @param {object} args
  * @param {string} args.items
  */
-elation.require(['elements.ui.buttonbar', 'elements.ui.tabbutton'], function() {
+elation.require(['elements.ui.buttonbar', 'elements.ui.tabbutton', 'elements.ui.tabcountbutton'], function() {
   elation.requireCSS('ui.tabbar');
 
   elation.elements.define('ui.tabbar', class extends elation.elements.ui.buttonbar {

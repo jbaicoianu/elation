@@ -5,6 +5,7 @@ elation.require(['elements.ui.item'], function() {
       //this.tabname = this.args.name;
       this.defineAttributes({
         label: { type: 'string' },
+        count: { type: 'integer', default: 0, set: this.updateCount },
         selected: { type: 'boolean', default: false },
         tooltip: { type: 'string' }
       });
@@ -49,6 +50,9 @@ elation.require(['elements.ui.item'], function() {
     }
     disable() {
       this.disabled = true;
+    }
+    updateCount() {
+      this.dispatchEvent({type: 'countchange', element: this, data: this.count});
     }
   });
 });

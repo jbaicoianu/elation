@@ -16,7 +16,8 @@ elation.require(['elements.ui.list', 'elements.ui.tabbar', 'elements.ui.tab'], f
     init() {
       super.init();
       this.defineAttributes({
-        itemcomponent: { type: 'string', default: 'ui.tab' }
+        itemcomponent: { type: 'string', default: 'ui.tab' },
+        showcounts: { type: 'boolean', default: false }
       });
       //this.collection = elation.elements.create('collection-simple');
 /*
@@ -74,6 +75,7 @@ elation.require(['elements.ui.list', 'elements.ui.tabbar', 'elements.ui.tab'], f
           })
         ]);
       }
+      this.updateActiveTab();
       this.dispatchEvent({type: 'create'});
     }
     setItems(items) {
@@ -82,6 +84,7 @@ elation.require(['elements.ui.list', 'elements.ui.tabbar', 'elements.ui.tab'], f
       if (!this.tabbar) {
         this.tabbar = elation.elements.create('ui-tabbar', {
           append: this,
+          itemcomponent: (this.showcounts ? 'ui.tabcountbutton' : 'ui.button')
         });
         elation.events.add(this.tabbar, 'click', (ev) => this.handleTabbarClick(ev));
       }
@@ -92,6 +95,13 @@ elation.require(['elements.ui.list', 'elements.ui.tabbar', 'elements.ui.tab'], f
         this.setActiveTab(this.selected);
       } else {
         this.updateActiveTab();
+      }
+
+      for (var i = 0; i < this.items.length; i++) {
+        let tab = this.items[i];
+        if (!elation.events.hasEventListener(tab, 'countchange')) {
+          elation.events.add(tab, 'countchange', (ev) => this.updateButtonCounts());
+        }
       }
     }
     setActiveTab(name) {
@@ -137,10 +147,21 @@ elation.require(['elements.ui.list', 'elements.ui.tabbar', 'elements.ui.tab'], f
         var buttons = this.buttons = [];
         var items = this.items;
         for (var i = 0; i < items.length; i++) {
-          buttons.push({label: items[i].label, name: i, disabled: items[i].disabled && items[i].disabled !== ''});
+          let buttonargs = {
+            label: items[i].label,
+            name: i,
+            disabled: items[i].disabled && items[i].disabled !== '',
+            count: items[i].count || 0
+          };
+          buttons.push(buttonargs);
         }
       }
       return this.buttons;
+    }
+    updateButtonCounts() {
+      for (var i = 0; i < this.items.length; i++) {
+        this.buttons[i].count = this.items[i].count;
+      }
     }
     handleTabbarClick(ev) {
       var button = ev.target;

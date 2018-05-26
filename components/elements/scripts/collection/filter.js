@@ -33,7 +33,7 @@ elation.require(['elements.collection.simple'], function() {
     }
     getfiltereditems() {
       //if (!this.filtered) {
-        var items = this.parent.items;
+        var items = this.parentNode.items;
         var filtered = [];
         for (var i = 0; i < items.length; i++) {
           if (this.filterfunc(items[i])) {

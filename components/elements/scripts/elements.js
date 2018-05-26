@@ -51,6 +51,9 @@ elation.require(['utils.template', 'janusweb.external.document-register-element'
         if (elements[i].name) {
           elements[elements[i].name] = elements[i];
         }
+        if (elements[i].id) {
+          elements[elements[i].id] = elements[i];
+        }
       }
 
       if (parent) {

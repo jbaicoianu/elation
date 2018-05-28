@@ -135,6 +135,8 @@ elation.extend("events", {
       events.push(event);
 
       if (cont === false || event.cancelBubble || realevent.cancelBubble) {
+        // FIXME - I keep finding myself commenting this out, and then wondering why I've commented it out later
+        //         Note to self - if you have to change this setting again, at least document why it needs to change!
         event.cancelBubble = true;
         break;
       }

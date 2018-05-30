@@ -428,7 +428,6 @@ elation.require(['utils.template', 'janusweb.external.document-register-element'
             scale = 1;
           }
           if (!this.canvas) {
-console.log('new image!', this.canvas);
             this.canvas = document.createElement('canvas');
             this.canvas.crossOrigin = 'anonymous';
             this.canvas.width = width;

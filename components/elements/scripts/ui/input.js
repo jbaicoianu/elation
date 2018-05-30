@@ -65,7 +65,7 @@ elation.require(['elements.elements'], function() {
 
       let value = this.value;
       elation.events.add(this, 'keydown', this.handlekeydown.bind(this));
-      this.addEventProxies(this.inputelement, 'keydown,keyup,keypress,focus,blur,input,select,change');
+      this.addEventProxies(this.inputelement, 'keyup,keypress,focus,blur,input,select,change');
       this.addPropertyProxies(this.inputelement, 'value,disabled,autofocus,form,name,type,required,placeholder');
       if (value) {
         this.value = value;

@@ -146,8 +146,9 @@ elation.require(['utils.template', 'janusweb.external.document-register-element'
 //this._elation.properties[k] = v;
 //console.log(this._elation.properties);
 //if (v == '[object HTMLElement]') debugger;
-          if (!skip && !this._elation.classdef[k].innerHTML) {
-            if (this._elation.classdef[k].type == 'boolean') {
+          let classdef = this._elation.classdef[k];
+          if (!skip && !classdef.innerHTML) {
+            if (classdef.type == 'boolean') {
               if (v) {
                 this.setAttribute(k, '');
               } else {
@@ -156,24 +157,42 @@ elation.require(['utils.template', 'janusweb.external.document-register-element'
             } else {
               this.setAttribute(k, v);
             }
-            if (this._elation.classdef[k].set) {
-              this._elation.classdef[k].set.call(this, v);
+            if (classdef.set) {
+              classdef.set.call(this, v);
             }
           }
         }
         getProperty(k) {
           // TODO - type coersion magic happens here
-          var prop = elation.utils.arrayget(this._elation.properties, k, null);
-          if (this._elation.classdef[k].get) {
-            return this._elation.classdef[k].get.call(this, k);
+          let prop = elation.utils.arrayget(this._elation.properties, k, null);
+          let classdef = this._elation.classdef[k];
+          if (classdef.get) {
+            return this.getPropertyAsType(classdef.get.call(this, k), classdef.type);
           //} else if (k in this._elation.properties) {
           //  return this._elation.properties[k];
           } else if (prop !== null) {
-            return prop;
+            return this.getPropertyAsType(prop, classdef.type);
           } else if (this.hasAttribute(k)) {
-            return this.getAttribute(k);
-          } else if (typeof this._elation.classdef[k].default != 'undefined') {
-            return this._elation.classdef[k].default;
+            return this.getPropertyAsType(this.getAttribute(k), classdef.type);
+          } else if (typeof classdef.default != 'undefined') {
+            return classdef.default;
+          }
+        }
+        getPropertyAsType(value, type) {
+          switch (type) {
+            case 'boolean':
+              return (value || value === '');
+            case 'integer':
+              return value|0;
+            case 'float':
+              return +value;
+            case 'callback':
+              if (elation.utils.isString(value)) {
+                return new Function('event', value);
+              }
+              return value;
+            default:
+              return value;
           }
         }
         connectedCallback() {

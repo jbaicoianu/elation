@@ -297,7 +297,7 @@ elation.require(['elements.elements', 'elements.ui.button', 'elements.ui.buttonb
     }
     centerwindow() {
       var dim = elation.html.dimensions(this);
-      if (dim.w > window.innerWidth) {
+      if (dim.w > window.innerWidth && !this.maximized) {
         this.maximize();
         //this.setsize([window.innerWidth, window.innerHeight]);
       }

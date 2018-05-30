@@ -409,7 +409,8 @@ elation.require(['utils.template', 'janusweb.external.document-register-element'
           events = (elation.utils.isString(events) ? events.split(',') : events);
           for (var i = 0; i < events.length; i++) {
             elation.events.add(element, events[i], (ev) => { 
-              this.dispatchEvent({type: ev.type, event: ev }); 
+              //this.dispatchEvent({type: ev.type, event: ev }); 
+              this.dispatchEvent(ev);
             }, (passiveEvents.indexOf(events[i]) != -1 ? {passive: true} : false));
           }
         }

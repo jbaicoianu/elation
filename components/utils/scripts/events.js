@@ -1,7 +1,7 @@
 // if (typeof require == 'function') var elation = require("utils/elation");
 elation.extend("events", {
   events: {},
-  cloneattrs: ['type', 'bubbles', 'cancelable', 'view', 'detail', 'screenX', 'screenY', 'clientX', 'clientY', 'ctrlKey', 'shiftKey', 'altKey', 'metaKey', 'button', 'relatedTarget', 'target', 'element', 'data', 'origin', 'timeStamp', 'returnValue', 'cancelBubble', 'keyCode', 'dataTransfer'],
+  cloneattrs: ['type', 'bubbles', 'cancelable', 'view', 'detail', 'screenX', 'screenY', 'clientX', 'clientY', 'ctrlKey', 'shiftKey', 'altKey', 'metaKey', 'button', 'relatedTarget', 'target', 'element', 'data', 'origin', 'timeStamp', 'returnValue', 'cancelBubble', 'keyCode', 'dataTransfer', 'deltaX', 'deltaY', 'deltaZ', 'deltaMode'],
 
   eventstats: {},
   

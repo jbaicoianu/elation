@@ -323,6 +323,9 @@ elation.extend("component", new function() {
       var elation = {};
       window.elation.utils.arrayset(elation, type, null);
       var namehack = "elation." + type + " = function () { }; component.base = elation." + type;
+      if (type.indexOf('-') != -1) {
+        namehack = "elation[" + type + "] = function () { }; component.base = elation[" + type + "]";
+      }
       eval(namehack); // FIXME - weirdness to force usable names while console.logging components
     })();
     component.base.prototype = new this.base(type);

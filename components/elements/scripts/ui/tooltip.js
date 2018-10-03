@@ -15,15 +15,19 @@ elation.require(['elements.ui.window'], function() {
     show() {
       if (!this.visible) {
         super.show();
-        elation.events.add(this.parentNode, 'mousemove', this.handleMouseMove);
-        elation.events.add(this.parentNode, 'mouseout', this.handleMouseOut);
+        if (this.parentNode) {
+          elation.events.add(this.parentNode, 'mousemove', this.handleMouseMove);
+          elation.events.add(this.parentNode, 'mouseout', this.handleMouseOut);
+        }
       }
     }
     hide() {
       if (this.visible) {
         super.hide();
-        elation.events.remove(this.parentNode, 'mousemove', this.handleMouseMove);
-        elation.events.remove(this.parentNode, 'mouseout', this.handleMouseOut);
+        if (this.parentNode) {
+          elation.events.remove(this.parentNode, 'mousemove', this.handleMouseMove);
+          elation.events.remove(this.parentNode, 'mouseout', this.handleMouseOut);
+        }
       }
     }
     handleMouseMove(ev) {

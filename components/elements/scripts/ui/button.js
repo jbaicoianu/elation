@@ -20,7 +20,7 @@ elation.require(['elements.ui.item'], function() {
     init() {
       super.init()
       this.defineAttributes({
-        label: { type: 'string' },
+        label: { type: 'string', set: this.updateLabel },
         name: { type: 'string' },
         disabled: { type: 'boolean', default: false },
         autoblur: { type: 'boolean', default: false },
@@ -70,7 +70,15 @@ elation.require(['elements.ui.item'], function() {
      */
     setLabel(label) {
       this.label = label;
-      this.innerHTML = label;
+      this.updateLabel();
+    }
+    /**
+     * Updates the HTML that displays the label for this button
+     * @function updateLabel
+     * @memberof elation.ui.button#
+     */
+    updateLabel() {
+      this.innerHTML = this.label;
     }
     /**
      * Sets the title text of the button

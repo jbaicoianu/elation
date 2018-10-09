@@ -393,6 +393,23 @@ elation.require(['ui.base','utils.template'], function() {
 
         elation.events.add(this.container, "mouseover,mouseout,click", this);
         elation.events.add(this.value, "mouseover,mouseout,click", this);
+        this.refresh();
+      }
+    }
+    this.render = function() {
+      if (this.value) {
+        if (this.attrs.itemtemplate) {
+          this.container.innerHTML = elation.template.get(this.attrs.itemtemplate, this.value);
+        } else if (this.value[this.attrs.label]) {
+          this.container.innerHTML = this.value[this.attrs.label];
+        }
+
+        if (!elation.utils.isEmpty(this.attrs.disabled) && !elation.utils.isEmpty(this.value[this.attrs.disabled])) {
+          elation.html.addclass(this.container, "state_disabled");
+        }
+
+        elation.events.add(this.container, "mouseover,mouseout,click", this);
+        elation.events.add(this.value, "mouseover,mouseout,click", this);
       }
     }
     this.remove = function() {
@@ -433,7 +450,7 @@ elation.require(['ui.base','utils.template'], function() {
       if (this.enabled) ev.stopPropagation();
     }
     this.mouseup = function(ev) {
-      if (this.enabled) ev.stopPropagation();
+      //if (this.enabled) ev.stopPropagation();
     }
     this.click = function(ev) {
       if (this.enabled) {

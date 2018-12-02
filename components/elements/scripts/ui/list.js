@@ -19,6 +19,8 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
    * @param {string}    args.orientation
    * @param {string}    args.sortbydefault
    * @param {array}     args.items
+   * @param {boolean}   args.autoscroll
+   * @param {number}    args.autoscrollmargin
    * @param {elation.collection.simple} args.itemcollection
    *
    * @param {object}    args.attrs
@@ -49,6 +51,8 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
         multiselect: { type: 'boolean' },
         spinner : { type: 'boolean' },
         orientation: { type: 'string' },
+        autoscroll: { type: 'boolean' },
+        autoscrollmargin: { type: 'integer', default: 100 },
         //items: { type: 'object' },
         itemcount: { type: 'number', get: this.getItemCount },
         nameattr: { type: 'string', default: 'name' },
@@ -234,8 +238,10 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
      * @param {Object} item
      */
     addItem(item) {
+      let wasScrollAtBottom = this.isScrollAtBottom(this.autoscrollmargin);
       this.items.push(item);
       this.refresh();
+      this.applyAutoscroll(wasScrollAtBottom);
     }
     /**
      * Add a new item to a specific position in this list
@@ -541,8 +547,15 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
      * @function isScrollAtBottom
      * @memberof elation.ui.list#
      */
-    isScrollAtBottom() {
-      return this.scrollTop + this.offsetHeight >= this.scrollHeight;
+    isScrollAtBottom(margin=0) {
+      return this.scrollTop + this.offsetHeight >= this.scrollHeight - margin;
+    }
+    applyAutoScroll(wasScrollAtBottom=true) {
+      if (this.autoscroll && wasScrollAtBottom) {
+        // Only autoscroll if the list was already near the bottom
+        this.scrollToBottom();
+        setTimeout(() => this.scrollToBottom(), 10);
+      }
     }
     /**
      * Event handler: elation.ui.item#ui_list_item_select
@@ -596,7 +609,9 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
      * @param {event} ev
      */
     oncollection_add(ev) {
+      let wasScrollAtBottom = this.isScrollAtBottom(this.autoscrollmargin);
       this.refresh();
+      this.applyAutoScroll(wasScrollAtBottom);
     }
     /**
      * Event handler: elation.collection.simple#collection_remove
@@ -605,7 +620,9 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
      * @param {event} ev
      */
     oncollection_remove(ev) {
+      let wasScrollAtBottom = this.isScrollAtBottom(this.autoscrollmargin);
       this.refresh();
+      this.applyAutoScroll(wasScrollAtBottom);
     }
     /**
      * Event handler: elation.collection.simple#collection_move
@@ -638,10 +655,12 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
      * @param {event} ev
      */
     oncollection_load(ev) {
+      let wasScrollAtBottom = this.isScrollAtBottom(this.autoscrollmargin);
       if (this.spinner) {
         this.removeChild(this.spinner);
       }
       this.refresh();
+      this.applyAutoScroll(wasScrollAtBottom);
     }
     /**
      * Event handler: elation.collection.simple#collection_clear
@@ -654,6 +673,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
       var ul = this.getListElement();
       ul.innerHTML = '';
       this.refresh();
+      this.applyAutoScroll(true);
     }
 
   });

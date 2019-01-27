@@ -173,6 +173,7 @@ elation.extend("utils.isObject", function(obj) {
   return (obj instanceof Object);
 });
 elation.extend("utils.isArray", function(obj) {
+  /*
   var objclass = Object.prototype.toString.call(obj),
       allow = {
         '[object Array]': true,
@@ -185,6 +186,8 @@ elation.extend("utils.isArray", function(obj) {
   } else {
     return allow[objclass] || false;
   }
+  */
+  return Array.isArray(obj) || (typeof HTMLCollection != 'undefined' && obj instanceof HTMLCollection);
 });
 
 elation.extend("utils.isString", function(obj) {

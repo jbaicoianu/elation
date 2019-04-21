@@ -352,7 +352,8 @@ node_run() {
   if [ -z "$NODE" ]; then
     echo "ERROR - could not find nodejs executable"
   else
-    echo "Found: $NODE"
+    echo -n "Found: $NODE "
+    node --version
     NODE_PATH="$SCRIPTROOT" "$NODE" "$SCRIPTROOT/$COMPONENTPATH" $*
   fi
 }

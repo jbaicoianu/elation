@@ -13,6 +13,7 @@ elation.require(['elements.ui.list', 'elements.ui.button', 'elements.ui.togglebu
     init() {
       super.init();
       this.defineAttributes({
+        'label': { type: 'string' },
         'itemcomponent': { type: 'string', default: 'ui.button' }
       });
     }
@@ -25,10 +26,17 @@ elation.require(['elements.ui.list', 'elements.ui.button', 'elements.ui.togglebu
         this.setItemCollection(this.collection);
       } else if (this.buttons) {
         this.createButtons(this.buttons);
-      } else if (this.items) {
+      } else if (this.items && this.items.length > 0) {
         this.createButtons(this.items);
       } else {
         this.extractButtons();
+      }
+      if (this.label) {
+        this.labelobj = elation.elements.create('ui.label', {
+          append: this,
+          before: this.firstChild,
+          label: this.label
+        });
       }
     }
     createButton(buttonargs) {
@@ -62,16 +70,15 @@ elation.require(['elements.ui.list', 'elements.ui.button', 'elements.ui.togglebu
       }
     }
     extractButtons() {
-/*
       var buttons = [];
       for (var i = 0; i < this.childNodes.length; i++) {
         var node = this.childNodes[i];
-        if (node instanceof HTMLLIElement) {
+        if (node instanceof elation.elements.ui.button) {
           //items.push({label: node.innerHTML});
-          this.items.push(node.innerHTML);
+          this.items.push(node);
         }
       }
-*/
+      //this.buttons = buttons;
     }
     add(name, button) {
       this.buttons[name] = button;

@@ -1,6 +1,7 @@
 elation.require(['utils.template', 'janusweb.external.document-register-element'], function() {
   elation.extend('elements', {
     uniqueids: {},
+    types: {},
     define: function(name, classdef, notag) {
       var elementname = name.replace(/\./g, '-'),
           componentname = name.replace(/-/g, '.');
@@ -37,6 +38,9 @@ elation.require(['utils.template', 'janusweb.external.document-register-element'
         }
       }
       return element;
+    },
+    registerType: function(type, handler) {
+      this.types[type] = handler;
     },
     fromString: function(str, parent) {
       let container = document.createElement('div');
@@ -103,6 +107,7 @@ elation.require(['utils.template', 'janusweb.external.document-register-element'
             deferred: { type: 'boolean', default: true },
             template: { type: 'string' },
             name: { type: 'string' },
+            //classname: { type: 'string' },
             preview: { type: 'boolean', default: false },
             hover: { type: 'boolean', default: false },
             editable: { type: 'boolean', default: false },
@@ -155,7 +160,11 @@ elation.require(['utils.template', 'janusweb.external.document-register-element'
                 this.removeAttribute(k);
               }
             } else {
-              this.setAttribute(k, v);
+              if (elation.elements.types[classdef.type]) {
+                this.setAttribute(k, elation.elements.types[classdef.type].write(v));
+              } else {
+                this.setAttribute(k, v);
+              }
             }
             if (classdef.set) {
               classdef.set.call(this, v);
@@ -192,6 +201,9 @@ elation.require(['utils.template', 'janusweb.external.document-register-element'
               }
               return value;
             default:
+              if (elation.elements.types[type]) {
+                return elation.elements.types[type].read(value);
+              }
               return value;
           }
         }
@@ -219,7 +231,7 @@ elation.require(['utils.template', 'janusweb.external.document-register-element'
           //var evobj = elation.elements.getEvent(ev);
           //super.dispatchEvent(evobj);
           ev.element = this;
-          elation.events.fire(ev);
+          return elation.events.fire(ev);
         }
          /*
          * Handle default element creation.  If template is specified, use it for our contents.

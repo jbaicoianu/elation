@@ -38,6 +38,8 @@ elation.require(['elements.elements', 'elements.ui.button', 'elements.ui.buttonb
         right: { type: 'boolean' },
         top: { type: 'boolean' },
         bottom: { type: 'boolean' },
+        width: { type: 'string' },
+        height: { type: 'height' },
         resizable: { type: 'boolean' },
         scrollable: { type: 'boolean' },
         minimizable:  { type: 'boolean' },
@@ -80,7 +82,7 @@ elation.require(['elements.elements', 'elements.ui.button', 'elements.ui.buttonb
         restore: '₪',
         close: 'x'
       };
-      if (this.controls !== false) {
+      if (this.controls !== false && this.controls != 0) {
         this.createcontrols();
       }
       this.settitle(this.title);
@@ -169,21 +171,21 @@ elation.require(['elements.elements', 'elements.ui.button', 'elements.ui.buttonb
     }
     createcontrols() {
       var buttons = {};
-      if (this.minimizable !== false) {
+      if (this.minimizable !== false && this.minimizable != 0) {
         buttons.minimize = { 
           label: this.labels.minimize,
           classname: 'ui_window_control_minimize',
           onclick: (ev) => this.minimize(ev)
         };
       }
-      if (this.maximizable !== false) {
+      if (this.maximizable !== false && this.maximizable != 0) {
         buttons.maximize = {
           label: this.labels.maximize,
           classname: 'ui_window_control_maximize',
           onclick: (ev) => this.maximize(ev)
         };
       }
-      if (this.closable !== false) {
+      if (this.closable !== false && this.closable != 0) {
         buttons.close = { 
           label: this.labels.close,
           classname: 'ui_window_control_close',

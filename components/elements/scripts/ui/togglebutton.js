@@ -17,12 +17,21 @@ elation.require(['elements.ui.button'], function() {
       }
     }
     activate() {
-      this.active = true;
+      let events = this.dispatchEvent({type: 'activate'});
+      let processdefault = true;
+      events.forEach(e => { processdefault &= e.returnValue });
+      if (processdefault) {
+        this.active = true;
+      }
       this.dispatchEvent({type: 'activate'});
     }
     deactivate() {
-      this.active = false;
-      this.dispatchEvent({type: 'deactivate'});
+      let events = this.dispatchEvent({type: 'deactivate'});
+      let processdefault = true;
+      events.forEach(e => { processdefault &= e.returnValue });
+      if (processdefault) {
+        this.active = false;
+      }
     }
   });
 });

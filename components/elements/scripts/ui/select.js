@@ -40,7 +40,7 @@ elation.require(['ui.base','ui.label'], function() {
       if (this.bindvar) {
         this.selected = elation.utils.arrayget(this.bindvar[0], this.bindvar[1]);
       }
-      elation.events.add(this.select, "change", this);
+      elation.events.add(this.select, "change", (ev) => this.handleSelectChange(ev));
 
 /*
       if (this.items) {
@@ -117,7 +117,7 @@ elation.require(['ui.base','ui.label'], function() {
         items[i].parentNode.removeChild(items[i]);
       }
     }
-    onchange(ev) {
+    handleSelectChange(ev) {
       //this.value = this.select.value;
 
       // If a bindvar is passed in, automatically update the specified object property
@@ -125,7 +125,7 @@ elation.require(['ui.base','ui.label'], function() {
         elation.utils.arrayset(this.bindvar[0], this.bindvar[1], this.value);
       }
 
-      //this.dispatchEvent({type: "change", data: this.value});
+      this.dispatchEvent({type: "change", data: this.value});
     }
     focus() {
       this.select.focus();

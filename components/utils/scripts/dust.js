@@ -120,7 +120,8 @@ dust.filters = {
   u: encodeURI,
   uc: encodeURIComponent,
   js: function(value) { if (!JSON) { return value; } return JSON.stringify(value); },
-  jp: function(value) { if (!JSON) { return value; } return JSON.parse(value); }
+  jp: function(value) { if (!JSON) { return value; } return JSON.parse(value); },
+  round: function(value) { return (+value).toFixed(4); }
 };
 
 function Context(stack, global, blocks) {

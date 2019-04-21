@@ -51,7 +51,9 @@ elation.require(['elements.base'], function() {
           this.placeholder = false;
         }
 
-        if (this.value && this.value != this.innerHTML) {
+        if (this.value instanceof HTMLElement) {
+          this.setcontent(this.value);
+        } else if (elation.utils.isString(this.value) && this.value != this.innerHTML) {
           this.setcontent(this.value);
 
           if (this.value.classname) {
@@ -90,8 +92,8 @@ elation.require(['elements.base'], function() {
         this.appendChild(value.container);
         filled = true;
       } else if (value instanceof HTMLElement) {
-        //this.appendChild(value);
-this.innerHTML = value.innerHTML;
+        this.appendChild(value);
+//this.innerHTML = value.innerHTML;
 //console.log('here I add the guy to the thing', this.innerHTML, value, value.parentNode, this.parentNode);
         filled = true;
 /*

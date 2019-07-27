@@ -15,10 +15,10 @@ elation.extend("events", {
     var extras = {};
 
     if (typeof type == 'object') {
-      data = elation.utils.any(elation.utils.arrayget(type, 'data'), data);
-      target = elation.utils.arrayget(type, 'target') || target;
-      element = elation.utils.arrayget(type, 'element') || element;
-      fn = elation.utils.arrayget(type, 'fn') || fn;
+      data = elation.utils.any(type.data, data);
+      target = type.target || target;
+      element = type.element || element;
+      fn = type.fn || fn;
       var cloneev = type.event || {};
 
       for (var i = 0; i < this.cloneattrs.length; i++) {
@@ -46,7 +46,7 @@ elation.extend("events", {
 
       extras.fn = fn;
 
-      type = elation.utils.arrayget(type, 'type');
+      type = type.type;
     }
 
     extras.data = data;

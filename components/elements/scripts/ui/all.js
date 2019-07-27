@@ -7,6 +7,7 @@ elation.require([
   'elements.ui.dropdownbutton',
   'elements.ui.notificationbutton',
   'elements.ui.buttonbar',
+  'elements.ui.radiobuttonbar',
   'elements.ui.buttonlist',
   'elements.ui.input',
   'elements.ui.textarea',

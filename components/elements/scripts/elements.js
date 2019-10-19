@@ -11,7 +11,7 @@ elation.require(['utils.template', 'janusweb.external.document-register-element'
         customElements.define(elementname, classdef);
       }
 
-      console.log('define element:', name, '<' + elementname + '>');
+      //console.log('define element:', name, '<' + elementname + '>');
     },
     create: function(type, attrs={}) {
       var elementname = type.replace(/\./g, '-');

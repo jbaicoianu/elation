@@ -10,6 +10,7 @@
  * @param {string} args.value
  * @param {string} args.inputname
  * @param {string} args.placeholder
+ * @param {string} args.wrap
  * @param {boolean} args.disabled
  * @param {boolean} args.hidden
  * @param {boolean} args.autofocus
@@ -43,6 +44,10 @@ elation.require(['ui.input'], function() {
           'change', 'input', 'keydown', 'keypress', 'keyup', 
           'mouseover', 'mouseout', 'mousedown', 'mouseup', 'click',
           'touchstart', 'touchend', 'touchmove']);
+
+        if (this.args.wrap) {
+          this.inputelement.wrap = this.args.wrap;
+        }
       }
       if (this.args.value) {
         this.value = this.args.value;

@@ -38,6 +38,7 @@ elation.require(['utils.events'], function() {
       }
 
       var getProxyValue = function(target, name) {
+        if (name == '_proxydefs') return proxydefs;
         if (proxydefs && proxydefs.hasOwnProperty(name)) {
           var def = proxydefs[name];
           var value;

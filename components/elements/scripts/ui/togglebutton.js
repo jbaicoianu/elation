@@ -23,7 +23,6 @@ elation.require(['elements.ui.button'], function() {
       if (processdefault) {
         this.active = true;
       }
-      this.dispatchEvent({type: 'activate'});
     }
     deactivate() {
       let events = this.dispatchEvent({type: 'deactivate'});

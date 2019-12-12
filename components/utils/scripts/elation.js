@@ -2507,9 +2507,10 @@ elation.extend("utils.parseXML", function(imgxml, leaf, forceLower) {
       parent[name] = value;
     }
   }
-  if (node.childNodes) {
-    for (var j = 0; j < node.childNodes.length; j++) {
-      var child = node.childNodes[j];
+  let children = node.children || node.childNodes;
+  if (children) {
+    for (var j = 0; j < children.length; j++) {
+      var child = children[j];
       var nodename = child.nodeName;
       if (forceLower) nodename = nodename.toLowerCase();
       if (node.getElementsByTagName(child.tagName).length > 1) {

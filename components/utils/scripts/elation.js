@@ -533,12 +533,7 @@ elation.extend("component", new function() {
         delete componentclass.obj[this.id];
       }
       // Remove any events which reference this component
-      var events = elation.events.getEventsByTarget(this);
-      for (var i = 0; i < events.length; i++) {
-        var ev = events[i];
-        elation.events.remove(ev.target, ev.type, ev.origin);
-      }
-      var events = elation.events.getEventsByOrigin(this);
+      var events = elation.events.getEventsByTargetOrOrigin(this);
       for (var i = 0; i < events.length; i++) {
         var ev = events[i];
         elation.events.remove(ev.target, ev.type, ev.origin);

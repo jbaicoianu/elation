@@ -28,6 +28,7 @@ elation.require(['elements.elements', 'elements.ui.button', 'elements.ui.buttonb
       super.init();
       this.defineAttributes({
         title:     { type: 'string', default: '' },
+        windowtitle:     { type: 'string', default: '' }, // Using 'title' involves browser default tooltip behavior, consider forcing a rename, in the meantime we support 'windowtitle' as well
         //toolbar:   { type: 'object' },
         position:  { type: 'vector2' },
         content:   { type: 'object' },
@@ -85,7 +86,11 @@ elation.require(['elements.elements', 'elements.ui.button', 'elements.ui.buttonb
       if (this.controls !== false && this.controls != 0) {
         this.createcontrols();
       }
-      this.settitle(this.title);
+      if (this.windowtitle) {
+        this.settitle(this.windowtitle);
+      } else {
+        this.settitle(this.title);
+      }
       if (this.toolbar) {
         this.settoolbar(this.toolbar);
       }

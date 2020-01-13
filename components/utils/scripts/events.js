@@ -461,6 +461,18 @@ elation.extend("events", {
     }
     return results;
   },
+  getEventsByTargetOrOrigin: function(target) {
+    var results = [];
+    for (var evname in this.events) {
+      for (var i = 0; i < this.events[evname].length; i++) {
+        var ev = this.events[evname][i];
+        if (ev.target === target || ev.origin === target) {
+          results.push(ev);
+        }
+      }
+    }
+    return results;
+  },
   hasEventListener: function(target, type) {
     var allevents = elation.events.events[type];
     if (allevents) {

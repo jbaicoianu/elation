@@ -126,7 +126,7 @@ elation.require(['utils.events'], function() {
               //setProxyChangeTimer({key: defname, value: value});
               return true;
             } else {
-              console.log('why set function?', target, name, def);
+              //console.log('why set function?', target, name, def);
             }
           } else if (name == '_proxydefs') {
             var keys = Object.keys(value);

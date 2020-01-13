@@ -59,6 +59,8 @@ elation.require(['elements.base'], function() {
           if (this.value.classname) {
             this.addclass(this.value.classname);
           }
+        } else if (this.itemtemplate) {
+          this.setcontent(this.value);
         }
 
         if (this.selected) {

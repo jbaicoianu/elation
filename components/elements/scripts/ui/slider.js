@@ -36,6 +36,7 @@ elation.require(['elements.elements', 'elements.ui.input', 'elements.ui.text'], 
       var idx = this.handles.indexOf(handle);
       if (idx != -1) {
         this.values[idx] = handle.value;
+        this.dispatchEvent({type: 'change', data: handle.value});
       }
     }
   });

@@ -91,7 +91,7 @@ elation.require(['elements.ui.panel', 'elements.ui.togglebutton'], function() {
       this.collapsed = false;
       this.collapsed = collapsed;
 */
-      if (this.hideempty) {
+      if (this.hideempty && this.inner) {
         if (this.inner.childNodes.length == 0) {
           this.hide();
         } else {

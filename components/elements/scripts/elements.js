@@ -1,7 +1,48 @@
 elation.require(['utils.template', 'janusweb.external.document-register-element'], function() {
   elation.extend('elements', {
+    initialized: false,
     uniqueids: {},
     types: {},
+    activeElements: new Set(),
+
+    init() {
+      elation.elements.initialized = true;
+
+      // Set up a mutation observer so we can keep track of all our elements and any style changes that require updates
+      this.observer = new window.MutationObserver(mutations => mutations.forEach(this.observe.bind(this)))
+      this.observer.observe(window.document, {
+        attributes: true,
+        attributeFilter: ['class'],
+        childList: true,
+        subtree: true
+      })
+
+    },
+    observe(mutation) {
+      if (mutation.type == 'childList' && mutation.addedNodes.length > 0) {
+        for (let addition of mutation.addedNodes) {
+          if (addition.tagName == 'LINK') {
+            // new external CSS file, refresh elements when it finishes loading
+            addition.addEventListener('load', (ev) => { elation.elements.refresh();});
+          } else if (addition.tagName == 'STYLE') {
+            // new inline CSS, refresh elements now
+            elation.elements.refresh();
+          } else if (addition instanceof elation.elements.base) {
+            // New element, add it to our list of active elements
+            this.activeElements.add(addition);
+          }
+        }
+        for (let removal of mutation.removedNodes) {
+          // Remove elements from activeElements set
+          if (this.activeElements.has(removal)) {
+            this.activeElements.delete(removal);
+          }
+        }
+      }
+    },
+    refresh() {
+      this.activeElements.forEach(el => el.refresh());
+    },
     define: function(name, classdef, notag) {
       var elementname = name.replace(/\./g, '-'),
           componentname = name.replace(/-/g, '.');
@@ -16,6 +57,11 @@ elation.require(['utils.template', 'janusweb.external.document-register-element'
     create: function(type, attrs={}) {
       var elementname = type.replace(/\./g, '-');
       var element = document.createElement(elementname);
+
+      if (!elation.elements.initialized) {
+        elation.elements.init();
+      }
+
       if (element) {
         if (attrs.append) {
           elation.html.attach(attrs.append, element, attrs.before);

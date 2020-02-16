@@ -484,5 +484,12 @@ elation.extend("events", {
       }
     }
     return false;
+  },
+  wasDefaultPrevented: function(events) {
+    let allowed = true;
+    for (let i = 0; i < events.length; i++) {
+      allowed = allowed && events[i].returnValue;
+    }
+    return !allowed;
   }
 });

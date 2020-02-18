@@ -30,7 +30,7 @@ var elation = window.elation = new function(selector, parent, first) {
 		if (typeof ptr[parts[i]] == 'undefined' || ptr[parts[i]] === null || clobber == true) {
 			ptr[parts[i]] = xptr[parts[i]] = func;
 		} else {
-			console.log("elation: tried to clobber existing component '" + name + "'");
+			console.log("elation (warning): tried to clobber existing component '" + name + "'");
 		}
 		if (typeof inheritfrom == 'function') {
 			ptr.prototype = xptr.prototype = new inheritfrom;
@@ -2208,11 +2208,13 @@ elation.extend('require.batch', function(type, webroot) {
         this.finished(module);
       } else if (elation.env.isNode && this.type == 'js') {
         // running in node.js
-        console.log('loading elation module: ', module);
+        //console.log('loading elation module: ', module);
         try {
           require(module.replace(/\./g, '/'));
         } catch (e) {
-          console.log('ERROR ERROR', e);
+          // FIXME - Many times this error is because of external scripts which work in the browser but not nodejs
+          //         We should have some way of reporting errors which doesn't spam the console too much
+          //console.log('ERROR ERROR', e);
         }
         this.finished(module);
       } else {

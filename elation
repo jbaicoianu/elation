@@ -344,16 +344,16 @@ node_run() {
   SCRIPTROOT=`pwd`/htdocs/scripts
 
   NODE=`which node`
-  echo "check exists: $NODE"
+#  echo "check exists: $NODE"
   if [ -z "$NODE" ]; then
-    echo "$NODE doesn't exist, try alternate"
+    #echo "$NODE doesn't exist, try alternate"
     NODE=`which nodejs`
   fi
   if [ -z "$NODE" ]; then
     echo "ERROR - could not find nodejs executable"
   else
-    echo -n "Found: $NODE "
-    node --version
+    #echo -n "Found: $NODE "
+    #node --version
     NODE_PATH="$SCRIPTROOT" "$NODE" "$SCRIPTROOT/$COMPONENTPATH" $*
   fi
 }

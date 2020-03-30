@@ -29,12 +29,12 @@ elation.require(['elements.ui.panel', 'elements.ui.togglebutton'], function() {
       // The handle that's used to toggle this panel open or closed
       this.handle = elation.elements.create('ui.togglebutton', {
         append: this,
-        class: 'collapse',
         label: '',
         onactivate: (ev) => this.expand(),
         ondeactivate: (ev) => this.collapse(),
         onmousedown: (ev) => this.startResize(ev)
       });
+      this.handle.addclass('collapse');
 
       // Our outer wrapper
       this.container = elation.elements.create('div', {
@@ -123,9 +123,11 @@ elation.require(['elements.ui.panel', 'elements.ui.togglebutton'], function() {
       this.updateLabel();
     }
     startResize(ev) {
-      window.addEventListener('mousemove', this.handleMouseMove); 
-      window.addEventListener('mouseup', this.handleMouseUp); 
-      this.resizepos = [ev.clientX, ev.clientY];
+      if (ev.button == 0) {
+        window.addEventListener('mousemove', this.handleMouseMove); 
+        window.addEventListener('mouseup', this.handleMouseUp); 
+        this.resizepos = [ev.clientX, ev.clientY];
+      }
     }
     handleMouseMove(ev) {
       if (this.hasclass('default')) {

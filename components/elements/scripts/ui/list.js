@@ -211,6 +211,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
             value: node.innerHTML,
             innerHTML: node.innerHTML,
             selectable: this.selectable,
+            draggable: this.draggable,
             nameattr: this.nameattr,
             childattr: this.childattr,
             labelattr: this.labelattr,
@@ -225,6 +226,9 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
           items.push(item);
         } else if (node instanceof elation.elements.ui.item) {
           items.push(node);
+          node.selectable = this.selectable;
+          node.draggable = this.draggable;
+          elation.events.add(node, 'select', (ev) => this.handleSelect(ev));
           node.parentNode.removeChild(node);
           i--;
         }
@@ -301,6 +305,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
         item = this.createlistitem({
           value: item,
           selectable: this.selectable,
+          draggable: this.draggable,
           nameattr: this.nameattr,
           childattr: this.childattr,
           labelattr: this.labelattr,

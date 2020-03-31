@@ -7,7 +7,7 @@ elation.require(['elements.elements', 'elements.ui.label'], function() {
       this.defineAttributes({
         checked: { type: 'boolean', default: false },
         disabled: { type: 'boolean', default: false },
-        label: { type: 'string' }
+        label: { type: 'string', default: '' }
       });
       if (this.checked === '') this.checked = true; // FIXME - type hinting should handle this
 

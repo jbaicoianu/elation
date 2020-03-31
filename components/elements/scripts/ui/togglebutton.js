@@ -10,10 +10,12 @@ elation.require(['elements.ui.button'], function() {
       super.create();
     }
     handleClick(ev) {
-      if (!this.active) {
-        this.activate();
-      } else {
-        this.deactivate();
+      if (ev.button == 0) {
+        if (!this.active) {
+          this.activate();
+        } else {
+          this.deactivate();
+        }
       }
     }
     activate() {
@@ -30,6 +32,13 @@ elation.require(['elements.ui.button'], function() {
       events.forEach(e => { processdefault &= e.returnValue });
       if (processdefault) {
         this.active = false;
+      }
+    }
+    toggle() {
+      if (this.active) {
+        this.deactivate();
+      } else {
+        this.activate();
       }
     }
   });

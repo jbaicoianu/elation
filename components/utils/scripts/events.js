@@ -487,6 +487,9 @@ elation.extend("events", {
   },
   wasDefaultPrevented: function(events) {
     let allowed = true;
+    if (!elation.utils.isArray(events)) {
+      events = [events];
+    }
     for (let i = 0; i < events.length; i++) {
       allowed = allowed && events[i].returnValue;
     }

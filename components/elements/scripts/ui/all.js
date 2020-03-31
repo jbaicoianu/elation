@@ -28,4 +28,5 @@ elation.require([
   'elements.ui.columnlayout',
   'elements.ui.collapsiblepanel',
   'elements.ui.content',
+  'elements.ui.treeview',
 ]);

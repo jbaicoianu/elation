@@ -153,7 +153,7 @@ elation.require(['elements.elements'], function() {
      * @memberof elation.ui.input#
      * @fire elation.ui.input#ui_input_select
      */
-    selectall() {
+    select() {
       this.inputelement.setSelectionRange(0, this.value.length)
       this.dispatchEvent({type: 'select', data: this.value});
     }

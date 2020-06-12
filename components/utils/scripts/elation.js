@@ -323,11 +323,12 @@ elation.extend("component", new function() {
     component.objcount = 0;
     component.obj = {}; // this is where we store all the instances of this type of component
     (function() { 
+      let utils = window.elation.utils;
       var elation = {};
       window.elation.utils.arrayset(elation, type, null);
       var namehack = "elation." + type + " = function () { }; component.base = elation." + type;
       if (type.indexOf('-') != -1) {
-        namehack = "elation[" + type + "] = function () { }; component.base = elation[" + type + "]";
+        namehack = "utils.arrayset(elation, '" + type + "', function() { }); component.base = utils.arrayget(elation, '" + type + "');";
       }
       eval(namehack); // FIXME - weirdness to force usable names while console.logging components
     })();

@@ -110,6 +110,11 @@ elation.require(['elements.ui.item'], function() {
      * @emits ui_button_click
      */
     handleClick(ev) {
+      if (this.disabled) {
+        ev.stopPropagation();
+        ev.preventDefault();
+        return false;
+      }
       //this.dispatchEvent({type: 'click', element: this});
       if (this.autoblur) {
         this.buttonelement.blur();

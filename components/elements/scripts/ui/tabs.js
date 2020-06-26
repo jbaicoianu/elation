@@ -17,7 +17,8 @@ elation.require(['elements.ui.list', 'elements.ui.tabbar', 'elements.ui.tab'], f
       super.init();
       this.defineAttributes({
         itemcomponent: { type: 'string', default: 'ui.tab' },
-        showcounts: { type: 'boolean', default: false }
+        showcounts: { type: 'boolean', default: false },
+        selectable: { type: 'boolean', default: false }
       });
       //this.collection = elation.elements.create('collection-simple');
 /*

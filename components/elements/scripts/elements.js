@@ -98,8 +98,9 @@ elation.require(['utils.template', 'janusweb.external.document-register-element'
       };
       for (var i = 0; i < elements.length; i++) {
         elements[i] = nodes[i];
-        if (elements[i].name) {
-          elements[elements[i].name] = elements[i];
+        let elname = elements[i].getAttribute('name');
+        if (elname) {
+          elements[elname] = elements[i];
         }
         if (elements[i].id) {
           elements[elements[i].id] = elements[i];

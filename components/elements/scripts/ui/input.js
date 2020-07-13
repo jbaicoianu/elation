@@ -132,9 +132,16 @@ elation.require(['elements.elements'], function() {
      * @memberof elation.ui.input#
      * @fire elation.ui.input#ui_input_accept
      */
-    accept() {
+    accept(ev) {
       this.blur();
-      this.dispatchEvent({type: 'accept', data: this.value});
+      this.dispatchEvent({
+        type: 'accept',
+        data: this.value,
+        shiftKey: ev && ev.shiftKey,
+        altKey: ev && ev.altKey,
+        ctrlKey: ev && ev.ctrlKey,
+        metaKey: ev && ev.metaKey,
+      });
     }
     /** Restore input value to what it was before editing began and emit appropriate events
      * @function cancel
@@ -181,7 +188,7 @@ elation.require(['elements.elements'], function() {
     handlekeydown(ev) {
       switch (ev.keyCode) {
         case 13: // enter
-          this.accept();
+          this.accept(ev);
           break;
         case 27: // esc
           this.cancel();

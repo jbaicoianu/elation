@@ -2645,7 +2645,7 @@ elation.extend('net.handlereadystatechange', function(ev) {
         if (this.callback) {
           this.callback(xhr.response, xhr);
         }
-      } else if (xhr.responseText) {
+      } else if (xhr.responseType == 'text' || xhr.responseType == '') {
         var response = xhr.responseText;
         if (this.parse) {
           try {

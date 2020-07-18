@@ -413,10 +413,11 @@ elation.extend("events", {
   clone: function(ev,  overrides) {
     //var newev = new Event(ev.type);
     var newev = {};
-    for (var i = 0; i < this.cloneattrs.length; i++) {
-      var foo = elation.utils.any(overrides[this.cloneattrs[i]], ev[this.cloneattrs[i]]);
+    for (let i = 0; i < this.cloneattrs.length; i++) {
+      let attr = this.cloneattrs[i];
+      let foo = elation.utils.any(overrides[attr], ev[attr]);
       if (foo !== null) {
-        newev[this.cloneattrs[i]] = foo;
+        newev[attr] = foo;
       }
     }
     return elation.events.fix(newev);

@@ -116,7 +116,9 @@ elation.require(['elements.elements'], function() {
      * @memberof elation.ui.input#
      */
     focus() {
-      this.inputelement.focus();
+      if (this.inputelement) {
+        this.inputelement.focus();
+      }
       //this.dispatchEvent({type: 'focus'});
     }
     /** Removes focus from this input element

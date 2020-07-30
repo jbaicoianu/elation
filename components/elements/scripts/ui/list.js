@@ -226,6 +226,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
           items.push(item);
         } else if (node instanceof elation.elements.ui.item) {
           items.push(node);
+          node.value = node.firstChild;
           node.selectable = this.selectable;
           node.draggable = this.draggable;
           elation.events.add(node, 'select', (ev) => this.handleSelect(ev));

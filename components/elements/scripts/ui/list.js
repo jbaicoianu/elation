@@ -606,7 +606,9 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
         // Make note of the most recently-clicked list item, for future interaction
         this.setlastselection(newselection);
       }
-      elation.events.fire({type: 'select', element: this, target: ev.element, data: ev.data});
+      if (elation.events.wasDefaultPrevented(elation.events.fire({type: 'select', element: this, target: ev.element, data: ev.data}))) {
+        ev.preventDefault();
+      }
     }
     /**
      * Event handler: elation.collection.simple#collection_add

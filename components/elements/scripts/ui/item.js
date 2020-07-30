@@ -140,7 +140,9 @@ elation.require(['elements.base'], function() {
       // FIXME - 'extra' has two meanings here; if you pass false it doesn't emit events, but if you
       //          pass an object, it's treated as an event, and its properties are cloned
       if (extra !== false) {
-        elation.events.fire({type: 'select', element: this, data: this.value, event: extra});
+        if (elation.events.wasDefaultPrevented(elation.events.fire({type: 'select', element: this, data: this.value, event: extra}))) {
+          ev.preventDefault();
+        }
       }
     }
     /**

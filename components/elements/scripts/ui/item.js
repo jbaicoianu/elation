@@ -141,7 +141,7 @@ elation.require(['elements.base'], function() {
       //          pass an object, it's treated as an event, and its properties are cloned
       if (extra !== false) {
         if (elation.events.wasDefaultPrevented(elation.events.fire({type: 'select', element: this, data: this.value, event: extra}))) {
-          ev.preventDefault();
+          extra.preventDefault();
         }
       }
     }

@@ -20,17 +20,13 @@ elation.require(['elements.ui.button'], function() {
     }
     activate() {
       let events = this.dispatchEvent({type: 'activate'});
-      let processdefault = true;
-      events.forEach(e => { processdefault &= e.returnValue });
-      if (processdefault) {
+      if (!events || !elation.events.wasDefaultPrevented(events)) {
         this.active = true;
       }
     }
     deactivate() {
       let events = this.dispatchEvent({type: 'deactivate'});
-      let processdefault = true;
-      events.forEach(e => { processdefault &= e.returnValue });
-      if (processdefault) {
+      if (!events || !elation.events.wasDefaultPrevented(events)) {
         this.active = false;
       }
     }

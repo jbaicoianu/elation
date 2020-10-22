@@ -622,6 +622,14 @@ console.log(imgdata, images);
           }
           return '#' + this.id;
         }
+        fromString(str) {
+          this.elements = elation.elements.fromString(str, this);
+          return this.elements;
+        }
+        fromTemplate(tplname, obj) {
+          this.elements = elation.elements.fromTemplate(tplname, this);
+          return this.elements;
+        }
       };
     }
   });

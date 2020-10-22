@@ -277,8 +277,14 @@ elation.require(['utils.template', 'janusweb.external.document-register-element'
           }
           //var evobj = elation.elements.getEvent(ev);
           //super.dispatchEvent(evobj);
-          ev.element = this;
-          return elation.events.fire(ev);
+          let element = ev.element = this;
+          let fired = elation.events.fire(ev);
+          if (ev.bubbles) {
+            while ((element = element.parentNode) && !elation.events.wasBubbleCancelled(fired)) {
+              ev.element = element;
+              fired = elation.events.fire(ev);
+            }
+          }
         }
          /*
          * Handle default element creation.  If template is specified, use it for our contents.

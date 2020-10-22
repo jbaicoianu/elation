@@ -495,5 +495,15 @@ elation.extend("events", {
       allowed = allowed && events[i].returnValue;
     }
     return !allowed;
+  },
+  wasBubbleCancelled: function(events) {
+    let cancelled = false;
+    if (!elation.utils.isArray(events)) {
+      events = [events];
+    }
+    for (let i = 0; i < events.length; i++) {
+      cancelled = cancelled || events[i].cancelBubble;
+    }
+    return cancelled;
   }
 });

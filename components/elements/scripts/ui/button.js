@@ -24,7 +24,7 @@ elation.require(['elements.ui.item'], function() {
         name: { type: 'string' },
         disabled: { type: 'boolean', default: false },
         autoblur: { type: 'boolean', default: false },
-        tabIndex: { type: 'boolean', default: false }
+        tabindex: { type: 'boolean', default: 0 }
       });
       if (this.preview) {
         this.label = 'Click Here';
@@ -46,7 +46,9 @@ elation.require(['elements.ui.item'], function() {
       }
       //this.addPropertyProxies(this.buttonelement, ['disabled']);
       //this.addEventProxies(this.buttonelement, ['mouseover','mouseout','mousedown', 'mouseup', 'mousemove', 'touchstart', 'touchmove', 'touchend', 'focus', 'blur']);
+      this.setAttribute('tabindex', 0);
       this.addEventListener('click', (ev) => this.handleClick(ev));
+      this.addEventListener('keypress', (ev) => this.handleKeypress(ev));
     }
     /**
      * Add as a child of the specified element, removing from current parent if necessary
@@ -120,6 +122,14 @@ elation.require(['elements.ui.item'], function() {
         this.buttonelement.blur();
       }
       //ev.stopPropagation();
+    }
+    handleKeypress(ev) {
+      if (ev.key == 'Enter' && !this.disabled) {
+        let newev = document.createEvent('HTMLEvents');
+        newev.initEvent('click', true, true);
+        this.dispatchEvent(newev);
+
+      }
     }
   });
 });

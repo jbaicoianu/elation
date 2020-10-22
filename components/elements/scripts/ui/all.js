@@ -29,4 +29,6 @@ elation.require([
   'elements.ui.collapsiblepanel',
   'elements.ui.content',
   'elements.ui.treeview',
+  'elements.ui.scrollindicator',
+  'elements.ui.spinner',
 ]);

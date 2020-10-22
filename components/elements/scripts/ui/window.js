@@ -46,7 +46,6 @@ elation.require(['elements.elements', 'elements.ui.button', 'elements.ui.buttonb
         minimizable:  { type: 'boolean' },
         maximizable:  { type: 'boolean' },
         closable:     { type: 'boolean' },
-        resizable: { type: 'boolean' },
       });
       this.offsetpos = [0, 0];
     }
@@ -207,7 +206,7 @@ elation.require(['elements.elements', 'elements.ui.button', 'elements.ui.buttonb
       this.controls = document.createElement('ui-buttonbar');
       this.controls.buttons = buttons;
       this.addclass('ui_window_withcontrols');
-      if (this.resizable !== false) {
+      if (this.resizable !== false && this.resizable !== 0 && this.resizable !== '0') {
         this.resizer = elation.html.create({tag: 'div', classname: 'ui_window_resizer', append: this});
       }
     }

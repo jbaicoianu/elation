@@ -1194,7 +1194,7 @@ elation.extend("utils.encodeURLParams", function(obj) {
     var flattened = elation.utils.flattenURLParams(obj);
     for (var key in flattened) {
       if (typeof flattened[key] != 'undefined') {
-        ret += (ret != '' ? '&' : '') + key + '=' + encodeURIComponent(flattened[key]); 
+        ret += (ret != '' ? '&' : '') + key + (flattened[key] !== null ? '=' + encodeURIComponent(flattened[key]) : '');
       }
     }
   }
@@ -1205,7 +1205,7 @@ elation.extend("utils.flattenURLParams", function(obj, prefix) {
   var ret = {};
   for (var k in obj) {
     var key = (prefix ? prefix + '[' + k + ']' : k);
-    if (typeof obj[k] == 'object') {
+    if (obj[k] !== null && typeof obj[k] == 'object') {
       var flattened = elation.utils.flattenURLParams(obj[k], key);
       elation.utils.merge(flattened, ret);
     } else {
@@ -1734,7 +1734,7 @@ elation.extend("url", function(hash) {
   for (var i=0; i<hash.length; i++) {
     var parm = hash[i].split('=');
     
-    this.hash[parm[0]] = decodeURIComponent(parm[1]);
+    this.hash[parm[0]] = (typeof parm[1] != 'undefined' ? decodeURIComponent(parm[1]) : null);
   }
   
   return this.hash;

@@ -137,6 +137,7 @@ elation.require(['elements.base'], function() {
     select(extra) {
       this.selected = true;
       this.addclass('state_selected');
+      this.setAttribute('aria-selected', true);
       // FIXME - 'extra' has two meanings here; if you pass false it doesn't emit events, but if you
       //          pass an object, it's treated as an event, and its properties are cloned
       if (extra !== false) {
@@ -154,6 +155,7 @@ elation.require(['elements.base'], function() {
     unselect() {
       this.selected = false;
       this.removeclass('state_selected');
+      this.setAttribute('aria-selected', false);
       elation.events.fire({type: 'unselect', element: this, data: this.value});
     }
     /**

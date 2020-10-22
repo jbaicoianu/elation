@@ -70,6 +70,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
       this.items = [];
       this.listitems = [];
       this.selection = [];
+      this.setAttribute('role', (this.selectable ? 'listbox' : 'list'));
 
       this.dirty = false;
 
@@ -90,6 +91,8 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
 
       if (this.selectable) {
         this.addclass('state_selectable');
+        this.setAttribute('tabindex', 0);
+        this.addEventListener('keydown', (ev) => this.handleKeydown(ev));
       }
 
       if (this.orientation) {
@@ -328,7 +331,10 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
      * @param {Object} args
      */
     createlistitem(args) {
-      return elation.elements.create(this.itemcomponent, args);
+      let listitem = elation.elements.create(this.itemcomponent, args);
+      listitem.setAttribute('role', (this.selectable ? 'option' : 'listitem'));
+      //listitem.setAttribute('aria-label', 'test');
+      return listitem;
     }
 
     /**
@@ -602,10 +608,10 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
         }
       }
 
-      if (this.multiselect) {
+      //if (this.multiselect) {
         // Make note of the most recently-clicked list item, for future interaction
         this.setlastselection(newselection);
-      }
+      //}
       if (elation.events.wasDefaultPrevented(elation.events.fire({type: 'select', element: this, target: ev.element, data: ev.data}))) {
         ev.preventDefault();
       }
@@ -684,6 +690,35 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
       this.applyAutoScroll(true);
     }
 
+    /**
+     * Event handler: keydown
+     * @param {event} ev
+     */
+    handleKeydown(ev) {
+      let dir = 0;
+      if (ev.key == 'ArrowUp') {
+        dir = -1;
+        ev.stopPropagation();
+        ev.preventDefault();
+      } else if (ev.key == 'ArrowDown') {
+        dir = 1;
+        ev.stopPropagation();
+        ev.preventDefault();
+      }
+      if (dir != 0) {
+        if (this.lastselection) {
+          let idx = this.listitems.indexOf(this.lastselection);
+          let newidx = (idx + this.listitems.length + dir) % this.listitems.length;
+          let newselection = this.listitems[newidx];
+          this.selectall(false, [newselection]);
+          newselection.select();
+        } else {
+          let newselection = this.listitems[0];
+          this.selectall(false, [newselection]);
+          newselection.select();
+        }
+      }
+    }
   });
 });
 

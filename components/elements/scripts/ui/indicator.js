@@ -7,10 +7,12 @@ elation.require(['elements.base'], function() {
       });
     }
     create() {
+      this.setAttribute('aria-label', 'No new notifications');
       this.updateValue();
     }
     updateValue() {
       this.innerHTML = this.value;
+      this.setAttribute('aria-label', this.value + ' new notifications');
     }
   });
 });

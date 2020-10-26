@@ -70,7 +70,6 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
       this.items = [];
       this.listitems = [];
       this.selection = [];
-      this.setAttribute('role', (this.selectable ? 'listbox' : 'list'));
 
       this.dirty = false;
 
@@ -94,6 +93,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
         this.setAttribute('tabindex', 0);
         this.addEventListener('keydown', (ev) => this.handleKeydown(ev));
       }
+      this.setAttribute('role', (this.selectable ? 'listbox' : 'list'));
 
       if (this.orientation) {
         this.setOrientation(this.orientation);

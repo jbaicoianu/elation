@@ -142,6 +142,7 @@ elation.require(['utils.events'], function() {
             //elation.events.fire({element: target, type: 'proxy_change', data: {key: name, value: value}});
             //setProxyChangeTimer({key: name, value: value});
           }
+          return true;
         },
         has: function(key) {
           return (proxydefs && (key in proxydefs || key in self._scriptprops));

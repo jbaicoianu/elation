@@ -85,6 +85,7 @@ elation.require(['ui.base','ui.label'], function() {
     }
     setSelected(value) {
       this.value = value;
+      if (!this.select) return;
       var found = false;
       for (var i = 0; i < this.select.childNodes.length; i++) {
         var node = this.select.childNodes[i];
@@ -112,7 +113,7 @@ elation.require(['ui.base','ui.label'], function() {
           items.push(node);
         }
       }
-      this.setItems(items);
+      this.setItems(items, this.value);
       for (var i = 0; i < items.length; i++) {
         items[i].parentNode.removeChild(items[i]);
       }

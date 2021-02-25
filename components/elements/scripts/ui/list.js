@@ -578,6 +578,9 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
     handleSelect(ev) {
       var newselection = ev.element;
 
+      // Ignore select events that bubble up from unrelated elements (eg, <textarea>)
+      if (!(ev.element instanceof elation.elements.ui.item)) return;
+
       if (!ev.ctrlKey && this.selection.length > 0) {
         // If ctrl key wasn't down, unselect all selected items in the list
         this.selectall(false, [newselection]);

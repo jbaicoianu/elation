@@ -9,7 +9,6 @@ elation.require(['elements.elements'], function() {
       this.updateContent(this.value);
     }
     updateContent(value) {
-console.log('UPDATE CONTENT', value, this.value);
       if (value instanceof HTMLElement) {
         this.innerHTML = '';
         this.appendChild(value);

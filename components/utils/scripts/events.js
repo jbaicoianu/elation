@@ -492,7 +492,7 @@ elation.extend("events", {
       events = [events];
     }
     for (let i = 0; i < events.length; i++) {
-      allowed = allowed && events[i].returnValue;
+      allowed = allowed && (events[i].returnValue !== false);
     }
     return !allowed;
   },

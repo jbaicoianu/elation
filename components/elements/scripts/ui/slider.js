@@ -41,15 +41,29 @@ elation.require(['elements.elements', 'elements.ui.input', 'elements.ui.text'], 
     }
   });
   elation.elements.define('ui.slider.track', class extends elation.elements.base {
+    init() {
+      super.init();
+      this.defineAttributes({
+        hover: { type: 'boolean', default: false },
+      });
+    }
     create() {
-      elation.events.add(this, 'mousedown', this.handleMouseDown);
-      elation.events.add(this, 'touchstart', this.handleTouchStart);
+      elation.events.add(this, 'mousedown', ev => this.handleMouseDown(ev));
+      elation.events.add(this, 'mouseover', ev => this.handleMouseOver(ev));
+      elation.events.add(this, 'mouseout', ev => this.handleMouseOut(ev));
+      elation.events.add(this, 'touchstart', ev => this.handleTouchStart(ev));
     }
     handleMouseDown(ev) {
       var slider = this.parentNode;
       // Pass event through to the right handle
       var handle = slider.handles[0]; // TODO - pick closest
       handle.handleMouseDown(ev);
+    }
+    handleMouseOver(ev) {
+      this.hover = true;
+    }
+    handleMouseOut(ev) {
+      this.hover = false;
     }
     handleTouchStart(ev) {
       var slider = this.parentNode;

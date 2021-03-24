@@ -278,11 +278,14 @@ elation.require(['utils.template', 'janusweb.external.document-register-element'
           //var evobj = elation.elements.getEvent(ev);
           //super.dispatchEvent(evobj);
           let element = ev.element = this;
+          //ev.target = element;
           let fired = elation.events.fire(ev);
           if (ev.bubbles) {
             while ((element = element.parentNode) && !elation.events.wasBubbleCancelled(fired)) {
-              ev.element = element;
-              fired = elation.events.fire(ev);
+              let bubbleev = elation.events.clone(ev, {target: this, currentTarget: element, element: element})
+              //ev.element = element;
+              //ev.currentTarget = element;
+              fired = elation.events.fire(bubbleev);
             }
           }
         }
@@ -499,6 +502,21 @@ elation.require(['utils.template', 'janusweb.external.document-register-element'
             this.canvas.height = height;
             this.canvasscale = scale;
             document.body.appendChild(this.canvas);
+
+            this.observer = new MutationObserver(() => {
+              // Rate limit refreshes to avoid too many updates
+              if (this.refreshtimer) clearTimeout(this.refreshtimer);
+              this.refreshtimer = setTimeout(() => {
+                // Use requestIdleCallback to reduce the amount of jank when updating
+                requestIdleCallback(() => {
+                  this.updateCanvas();
+                  this.refreshqueued = false;
+                  this.refreshtimer = false;
+                }, { timeout: 20 });
+              }, 50);
+              //this.refresh();
+            });
+            this.observer.observe(this, { subtree: true, childList: true, attributes: true, characterData: true });
           }
           var img = new Image();
 
@@ -512,17 +530,21 @@ elation.require(['utils.template', 'janusweb.external.document-register-element'
 
 
 
-          if (!this.styletext) {
-            var fetches = [
-              fetch('https://baicoianu.com/~bai/elation/page.css').then((r) => r.text()),
-              //fetch('https://baicoianu.com/~bai/elation/theme.css').then((r) => r.text()),
-              fetch('https://baicoianu.com/~bai/janusweb/build/media/assets/webui/themes/default.css').then((r) => r.text()),
-              fetch('https://baicoianu.com/~bai/elation/polyapi.css').then((r) => r.text()),
-            ];
+/*
+          if (this.stylesheetsChanged()) {
+            let fetches = [];
+            // Fetch all active stylesheets, so we can inject them into our foreignObject
+            for (let i = 0; i < document.styleSheets.length; i++) {
+              let stylesheet = document.styleSheets[i];
+              fetches[i] = fetch(stylesheet.href).then(r => r.text()).then(t => { return { url: stylesheet.href, text: t, order: i }; });
+            }
+            this.stylecachenames = this.getStylesheetList();
             Promise.all(fetches).then((stylesheets) => {
               var styletext = '';
+              // Make sure stylesheets are loaded in the same order as in the page
+              stylesheets.sort((a, b) => { return b.order - a.order; });
               for (var i = 0; i < stylesheets.length; i++) {
-                styletext += stylesheets[i].replace(/\/\*[^\*]+\*\//g, '').replace(/</g, '&lt;');
+                styletext += stylesheets[i].text.replace(/\/\*[^\*]+\*\//g, '').replace(/</g, '&lt;');
               }
               this.styletext = styletext;
               this.updateCanvas(); 
@@ -530,9 +552,14 @@ elation.require(['utils.template', 'janusweb.external.document-register-element'
           } else {
             this.updateCanvas(); 
           }
+*/
+          this.updateCanvas(); 
           return this.canvas;
         }
-        updateCanvas() {
+        async updateCanvas() {
+          if (this.loading) return;
+          this.loading = true;
+
           var width = this.canvas.width,
               height = this.canvas.height;
 
@@ -542,17 +569,30 @@ elation.require(['utils.template', 'janusweb.external.document-register-element'
           var images = [],
               promises = [];
 
+          if (!this.imagecache) this.imagecache = {};
+
           for (var i = 0; i < imgtags.length; i++) {
-            promises.push(this.fetchImage(imgtags[i].src));
-            images[i] = imgtags[i].src;
+            if (imgtags[i].src.substring(0, 5) == 'data:') {
+              //promises.push(this.fetchImage(imgtags[i].src));
+              promises.push(new Promise(resolve => resolve(imgtags[i].src)));
+              images[i] = imgtags[i].src;
+            } else {
+              promises.push(this.fetchImage(imgtags[i].src));
+              images[i] = imgtags[i].src;
+            }
+          }
+
+          if (this.stylesheetsChanged()) {
+            await this.updateStylesheets();
           }
 
           Promise.all(promises).then((imgdata) => {
-console.log(imgdata, images);
 
             for (var i = 0; i < imgtags.length; i++) {
               //content = content.replace(images[i], imgdata[i]);
-              imgtags[i].src = imgdata[i];
+              if (imgtags[i].src.substring(0, 5) != 'data:') {
+                imgtags[i].src = imgdata[i];
+              }
             }
 
             var content = this.outerHTML.replace(/<br\s*\/?>/g, '<div class="br"></div>');
@@ -562,17 +602,18 @@ console.log(imgdata, images);
 
             for (var i = 0; i < imgtags.length; i++) {
               //content = content.replace(images[i], imgdata[i]);
-              imgtags[i].src = images[i];
+              //imgtags[i].src = images[i];
             }
 
 
             var img = new Image();
+            img.eager = true;
             var data = '<svg xmlns="http://www.w3.org/2000/svg" width="' + width + '" height="' + height + '">' +
                        '<foreignObject requiredExtensions="http://www.w3.org/1999/xhtml" width="' + (width / this.canvasscale) + '" height="' + (height / this.canvasscale) + '" transform="scale(' + this.canvasscale + ')">' +
-                       '<div xmlns="http://www.w3.org/1999/xhtml">' +
-                       '<style>' + this.styletext + '</style>' +
+                       '<html xmlns="http://www.w3.org/1999/xhtml"><body class="dark janusweb">' +
+                       '<style>' + encodeURIComponent(this.styletext) + '</style>' +
                        content +
-                       '</div>' +
+                       '</body></html>' +
                        '</foreignObject>' +
                        '</svg>';
             var url = 'data:image/svg+xml,' + data;
@@ -580,7 +621,12 @@ console.log(imgdata, images);
               this.canvas.width = width;
               this.canvas.height = height;
               ctx.drawImage(img, 0, 0) 
+              this.loading = false;
               elation.events.fire({element: this.canvas, type: 'update'});
+            });
+            img.addEventListener('error', (err) => { 
+              console.log('Error generating image from HTML', err, img, content);
+              this.loading = false;
             });
             img.src = url;
           });
@@ -603,10 +649,14 @@ console.log(imgdata, images);
           });
         }
 
-        fetchImage(src) {
-          return fetch(this.getFullURL(src))
-                    .then(r => r.blob())
-                    .then(d => { let u = this.blobToDataURL(d); console.log('duh', d); return u;});
+        async fetchImage(src) {
+          if (this.imagecache[src]) {
+            return this.imagecache[src];
+          } else {
+            return fetch(this.getFullURL(src))
+                      .then(r => r.blob())
+                      .then(d => { let u = this.blobToDataURL(d); this.imagecache[src] = u; return u;});
+          }
         }
         getFullURL(src) {
           // FIXME - egregious hack for CORS white building prototype.  Do not check this in!
@@ -629,6 +679,36 @@ console.log(imgdata, images);
         fromTemplate(tplname, obj) {
           this.elements = elation.elements.fromTemplate(tplname, this);
           return this.elements;
+        }
+        stylesheetsChanged() {
+          if  (!this.styletext) return true;
+
+          let stylesheets = this.getStylesheetList();
+          if (stylesheets != this.stylecachenames) return true;
+
+          return false;
+        }
+        async updateStylesheets() {
+          let fetches = [];
+          // Fetch all active stylesheets, so we can inject them into our foreignObject
+          for (let i = 0; i < document.styleSheets.length; i++) {
+            let stylesheet = document.styleSheets[i];
+            fetches[i] = fetch(stylesheet.href).then(r => r.text()).then(t => { return { url: stylesheet.href, text: t, order: i }; });
+          }
+          this.stylecachenames = this.getStylesheetList();
+          let stylesheets = await Promise.all(fetches);
+          var styletext = '';
+          // Make sure stylesheets are loaded in the same order as in the page
+          stylesheets.sort((a, b) => { return b.order - a.order; });
+          for (var i = 0; i < stylesheets.length; i++) {
+            styletext += stylesheets[i].text.replace(/\/\*[^\*]+\*\//g, '').replace(/</g, '&lt;');
+          }
+          this.styletext = styletext;
+
+          return styletext;
+        }
+        getStylesheetList() {
+          return Array.prototype.map.call(document.styleSheets, n => n.href).join(' ');
         }
       };
     }

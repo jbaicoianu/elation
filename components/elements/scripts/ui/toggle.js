@@ -7,6 +7,7 @@ elation.require(['elements.elements', 'elements.ui.label'], function() {
       this.defineAttributes({
         checked: { type: 'boolean', default: false },
         disabled: { type: 'boolean', default: false },
+        hover: { type: 'boolean', default: false },
         label: { type: 'string', default: '' }
       });
       if (this.checked === '') this.checked = true; // FIXME - type hinting should handle this
@@ -34,6 +35,8 @@ elation.require(['elements.elements', 'elements.ui.label'], function() {
         });
 
         elation.events.add(this, 'click', (ev) => { this.toggle(); ev.stopPropagation(); });
+        elation.events.add(this, 'mouseover', (ev) => { this.hover = true; });
+        elation.events.add(this, 'mouseout', (ev) => { this.hover = false; });
       }
       this.refresh();
     }

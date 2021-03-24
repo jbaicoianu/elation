@@ -1,5 +1,4 @@
 elation.require(['elements.ui.button'], function() {
-console.log('WHY NOT');
   elation.elements.define('ui.popupbutton', class extends elation.elements.ui.button {
     init() {
       super.init();
@@ -10,7 +9,6 @@ console.log('WHY NOT');
     }
     create() {
       super.create();
-  console.log('MADE POPUP BUTTON', this);
       //this.addEventListener('click', (ev) => this.handleClick(ev));
     }
     handleClick(ev) {
@@ -38,7 +36,6 @@ console.log('WHY NOT');
         content = elation.elements.create('ui-content');
         content.fromString(this.popupcontent);
       }
-  console.log('make the popup', content, this);
       this.popup = elation.elements.create('ui.window', {
         append: this,
         //title: 'Sounds',

@@ -82,7 +82,7 @@ elation.require(['elements.elements', 'elements.ui.button', 'elements.ui.buttonb
         restore: '₪',
         close: 'x'
       };
-      if (this.controls !== false && this.controls != 0) {
+      if (this.controls !== false && this.controls != 0 && this.controls !== 'false') {
         this.createcontrols();
       }
       if (this.windowtitle) {
@@ -203,8 +203,8 @@ elation.require(['elements.elements', 'elements.ui.button', 'elements.ui.buttonb
         buttons: buttons
       });
 */
-      this.controls = document.createElement('ui-buttonbar');
-      this.controls.buttons = buttons;
+      this.controlbuttons = document.createElement('ui-buttonbar');
+      this.controlbuttons.buttons = buttons;
       this.addclass('ui_window_withcontrols');
       if (this.resizable !== false && this.resizable !== 0 && this.resizable !== '0') {
         this.resizer = elation.html.create({tag: 'div', classname: 'ui_window_resizer', append: this});
@@ -338,9 +338,9 @@ elation.require(['elements.elements', 'elements.ui.button', 'elements.ui.buttonb
       } else {
         this.titlebar.innerHTML = "<span class='ui_window_titlebar_span'>"+newtitle+"</span>" || '';
       }
-      if (this.controls) {
-        //this.titlebar.appendChild(this.controls);
-        this.titlebar.insertBefore(this.controls, this.titlebar.firstChild);
+      if (this.controlbuttons) {
+        //this.titlebar.appendChild(this.controlbuttons);
+        this.titlebar.insertBefore(this.controlbuttons, this.titlebar.firstChild);
       }
     }
     settoolbar(newtoolbar) {

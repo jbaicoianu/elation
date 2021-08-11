@@ -14,7 +14,7 @@
  * @param {boolean} args.hidden
  * @param {boolean} args.autofocus
  */
-elation.require(['ui.input'], function() {
+elation.require(['elements.ui.input'], function() {
   elation.elements.define('ui.textarea', class extends elation.elements.ui.input {
     init() {
       super.init();

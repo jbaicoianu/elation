@@ -634,7 +634,7 @@ elation.require(['utils.template', 'janusweb.external.document-register-element'
         queryParentSelector(selector) {
           var node = this.parentNode;
           while (node) {
-            if (node.matches(selector)) {
+            if (node.matches && node.matches(selector)) {
               return node;
             }
             node = node.parentNode;

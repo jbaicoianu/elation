@@ -97,7 +97,7 @@ component_enable_single() {
     echo -n "Enable '${COMPONENTNAME}': "
     for TYPE in $COMPONENTMEDIATYPES; do
       if [ ! -d htdocs/$TYPE ]; then 
-        mkdir htdocs/$TYPE; 
+        mkdir -p htdocs/$TYPE
       fi
       if [ -L htdocs/$TYPE/$LINKPATH ]; then
         rm htdocs/$TYPE/$LINKPATH

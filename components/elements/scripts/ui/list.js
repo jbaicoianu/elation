@@ -283,6 +283,9 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
           }
         }
       }
+      if (!this.itemcollection) {
+        this.items = this.items.filter(n => n !== null); // if this isn't a collection-backed list, filter out empty items
+      }
       this.listitems = [];
       //delete this.items;
       //ul.innerHTML = '';

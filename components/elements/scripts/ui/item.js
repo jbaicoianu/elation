@@ -34,7 +34,7 @@ elation.require(['elements.base'], function() {
       });
     }
     create() {
-      elation.events.add(this, 'click', (ev) => this.click(ev));
+      elation.events.add(this, 'mousedown', (ev) => this.mousedown(ev));
 
       this.render();
     }
@@ -178,9 +178,10 @@ elation.require(['elements.base'], function() {
      * @memberof elation.ui.item#
      * @param {event} ev
      */
-    click(ev) {
-      if (this.selectable) {
+    mousedown(ev) {
+      if (this.selectable && !this.selected) {
         this.select(ev);
+        ev.stopPropagation();
       }
     }
   });

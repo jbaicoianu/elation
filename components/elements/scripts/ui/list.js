@@ -214,7 +214,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
             value: node.innerHTML,
             innerHTML: node.innerHTML,
             selectable: this.selectable,
-            draggable: this.draggable,
+            draggable: (this.draggable ? 'true' : 'false'),
             nameattr: this.nameattr,
             childattr: this.childattr,
             labelattr: this.labelattr,
@@ -231,7 +231,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
           items.push(node);
           node.value = node.firstChild;
           node.selectable = this.selectable;
-          node.draggable = this.draggable;
+          node.draggable = (this.draggable ? 'true' : 'false');
           elation.events.add(node, 'select', (ev) => this.handleSelect(ev));
           node.parentNode.removeChild(node);
           i--;
@@ -306,19 +306,21 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
       
       //if (!item) {
         // no existing listitem, allocate a new one
-        item = this.createlistitem({
+        let itemargs = {
           value: item,
-          selectable: this.selectable,
-          draggable: this.draggable,
-          nameattr: this.nameattr,
-          childattr: this.childattr,
-          labelattr: this.labelattr,
-          titleattr: this.titleattr,
-          disabledattr: this.disabledattr,
-          itemtemplate: this.itemtemplate,
-          itemcomponent: this.itemcomponent,
-          itemplaceholder: this.itemplaceholder
-        });
+        };
+        if (this.selectable) itemargs.selectable = true;
+        if (this.draggable) itemargs.draggable = 'true'; // draggable attribute requires the string 'true' not an actual boolean
+        if (this.nameattr) itemargs.nameattr = this.nameattr;
+        if (this.childattr) itemargs.childattr = this.childattr;
+        if (this.labelattr) itemargs.labelattr = this.labelattr;
+        if (this.titleattr) itemargs.titleattr = this.titleattr;
+        if (this.disabledattr) itemargs.disabledattr = this.disabledattr;
+        if (this.itemtemplate) itemargs.itemtemplate = this.itemtemplate;
+        if (this.itemcomponent) itemargs.itemcomponent = this.itemcomponent;
+        if (this.itemplaceholder) itemargs.itemplaceholder = this.itemplaceholde;
+
+        item = this.createlistitem(itemargs);
         elation.events.add(item, 'select', (ev) => this.handleSelect(ev));
         this.listitems.push(item);
       //}

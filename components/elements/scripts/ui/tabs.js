@@ -78,6 +78,14 @@ elation.require(['elements.ui.list', 'elements.ui.tabbar', 'elements.ui.tab'], f
       }
       this.updateActiveTab();
       this.dispatchEvent({type: 'create'});
+
+      elation.events.add(this, 'tablabelchange', ev => {
+        let idx = this.items.indexOf(ev.target);
+        if (idx != -1) {
+          this.buttons[idx].label = ev.data;
+          ev.stopPropagation();
+        }
+      });
     }
     setItems(items) {
       this.items = items;

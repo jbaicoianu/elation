@@ -92,6 +92,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
         this.addclass('state_selectable');
         this.setAttribute('tabindex', 0);
         this.addEventListener('keydown', (ev) => this.handleKeydown(ev));
+        this.addEventListener('click', (ev) => this.handleClick(ev));
       }
       this.setAttribute('role', (this.selectable ? 'listbox' : 'list'));
 
@@ -534,6 +535,31 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
           }
         }
       }
+      this.dispatchEvent({type: 'selectionchange', data: this.selection});
+    }
+    /**
+     * Set the selection array to include the specified item range
+     * @function selectrange
+     * @memberof elation.ui.list#
+     * @param {nunber} start
+     * @param {nunber} end
+     */
+    selectrange(start, end) {
+      start = Math.max(0, start);
+      end = Math.min(this.listitems.length - 1, end);
+
+      for (let i = 0; i < this.listitems.length; i++) {
+        let item = this.listitems[i];
+        if (i >= start && i <= end) {
+          if (!item.selected) {
+            item.select(false);
+          }
+        } else if (item.selected) {
+          item.unselect();
+        }
+      }
+      this.selection = this.listitems.slice(start, end+1);
+      this.dispatchEvent({type: 'selectionchange', data: this.selection});
     }
     /**
      * Sets the specified selection as being the last one clicked
@@ -583,7 +609,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
       // Ignore select events that bubble up from unrelated elements (eg, <textarea>)
       if (!(ev.element instanceof elation.elements.ui.item)) return;
 
-      if (!ev.ctrlKey && this.selection.length > 0) {
+      if (!ev.ctrlKey && !ev.shiftKey && this.selection.length > 0) {
         // If ctrl key wasn't down, unselect all selected items in the list
         this.selectall(false, [newselection]);
       }
@@ -595,6 +621,13 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
         if (idx1 != -1 && idx2 != -1) {
           var start = Math.min(idx1, idx2);
           var end = Math.max(idx1, idx2);
+
+          let curstart = (this.selection.length > 0 ? this.listitems.indexOf(this.selection[0]) : start),
+              curend = (this.selection.length > 0 ? this.listitems.indexOf(this.selection[this.selection.length - 1]) : end);
+
+          if (idx2 < curstart) end = curend;
+          if (idx2 > curend) start = curstart;
+
           for (var i = start; i <= end; i++) {
             if (this.selection.indexOf(this.listitems[i]) == -1) {
               this.listitems[i].select(false);
@@ -620,6 +653,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
       if (elation.events.wasDefaultPrevented(elation.events.fire({type: 'select', element: this, target: ev.element, data: ev.data}))) {
         ev.preventDefault();
       }
+      this.dispatchEvent({type: 'selectionchange', data: this.selection});
     }
     /**
      * Event handler: elation.collection.simple#collection_add
@@ -700,28 +734,74 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
      * @param {event} ev
      */
     handleKeydown(ev) {
-      let dir = 0;
+      let dirh = 0, dirv = 0;
       if (ev.key == 'ArrowUp') {
-        dir = -1;
+        dirv = -1;
         ev.stopPropagation();
         ev.preventDefault();
       } else if (ev.key == 'ArrowDown') {
-        dir = 1;
+        dirv = 1;
+        ev.stopPropagation();
+        ev.preventDefault();
+      } else if (ev.key == 'ArrowLeft') {
+        dirh = -1;
+        ev.stopPropagation();
+        ev.preventDefault();
+      } else if (ev.key == 'ArrowRight') {
+        dirh = 1;
         ev.stopPropagation();
         ev.preventDefault();
       }
-      if (dir != 0) {
+      let selstart = this.listitems.indexOf(this.selection[0]),
+          selend = this.listitems.indexOf(this.selection[this.selection.length - 1]);
+      if (dirv != 0) {
         if (this.lastselection) {
+          let leftpos = this.lastselection.offsetLeft;
           let idx = this.listitems.indexOf(this.lastselection);
-          let newidx = (idx + this.listitems.length + dir) % this.listitems.length;
-          let newselection = this.listitems[newidx];
-          this.selectall(false, [newselection]);
-          newselection.select();
-        } else {
-          let newselection = this.listitems[0];
-          this.selectall(false, [newselection]);
-          newselection.select();
+          for (let i = idx + dirv; i >= 0 && i < this.listitems.length; i += dirv) {
+            if (this.listitems[i].offsetLeft == leftpos) {
+              let newselection = this.listitems[i];
+              newselection.select();
+              if (ev.shiftKey) {
+                let newidx = i;
+                if (newidx < selstart && dirv == -1) selstart = newidx;
+                else if (newidx > selend && dirv == 1) selend = newidx;
+                else if (newidx < selend && newidx >= selstart && dirv == -1 && !(idx == 0 && selstart == 0)) selend = newidx;
+                else if (newidx > selstart && newidx <= selend && dirv == 1 && !(idx == this.listitems.length - 1 && selend == this.listitems.length - 1)) selstart = newidx;
+                this.selectrange(selstart, selend);
+              }
+              if (newselection.offsetTop < this.scrollTop || newselection.offsetTop + newselection.offsetHeight > this.scrollTop + this.offsetHeight) {
+                newselection.scrollIntoView({behavior: 'smooth', block: 'nearest'});
+              }
+              break;
+            }
+          }
         }
+      }
+      if (dirh != 0) {
+        if (this.lastselection) {
+
+          let idx = this.listitems.indexOf(this.lastselection);
+          let newidx = Math.max(0, Math.min(this.listitems.length - 1, idx + dirh));
+          let newselection = this.listitems[newidx];
+          newselection.select();
+          if (ev.shiftKey) {
+            if (newidx < selstart && dirh == -1) selstart = newidx;
+            else if (newidx > selend && dirh == 1) selend = newidx;
+            else if (newidx < selend && newidx >= selstart && dirh == -1 && !(idx == 0 && selstart == 0)) selend = newidx;
+            else if (newidx > selstart && newidx <= selend && dirh == 1 && !(idx == this.listitems.length - 1 && selend == this.listitems.length - 1)) selstart = newidx;
+            this.selectrange(selstart, selend);
+          }
+
+          if (newselection.offsetTop < this.scrollTop || newselection.offsetTop + newselection.offsetHeight > this.scrollTop + this.offsetHeight) {
+            newselection.scrollIntoView({bbbbehavior: 'smooth', block: 'nearest'});
+          }
+        }
+      }
+    }
+    handleClick(ev) {
+      if (ev.target === this && this.selection.length > 0) {
+        this.selectall(false);
       }
     }
   });

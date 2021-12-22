@@ -71,7 +71,9 @@ elation.require(['elements.elements', 'elements.ui.button', 'elements.ui.buttonb
         }
       }
 
-      this.titlebar = elation.elements.create('ui.window.titlebar', {append: this});
+      if (!this.titlebar) {
+        this.titlebar = elation.elements.create('ui.window.titlebar', {append: this});
+      }
       this.toolbar = false;
       this.minimized = false;
       this.maximized = false;
@@ -119,6 +121,9 @@ elation.require(['elements.elements', 'elements.ui.button', 'elements.ui.buttonb
         this.content.style.height = this.height;
       }
       this.refresh();
+
+      if (this.titlebar.parentNode !== this) this.appendChild(this.titlebar);
+
       this.focus(true);
     }
     render() {
@@ -336,6 +341,9 @@ elation.require(['elements.elements', 'elements.ui.button', 'elements.ui.buttonb
           elation.html.addclass(this.titlebar, 'ui_window_titlebar');
         }
       } else {
+        if (!this.titlebar) {
+          this.titlebar = elation.elements.create('ui.window.titlebar', {append: this});
+        }
         this.titlebar.innerHTML = "<span class='ui_window_titlebar_span'>"+newtitle+"</span>" || '';
       }
       if (this.controlbuttons) {

@@ -30,6 +30,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
     getDefaultAttributes() {
       var attrs = this.attrs || {};
       if (elation.utils.isEmpty(attrs.name)) attrs.name = 'name';
+      if (elation.utils.isEmpty(attrs.label)) attrs.label = 'name';
       if (elation.utils.isEmpty(attrs.children)) attrs.children = 'items';
       return attrs;
     }

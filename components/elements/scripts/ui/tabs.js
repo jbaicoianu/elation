@@ -124,11 +124,11 @@ elation.require(['elements.ui.list', 'elements.ui.tabbar', 'elements.ui.tab'], f
           //this.items[name].select();
         //}
         if (k == name) {
-          tab.select();
           button.selected = true;
           if (tab.parentNode !== this) {
             this.appendChild(tab);
           }
+          tab.select();
           tab.refresh();
         } else {
           tab.unselect();

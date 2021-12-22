@@ -333,6 +333,7 @@ elation.extend("component", new function() {
     })();
     component.base.prototype = new this.base(type);
     if (extendclass) {
+      component.extendclassdef = extendclass;
       component.extendclass = new extendclass();
       
       if (!component.extendclass._inherited)

@@ -76,8 +76,7 @@ elation.require(['utils.template', 'janusweb.external.document-register-element'
               element[k] = attrs[k];
             } else if (attrs[k] === true) {
               element.setAttribute(k, '');
-            } else if (attrs[k] === false) {
-            } else {
+            } else if (!(attrs[k] === false || attrs[k] === undefined || attrs[k] === null)) {
               element.setAttribute(k, attrs[k]);
             }
           }

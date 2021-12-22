@@ -115,6 +115,16 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
         this.items[i].disable();
       }
     }
+    find(search) {
+      for (let i = 0; i < this.items.length; i++) {
+        let item = this.items[i];
+        if (typeof search == 'function' && search(item)) {
+          return item;
+        } else if (item.item[this.attrs.name] == search) {
+          return item;
+        }
+      }
+    }
     ui_treeviewitem_hover(ev) {
       if (this.hover && this.hover != ev.target) {
         this.hover.unhover();

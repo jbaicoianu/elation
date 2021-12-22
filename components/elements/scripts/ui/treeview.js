@@ -196,10 +196,12 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
       elation.html.removeclass(this, 'state_hover');
       elation.events.fire({type: 'ui_treeviewitem_unhover', element: this});
     }
-    select() {
-      elation.events.fire({type: 'ui_treeviewitem_select', element: this});
-      //this.scrollIntoView();
+    select(skipevent) {
       elation.html.addclass(this, 'state_selected');
+      if (!skipevent) {
+        elation.events.fire({type: 'ui_treeviewitem_select', element: this});
+      }
+      //this.scrollIntoView();
     }
     unselect() {
       elation.html.removeclass(this, 'state_selected');

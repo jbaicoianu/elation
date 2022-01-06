@@ -19,13 +19,16 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
       this.defineAttributes({
         items: { type: 'object' },
         attrs: { type: 'object' },
-        draggable: { type: 'boolean', default: false }
+        draggable: { type: 'boolean', default: false },
+        tabindex: { type: 'number' }
       });
     }
     create() {
       if (this.items) {
         this.setItems(this.items);
       }
+      elation.events.add(this, 'keydown', ev => this.handleKeyDown(ev));
+      this.tabindex = 0;
     }
     getDefaultAttributes() {
       var attrs = this.attrs || {};
@@ -85,7 +88,8 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
           if (items[k][attrs.children] && Object.keys(items[k][attrs.children]).length > 0) {
             tvitem.addclass('haschildren');
             this.add(items[k][attrs.children], tvitem, attrs);
-            elation.html.addclass(tvitem, 'state_expanded');
+            //elation.html.addclass(tvitem, 'state_expanded');
+            tvitem.collapsed = true;
           }
         }
       }
@@ -139,9 +143,89 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
       this.selected = ev.target;
       elation.events.fire({type: 'ui_treeview_select', element: this, data: this.selected});
     }
+    handleKeyDown(ev) {
+      if (!this.selected) {
+        this.firstChild.select();
+      } else if (ev.key == 'ArrowUp') {
+        if (this.selected && this.selected.parentNode !== this) {
+          if (this.selected.previousSibling) {
+            if (!(this.selected.previousSibling instanceof elation.elements.ui.treeviewitem)) {
+              this.selected.parentNode.select();
+            } else if (!this.selected.previousSibling.collapsed) {
+              // recursively select the last file from uncollapsed directories
+              let lastnode = this.selected.previousSibling;
+              let lastnodechildren = lastnode.getElementsByTagName('ui-treeviewitem');
+              while (lastnodechildren.length > 0 && !lastnodechildren[lastnodechildren.length-1].collapsed) {
+                lastnode = lastnodechildren[lastnodechildren.length-1];
+                lastnodechildren = lastnode.getElementsByTagName('ui-treeviewitem');
+              }
+             lastnode.select();
+            } else {
+              this.selected.previousSibling.select();
+            }
+          } else if (this.selected.parentNode instanceof elation.elements.ui.treeviewitem) {
+            this.selected.parentNode.select();
+          }
+        }
+      } else if (ev.key == 'ArrowDown') {
+        if (this.selected && !(this.selected === this && this.collapsed)) {
+          let children = this.selected.getElementsByTagName('ui-treeviewitem');
+          if (this.selected instanceof elation.elements.ui.treeviewitem && !this.selected.collapsed && children.length > 0) {
+            // Currently selecting an uncollapsed directory which has some children, descend into it
+            children[0].select();
+          } else if (this.selected.nextSibling && this.selected.nextSibling instanceof elation.elements.ui.treeviewitem) {
+            // If we still have a next sibling, select it
+            this.selected.nextSibling.select();
+          } else {
+              // recursively select the next file from our parents' next sibling
+              let nextnode = this.selected;
+              while (nextnode !== this) {
+                if (nextnode.parentNode === this) {
+                  nextnode = null;
+                  break;
+                } else {
+                  nextnode = nextnode.parentNode;
+                  if (nextnode.nextSibling) {
+                    nextnode = nextnode.nextSibling;
+                    break;
+                  }
+                }
+              }
+              if (nextnode && nextnode instanceof elation.elements.ui.treeviewitem) {
+                nextnode.select();
+              }
+          }
+        }
+      } else if (ev.key == 'ArrowLeft') {
+        if (this.selected instanceof elation.elements.ui.treeviewitem && this.selected.childNodes.length > 1 && !this.selected.collapsed) {
+          this.selected.collapsed = true;
+        } else if (this.selected !== this && this.selected.parentNode instanceof elation.elements.ui.treeviewitem) {
+          this.selected.parentNode.select();
+        }
+      } else if (ev.key == 'ArrowRight') {
+        if (this.selected) {
+          let children = this.selected.getElementsByTagName('ui-treeviewitem');
+          if (children.length > 0) {
+            this.selected.collapsed = false;
+            children[0].select();
+          }
+        }
+      } else if (ev.key == 'Escape') {
+        this.preview.set(null);
+      }
+    }
   });
 
   elation.elements.define('ui.treeviewitem', class extends elation.elements.base {
+    init() {
+      super.init();
+      this.defineAttributes({
+        items: { type: 'object' },
+        attrs: { type: 'object' },
+        draggable: { type: 'boolean', default: false },
+        collapsed: { type: 'boolean', default: false },
+      });
+    }
     create() {
       this.value = this.item;
       this.attrs = this.attrs || {};
@@ -230,6 +314,14 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
         }
         this.lastclick = ev.timeStamp;
         this.select();
+        if (this.item[this.attrs.children]) {
+          if (this.collapsed) {
+            this.collapsed = false;
+          } else {
+            this.collapsed = true;
+          }
+        }
+        ev.preventDefault();
         ev.stopPropagation();
     }
     doubleclick(ev) {

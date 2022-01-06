@@ -100,6 +100,10 @@ elation.require(['elements.ui.list','elements.ui.label'], function() {
         this.addItem(value, true);
       }
     }
+    setLabel(label) {
+      this.label = label;
+      this.labelobj.setLabel(label);
+    }
     /**
      * Extracts items out of the list's existing HTML structure
      * @function extractItems

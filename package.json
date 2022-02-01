@@ -1,7 +1,7 @@
 {
   "name": "elation",
   "description": "Elation Javascript Component Framework",
-  "version": "2.3.15",
+  "version": "2.3.17",
   "main": "build/elation.js",
   "author": "James Baicoianu",
   "license": "MIT",

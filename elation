@@ -177,9 +177,11 @@ web_init() {
   [ ! -d tmp ] && mkdir -m 2777 tmp
   echo done
   
-  for I in $(cat config/elation.components); do
-    component_enable $I
-  done
+  if [ -f config/elation.components ]; then
+    for I in $(cat config/elation.components); do
+      component_enable $I
+    done
+  fi
 }
 
 web_compact() {

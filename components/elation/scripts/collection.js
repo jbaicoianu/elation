@@ -260,6 +260,8 @@ elation.require([], function() {
       }
       return idx;
     }
+    this.save = function(key) {
+    }
   }, elation.collection.simple);
 
   /**

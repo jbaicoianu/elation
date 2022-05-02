@@ -86,6 +86,8 @@ elation.require(['elements.collection.simple'], function() {
       }
       return idx;
     }
+    save(key) {
+    }
   });
 });
 

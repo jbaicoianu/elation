@@ -50,7 +50,7 @@ elation.require(['elements.ui.button'], function() {
           center: true,
         });
       } else {
-        this.popup = elation.elements.create('ui.window',
+        this.popup = elation.elements.create('ui.window', {
           append: this,
           movable: false,
           controls: false,

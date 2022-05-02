@@ -2071,7 +2071,7 @@ elation.extend('require.batch', function(type, webroot) {
   // TODO - needs timeout and better error handling
 
   this.type = type;
-  this.webroot = elation.utils.any(webroot, elation.config.get('dependencies.path', '/scripts'));;
+  this.webroot = elation.utils.any(webroot, elation.config.get('dependencies.path', '/scripts'));
 
   this.pending = [];
   this.fulfilled = {};
@@ -2163,7 +2163,11 @@ elation.extend('require.batch', function(type, webroot) {
       this.setpending(module);
       if (elation.env.isBrowser) {
         // browser
-        elation.file.get(this.type, this.webroot + '/' + module.replace(/\./g, '/') + '.' + this.type, elation.bind(this, function(ev) { this.finished(module); }));
+        if (module.match('^https?:')) {
+          elation.file.get(this.type, module, elation.bind(this, function(ev) { this.finished(module); }));
+        } else {
+          elation.file.get(this.type, this.webroot + '/' + module.replace(/\./g, '/') + '.' + this.type, elation.bind(this, function(ev) { this.finished(module); }));
+        }
       } else if (elation.env.isWorker && this.type == 'js') {
         //console.log('loading elation module: ', module);
         importScripts(this.webroot + '/' + module.replace(/\./g, '/') + '.' + this.type);

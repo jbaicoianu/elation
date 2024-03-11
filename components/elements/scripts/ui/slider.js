@@ -6,7 +6,7 @@ elation.require(['elements.elements', 'elements.ui.input', 'elements.ui.text'], 
         label: { type: 'string' },
         min: { type: 'float', default: 0 },
         max: { type: 'float', default: 1 },
-        value: { type: 'float', default: 0 },
+        value: { type: 'float', default: 0, set: this.updateValue },
         snap: { type: 'float' }
       });
     }
@@ -36,8 +36,19 @@ elation.require(['elements.elements', 'elements.ui.input', 'elements.ui.text'], 
       var idx = this.handles.indexOf(handle);
       if (idx != -1) {
         this.values[idx] = handle.value;
-        this.dispatchEvent({type: 'change', data: handle.value});
+        if (this.values.length == 1) {
+          this.value = this.values[0];
+        }
+        //this.dispatchEvent({type: 'change', data: handle.value});
+        elation.events.fire({element: this, type: 'change', data: handle.value});
       }
+    }
+    updateValue() {
+      let handle = this.handles[0];
+      handle.sendchangeevent = false;
+      handle.value = this.value;
+      this.values[0] = this.value;
+      handle.sendchangeevent = true;
     }
   });
   elation.elements.define('ui.slider.track', class extends elation.elements.base {
@@ -52,6 +63,7 @@ elation.require(['elements.elements', 'elements.ui.input', 'elements.ui.text'], 
       elation.events.add(this, 'mouseover', ev => this.handleMouseOver(ev));
       elation.events.add(this, 'mouseout', ev => this.handleMouseOut(ev));
       elation.events.add(this, 'touchstart', ev => this.handleTouchStart(ev));
+      elation.events.add(this, 'wheel', ev => this.handleWheel(ev));
     }
     handleMouseDown(ev) {
       var slider = this.parentNode;
@@ -71,12 +83,19 @@ elation.require(['elements.elements', 'elements.ui.input', 'elements.ui.text'], 
       var handle = slider.handles[0]; // TODO - pick closest
       handle.handleTouchStart(ev);
     }
+    handleWheel(ev) {
+      let slider = this.parentNode,
+          amount = (slider.snap ? slider.snap : (slider.max - slider.min) / 20);
+      let handle = slider.handles[0]; // TODO - pick closest
+      handle.value = Math.max(slider.min, Math.min(slider.max, handle.value + (ev.deltaY < 0 ? 1 : -1) * amount));
+    }
   });
   elation.elements.define('ui.slider.handle', class extends elation.elements.base {
     init() {
       this.defineAttributes({
         label: { type: 'string' },
         value: { type: 'float', default: 0, set: this.sendChangeEvent },
+        sendchangeevent: { type: 'bool', default: true},
       });
     }
     create() {
@@ -92,15 +111,34 @@ elation.require(['elements.elements', 'elements.ui.input', 'elements.ui.text'], 
 
       elation.events.add(this, 'mousedown', this.handleMouseDown);
       elation.events.add(this, 'touchstart', this.handleTouchStart);
+      elation.events.add(this, 'mouseover', this.handleMouseOver);
+      elation.events.add(this, 'mouseout', this.handleMouseOut);
 
+      this.labelel = elation.elements.create('ui-label', {
+        append: this,
+        label: this.value,
+      });
+      this.labelel.hide();
       this.refresh();
+
+      let foo = new IntersectionObserver(d => this.handleIntersectionObserver(d), {
+        root: null,
+        threshold: [0, .5, 1],
+      });
+      foo.observe(this);
     }
     render() {
-      this.style.left = 'calc(' + (100 * this.value / (this.slider.max - this.slider.min)) + '% - ' + (this.offsetWidth / 2) + 'px)';
+      this.style.left = 'calc(' + (100 * (this.value - this.slider.min) / (this.slider.max - this.slider.min)) + '% - ' + (this.offsetWidth / 2) + 'px)';
       this.style.top = -(this.offsetHeight / 2 - this.parentNode.offsetHeight / 2) + 'px';
+      if (this.labelel) {
+        this.labelel.setLabel(+this.value.toFixed(3));
+      }
     }
     sendChangeEvent() {
-      this.dispatchEvent({type: 'change', data: this.value});
+      this.refresh();
+      if (this.sendchangeevent) {
+        this.dispatchEvent({type: 'change', data: this.value});
+      }
     }
     updateValueFromEvent(ev) {
       var value = this.projectMouseEventOnAxis(ev);
@@ -114,7 +152,10 @@ elation.require(['elements.elements', 'elements.ui.input', 'elements.ui.text'], 
           rect = this.parentNode.getBoundingClientRect();
 
       var percent = Math.max(0, Math.min(1, (x - rect.x) / rect.width));
-      var value = percent * (this.slider.max - this.slider.min);
+      var value = percent * (this.slider.max - this.slider.min) + this.slider.min;
+      if (this.slider.snap) {
+        value = Math.floor(value / this.slider.snap) * this.slider.snap;
+      }
       //console.log(value, percent, x, y, rect);
       return value;
     }
@@ -124,6 +165,8 @@ elation.require(['elements.elements', 'elements.ui.input', 'elements.ui.text'], 
       ev.preventDefault();
       this.updateValueFromEvent(ev);
       this.refresh();
+      this.labelel.show();
+      this.dragging = true;
     }
     handleMouseMove(ev) {
       this.updateValueFromEvent(ev);
@@ -132,9 +175,18 @@ elation.require(['elements.elements', 'elements.ui.input', 'elements.ui.text'], 
     handleMouseUp(ev) {
       elation.events.remove(window, 'mousemove', this.handleMouseMove);
       elation.events.remove(window, 'mouseup', this.handleMouseUp);
+      this.labelel.hide();
+      this.dragging = false;
+    }
+    handleMouseOver(ev) {
+      this.labelel.show();
+    }
+    handleMouseOut(ev) {
+      if (!this.dragging) {
+        this.labelel.hide();
+      }
     }
     handleTouchStart(ev) {
-console.log('do touch', ev, ev.touches.length);
       if (ev.touches.length == 1) {
         elation.events.add(window, 'touchmove', this.handleTouchMove);
         elation.events.add(window, 'touchend', this.handleTouchEnd);
@@ -150,6 +202,9 @@ console.log('do touch', ev, ev.touches.length);
     handleTouchEnd(ev) {
       elation.events.remove(window, 'touchmove', this.handleTouchMove);
       elation.events.remove(window, 'touchend', this.handleTouchEnd);
+    }
+    handleIntersectionObserver(d) {
+      this.render();
     }
   });
 });

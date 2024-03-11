@@ -1797,7 +1797,7 @@ elation.extend('file.get', function(type, file, func) {
   if (type == 'javascript' || type == 'js') {
     element.type = "text/javascript";
     element.src = file;
-    element.crossOrigin = 'anonymous';
+    //element.crossOrigin = 'anonymous';
   } else {
     element.type = "text/css";
     element.rel = "stylesheet";

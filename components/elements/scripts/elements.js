@@ -1,4 +1,4 @@
-elation.require(['utils.template', 'janusweb.external.document-register-element'], function() {
+elation.require(['utils.template'], function() {
   elation.extend('elements', {
     initialized: false,
     uniqueids: {},
@@ -150,7 +150,7 @@ elation.require(['utils.template', 'janusweb.external.document-register-element'
         }
         init() {
           this.defineAttributes({
-            deferred: { type: 'boolean', default: true },
+            deferred: { type: 'boolean', default: false },
             template: { type: 'string' },
             name: { type: 'string' },
             //classname: { type: 'string' },
@@ -399,8 +399,11 @@ elation.require(['utils.template', 'janusweb.external.document-register-element'
          * @memberof elation.ui.base#
          */
         show() {
-          this.hidden = false;
-          this.removeclass('state_hidden');
+          if (this.hidden) {
+            this.hidden = false;
+            this.removeclass('state_hidden');
+            this.refresh();
+          }
         }
         /**
          * Make this component invisible 
@@ -621,7 +624,7 @@ elation.require(['utils.template', 'janusweb.external.document-register-element'
               this.canvas.height = height;
               ctx.drawImage(img, 0, 0) 
               this.loading = false;
-              elation.events.fire({element: this.canvas, type: 'update'});
+              elation.events.fire({element: this.canvas, type: 'asset_update'});
             });
             img.addEventListener('error', (err) => { 
               console.log('Error generating image from HTML', err, img, content);
@@ -687,12 +690,14 @@ elation.require(['utils.template', 'janusweb.external.document-register-element'
 
           return false;
         }
-        async updateStylesheets() {
+        async updateStylesheets(proxy='') {
           let fetches = [];
+proxy = elation.engine.assets.corsproxy;
+console.log('UPDATE STYLESHEETS');
           // Fetch all active stylesheets, so we can inject them into our foreignObject
           for (let i = 0; i < document.styleSheets.length; i++) {
             let stylesheet = document.styleSheets[i];
-            fetches[i] = fetch(stylesheet.href).then(r => r.text()).then(t => { return { url: stylesheet.href, text: t, order: i }; });
+            fetches[i] = fetch(proxy + stylesheet.href).then(r => r.text()).then(t => { return { url: stylesheet.href, text: t, order: i }; });
           }
           this.stylecachenames = this.getStylesheetList();
           let stylesheets = await Promise.all(fetches);

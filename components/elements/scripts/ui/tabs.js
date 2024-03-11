@@ -192,6 +192,7 @@ elation.require(['elements.ui.list', 'elements.ui.tabbar', 'elements.ui.tab'], f
       this.selecteditem = ev.target;
       //this.selecteditem.select();
       this.dispatchEvent({type: 'change', data: this.selecteditem});
+      this.dispatchEvent({type: 'tabchange', data: this.selecteditem});
     }
   });
 });

@@ -25,7 +25,7 @@ elation.require(['elements.ui.item'], function() {
       this.selected = true;
       // FIXME - using the 'select' event causes issues if the tab contains an <input> or <textarea>, for now we throw both events but we should refactor code that uses 'select'
       this.dispatchEvent({type: 'select'});
-      this.dispatchEvent({type: 'tabselect'});
+      this.dispatchEvent({type: 'tabselect', bubbles: true});
       this.refreshChildren();
     }
     unselect() {

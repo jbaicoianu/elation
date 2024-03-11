@@ -58,7 +58,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
 
       // alphabetize the keys
       var keys = Object.keys(items);
-      keys.sort();
+      keys.sort((a, b) => a.localeCompare(b));
 
       for (var i = 0; i < keys.length; i++) {
         var k = keys[i];
@@ -74,7 +74,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
             append: root,
           });
           if (this.draggable) {
-            tvitem.draggable = true;
+            tvitem.draggable = 'true';
           }
           // maintain selected item
           if (this.selected && this.selected.value === items[k]) {
@@ -146,11 +146,13 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
     handleKeyDown(ev) {
       if (!this.selected) {
         this.firstChild.select();
+        ev.preventDefault();
       } else if (ev.key == 'ArrowUp') {
         if (this.selected && this.selected.parentNode !== this) {
           if (this.selected.previousSibling) {
             if (!(this.selected.previousSibling instanceof elation.elements.ui.treeviewitem)) {
               this.selected.parentNode.select();
+              ev.preventDefault();
             } else if (!this.selected.previousSibling.collapsed) {
               // recursively select the last file from uncollapsed directories
               let lastnode = this.selected.previousSibling;
@@ -159,12 +161,15 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
                 lastnode = lastnodechildren[lastnodechildren.length-1];
                 lastnodechildren = lastnode.getElementsByTagName('ui-treeviewitem');
               }
-             lastnode.select();
+              lastnode.select();
+              ev.preventDefault();
             } else {
               this.selected.previousSibling.select();
+              ev.preventDefault();
             }
           } else if (this.selected.parentNode instanceof elation.elements.ui.treeviewitem) {
             this.selected.parentNode.select();
+            ev.preventDefault();
           }
         }
       } else if (ev.key == 'ArrowDown') {
@@ -173,9 +178,11 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
           if (this.selected instanceof elation.elements.ui.treeviewitem && !this.selected.collapsed && children.length > 0) {
             // Currently selecting an uncollapsed directory which has some children, descend into it
             children[0].select();
+            ev.preventDefault();
           } else if (this.selected.nextSibling && this.selected.nextSibling instanceof elation.elements.ui.treeviewitem) {
             // If we still have a next sibling, select it
             this.selected.nextSibling.select();
+            ev.preventDefault();
           } else {
               // recursively select the next file from our parents' next sibling
               let nextnode = this.selected;
@@ -193,6 +200,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
               }
               if (nextnode && nextnode instanceof elation.elements.ui.treeviewitem) {
                 nextnode.select();
+                ev.preventDefault();
               }
           }
         }
@@ -201,6 +209,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
           this.selected.collapsed = true;
         } else if (this.selected !== this && this.selected.parentNode instanceof elation.elements.ui.treeviewitem) {
           this.selected.parentNode.select();
+          ev.preventDefault();
         }
       } else if (ev.key == 'ArrowRight') {
         if (this.selected) {
@@ -208,10 +217,11 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
           if (children.length > 0) {
             this.selected.collapsed = false;
             children[0].select();
+            ev.preventDefault();
           }
         }
       } else if (ev.key == 'Escape') {
-        this.preview.set(null);
+        //this.preview.set(null);
       }
     }
   });
@@ -222,7 +232,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
       this.defineAttributes({
         items: { type: 'object' },
         attrs: { type: 'object' },
-        draggable: { type: 'boolean', default: false },
+        draggable: { type: 'string' },
         collapsed: { type: 'boolean', default: false },
       });
     }

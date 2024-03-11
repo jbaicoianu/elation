@@ -119,6 +119,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
           disabled: true
         });
       }
+      this.refresh();
     }
     /**
      * Returns the UL element for this component, or create a new one if it doesn't exist yet

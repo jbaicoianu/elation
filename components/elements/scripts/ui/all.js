@@ -32,4 +32,5 @@ elation.require([
   'elements.ui.treeview',
   'elements.ui.scrollindicator',
   'elements.ui.spinner',
+  'elements.ui.imagepicker',
 ]);

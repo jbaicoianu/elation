@@ -488,6 +488,7 @@ elation.require(['utils.template'], function() {
          * Render this element to an image
          */
         toCanvas(width, height, scale) {
+          this.canvasNeedsUpdate = true;
           if (typeof width == 'undefined') {
             width = this.offsetWidth;
           }
@@ -503,7 +504,7 @@ elation.require(['utils.template'], function() {
             this.canvas.width = width;
             this.canvas.height = height;
             this.canvasscale = scale;
-            document.body.appendChild(this.canvas);
+            //document.body.appendChild(this.canvas);
 
             this.observer = new MutationObserver(() => {
               // Rate limit refreshes to avoid too many updates
@@ -520,7 +521,7 @@ elation.require(['utils.template'], function() {
             });
             this.observer.observe(this, { subtree: true, childList: true, attributes: true, characterData: true });
           }
-          var img = new Image();
+          //var img = new Image();
 
           // We need to sanitize our HTML in case someone provides us with malformed markup.
           // We use SVG to render the mark-up, and since SVG is XML it means we need well-formed data
@@ -558,8 +559,12 @@ elation.require(['utils.template'], function() {
           this.updateCanvas(); 
           return this.canvas;
         }
-        async updateCanvas() {
+        async updateCanvas(force) {
           if (this.loading) return;
+          let outerHTML = this.outerHTML;
+          if (this.lasthtml == outerHTML && !force) return false;
+          this.lasthtml = outerHTML;
+          //console.time('updateCanvas');
           this.loading = true;
 
           var width = this.canvas.width,
@@ -567,12 +572,15 @@ elation.require(['utils.template'], function() {
 
           var ctx = this.canvas.getContext('2d');
 
+          //console.time('updateCanvas:get images');
           var imgtags = this.getElementsByTagName('img');
+          //console.timeEnd('updateCanvas:get images');
           var images = [],
               promises = [];
 
           if (!this.imagecache) this.imagecache = {};
 
+          //console.time('updateCanvas:imagesrc');
           for (var i = 0; i < imgtags.length; i++) {
             if (imgtags[i].src.substring(0, 5) == 'data:') {
               //promises.push(this.fetchImage(imgtags[i].src));
@@ -583,55 +591,69 @@ elation.require(['utils.template'], function() {
               images[i] = imgtags[i].src;
             }
           }
+          //console.timeEnd('updateCanvas:imagesrc');
 
+          //console.time('updateCanvas:style');
           if (this.stylesheetsChanged()) {
             await this.updateStylesheets();
           }
+          //console.timeEnd('updateCanvas:style');
 
           Promise.all(promises).then((imgdata) => {
-
+            //console.time('updateCanvas:img set src');
             for (var i = 0; i < imgtags.length; i++) {
               //content = content.replace(images[i], imgdata[i]);
-              if (imgtags[i].src.substring(0, 5) != 'data:') {
+              if (imgtags[i].src.substring(0, 5) != 'data:' && imgtags[i].src != imgdata[i]) {
                 imgtags[i].src = imgdata[i];
               }
             }
-
-            var content = this.outerHTML.replace(/<br\s*\/?>/g, '<div class="br"></div>');
-            content = content.replace(/<hr\s*\/?>/g, '<div class="hr"></div>');
-            content = content.replace(/<img(.*?)>/g, "<img$1 />");
-            content = content.replace(/<input(.*?)>/g, "<input$1 />");
-
             for (var i = 0; i < imgtags.length; i++) {
               //content = content.replace(images[i], imgdata[i]);
               //imgtags[i].src = images[i];
             }
+            //console.timeEnd('updateCanvas:img set src');
+            let img = this.img;
+            //let svg = this.svg;
+            if (!img) {
+              //console.time('updateCanvas:create svg');
+              img = this.img = new Image();
+              img.eager = true;
+              img.addEventListener('load', () => { 
+                this.canvas.width = width;
+                this.canvas.height = height;
+                ctx.drawImage(img, 0, 0) 
+                this.loading = false;
+                elation.events.fire({element: this.canvas, type: 'asset_update'});
+              });
+              img.addEventListener('error', (err) => { 
+                console.log('Error generating image from HTML', err, img, content);
+                this.loading = false;
+              });
+            }
 
-
-            var img = new Image();
-            img.eager = true;
-            var data = '<svg xmlns="http://www.w3.org/2000/svg" width="' + width + '" height="' + height + '">' +
-                       '<foreignObject requiredExtensions="http://www.w3.org/1999/xhtml" width="' + (width / this.canvasscale) + '" height="' + (height / this.canvasscale) + '" transform="scale(' + this.canvasscale + ')">' +
+            let content = this.lastcontent;
+            //console.time('updateCanvas:update svg');
+            content = this.outerHTML.replace(/<br\s*\/?>/g, '<div class="br"></div>');
+            content = content.replace(/<hr\s*\/?>/g, '<div class="hr"></div>');
+            content = content.replace(/<img(.*?)>/g, "<img$1 />");
+            content = content.replace(/<input(.*?)>/g, "<input$1 />");
+            this.lastcontent = content;
+            this.lasthtml = this.outerHTML;
+            var svgdata = '<foreignObject requiredExtensions="http://www.w3.org/1999/xhtml" width="' + (width / this.canvasscale) + '" height="' + (height / this.canvasscale) + '" transform="scale(' + this.canvasscale + ')">' +
                        '<html xmlns="http://www.w3.org/1999/xhtml"><body class="dark janusweb">' +
                        '<style>' + encodeURIComponent(this.styletext) + '</style>' +
                        content +
                        '</body></html>' +
-                       '</foreignObject>' +
-                       '</svg>';
+                       '</foreignObject>';
+            var data = '<svg xmlns="http://www.w3.org/2000/svg" width="' + width + '" height="' + height + '">' + svgdata + '</svg>';
             var url = 'data:image/svg+xml,' + data;
-            img.addEventListener('load', () => { 
-              this.canvas.width = width;
-              this.canvas.height = height;
-              ctx.drawImage(img, 0, 0) 
-              this.loading = false;
-              elation.events.fire({element: this.canvas, type: 'asset_update'});
-            });
-            img.addEventListener('error', (err) => { 
-              console.log('Error generating image from HTML', err, img, content);
-              this.loading = false;
-            });
             img.src = url;
+//svg.innerHTML = svgdata;
+            //console.timeEnd('updateCanvas:update svg');
+            this.canvasNeedsUpdate = false;
+            //console.timeEnd('updateCanvas');
           });
+          this.loading = false;
         }
         queryParentSelector(selector) {
           var node = this.parentNode;
@@ -691,13 +713,22 @@ elation.require(['utils.template'], function() {
           return false;
         }
         async updateStylesheets(proxy='') {
+console.log('update stylesheets', this);
           let fetches = [];
-proxy = elation.engine.assets.corsproxy;
-console.log('UPDATE STYLESHEETS');
+          proxy = elation.engine.assets.corsproxy;
           // Fetch all active stylesheets, so we can inject them into our foreignObject
           for (let i = 0; i < document.styleSheets.length; i++) {
             let stylesheet = document.styleSheets[i];
-            fetches[i] = fetch(proxy + stylesheet.href).then(r => r.text()).then(t => { return { url: stylesheet.href, text: t, order: i }; });
+            if (stylesheet.href) {
+              fetches.push(fetch(proxy + stylesheet.href).then(r => r.text()).then(t => { return { url: stylesheet.href, text: t, order: i }; }));
+            } else if (document.styleSheets[i].cssRules.length > 0) {
+              let txt = '';
+              let sheet = document.styleSheets[i];
+              for (let i = 0; i < sheet.cssRules.length; i++) {
+                txt += sheet.cssRules[i].cssText + '\n';
+              }
+              fetches.push(new Promise((resolve) => resolve({url: null, text: txt, order: i })));
+            }
           }
           this.stylecachenames = this.getStylesheetList();
           let stylesheets = await Promise.all(fetches);
@@ -709,6 +740,11 @@ console.log('UPDATE STYLESHEETS');
           }
           this.styletext = styletext;
 
+          //this.dispatchEvent(new CustomEvent('styleupdate', { detail: stylesheets}));
+          elation.events.fire({type: 'styleupdate', element: this, data: stylesheets});
+          setTimeout(() => {
+            this.updateCanvas(true);
+          }, 0);
           return styletext;
         }
         getStylesheetList() {

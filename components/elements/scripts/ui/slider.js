@@ -179,10 +179,12 @@ elation.require(['elements.elements', 'elements.ui.input', 'elements.ui.text'], 
       this.dragging = false;
     }
     handleMouseOver(ev) {
-      this.labelel.show();
+      if (this.labelel) {
+        this.labelel.show();
+      }
     }
     handleMouseOut(ev) {
-      if (!this.dragging) {
+      if (!this.dragging && this.labelel) {
         this.labelel.hide();
       }
     }

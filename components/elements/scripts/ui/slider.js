@@ -73,9 +73,14 @@ elation.require(['elements.elements', 'elements.ui.input', 'elements.ui.text'], 
     }
     handleMouseOver(ev) {
       this.hover = true;
+      this.parentNode.handles[0].showLabel();
     }
     handleMouseOut(ev) {
       this.hover = false;
+      let handle = this.parentNode.handles[0];
+      if (!handle.dragging) {
+        handle.hideLabel();
+      }
     }
     handleTouchStart(ev) {
       var slider = this.parentNode;
@@ -118,6 +123,7 @@ elation.require(['elements.elements', 'elements.ui.input', 'elements.ui.text'], 
         append: this,
         label: this.value,
       });
+      this.positionLabel();
       this.labelel.hide();
       this.refresh();
 
@@ -131,7 +137,16 @@ elation.require(['elements.elements', 'elements.ui.input', 'elements.ui.text'], 
       this.style.left = 'calc(' + (100 * (this.value - this.slider.min) / (this.slider.max - this.slider.min)) + '% - ' + (this.offsetWidth / 2) + 'px)';
       this.style.top = -(this.offsetHeight / 2 - this.parentNode.offsetHeight / 2) + 'px';
       if (this.labelel) {
-        this.labelel.setLabel(+this.value.toFixed(3));
+        let digits = 3;
+        if (this.slider.snap) {
+          if (this.slider.snap % 1 > 0) {
+            digits = this.slider.snap.toString().split('.')[1].length;
+          } else {
+            digits = 0;
+          }
+        }
+        this.labelel.setLabel(this.value.toFixed(digits));
+        this.positionLabel();
       }
     }
     sendChangeEvent() {
@@ -159,6 +174,37 @@ elation.require(['elements.elements', 'elements.ui.input', 'elements.ui.text'], 
       //console.log(value, percent, x, y, rect);
       return value;
     }
+    positionLabel() {
+      if (this.labelel) {
+        let mycoords = this.getBoundingClientRect(),
+            objcoords = this.labelel.getBoundingClientRect(),
+            wincoords = document.body.getBoundingClientRect();
+
+
+        this.labelel.style.right = 'auto'
+        this.labelel.style.width = 'auto'
+        this.labelel.style.bottom = this.offsetHeight + 'px';
+        let margin = 2;
+
+        let labeloffset = objcoords.width / 2;
+       if (mycoords.x + labeloffset >= wincoords.width - margin) {
+          labeloffset = labeloffset + ((mycoords.x + labeloffset) - wincoords.width) + margin;
+        }
+        //console.log(labeloffset, objcoords, wincoords);
+        this.labelel.style.left = -labeloffset + 'px';
+      }
+    }
+    showLabel() {
+      if (this.labelel) {
+        this.labelel.show();
+        this.positionLabel();
+      }
+    }
+    hideLabel() {
+      if (this.labelel) {
+        this.labelel.hide();
+      }
+    }
     handleMouseDown(ev) {
       elation.events.add(window, 'mousemove', this.handleMouseMove);
       elation.events.add(window, 'mouseup', this.handleMouseUp);
@@ -166,6 +212,7 @@ elation.require(['elements.elements', 'elements.ui.input', 'elements.ui.text'], 
       this.updateValueFromEvent(ev);
       this.refresh();
       this.labelel.show();
+      this.positionLabel();
       this.dragging = true;
     }
     handleMouseMove(ev) {
@@ -179,13 +226,11 @@ elation.require(['elements.elements', 'elements.ui.input', 'elements.ui.text'], 
       this.dragging = false;
     }
     handleMouseOver(ev) {
-      if (this.labelel) {
-        this.labelel.show();
-      }
+      this.showLabel();
     }
     handleMouseOut(ev) {
       if (!this.dragging && this.labelel) {
-        this.labelel.hide();
+        this.hideLabel();
       }
     }
     handleTouchStart(ev) {

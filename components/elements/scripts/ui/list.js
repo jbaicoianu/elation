@@ -84,7 +84,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
         this.setItemCollection(this.collection);
       } else if (this.items && this.items.length > 0) {
         this.setItems(this.items);
-      } else {
+      } else if (this.items.length == 0) {
         this.extractItems();
       }
 

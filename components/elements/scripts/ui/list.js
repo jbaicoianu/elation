@@ -289,7 +289,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
       }
       this.listitems = [];
       //delete this.items;
-      //ul.innerHTML = '';
+      ul.innerHTML = '';
     }
     /**
      * Get the elation.ui.listitem for a specified item, allocating as needed

@@ -1,11 +1,14 @@
-#!/bin/sh
+#!/bin/bash
 
 if [ "$1" = "" ]; then
-  echo "Usage: $0 <NUMPROCS>"
+  echo "Usage: $0 <NUMPROCS> [WAIT] < joblist"
   exit
 fi
 NUMPROCS=$1
+WAIT=$2
 CURRPROCS=0
+
+[ -z "$WAIT" ] && WAIT=1
 
 ALLPROCS=
 
@@ -24,7 +27,7 @@ while read -r CMD; do
       fi
     done
     if [ "$ALLPROCS" = "$STILLRUNNING" ]; then
-      sleep 1
+      sleep $WAIT
     else
       ALLPROCS=$STILLRUNNING
       CURRPROCS=$STILLRUNNINGCNT

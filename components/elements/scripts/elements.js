@@ -236,7 +236,7 @@ elation.require(['utils.template'], function() {
         getPropertyAsType(value, type) {
           switch (type) {
             case 'boolean':
-              return (value || value === '');
+              return ((value && value !== '0' && value !== 'false') || value === '' );
             case 'integer':
               return value|0;
             case 'float':

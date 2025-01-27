@@ -33,4 +33,5 @@ elation.require([
   'elements.ui.scrollindicator',
   'elements.ui.spinner',
   'elements.ui.imagepicker',
+  'elements.ui.wizard',
 ]);

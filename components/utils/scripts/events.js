@@ -410,7 +410,7 @@ elation.extend("events", {
     return c;
   },
 
-  clone: function(ev,  overrides) {
+  clone: function(ev,  overrides={}) {
     //var newev = new Event(ev.type);
     var newev = {};
     for (let i = 0; i < this.cloneattrs.length; i++) {

@@ -415,9 +415,9 @@ elation.extend("events", {
     var newev = {};
     for (let i = 0; i < this.cloneattrs.length; i++) {
       let attr = this.cloneattrs[i];
-      let foo = elation.utils.any(overrides[attr], ev[attr]);
-      if (foo !== null) {
-        newev[attr] = foo;
+      let val = overrides && overrides[attr] != undefined ? overrides[attr] : ev[attr]
+      if (val !== null) {
+        newev[attr] = val;
       }
     }
     return elation.events.fix(newev);

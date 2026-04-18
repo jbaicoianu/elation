@@ -90,14 +90,7 @@ elation.require(['elements.ui.list', 'elements.ui.tabbar', 'elements.ui.tab'], f
     setItems(items) {
       this.items = items;
 
-      if (!this.tabbar) {
-        this.tabbar = elation.elements.create('ui-tabbar', {
-          append: this,
-          itemcomponent: (this.showcounts ? 'ui.tabcountbutton' : 'ui.button')
-        });
-        elation.events.add(this.tabbar, 'click', (ev) => this.handleTabbarClick(ev));
-      }
-//console.log('create it!', this.items);
+      this._ensureTabbar();
       this.tabbar.setButtons(this.getTabButtons());
       this.buttons = this.tabbar.items;
       if (this.selected) {
@@ -107,11 +100,97 @@ elation.require(['elements.ui.list', 'elements.ui.tabbar', 'elements.ui.tab'], f
       }
 
       for (var i = 0; i < this.items.length; i++) {
-        let tab = this.items[i];
-        if (!elation.events.hasEventListener(tab, 'countchange')) {
-          elation.events.add(tab, 'countchange', (ev) => this.updateButtonCounts());
+        this._wireTabEvents(this.items[i]);
+      }
+    }
+    addTab(tab, options = {}) {
+      if (!(tab instanceof elation.elements.ui.tab)) {
+        tab = elation.elements.create('ui-tab', tab);
+      }
+
+      let index;
+      if (typeof options.position === 'number') {
+        index = options.position;
+      } else if (options.before) {
+        index = this.items.indexOf(options.before);
+        if (index === -1) index = this.items.length;
+      } else if (options.after) {
+        let afterIdx = this.items.indexOf(options.after);
+        index = (afterIdx === -1) ? this.items.length : afterIdx + 1;
+      } else {
+        index = this.items.length;
+      }
+      index = Math.max(0, Math.min(index, this.items.length));
+
+      let wasEmpty = this.items.length === 0;
+
+      this._ensureTabbar();
+      this.buttons = this.tabbar.items;
+
+      this.items.splice(index, 0, tab);
+
+      let button = this.tabbar.createButton(this._buildButtonArgs(tab, index));
+      if (index >= this.tabbar.items.length) {
+        this.tabbar.appendChild(button);
+        this.tabbar.items.push(button);
+      } else {
+        let ref = this.tabbar.items[index];
+        this.tabbar.insertBefore(button, ref);
+        this.tabbar.items.splice(index, 0, button);
+      }
+
+      for (let i = index + 1; i < this.tabbar.items.length; i++) {
+        this.tabbar.items[i].name = i;
+      }
+
+      this._wireTabEvents(tab);
+
+      let shouldSelect = (options.select !== undefined) ? options.select : wasEmpty;
+      if (shouldSelect) {
+        this.setActiveTab(index);
+      }
+
+      this.dispatchEvent({type: 'tabadd', data: tab});
+      return tab;
+    }
+    removeTab(tab) {
+      let index;
+      if (typeof tab === 'number') {
+        index = tab;
+        tab = this.items[index];
+      } else {
+        index = this.items.indexOf(tab);
+      }
+      if (!tab || index === -1) return null;
+
+      let wasActive = (tab.parentNode === this);
+
+      let button = this.tabbar && this.tabbar.items[index];
+      if (button) {
+        if (button.parentNode === this.tabbar) {
+          this.tabbar.removeChild(button);
+        }
+        this.tabbar.items.splice(index, 1);
+      }
+
+      this.items.splice(index, 1);
+      if (tab.parentNode === this) {
+        this.removeChild(tab);
+      }
+
+      if (this.tabbar) {
+        for (let i = index; i < this.tabbar.items.length; i++) {
+          this.tabbar.items[i].name = i;
         }
       }
+
+      if (wasActive && this.items.length > 0) {
+        let next = Math.min(index, this.items.length - 1);
+        this.setActiveTab(next);
+      }
+
+      this.dispatchEvent({type: 'tabremove', data: tab});
+      return tab;
     }
     setActiveTab(name) {
       for (var k in this.items) {
@@ -156,13 +235,7 @@ elation.require(['elements.ui.list', 'elements.ui.tabbar', 'elements.ui.tab'], f
         var buttons = this.buttons = [];
         var items = this.items;
         for (var i = 0; i < items.length; i++) {
-          let buttonargs = {
-            label: items[i].label,
-            name: i,
-            disabled: items[i].disabled && items[i].disabled !== '',
-            count: items[i].count || 0
-          };
-          buttons.push(buttonargs);
+          buttons.push(this._buildButtonArgs(items[i], i));
         }
       }
       return this.buttons;
@@ -193,6 +266,28 @@ elation.require(['elements.ui.list', 'elements.ui.tabbar', 'elements.ui.tab'], f
       //this.selecteditem.select();
       this.dispatchEvent({type: 'change', data: this.selecteditem});
       this.dispatchEvent({type: 'tabchange', data: this.selecteditem});
+    }
+    _ensureTabbar() {
+      if (!this.tabbar) {
+        this.tabbar = elation.elements.create('ui-tabbar', {
+          append: this,
+          itemcomponent: (this.showcounts ? 'ui.tabcountbutton' : 'ui.button')
+        });
+        elation.events.add(this.tabbar, 'click', (ev) => this.handleTabbarClick(ev));
+      }
+    }
+    _buildButtonArgs(tab, index) {
+      return {
+        label: tab.label,
+        name: index,
+        disabled: tab.disabled && tab.disabled !== '',
+        count: tab.count || 0
+      };
+    }
+    _wireTabEvents(tab) {
+      if (!elation.events.hasEventListener(tab, 'countchange')) {
+        elation.events.add(tab, 'countchange', (ev) => this.updateButtonCounts());
+      }
     }
   });
 });

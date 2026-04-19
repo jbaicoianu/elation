@@ -4,20 +4,18 @@ elation.require(['elements.collection.simple'], function() {
    * Subset the data from the parent collection
    *
    * @class subset
-   * @augments elation.collection.simple
-   * @memberof elation.collection
-   * @alias elation.collection.subset
+   * @category Collections
+   * @augments elation.elements.collection.simple
+   * @memberof elation.elements.collection
    *
    * @param {object} args
    * @param {elation.collection.simple} args.parent List to subset
    *
-   * @member {object}   parent
-   * @member {function} filterfunc
    *
    */
   /**
    * Fired when this collection has fetched items
-   * @event elation.collection.filter#collection_load
+   * @event elation.elements.collection.filter#collection_load
    * @type {Object}
    */
   elation.elements.define('collection.subset', class extends elation.elements.collection.simple {

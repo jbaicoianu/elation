@@ -2,6 +2,7 @@
  * TreeView UI component
  *
  * @class treeview
+ * @category UI
  * @augments elation.elements.base
  * @memberof elation.elements.ui
  * @todo this could probably inherit from ui.list to be more generalized

@@ -3,6 +3,7 @@
  * Displays a fancy spinner while content is loading
  *
  * @class spinner
+ * @category UI
  * @augments elation.elements.base
  * @memberof elation.elements.ui
  *

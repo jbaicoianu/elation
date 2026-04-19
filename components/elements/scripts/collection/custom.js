@@ -5,9 +5,9 @@ elation.require(['elements.collection.simple'], function() {
    * (For example, a collection which lists all the properties an object contains)
    *
    * @class custom
-   * @augments elation.collection.simple
-   * @memberof elation.collection
-   * @alias elation.collection.custom
+   * @category Collections
+   * @augments elation.elements.collection.simple
+   * @memberof elation.elements.collection
    *
    * @param {object} args
    */

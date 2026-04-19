@@ -3,8 +3,9 @@ elation.require(["elements.elements"], function() {
    * Wizard UI element
    *
    * @class wizard
-   * @augments elation.ui.base
-   * @memberof elation.ui
+   * @category UI
+   * @augments elation.elements.ui.base
+   * @memberof elation.elements.ui
    *
    * @param {object} args
    * @param {int} args.step
@@ -96,8 +97,9 @@ elation.require(["elements.elements"], function() {
    * Wizard Back button UI element
    *
    * @class wizard-backbutton
-   * @augments elation.ui.base
-   * @memberof elation.ui
+   * @category UI
+   * @augments elation.elements.ui.base
+   * @memberof elation.elements.ui
    */
   elation.elements.define('ui-wizard-backbutton', class extends elation.elements.ui.button {
     create() {
@@ -109,8 +111,9 @@ elation.require(["elements.elements"], function() {
    * Wizard Step UI element
    *
    * @class wizard-step
-   * @augments elation.ui.base
-   * @memberof elation.ui
+   * @category UI
+   * @augments elation.elements.ui.base
+   * @memberof elation.elements.ui
    *
    * @param {object} args
    * @param {int} args.step

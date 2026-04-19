@@ -2,8 +2,9 @@
  * Tabs UI component
  *
  * @class tabs
- * @augments elation.ui.base
- * @memberof elation.ui
+ * @category UI
+ * @augments elation.elements.ui.base
+ * @memberof elation.elements.ui
  * @todo this could probably inherit from ui.list to be more general
  *
  * @param {object} args
@@ -103,6 +104,27 @@ elation.require(['elements.ui.list', 'elements.ui.tabbar', 'elements.ui.tab'], f
         this._wireTabEvents(this.items[i]);
       }
     }
+    /**
+     * Add a tab dynamically. Accepts either an existing `ui-tab` element or an args object
+     * (passed through to `elation.elements.create('ui-tab', ...)`).
+     *
+     * Insertion position is resolved in priority order: `options.position` → `options.before`
+     * → `options.after` → append to end.
+     *
+     * The new tab is auto-selected only when the tabs component was previously empty,
+     * unless `options.select` is explicitly set.
+     *
+     * @function addTab
+     * @memberof elation.elements.ui.tabs#
+     * @fires elation.elements.ui.tabs#tabadd
+     * @param {elation.elements.ui.tab|object} tab  A tab element or an args object used to create one.
+     * @param {object} [options]
+     * @param {number} [options.position]  Explicit insertion index.
+     * @param {elation.elements.ui.tab} [options.before]  Insert before this existing tab.
+     * @param {elation.elements.ui.tab} [options.after]  Insert after this existing tab.
+     * @param {boolean} [options.select]  Force-activate (true) or suppress activation (false).
+     * @returns {elation.elements.ui.tab}  The newly-added tab element.
+     */
     addTab(tab, options = {}) {
       if (!(tab instanceof elation.elements.ui.tab)) {
         tab = elation.elements.create('ui-tab', tab);
@@ -153,6 +175,16 @@ elation.require(['elements.ui.list', 'elements.ui.tabbar', 'elements.ui.tab'], f
       this.dispatchEvent({type: 'tabadd', data: tab});
       return tab;
     }
+    /**
+     * Remove a tab dynamically. Accepts either the tab element or its numeric index.
+     * If the removed tab was active, the next tab (or previous if it was last) is activated.
+     *
+     * @function removeTab
+     * @memberof elation.elements.ui.tabs#
+     * @fires elation.elements.ui.tabs#tabremove
+     * @param {elation.elements.ui.tab|number} tab  Tab element or index to remove.
+     * @returns {elation.elements.ui.tab|null}  The removed tab, or null if not found.
+     */
     removeTab(tab) {
       let index;
       if (typeof tab === 'number') {

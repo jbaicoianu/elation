@@ -2,9 +2,9 @@
  * Grid UI element
  *
  * @class grid
- * @augments elation.ui.list
- * @memberof elation.ui
- * @alias elation.ui.grid
+ * @category UI
+ * @augments elation.elements.ui.list
+ * @memberof elation.elements.ui
  *
  * @param {object}    args
  * @param {string}    args.tag

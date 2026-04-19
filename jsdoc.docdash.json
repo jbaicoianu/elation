@@ -1,0 +1,57 @@
+{
+  "source": {
+    "include": [
+      "components/elements/scripts",
+      "components/utils/scripts"
+    ],
+    "includePattern": "\\.js$",
+    "excludePattern": "(node_modules|docs)"
+  },
+  "opts": {
+    "destination": "docs/js-docdash",
+    "recurse": true,
+    "readme": "docs-home.md",
+    "template": "node_modules/docdash"
+  },
+  "plugins": [
+    "plugins/markdown",
+    "./jsdoc-plugins/elation-events"
+  ],
+  "markdown": {
+    "hardwrap": false,
+    "idInHeadings": true
+  },
+  "tags": {
+    "allowUnknownTags": true,
+    "dictionaries": [
+      "jsdoc",
+      "closure"
+    ]
+  },
+  "docdash": {
+    "static": true,
+    "sort": true,
+    "search": true,
+    "collapse": true,
+    "wrap": false,
+    "typedefs": true,
+    "navLevel": 0,
+    "private": false,
+    "removeQuotes": "none",
+    "scripts": [],
+    "menu": {
+      "Demo Gallery": {
+        "href": "../../demos/index.html",
+        "target": "_blank",
+        "class": "menu-item",
+        "id": "demo_link"
+      },
+      "GitHub": {
+        "href": "https://github.com/jbaicoianu/elation",
+        "target": "_blank",
+        "class": "menu-item",
+        "id": "github_link"
+      }
+    }
+  }
+}

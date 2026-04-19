@@ -5,29 +5,28 @@ elation.require(['elements.collection.indexed'], function() {
    * Auto-save changes to localStorage, loads on init.
    * 
    * @class localindexed
-   * @augments elation.collection.indexed
-   * @memberof elation.collection
+   * @category Collections
+   * @augments elation.elements.collection.indexed
+   * @memberof elation.elements.collection
    *
-   * @alias elation.collection.indexed
    * @param {object} args
    * @param {string} args.index
    * @param {string} args.storagekey
    *
-   * @member {string}    storagekey
    */
   /**
    * Fired when this collection is saved
-   * @event elation.collection.localindexed#collection_save
+   * @event elation.elements.collection.localindexed#collection_save
    * @type {Object}
    */
   /**
    * Fired when this collection starts fetching items
-   * @event elation.collection.localindexed#collection_load_begin
+   * @event elation.elements.collection.localindexed#collection_load_begin
    * @type {Object}
    */
   /**
    * Fired when this collection has fetched items
-   * @event elation.collection.localindexed#collection_load
+   * @event elation.elements.collection.localindexed#collection_load
    * @type {Object}
    */
   elation.elements.define('collection.localindexed', class extends elation.elements.collection.indexed {

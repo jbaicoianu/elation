@@ -5,7 +5,18 @@
   "main": "build/elation.js",
   "author": "James Baicoianu",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "docs": "npm run docs:clean && npm run docs:docdash && npm run docs:better",
+    "docs:clean": "jsdoc -c jsdoc.conf.json",
+    "docs:docdash": "jsdoc -c jsdoc.docdash.json",
+    "docs:better": "jsdoc -c jsdoc.better.json"
+  },
+  "devDependencies": {
+    "better-docs": "^2.7.3",
+    "clean-jsdoc-theme": "^4.3.0",
+    "docdash": "^2.0.2",
+    "jsdoc": "^4.0.4"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/jbaicoianu/elation"

@@ -1,3 +1,7 @@
+/** @namespace elation.elements */
+/** @namespace elation.elements.ui */
+/** @namespace elation.elements.collection */
+
 elation.require(['utils.template'], function() {
   elation.extend('elements', {
     initialized: false,
@@ -367,7 +371,7 @@ elation.require(['utils.template'], function() {
         /**
          * Add an HTML class to this component
          * @function addclass
-         * @memberof elation.ui.base#
+         * @memberof elation.elements.ui.base#
          */
         addclass(classname) {
           if (!elation.html.hasclass(this, classname)) {
@@ -377,7 +381,7 @@ elation.require(['utils.template'], function() {
         /**
          * Remove an HTML class from this component
          * @function removeclass
-         * @memberof elation.ui.base#
+         * @memberof elation.elements.ui.base#
          */
         removeclass(classname) {
           if (elation.html.hasclass(this, classname)) {
@@ -387,7 +391,7 @@ elation.require(['utils.template'], function() {
         /**
          * Check whether this component has the specified class
          * @function hasclass
-         * @memberof elation.ui.base#
+         * @memberof elation.elements.ui.base#
          * @returns {bool}
          */
         hasclass(classname) {
@@ -396,7 +400,7 @@ elation.require(['utils.template'], function() {
         /**
          * Make this component visible 
          * @function show
-         * @memberof elation.ui.base#
+         * @memberof elation.elements.ui.base#
          */
         show() {
           if (this.hidden) {
@@ -408,7 +412,7 @@ elation.require(['utils.template'], function() {
         /**
          * Make this component invisible 
          * @function hide
-         * @memberof elation.ui.base#
+         * @memberof elation.elements.ui.base#
          */
         hide() {
           this.hidden = true;
@@ -417,7 +421,7 @@ elation.require(['utils.template'], function() {
         /**
          * Enable this component
          * @function enable
-         * @memberof elation.ui.base#
+         * @memberof elation.elements.ui.base#
          */
         enable() {
           this.enabled = true;
@@ -426,7 +430,7 @@ elation.require(['utils.template'], function() {
         /**
          * Disable this component
          * @function disable
-         * @memberof elation.ui.base#
+         * @memberof elation.elements.ui.base#
          */
         disable() {
           this.enabled = false;
@@ -435,7 +439,7 @@ elation.require(['utils.template'], function() {
         /**
          * Set this component's hover state
          * @function hover
-         * @memberof elation.ui.base#
+         * @memberof elation.elements.ui.base#
          */
         onhover() {
           this.hover = true;
@@ -443,7 +447,7 @@ elation.require(['utils.template'], function() {
         /**
          * Unset this component's hover state
          * @function unhover
-         * @memberof elation.ui.base#
+         * @memberof elation.elements.ui.base#
          */
         onunhover() {
           this.hover = false;
@@ -451,7 +455,7 @@ elation.require(['utils.template'], function() {
         /**
          * Sets the orientation of this component
          * @function setOrientation
-         * @memberof elation.ui.base#
+         * @memberof elation.elements.ui.base#
          * @param {string} orientation
          */
         setOrientation(orientation) {

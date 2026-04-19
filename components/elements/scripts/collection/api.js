@@ -4,9 +4,9 @@ elation.require(['elements.collection.simple'], function() {
    * Provides a collection interface to a REST API
    *
    * @class api
-   * @augments elation.collection.simple
-   * @memberof elation.collection
-   * @alias elation.collection.api
+   * @category Collections
+   * @augments elation.elements.collection.simple
+   * @memberof elation.elements.collection
    *
    * @param {object} args
    * @param {string} args.host
@@ -16,22 +16,15 @@ elation.require(['elements.collection.simple'], function() {
    * @param {function} args.datatransform.items
    * @param {function} args.datatransform.count
    *
-   * @member {string}    host
-   * @member {string}    endpoint
-   * @member {object}    apiargs
-   * @member {object}    datatransform
-   * @member {function}  datatransform.items
-   * @member {function}  datatransform.count
-   * @member {object}    data
    */
   /**
    * Fired when this collection starts fetching items
-   * @event elation.collection.api#collection_load_begin
+   * @event elation.elements.collection.api#collection_load_begin
    * @type {Object}
    */
   /**
    * Fired when this collection has fetched items
-   * @event elation.collection.api#collection_load
+   * @event elation.elements.collection.api#collection_load
    * @type {Object}
    */
 

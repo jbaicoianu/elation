@@ -1,0 +1,49 @@
+{
+  "source": {
+    "include": [
+      "components/elements/scripts",
+      "components/utils/scripts"
+    ],
+    "includePattern": "\\.js$",
+    "excludePattern": "(node_modules|docs)"
+  },
+  "opts": {
+    "destination": "docs/js-better",
+    "recurse": true,
+    "readme": "docs-home.md",
+    "template": "node_modules/better-docs"
+  },
+  "plugins": [
+    "plugins/markdown",
+    "better-docs/component",
+    "better-docs/category",
+    "./jsdoc-plugins/elation-events"
+  ],
+  "markdown": {
+    "hardwrap": false,
+    "idInHeadings": true
+  },
+  "tags": {
+    "allowUnknownTags": true,
+    "dictionaries": [
+      "jsdoc",
+      "closure"
+    ]
+  },
+  "templates": {
+    "better-docs": {
+      "name": "Elation Elements",
+      "hideGenerator": true,
+      "navLinks": [
+        {
+          "label": "Demo Gallery",
+          "href": "../../demos/index.html"
+        },
+        {
+          "label": "GitHub",
+          "href": "https://github.com/jbaicoianu/elation"
+        }
+      ]
+    }
+  }
+}

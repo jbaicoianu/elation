@@ -4,8 +4,9 @@ elation.require(['elements.elements'], function() {
    * Handles text input from users
    *
    * @class input
-   * @augments elation.ui.base
-   * @memberof elation.ui
+   * @category UI
+   * @augments elation.elements.ui.base
+   * @memberof elation.elements.ui
    *
    * @param {object} args
    * @param {string} args.type
@@ -21,7 +22,7 @@ elation.require(['elements.elements'], function() {
     /** 
      * Initialize component
      * @function init
-     * @memberof elation.ui.input#
+     * @memberof elation.elements.ui.input#
      */
     init() {
       super.init();
@@ -99,21 +100,21 @@ elation.require(['elements.elements'], function() {
     /**
      * Mark this component as being enabled
      * @function enable
-     * @memberof elation.ui.input#
+     * @memberof elation.elements.ui.input#
      */
     enable() {
       this.disabled = false;
     }
     /** Mark this component as being disabled
      * @function disable
-     * @memberof elation.ui.input#
+     * @memberof elation.elements.ui.input#
      */
     disable() {
       this.disabled = true;
     }
     /** Sets this input element as focused
      * @function focus
-     * @memberof elation.ui.input#
+     * @memberof elation.elements.ui.input#
      */
     focus() {
       if (this.inputelement) {
@@ -123,7 +124,7 @@ elation.require(['elements.elements'], function() {
     }
     /** Removes focus from this input element
      * @function blur
-     * @memberof elation.ui.input#
+     * @memberof elation.elements.ui.input#
      */
     blur() {
       this.inputelement.blur();
@@ -131,7 +132,7 @@ elation.require(['elements.elements'], function() {
     }
     /** Accepts the current value of the input component and emit appropriate events
      * @function accept
-     * @memberof elation.ui.input#
+     * @memberof elation.elements.ui.input#
      * @fire elation.ui.input#ui_input_accept
      */
     accept(ev) {
@@ -147,7 +148,7 @@ elation.require(['elements.elements'], function() {
     }
     /** Restore input value to what it was before editing began and emit appropriate events
      * @function cancel
-     * @memberof elation.ui.input#
+     * @memberof elation.elements.ui.input#
      * @fire elation.ui.input#ui_input_cancel
      */
     cancel() {
@@ -159,7 +160,7 @@ elation.require(['elements.elements'], function() {
     }
     /** Select all text
      * @function selectall
-     * @memberof elation.ui.input#
+     * @memberof elation.elements.ui.input#
      * @fire elation.ui.input#ui_input_select
      */
     select() {
@@ -169,7 +170,7 @@ elation.require(['elements.elements'], function() {
     /**
      * Reset input to blank, optionally focusing it
      * @function clear
-     * @memberof elation.ui.input#
+     * @memberof elation.elements.ui.input#
      * @param focus boolean force focus on this component
      * @fire elation.ui.input#ui_input_clear
      */
@@ -184,7 +185,7 @@ elation.require(['elements.elements'], function() {
     /**
      * Event handler for HTML input element's keydown event
      * @function handlekeydown
-     * @memberof elation.ui.input#
+     * @memberof elation.elements.ui.input#
      * @param ev event
      */
     handlekeydown(ev) {
@@ -200,7 +201,7 @@ elation.require(['elements.elements'], function() {
     /**
      * Event handler for HTML input element's focus event
      * @function handlefocus
-     * @memberof elation.ui.input#
+     * @memberof elation.elements.ui.input#
      * @param ev event
      */
     handlefocus(ev) {

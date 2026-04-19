@@ -1,0 +1,48 @@
+{
+  "source": {
+    "include": [
+      "components/elements/scripts",
+      "components/utils/scripts"
+    ],
+    "includePattern": "\\.js$",
+    "excludePattern": "(node_modules|docs)"
+  },
+  "opts": {
+    "destination": "docs/js",
+    "recurse": true,
+    "readme": "docs-home.md",
+    "template": "node_modules/clean-jsdoc-theme",
+    "theme_opts": {
+      "default_theme": "dark",
+      "title": "Elation Elements",
+      "homepageTitle": "Elation Elements",
+      "menu": [
+        {
+          "title": "Demo Gallery",
+          "link": "../../demos/index.html",
+          "target": "_blank"
+        },
+        {
+          "title": "GitHub",
+          "link": "https://github.com/jbaicoianu/elation",
+          "target": "_blank"
+        }
+      ]
+    }
+  },
+  "plugins": [
+    "plugins/markdown",
+    "./jsdoc-plugins/elation-events"
+  ],
+  "markdown": {
+    "hardwrap": false,
+    "idInHeadings": true
+  },
+  "tags": {
+    "allowUnknownTags": true,
+    "dictionaries": [
+      "jsdoc",
+      "closure"
+    ]
+  }
+}

@@ -2,8 +2,9 @@
  * ButtonBar UI element
  *
  * @class buttonbar
- * @augments elation.ui.base
- * @memberof elation.ui
+ * @category UI
+ * @augments elation.elements.ui.base
+ * @memberof elation.elements.ui
  *
  * @param {object} args
  * @param {object} args.buttons

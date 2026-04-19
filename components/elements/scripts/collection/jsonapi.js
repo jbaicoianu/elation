@@ -4,9 +4,9 @@ elation.require(['elements.collection.api'], function() {
    * Provides a collection interface to a JSON REST API
    *
    * @class jsonapi
-   * @augments elation.collection.api
-   * @memberof elation.collection
-   * @alias elation.collection.jsonapi
+   * @category Collections
+   * @augments elation.elements.collection.api
+   * @memberof elation.elements.collection
    *
    * @param {object} args
    * @param {string} args.host

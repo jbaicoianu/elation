@@ -3,35 +3,32 @@ elation.require([], function() {
    * Simple data collection
    *
    * @class simple
+   * @category Collections
    * @augments elation.component.base
-   * @memberof elation.collection
-   * @alias elation.collection.simple
+   * @memberof elation.elements.collection
    *
    * @param {object} args
    *
-   * @member {Array}   items
-   * @member {boolean} allowduplicates
-   * @member {number}  length
    */
 
   /**
    * Fired when new objects are added to this collection
-   * @event elation.collection.simple#collection_add
+   * @event elation.elements.collection.simple#collection_add
    * @type {Object}
    */
   /**
    * Fired when new objects are removed from this collection
-   * @event elation.collection.simple#collection_remove
+   * @event elation.elements.collection.simple#collection_remove
    * @type {Object}
    */
   /**
    * Fired when an object is moved to a new position within this collection
-   * @event elation.collection.simple#collection_move
+   * @event elation.elements.collection.simple#collection_move
    * @type {Object}
    */
   /**
    * Fired when this collection is cleared
-   * @event elation.collection.simple#collection_clear
+   * @event elation.elements.collection.simple#collection_clear
    * @type {Object}
    */
 
@@ -47,7 +44,7 @@ elation.require([], function() {
     /**
      * Add an item, optionally at a specified position
      * @function add
-     * @memberof elation.collection.simple#
+     * @memberof elation.elements.collection.simple#
      * @param {object} item
      * @param {integer} pos
      * @returns {boolean}
@@ -68,7 +65,7 @@ elation.require([], function() {
     /**
      * Remove an item
      * @function remove
-     * @memberof elation.collection.simple#
+     * @memberof elation.elements.collection.simple#
      * @param {object} item
      * @returns {boolean}
      * @emits collection_remove
@@ -85,7 +82,7 @@ elation.require([], function() {
     /**
      * Move an item to a new position
      * @function move
-     * @memberof elation.collection.simple#
+     * @memberof elation.elements.collection.simple#
      * @param {object} item
      * @param {integer} pos
      * @returns {boolean}
@@ -104,7 +101,7 @@ elation.require([], function() {
     /**
      * Return the item index of the specified item
      * @function find
-     * @memberof elation.collection.simple#
+     * @memberof elation.elements.collection.simple#
      * @param {object} item
      * @returns {integer}
      */
@@ -114,7 +111,7 @@ elation.require([], function() {
     /**
      * Check whether the specified item exists in this dataset
      * @function contains
-     * @memberof elation.collection.simple#
+     * @memberof elation.elements.collection.simple#
      * @param {object} item
      * @returns {boolean}
      */
@@ -124,7 +121,7 @@ elation.require([], function() {
     /**
      * Get a reference to the specified item
      * @function get
-     * @memberof elation.collection.simple#
+     * @memberof elation.elements.collection.simple#
      * @returns {object}
      */
     this.get = function(item) {
@@ -137,7 +134,7 @@ elation.require([], function() {
     /**
      * Returns the number of items contained in this collection
      * @function getlength
-     * @memberof elation.collection.simple#
+     * @memberof elation.elements.collection.simple#
      * @returns {integer}
      */
     this.getlength = function() {
@@ -146,7 +143,7 @@ elation.require([], function() {
     /**
      * Clear all items from the list
      * @function clear
-     * @memberof elation.collection.simple#
+     * @memberof elation.elements.collection.simple#
      * @returns {boolean}
      * @emits collection_clear
      */
@@ -180,9 +177,9 @@ elation.require([], function() {
    * Uses the specified index parameter to enforce uniqueness
    *
    * @class indexed
-   * @augments elation.collection.simple
-   * @memberof elation.collection
-   * @alias elation.collection.indexed
+   * @category Collections
+   * @augments elation.elements.collection.simple
+   * @memberof elation.elements.collection
    *
    * @param {object}   args
    * @param {string}   args.index          Name of property to use for indexing
@@ -191,9 +188,6 @@ elation.require([], function() {
    */
   elation.component.add("collection.indexed", function() {
     /**
-     * @member {string}   index
-     * @member {function} indextransform
-     * @member {Array}    itemindex
      */
     this.init = function() {
       elation.collection.simple.base.prototype.init.call(this);
@@ -269,29 +263,28 @@ elation.require([], function() {
    * Auto-save changes to localStorage, loads on init.
    * 
    * @class localindexed
-   * @augments elation.collection.indexed
-   * @memberof elation.collection
+   * @category Collections
+   * @augments elation.elements.collection.indexed
+   * @memberof elation.elements.collection
    *
-   * @alias elation.collection.indexed
    * @param {object} args
    * @param {string} args.index
    * @param {string} args.storagekey
    *
-   * @member {string}    storagekey
    */
   /**
    * Fired when this collection is saved
-   * @event elation.collection.localindexed#collection_save
+   * @event elation.elements.collection.localindexed#collection_save
    * @type {Object}
    */
   /**
    * Fired when this collection starts fetching items
-   * @event elation.collection.localindexed#collection_load_begin
+   * @event elation.elements.collection.localindexed#collection_load_begin
    * @type {Object}
    */
   /**
    * Fired when this collection has fetched items
-   * @event elation.collection.localindexed#collection_load
+   * @event elation.elements.collection.localindexed#collection_load
    * @type {Object}
    */
   elation.component.add("collection.localindexed", function() {
@@ -359,9 +352,9 @@ elation.require([], function() {
    * Provides a collection interface to a REST API
    *
    * @class api
-   * @augments elation.collection.simple
-   * @memberof elation.collection
-   * @alias elation.collection.api
+   * @category Collections
+   * @augments elation.elements.collection.simple
+   * @memberof elation.elements.collection
    *
    * @param {object} args
    * @param {string} args.host
@@ -371,22 +364,15 @@ elation.require([], function() {
    * @param {function} args.datatransform.items
    * @param {function} args.datatransform.count
    *
-   * @member {string}    host
-   * @member {string}    endpoint
-   * @member {object}    apiargs
-   * @member {object}    datatransform
-   * @member {function}  datatransform.items
-   * @member {function}  datatransform.count
-   * @member {object}    data
    */
   /**
    * Fired when this collection starts fetching items
-   * @event elation.collection.api#collection_load_begin
+   * @event elation.elements.collection.api#collection_load_begin
    * @type {Object}
    */
   /**
    * Fired when this collection has fetched items
-   * @event elation.collection.api#collection_load
+   * @event elation.elements.collection.api#collection_load
    * @type {Object}
    */
 
@@ -474,9 +460,9 @@ elation.require([], function() {
    * Provides a collection interface to a JSON REST API
    *
    * @class jsonapi
-   * @augments elation.collection.api
-   * @memberof elation.collection
-   * @alias elation.collection.jsonapi
+   * @category Collections
+   * @augments elation.elements.collection.api
+   * @memberof elation.elements.collection
    *
    * @param {object} args
    * @param {string} args.host
@@ -497,9 +483,9 @@ elation.require([], function() {
    * Provides a collection interface to a JSONP REST API
    *
    * @class jsonpapi
-   * @augments elation.collection.api
-   * @memberof elation.collection
-   * @alias elation.collection.jsonpapi
+   * @category Collections
+   * @augments elation.elements.collection.api
+   * @memberof elation.elements.collection
    *
    * @param {object} args
    * @param {string} args.host
@@ -535,9 +521,9 @@ elation.require([], function() {
    * (For example, a collection which lists all the properties an object contains)
    *
    * @class custom
-   * @augments elation.collection.simple
-   * @memberof elation.collection
-   * @alias elation.collection.custom
+   * @category Collections
+   * @augments elation.elements.collection.simple
+   * @memberof elation.elements.collection
    *
    * @param {object} args
    */
@@ -556,21 +542,19 @@ elation.require([], function() {
    * Apply the specified filter to the parent list, and present it as its own collection
    *
    * @class filter
-   * @augments elation.collection.simple
-   * @memberof elation.collection
-   * @alias elation.collection.filter
+   * @category Collections
+   * @augments elation.elements.collection.simple
+   * @memberof elation.elements.collection
    *
    * @param {object} args
    * @param {elation.collection.simple} args.parent List to filter
    * @param {function} args.filterfunc Callback function for filtering list 
    *
-   * @member {object}   parent
-   * @member {function} filterfunc
    *
    */
   /**
    * Fired when this collection has fetched items
-   * @event elation.collection.filter#collection_load
+   * @event elation.elements.collection.filter#collection_load
    * @type {Object}
    */
   elation.component.add("collection.filter", function() {
@@ -611,20 +595,18 @@ elation.require([], function() {
    * Subset the data from the parent collection
    *
    * @class filter
-   * @augments elation.collection.simple
-   * @memberof elation.collection
-   * @alias elation.collection.filter
+   * @category Collections
+   * @augments elation.elements.collection.simple
+   * @memberof elation.elements.collection
    *
    * @param {object} args
    * @param {elation.collection.simple} args.parent List to subset
    *
-   * @member {object}   parent
-   * @member {function} filterfunc
    *
    */
   /**
    * Fired when this collection has fetched items
-   * @event elation.collection.filter#collection_load
+   * @event elation.elements.collection.filter#collection_load
    * @type {Object}
    */
   elation.component.add("collection.subset", function() {
@@ -660,9 +642,9 @@ elation.require([], function() {
     * elation.collection.sqlite - nodejs sqlite-backed collection
 
    * @class sqlite
-   * @augments elation.collection.localindexed
-   * @memberof elation.collection
-   * @alias elation.collection.sqlite
+   * @category Collections
+   * @augments elation.elements.collection.localindexed
+   * @memberof elation.elements.collection
    *
    * @param {object} args
    * @param {string} args.dbfile Path to database file

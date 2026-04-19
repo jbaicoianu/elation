@@ -2,8 +2,9 @@
  * Handles multi-line text input from users
  *
  * @class textarea
- * @augments elation.ui.base
- * @memberof elation.ui
+ * @category UI
+ * @augments elation.elements.ui.base
+ * @memberof elation.elements.ui
  *
  * @param {object} args
  * @param {string} args.type
@@ -42,7 +43,7 @@ elation.require(['elements.ui.input'], function() {
     /**
      * Event handler for HTML input element's keydown event
      * @function handlekeydown
-     * @memberof elation.ui.textarea#
+     * @memberof elation.elements.ui.textarea#
      * @param ev event
      */
     handlekeydown(ev) {

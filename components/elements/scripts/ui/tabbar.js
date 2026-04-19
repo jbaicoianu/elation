@@ -2,8 +2,9 @@
  * Tabbar UI component
  *
  * @class tabbar
- * @augments elation.ui.base
- * @memberof elation.ui
+ * @category UI
+ * @augments elation.elements.ui.base
+ * @memberof elation.elements.ui
  *
  * @param {object} args
  * @param {string} args.items

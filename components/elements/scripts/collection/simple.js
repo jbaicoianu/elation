@@ -1,40 +1,36 @@
 elation.require(['elements.base'], function() {
-  /** 
-   * Simple data collection
-   *
-   * @class simple
-   * @augments elation.component.base
-   * @memberof elation.collection
-   * @alias elation.collection.simple
-   *
-   * @param {object} args
-   *
-   * @member {Array}   items
-   * @member {boolean} allowduplicates
-   * @member {number}  length
-   */
-
   /**
    * Fired when new objects are added to this collection
-   * @event elation.collection.simple#collection_add
+   * @event elation.elements.collection.simple#collection_add
    * @type {Object}
    */
   /**
    * Fired when new objects are removed from this collection
-   * @event elation.collection.simple#collection_remove
+   * @event elation.elements.collection.simple#collection_remove
    * @type {Object}
    */
   /**
    * Fired when an object is moved to a new position within this collection
-   * @event elation.collection.simple#collection_move
+   * @event elation.elements.collection.simple#collection_move
    * @type {Object}
    */
   /**
    * Fired when this collection is cleared
-   * @event elation.collection.simple#collection_clear
+   * @event elation.elements.collection.simple#collection_clear
    * @type {Object}
    */
 
+  /**
+   * Simple data collection
+   *
+   * @class simple
+   * @category Collections
+   * @augments elation.elements.base
+   * @memberof elation.elements.collection
+   *
+   * @param {object} args
+   *
+   */
   elation.elements.define('collection.simple', class extends elation.elements.base {
     init() {
       super.init();
@@ -51,7 +47,7 @@ elation.require(['elements.base'], function() {
     /**
      * Add an item, optionally at a specified position
      * @function add
-     * @memberof elation.collection.simple#
+     * @memberof elation.elements.collection.simple#
      * @param {object} item
      * @param {integer} pos
      * @returns {boolean}
@@ -72,7 +68,7 @@ elation.require(['elements.base'], function() {
     /**
      * Remove an item
      * @function remove
-     * @memberof elation.collection.simple#
+     * @memberof elation.elements.collection.simple#
      * @param {object} item
      * @returns {boolean}
      * @emits collection_remove
@@ -89,7 +85,7 @@ elation.require(['elements.base'], function() {
     /**
      * Move an item to a new position
      * @function move
-     * @memberof elation.collection.simple#
+     * @memberof elation.elements.collection.simple#
      * @param {object} item
      * @param {integer} pos
      * @returns {boolean}
@@ -108,7 +104,7 @@ elation.require(['elements.base'], function() {
     /**
      * Return the item index of the specified item
      * @function find
-     * @memberof elation.collection.simple#
+     * @memberof elation.elements.collection.simple#
      * @param {object} item
      * @returns {integer}
      */
@@ -118,7 +114,7 @@ elation.require(['elements.base'], function() {
     /**
      * Check whether the specified item exists in this dataset
      * @function contains
-     * @memberof elation.collection.simple#
+     * @memberof elation.elements.collection.simple#
      * @param {object} item
      * @returns {boolean}
      */
@@ -128,7 +124,7 @@ elation.require(['elements.base'], function() {
     /**
      * Get a reference to the specified item
      * @function get
-     * @memberof elation.collection.simple#
+     * @memberof elation.elements.collection.simple#
      * @returns {object}
      */
     get(item) {
@@ -141,7 +137,7 @@ elation.require(['elements.base'], function() {
     /**
      * Returns the number of items contained in this collection
      * @function getlength
-     * @memberof elation.collection.simple#
+     * @memberof elation.elements.collection.simple#
      * @returns {integer}
      */
     getlength() {
@@ -150,7 +146,7 @@ elation.require(['elements.base'], function() {
     /**
      * Clear all items from the list
      * @function clear
-     * @memberof elation.collection.simple#
+     * @memberof elation.elements.collection.simple#
      * @returns {boolean}
      * @emits collection_clear
      */

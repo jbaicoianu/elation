@@ -5,9 +5,9 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
    * List UI element
    *
    * @class list
-   * @augments elation.ui.base
-   * @memberof elation.ui
-   * @alias elation.ui.list
+   * @category UI
+   * @augments elation.elements.ui.base
+   * @memberof elation.elements.ui
    *
    * @param {object}    args
    * @param {string}    args.tag
@@ -21,7 +21,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
    * @param {array}     args.items
    * @param {boolean}   args.autoscroll
    * @param {number}    args.autoscrollmargin
-   * @param {elation.collection.simple} args.itemcollection
+   * @param {elation.elements.collection.simple} args.itemcollection
    *
    * @param {object}    args.attrs
    * @param {object}    args.attrs.name
@@ -36,7 +36,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
 
   /**
    * ui_list_select event
-   * @event elation.ui.list#ui_list_select
+   * @event elation.elements.ui.list#ui_list_select
    * @type {object}
    */
   elation.elements.define('ui.list', class extends elation.elements.base {
@@ -124,7 +124,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
     /**
      * Returns the UL element for this component, or create a new one if it doesn't exist yet
      * @function getListElement
-     * @memberof elation.ui.list#
+     * @memberof elation.elements.ui.list#
      * @returns {HTMLUListElement}
      */
     getListElement() {
@@ -147,7 +147,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
     /**
      * Update the items associated with this list
      * @function setItems
-     * @memberof elation.ui.list#
+     * @memberof elation.elements.ui.list#
      */
     setItems(items) {
       this.clear();
@@ -176,8 +176,8 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
     /**
      * Links this list component with a collection to automatically handle updates when data changes
      * @function setItemCollection
-     * @memberof elation.ui.list#
-     * @param {elation.collection.simple} itemcollection  
+     * @memberof elation.elements.ui.list#
+     * @param {elation.elements.collection.simple} itemcollection  
      */
     setItemCollection(itemcollection) {
       if (this.itemcollection) {
@@ -205,7 +205,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
     /**
      * Extracts items out of the list's existing HTML structure
      * @function extractItems
-     * @memberof elation.ui.list#
+     * @memberof elation.elements.ui.list#
      */
     extractItems() {
       var items = [];
@@ -244,7 +244,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
     /**
      * Add a new item to this list
      * @function addItem
-     * @memberof elation.ui.list#
+     * @memberof elation.elements.ui.list#
      * @param {Object} item
      */
     addItem(item) {
@@ -256,7 +256,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
     /**
      * Add a new item to a specific position in this list
      * @function addItemAtPosition
-     * @memberof elation.ui.list#
+     * @memberof elation.elements.ui.list#
      * @param {Object} item
      * @param {integer} position
      */
@@ -268,7 +268,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
     /**
      * Resets the list to empty
      * @function clear
-     * @memberof elation.ui.list#
+     * @memberof elation.elements.ui.list#
      */
     clear() {
       var ul = this.getListElement();
@@ -294,9 +294,9 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
     /**
      * Get the elation.ui.listitem for a specified item, allocating as needed
      * @function getlistitem
-     * @memberof elation.ui.list#
+     * @memberof elation.elements.ui.list#
      * @param {Object} item
-     * @returns {elation.ui.listitem}
+     * @returns {elation.elements.ui.listitem}
      */
     getlistitem(itemnum) {
       if (this.items[itemnum] instanceof elation.elements.ui.item) {
@@ -347,7 +347,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
     /**
      * Updates the list item objects and the HTML representation of this list with any new or removed items
      * @function render
-     * @memberof elation.ui.list#
+     * @memberof elation.elements.ui.list#
      */
     render() {
       super.render();
@@ -392,7 +392,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
     /**
      * Sorts the items in the list by the specified key
      * @function sort
-     * @memberof elation.ui.list#
+     * @memberof elation.elements.ui.list#
      * @param {string} sortby
      * @param {boolean} reverse
      */
@@ -481,7 +481,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
     /**
      * Sets the current sorting mode for this class
      * @function setSortBy
-     * @memberof elation.ui.list#
+     * @memberof elation.elements.ui.list#
      * @param {string} sortby
      */
     setSortBy(sortby) {
@@ -496,7 +496,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
     /**
      * Returns a list of which items are currently visible in this list
      * @function getVisibleItems
-     * @memberof elation.ui.list#
+     * @memberof elation.elements.ui.list#
      * @returns {array}
      */
     getVisibleItems() {
@@ -513,7 +513,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
     /**
      * Sets the selection state of all items in the list
      * @function selectall
-     * @memberof elation.ui.list#
+     * @memberof elation.elements.ui.list#
      * @param {bool} state
      * @param {Array} exclude
      */
@@ -544,7 +544,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
     /**
      * Set the selection array to include the specified item range
      * @function selectrange
-     * @memberof elation.ui.list#
+     * @memberof elation.elements.ui.list#
      * @param {nunber} start
      * @param {nunber} end
      */
@@ -568,8 +568,8 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
     /**
      * Sets the specified selection as being the last one clicked
      * @function setlastselection
-     * @memberof elation.ui.list#
-     * @param {elation.ui.item} selection
+     * @memberof elation.elements.ui.list#
+     * @param {elation.elements.ui.item} selection
      */
     setlastselection(selection) {
       if (this.lastselection) {
@@ -581,7 +581,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
     /**
      * Scrolls to the bottom of the list
      * @function scrollToBottom
-     * @memberof elation.ui.list#
+     * @memberof elation.elements.ui.list#
      */
     scrollToBottom() {
       this.scrollTop = this.scrollHeight;
@@ -589,7 +589,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
     /**
      * Is the list currently scrolled to the bottom?
      * @function isScrollAtBottom
-     * @memberof elation.ui.list#
+     * @memberof elation.elements.ui.list#
      */
     isScrollAtBottom(margin=0) {
       return this.scrollTop + this.offsetHeight >= this.scrollHeight - margin;
@@ -604,7 +604,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
     /**
      * Event handler: elation.ui.item#ui_list_item_select
      * @function ui_list_item_select
-     * @memberof elation.ui.list#
+     * @memberof elation.elements.ui.list#
      * @param {event} ev
      */
     handleSelect(ev) {
@@ -662,7 +662,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
     /**
      * Event handler: elation.collection.simple#collection_add
      * @function oncollection_add
-     * @memberof elation.ui.list#
+     * @memberof elation.elements.ui.list#
      * @param {event} ev
      */
     oncollection_add(ev) {
@@ -673,7 +673,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
     /**
      * Event handler: elation.collection.simple#collection_remove
      * @function oncollection_remove
-     * @memberof elation.ui.list#
+     * @memberof elation.elements.ui.list#
      * @param {event} ev
      */
     oncollection_remove(ev) {
@@ -684,7 +684,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
     /**
      * Event handler: elation.collection.simple#collection_move
      * @function oncollection_move
-     * @memberof elation.ui.list#
+     * @memberof elation.elements.ui.list#
      * @param {event} ev
      */
     oncollection_move(ev) {
@@ -693,7 +693,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
     /**
      * Event handler: elation.collection.simple#collection_load_begin
      * @function oncollection_load_begin
-     * @memberof elation.ui.list#
+     * @memberof elation.elements.ui.list#
      * @param {event} ev
      */
     oncollection_load_begin(ev) {
@@ -708,7 +708,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
     /**
      * Event handler: elation.collection.simple#collection_load
      * @function oncollection_load
-     * @memberof elation.ui.list#
+     * @memberof elation.elements.ui.list#
      * @param {event} ev
      */
     oncollection_load(ev) {
@@ -722,7 +722,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
     /**
      * Event handler: elation.collection.simple#collection_clear
      * @function oncollection_clear
-     * @memberof elation.ui.list#
+     * @memberof elation.elements.ui.list#
      * @param {event} ev
      */
     oncollection_clear(ev) {

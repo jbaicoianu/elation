@@ -5,9 +5,9 @@ elation.require(['elements.base'], function() {
    * Represents an individual item in a ui.list
    *
    * @class item
-   * @augments elation.ui.base
-   * @memberof elation.ui
-   * @alias elation.ui.item
+   * @category UI
+   * @augments elation.elements.ui.base
+   * @memberof elation.elements.ui
    *
    * @param {object}  args
    * @param {object}  args.item
@@ -131,8 +131,8 @@ elation.require(['elements.base'], function() {
     /**
      * Set this list item as being selected
      * @function select
-     * @memberof elation.ui.item#
-     * @fires elation.ui.item#ui_list_item_select
+     * @memberof elation.elements.ui.item#
+     * @fires elation.elements.ui.item#ui_list_item_select
      */
     select(extra) {
       this.selected = true;
@@ -149,8 +149,8 @@ elation.require(['elements.base'], function() {
     /**
      * Set this list item as being unselected
      * @function unselect
-     * @memberof elation.ui.item#
-     * @fires elation.ui.item#ui_list_item_unselect
+     * @memberof elation.elements.ui.item#
+     * @fires elation.elements.ui.item#ui_list_item_unselect
      */
     unselect() {
       this.selected = false;
@@ -161,7 +161,7 @@ elation.require(['elements.base'], function() {
     /**
      * Set this list item as being the last item selected in its list
      * @function setlastselected
-     * @memberof elation.ui.item#
+     * @memberof elation.elements.ui.item#
      */
     setlastselected(state) {
       this.lastselected = state;
@@ -175,7 +175,7 @@ elation.require(['elements.base'], function() {
     /**
      * Event handler: HTML element click
      * @function click
-     * @memberof elation.ui.item#
+     * @memberof elation.elements.ui.item#
      * @param {event} ev
      */
     mousedown(ev) {

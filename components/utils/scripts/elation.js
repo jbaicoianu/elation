@@ -2359,13 +2359,10 @@ elation.extend("utils.any", function() {
 })
 
 /**
- * @function elation.timing.log
- * @function elation.timing.init
- * @function elation.timing.set
- * @function elation.timing.get
- * @function elation.timing.print
+ * JavaScript timing utilities — displays execution time of code blocks.
+ * Exposes `log`, `init`, `set`, `get`, and `print` functions.
  *
- * JavaScript timing - Displays execution time of code blocks
+ * @namespace elation.timing
  * @example
  *   elation.timing.log();
  *   elation.timing.log();

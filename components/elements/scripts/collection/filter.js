@@ -4,21 +4,19 @@ elation.require(['elements.collection.simple'], function() {
    * Apply the specified filter to the parent list, and present it as its own collection
    *
    * @class filter
-   * @augments elation.collection.simple
-   * @memberof elation.collection
-   * @alias elation.collection.filter
+   * @category Collections
+   * @augments elation.elements.collection.simple
+   * @memberof elation.elements.collection
    *
    * @param {object} args
    * @param {elation.collection.simple} args.parent List to filter
    * @param {function} args.filterfunc Callback function for filtering list 
    *
-   * @member {object}   parent
-   * @member {function} filterfunc
    *
    */
   /**
    * Fired when this collection has fetched items
-   * @event elation.collection.filter#collection_load
+   * @event elation.elements.collection.filter#collection_load
    * @type {Object}
    */
   elation.elements.define('collection.filter', class extends elation.elements.collection.simple {

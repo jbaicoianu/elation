@@ -2,8 +2,9 @@
  * Select UI component
  *
  * @class select
- * @augments elation.ui.base
- * @memberof elation.ui
+ * @category UI
+ * @augments elation.elements.ui.base
+ * @memberof elation.elements.ui
  * @todo this could probably inherit from ui.list to be more general
  *
  * @param {object} args
@@ -107,7 +108,7 @@ elation.require(['elements.ui.list','elements.ui.label'], function() {
     /**
      * Extracts items out of the list's existing HTML structure
      * @function extractItems
-     * @memberof elation.ui.list#
+     * @memberof elation.elements.ui.list#
      */
     extractItems() {
       var items = [];

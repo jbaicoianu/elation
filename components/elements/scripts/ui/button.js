@@ -4,8 +4,9 @@ elation.require(['elements.ui.item'], function() {
    * Button UI element
    *
    * @class button
-   * @augments elation.ui.base
-   * @memberof elation.ui
+   * @category UI
+   * @augments elation.elements.ui.base
+   * @memberof elation.elements.ui
    *
    * @param {object} args
    * @param {string} args.tag
@@ -33,7 +34,7 @@ elation.require(['elements.ui.item'], function() {
     /**
      * Initialize HTML element
      * @function create
-     * @memberof elation.ui.button#
+     * @memberof elation.elements.ui.button#
      */
     create() {
       //this.element = document.createElement(this.tag);
@@ -53,7 +54,7 @@ elation.require(['elements.ui.item'], function() {
     /**
      * Add as a child of the specified element, removing from current parent if necessary
      * @function addTo
-     * @memberof elation.ui.button#
+     * @memberof elation.elements.ui.button#
      * @returns {boolean}
      */
     addTo(parent) {
@@ -68,7 +69,7 @@ elation.require(['elements.ui.item'], function() {
     /**
      * Sets the text label of the button
      * @function setLabel
-     * @memberof elation.ui.button#
+     * @memberof elation.elements.ui.button#
      */
     setLabel(label) {
       this.label = label;
@@ -77,7 +78,7 @@ elation.require(['elements.ui.item'], function() {
     /**
      * Updates the HTML that displays the label for this button
      * @function updateLabel
-     * @memberof elation.ui.button#
+     * @memberof elation.elements.ui.button#
      */
     updateLabel() {
       this.innerHTML = this.label;
@@ -85,7 +86,7 @@ elation.require(['elements.ui.item'], function() {
     /**
      * Sets the title text of the button
      * @function setTitle
-     * @memberof elation.ui.button#
+     * @memberof elation.elements.ui.button#
      */
     setTitle(title) {
       if (this.buttonelement)
@@ -94,7 +95,7 @@ elation.require(['elements.ui.item'], function() {
     /**
      * Set whether the element is active or not
      * @function setActive
-     * @memberof elation.ui.button#
+     * @memberof elation.elements.ui.button#
      * @param {boolean} active
      */
     setActive(active) {
@@ -107,7 +108,7 @@ elation.require(['elements.ui.item'], function() {
     /**
      * Event handler for HTML button's click event
      * @function click
-     * @memberof elation.ui.button#
+     * @memberof elation.elements.ui.button#
      * @param {boolean} active
      * @emits ui_button_click
      */

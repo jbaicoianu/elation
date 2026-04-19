@@ -3,9 +3,9 @@ elation.require(['elements.collection.localindexed'], function() {
     * elation.collection.sqlite - nodejs sqlite-backed collection
 
    * @class sqlite
-   * @augments elation.collection.localindexed
-   * @memberof elation.collection
-   * @alias elation.collection.sqlite
+   * @category Collections
+   * @augments elation.elements.collection.localindexed
+   * @memberof elation.elements.collection
    *
    * @param {object} args
    * @param {string} args.dbfile Path to database file

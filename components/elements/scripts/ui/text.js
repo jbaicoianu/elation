@@ -2,8 +2,9 @@
  * Simple text element
  *
  * @class text
- * @augments elation.ui.base
- * @memberof elation.ui
+ * @category UI
+ * @augments elation.elements.ui.base
+ * @memberof elation.elements.ui
  *
  * @param {object} args
  * @param {string} args.text
@@ -41,7 +42,7 @@ elation.require(["elements.elements"], function() {
     /**
      * Set text for this element
      * @function settext
-     * @memberof elation.ui.text#
+     * @memberof elation.elements.ui.text#
      * @param {string} text
      */
     settext(text) {
@@ -56,7 +57,7 @@ elation.require(["elements.elements"], function() {
     /**
      * Event handler: HTML element keydown event
      * @function keydown
-     * @memberof elation.ui.text#
+     * @memberof elation.elements.ui.text#
      * @param {event} ev
      */
     keydown(ev) {
@@ -76,7 +77,7 @@ elation.require(["elements.elements"], function() {
     /**
      * Event handler: HTML element blur event
      * @function blur
-     * @memberof elation.ui.text#
+     * @memberof elation.elements.ui.text#
      * @param {event} ev
      */
     blur(ev) {

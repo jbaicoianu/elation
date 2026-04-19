@@ -2,9 +2,10 @@
  * RadioButtonBar UI element
  * Like a normal ButtonBar, but only one button can be selected at a time
  *
- * @class buttonbar
- * @augments elation.ui.base
- * @memberof elation.ui
+ * @class radiobuttonbar
+ * @category UI
+ * @augments elation.elements.ui.buttonbar
+ * @memberof elation.elements.ui
  *
  * @param {object} args
  * @param {object} args.buttons

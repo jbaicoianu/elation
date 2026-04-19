@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elation Elements — UI Gallery</title>
+  <link rel="stylesheet" href="https://web.janusxr.org/media/assets/webui/themes/default.css">
+  <link rel="stylesheet" href="bundle.css">
+  <script src="bundle.js"></script>
+  <style>
+    body { max-width: 960px; margin: 2em auto; padding: 0 1em; background: #222; color: #eee; }
+    h1 { margin-bottom: .2em; }
+    p.lede { color: #999; margin-top: 0; }
+    a { color: #7cf; }
+    ul.ui_examples { list-style: none; padding: 0; }
+    ul.ui_examples > li { border: 1px solid #444; padding: 1em 1.2em; margin: 1em 0; border-radius: 6px; background: #2a2a2a; }
+    ul.ui_examples > li > h2 { margin: 0 0 .5em; font-size: 1.05em; color: #cfc; font-family: ui-monospace, monospace; }
+    ul.ui_examples > li.harness { border-color: #4cb96f; background: #263028; }
+    .harness-controls { display: flex; flex-wrap: wrap; gap: .4em; margin-top: .8em; padding-top: .8em; border-top: 1px dashed #4cb96f; }
+    .harness-controls button { font: inherit; padding: .35em .75em; cursor: pointer; background: #333; color: #eee; border: 1px solid #555; border-radius: 3px; }
+    .harness-controls button:hover { background: #3c3c3c; border-color: #4cb96f; }
+    .harness-log { margin-top: .6em; font-family: ui-monospace, monospace; font-size: .85em; color: #bbb; max-height: 6em; overflow: auto; background: #1a1a1a; border: 1px solid #444; padding: .4em .6em; }
+    ui-tabs { display: block; border: 1px solid #444; border-radius: 4px; min-height: 4em; background: #1e1e1e; }
+    ui-tab { display: block; padding: .6em .8em; color: #eee; }
+  </style>
+</head>
+<body>
+  <h1>Elation Elements — UI Gallery</h1>
+  <p class="lede">Live instances of the custom elements defined in <code>components/elements/scripts/ui/</code>. The tabs section at the top exercises the dynamic <code>addTab()</code> / <code>removeTab()</code> API. <a href="../docs/js/index.html">API docs →</a></p>
+
+  <ul class="ui_examples">
+    <li class="harness">
+      <h2>ui.tabs — dynamic add/remove harness</h2>
+      <ui-tabs id="tabs-harness">
+        <ui-tab label="One">Content for tab one.</ui-tab>
+        <ui-tab label="Two">Content for tab two.</ui-tab>
+        <ui-tab label="Three">Content for tab three.</ui-tab>
+      </ui-tabs>
+      <div class="harness-controls">
+        <button data-action="append">append</button>
+        <button data-action="prepend">prepend (position: 0)</button>
+        <button data-action="before">insert before active</button>
+        <button data-action="after">insert after active</button>
+        <button data-action="remove-active">remove active</button>
+        <button data-action="remove-first">remove first</button>
+        <button data-action="clear">remove all</button>
+      </div>
+      <div class="harness-log" id="tabs-harness-log"></div>
+    </li>
+
+    <li>
+      <h2>ui.button</h2>
+      <ui-button label="Click me"></ui-button>
+      <ui-button label="Disabled" disabled></ui-button>
+    </li>
+    <li>
+      <h2>ui.togglebutton</h2>
+      <ui-togglebutton label="Toggle"></ui-togglebutton>
+    </li>
+    <li>
+      <h2>ui.buttonbar</h2>
+      <ui-buttonbar>
+        <ui-button label="One"></ui-button>
+        <ui-button label="Two"></ui-button>
+        <ui-button label="Three"></ui-button>
+      </ui-buttonbar>
+    </li>
+    <li>
+      <h2>ui.radiobuttonbar</h2>
+      <ui-radiobuttonbar>
+        <ui-button label="Low"></ui-button>
+        <ui-button label="Medium"></ui-button>
+        <ui-button label="High"></ui-button>
+      </ui-radiobuttonbar>
+    </li>
+    <li>
+      <h2>ui.input</h2>
+      <ui-input placeholder="Type something…"></ui-input>
+    </li>
+    <li>
+      <h2>ui.textarea</h2>
+      <ui-textarea placeholder="Multi-line text…"></ui-textarea>
+    </li>
+    <li>
+      <h2>ui.toggle</h2>
+      <ui-toggle label="Enable notifications"></ui-toggle>
+    </li>
+    <li>
+      <h2>ui.checkbox</h2>
+      <ui-checkbox label="I agree"></ui-checkbox>
+    </li>
+    <li>
+      <h2>ui.radio</h2>
+      <ui-radio label="Option A"></ui-radio>
+      <ui-radio label="Option B"></ui-radio>
+    </li>
+    <li>
+      <h2>ui.slider</h2>
+      <ui-slider min="0" max="100" value="42"></ui-slider>
+    </li>
+    <li>
+      <h2>ui.list</h2>
+      <ui-list>
+        <li>Apple</li>
+        <li>Banana</li>
+        <li>Cherry</li>
+      </ui-list>
+    </li>
+    <li>
+      <h2>ui.panel</h2>
+      <ui-panel>A generic panel for grouping content.</ui-panel>
+    </li>
+    <li>
+      <h2>ui.collapsiblepanel</h2>
+      <ui-collapsiblepanel label="Expand me">Hidden content inside a collapsible panel.</ui-collapsiblepanel>
+    </li>
+    <li>
+      <h2>ui.formgroup</h2>
+      <ui-formgroup label="Contact info">
+        <ui-input placeholder="Email"></ui-input>
+        <ui-input placeholder="Phone"></ui-input>
+      </ui-formgroup>
+    </li>
+    <li>
+      <h2>ui.wizard</h2>
+      <ui-wizard type="paginate">
+        <ui-wizard-step id="intro"><p>Step 1 — welcome.</p><ui-wizard-pagination></ui-wizard-pagination></ui-wizard-step>
+        <ui-wizard-step id="details"><p>Step 2 — details.</p><ui-wizard-pagination></ui-wizard-pagination></ui-wizard-step>
+        <ui-wizard-step id="done"><p>Step 3 — finished.</p><ui-wizard-pagination></ui-wizard-pagination></ui-wizard-step>
+      </ui-wizard>
+    </li>
+  </ul>
+
+  <script>
+  (function() {
+    function ready(fn) {
+      if (document.readyState !== 'loading') fn();
+      else document.addEventListener('DOMContentLoaded', fn);
+    }
+    ready(function() {
+      const tabs = document.getElementById('tabs-harness');
+      const logEl = document.getElementById('tabs-harness-log');
+      let counter = 4;
+
+      function log(msg) {
+        const line = document.createElement('div');
+        line.textContent = msg;
+        logEl.appendChild(line);
+        logEl.scrollTop = logEl.scrollHeight;
+      }
+      function activeTab() {
+        for (let i = 0; i < tabs.items.length; i++) {
+          if (tabs.items[i].selected) return tabs.items[i];
+        }
+        return null;
+      }
+      function labelFor() {
+        const n = counter++;
+        return { label: 'Tab ' + n, innerHTML: 'Dynamically added tab ' + n };
+      }
+
+      tabs.addEventListener('tabadd', (ev) => log('tabadd → ' + ev.data.label));
+      tabs.addEventListener('tabremove', (ev) => log('tabremove → ' + ev.data.label));
+      tabs.addEventListener('tabchange', () => {
+        const t = activeTab();
+        if (t) log('tabchange → ' + t.label);
+      });
+
+      const actions = {
+        append() { tabs.addTab(labelFor()); },
+        prepend() { tabs.addTab(labelFor(), { position: 0 }); },
+        before() {
+          const t = activeTab();
+          if (!t) return log('(no active tab)');
+          tabs.addTab(labelFor(), { before: t });
+        },
+        after() {
+          const t = activeTab();
+          if (!t) return log('(no active tab)');
+          tabs.addTab(labelFor(), { after: t });
+        },
+        'remove-active'() {
+          const t = activeTab();
+          if (!t) return log('(no active tab)');
+          tabs.removeTab(t);
+        },
+        'remove-first'() {
+          if (tabs.items.length === 0) return log('(no tabs)');
+          tabs.removeTab(0);
+        },
+        clear() {
+          while (tabs.items.length > 0) tabs.removeTab(0);
+        }
+      };
+
+      document.querySelectorAll('.harness-controls button').forEach((btn) => {
+        btn.addEventListener('click', () => actions[btn.dataset.action]());
+      });
+    });
+  })();
+  </script>
+</body>
+</html>

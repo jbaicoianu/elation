@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
-# Stage docs + demos into a gh-pages layout that mirrors the repo structure
-# (docs/js/ and demos/), then publish via the `gh-pages` npm package.
+# Build docs + demos and publish them to the gh-pages branch.
+# Layout mirrors the repo (docs/js/ and demos/) so existing relative links
+# stay valid both locally and on the deployed site.
 set -e
 cd "$(dirname "$0")/.."
+
+REMOTE=${REMOTE:-origin}
+REMOTE_URL=$(git remote get-url "$REMOTE")
 
 echo "==> Generating API docs"
 npm run docs
@@ -16,6 +20,7 @@ mkdir -p "$STAGE/docs/js" "$STAGE/demos"
 
 cp -r docs/js/. "$STAGE/docs/js/"
 cp demos/index.html demos/bundle.js demos/bundle.css "$STAGE/demos/"
+touch "$STAGE/.nojekyll"
 
 cat > "$STAGE/index.html" <<'HTML'
 <!DOCTYPE html>
@@ -31,13 +36,22 @@ cat > "$STAGE/index.html" <<'HTML'
 </html>
 HTML
 
-# The repo's .gitignore ignores `docs`, which gh-pages otherwise inherits
-# from the master clone and uses to silently drop our entire docs tree.
-# Overriding with an empty .gitignore in staging fixes that, and --dotfiles
-# tells gh-pages to include it (plus the .nojekyll below).
-: > "$STAGE/.gitignore"
-# Ensure GitHub Pages serves _* paths (prettify etc. in better-docs output)
-touch "$STAGE/.nojekyll"
-
 echo "==> Publishing to gh-pages branch"
-npx gh-pages -d "$STAGE" --dotfiles -m "Deploy docs"
+# Init a throwaway repo inside the staging dir and force-push its initial
+# commit to gh-pages. This avoids leaking master's .gitignore, submodules,
+# or other tracked files from any clone-based publishing tool.
+TMPGIT=$(mktemp -d)
+trap 'rm -rf "$TMPGIT"' EXIT
+
+cp -r "$STAGE/." "$TMPGIT/"
+cd "$TMPGIT"
+
+AUTHOR_NAME=$(cd - >/dev/null && git config user.name)
+AUTHOR_EMAIL=$(cd - >/dev/null && git config user.email)
+
+git -c init.defaultBranch=gh-pages init -q
+git -c user.name="$AUTHOR_NAME" -c user.email="$AUTHOR_EMAIL" add -A
+git -c user.name="$AUTHOR_NAME" -c user.email="$AUTHOR_EMAIL" commit -q -m "Deploy docs"
+git push -q --force "$REMOTE_URL" HEAD:refs/heads/gh-pages
+
+echo "==> Published to $REMOTE_URL (gh-pages)"

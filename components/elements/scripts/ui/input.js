@@ -7,7 +7,7 @@ elation.require(['elements.elements'], function() {
    * @class input
    * @hideconstructor
    * @category UI
-   * @augments elation.elements.ui.base
+   * @augments elation.elements.base
    * @memberof elation.elements.ui
    * @example
    * <ui-input placeholder="Name" value="Ada"></ui-input>

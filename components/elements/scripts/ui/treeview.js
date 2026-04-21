@@ -22,7 +22,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
         items: { type: 'object' },
         attrs: { type: 'object' },
         draggable: { type: 'boolean', default: false },
-        tabindex: { type: 'number' }
+        tabindex: { type: 'integer' }
       });
     }
     create() {

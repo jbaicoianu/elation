@@ -4,9 +4,8 @@
  * @class select
  * @hideconstructor
  * @category UI
- * @augments elation.elements.ui.base
+ * @augments elation.elements.ui.list
  * @memberof elation.elements.ui
- * @todo this could probably inherit from ui.list to be more general
  *
  * @param {object} args
  * @param {string} args.items

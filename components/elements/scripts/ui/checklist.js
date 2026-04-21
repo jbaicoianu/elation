@@ -1,4 +1,21 @@
 elation.require(['elements.ui.list', 'elements.ui.checkbox'], function() {
+  /**
+   * `ui.list` variant whose rendered items are `ui.checklistitem` rows
+   * (each wrapping a `ui.checkbox`). Useful for multi-select lists backed
+   * by a data collection.
+   *
+   * @class checklist
+   * @hideconstructor
+   * @category UI
+   * @augments elation.elements.ui.list
+   * @memberof elation.elements.ui
+   * @example
+   * <ui-checklist>
+   *   <li>Apple</li>
+   *   <li>Banana</li>
+   *   <li>Cherry</li>
+   * </ui-checklist>
+   */
   elation.elements.define('ui.checklist', class extends elation.elements.ui.list {
     init() {
       super.init();
@@ -9,6 +26,20 @@ elation.require(['elements.ui.list', 'elements.ui.checkbox'], function() {
     }
   });
 
+  /**
+   * Individual row in a `ui.checklist`. Wraps a `ui.checkbox` and
+   * syncs the item's `checked` state to it.
+   *
+   * @class checklistitem
+   * @hideconstructor
+   * @category UI
+   * @augments elation.elements.ui.item
+   * @memberof elation.elements.ui
+   *
+   * @param {object} args
+   * @param {string} args.checkedattr
+   * @param {boolean} args.checked
+   */
   elation.elements.define('ui.checklistitem', class extends elation.elements.ui.item {
     init() {
       super.init();

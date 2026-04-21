@@ -1,4 +1,24 @@
 elation.require(['elements.ui.button'], function() {
+  /**
+   * Button that shows and hides a popup on click. The popup is a headless
+   * `ui.window` whose content is taken from `popupcontent` (a string of
+   * HTML or an `HTMLElement`). Clicking outside the popup closes it.
+   * Set `detached` to float the popup at document root instead of
+   * anchoring it to the button.
+   *
+   * @class popupbutton
+   * @hideconstructor
+   * @category UI
+   * @augments elation.elements.ui.button
+   * @memberof elation.elements.ui
+   * @example
+   * <ui-popupbutton label="More..." popupcontent="<p>Popup body</p>"></ui-popupbutton>
+   *
+   * @param {object} args
+   * @param {boolean} args.active
+   * @param {object} args.popupcontent
+   * @param {boolean} args.detached
+   */
   elation.elements.define('ui.popupbutton', class extends elation.elements.ui.button {
     init() {
       super.init();

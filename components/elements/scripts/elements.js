@@ -203,7 +203,7 @@ elation.require(['utils.template'], function() {
 //if (v == '[object HTMLElement]') debugger;
           let classdef = this._elation.classdef[k];
           if (!skip && !classdef.innerHTML) {
-            if (classdef.type == 'boolean') {
+            if (classdef.type == 'boolean' || classdef.type == 'bool') {
               if (v) {
                 this.setAttribute(k, '');
               } else {
@@ -239,10 +239,13 @@ elation.require(['utils.template'], function() {
         }
         getPropertyAsType(value, type) {
           switch (type) {
+            case 'bool':
             case 'boolean':
               return ((value && value !== '0' && value !== 'false') || value === '' );
+            case 'int':
             case 'integer':
               return value|0;
+            case 'number':
             case 'float':
               return +value;
             case 'callback':
@@ -371,7 +374,7 @@ elation.require(['utils.template'], function() {
         /**
          * Add an HTML class to this component
          * @function addclass
-         * @memberof elation.elements.ui.base#
+         * @memberof elation.elements.base#
          */
         addclass(classname) {
           if (!elation.html.hasclass(this, classname)) {
@@ -381,7 +384,7 @@ elation.require(['utils.template'], function() {
         /**
          * Remove an HTML class from this component
          * @function removeclass
-         * @memberof elation.elements.ui.base#
+         * @memberof elation.elements.base#
          */
         removeclass(classname) {
           if (elation.html.hasclass(this, classname)) {
@@ -391,7 +394,7 @@ elation.require(['utils.template'], function() {
         /**
          * Check whether this component has the specified class
          * @function hasclass
-         * @memberof elation.elements.ui.base#
+         * @memberof elation.elements.base#
          * @returns {bool}
          */
         hasclass(classname) {
@@ -400,7 +403,7 @@ elation.require(['utils.template'], function() {
         /**
          * Make this component visible 
          * @function show
-         * @memberof elation.elements.ui.base#
+         * @memberof elation.elements.base#
          */
         show() {
           if (this.hidden) {
@@ -412,7 +415,7 @@ elation.require(['utils.template'], function() {
         /**
          * Make this component invisible 
          * @function hide
-         * @memberof elation.elements.ui.base#
+         * @memberof elation.elements.base#
          */
         hide() {
           this.hidden = true;
@@ -421,7 +424,7 @@ elation.require(['utils.template'], function() {
         /**
          * Enable this component
          * @function enable
-         * @memberof elation.elements.ui.base#
+         * @memberof elation.elements.base#
          */
         enable() {
           this.enabled = true;
@@ -430,7 +433,7 @@ elation.require(['utils.template'], function() {
         /**
          * Disable this component
          * @function disable
-         * @memberof elation.elements.ui.base#
+         * @memberof elation.elements.base#
          */
         disable() {
           this.enabled = false;
@@ -439,7 +442,7 @@ elation.require(['utils.template'], function() {
         /**
          * Set this component's hover state
          * @function hover
-         * @memberof elation.elements.ui.base#
+         * @memberof elation.elements.base#
          */
         onhover() {
           this.hover = true;
@@ -447,7 +450,7 @@ elation.require(['utils.template'], function() {
         /**
          * Unset this component's hover state
          * @function unhover
-         * @memberof elation.elements.ui.base#
+         * @memberof elation.elements.base#
          */
         onunhover() {
           this.hover = false;
@@ -455,7 +458,7 @@ elation.require(['utils.template'], function() {
         /**
          * Sets the orientation of this component
          * @function setOrientation
-         * @memberof elation.elements.ui.base#
+         * @memberof elation.elements.base#
          * @param {string} orientation
          */
         setOrientation(orientation) {

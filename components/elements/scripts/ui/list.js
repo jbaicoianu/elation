@@ -12,7 +12,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
    * @class list
    * @hideconstructor
    * @category UI
-   * @augments elation.elements.ui.base
+   * @augments elation.elements.base
    * @memberof elation.elements.ui
    * @example
    * <ui-list selectable>
@@ -66,7 +66,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
         autoscroll: { type: 'boolean' },
         autoscrollmargin: { type: 'integer', default: 100 },
         //items: { type: 'object' },
-        itemcount: { type: 'number', get: this.getItemCount },
+        itemcount: { type: 'integer', get: this.getItemCount },
         nameattr: { type: 'string', default: 'name' },
         childattr: { type: 'string', default: 'items' },
         labelattr: { type: 'string', default: 'label' },

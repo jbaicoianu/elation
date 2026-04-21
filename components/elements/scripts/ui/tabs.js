@@ -6,7 +6,7 @@
  * @class tabs
  * @hideconstructor
  * @category UI
- * @augments elation.elements.ui.base
+ * @augments elation.elements.ui.list
  * @memberof elation.elements.ui
  * @example
  * <ui-tabs>

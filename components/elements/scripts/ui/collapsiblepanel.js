@@ -1,4 +1,26 @@
 elation.require(['elements.ui.panel', 'elements.ui.togglebutton'], function() {
+  /**
+   * Panel that slides open and closed via a toggle handle. Content is
+   * wrapped in double-div containers so the collapse animation can use
+   * hardware-accelerated CSS transforms; the handle doubles as a drag
+   * resize grip. Set `hideempty` to auto-hide the panel when it has no
+   * children.
+   *
+   * @class collapsiblepanel
+   * @hideconstructor
+   * @category UI
+   * @augments elation.elements.ui.panel
+   * @memberof elation.elements.ui
+   * @example
+   * <ui-collapsiblepanel left>
+   *   <p>Sidebar contents</p>
+   * </ui-collapsiblepanel>
+   *
+   * @param {object} args
+   * @param {boolean} args.collapsed
+   * @param {boolean} args.peek
+   * @param {boolean} args.hideempty
+   */
   elation.elements.define('ui.collapsiblepanel', class extends elation.elements.ui.panel {
     init() {
       super.init();

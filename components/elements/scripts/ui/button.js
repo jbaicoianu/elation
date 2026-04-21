@@ -6,7 +6,7 @@ elation.require(['elements.ui.item'], function() {
    * @class button
    * @hideconstructor
    * @category UI
-   * @augments elation.elements.ui.base
+   * @augments elation.elements.ui.item
    * @memberof elation.elements.ui
    *
    * @param {object} args
@@ -26,7 +26,7 @@ elation.require(['elements.ui.item'], function() {
         name: { type: 'string' },
         disabled: { type: 'boolean', default: false },
         autoblur: { type: 'boolean', default: false },
-        tabindex: { type: 'boolean', default: 0 }
+        tabindex: { type: 'integer', default: 0 }
       });
       if (this.preview) {
         this.label = 'Click Here';
@@ -108,10 +108,9 @@ elation.require(['elements.ui.item'], function() {
     }
     /**
      * Event handler for HTML button's click event
-     * @function click
+     * @function handleClick
      * @memberof elation.elements.ui.button#
-     * @param {boolean} active
-     * @emits ui_button_click
+     * @param {Event} ev
      */
     handleClick(ev) {
       if (this.disabled) {

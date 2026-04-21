@@ -6,7 +6,7 @@
  * @class window
  * @hideconstructor
  * @category UI
- * @augments elation.elements.ui.base
+ * @augments elation.elements.ui.panel
  * @memberof elation.elements.ui
  * @example
  * <ui-window title="Inspector" movable resizable controls>
@@ -48,7 +48,7 @@ elation.require(['elements.elements', 'elements.ui.button', 'elements.ui.buttonb
         top: { type: 'boolean' },
         bottom: { type: 'boolean' },
         width: { type: 'string' },
-        height: { type: 'height' },
+        height: { type: 'string' },
         resizable: { type: 'boolean' },
         scrollable: { type: 'boolean' },
         minimizable:  { type: 'boolean' },

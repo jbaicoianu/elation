@@ -1,4 +1,25 @@
 elation.require(['elements.elements', 'elements.ui.input', 'elements.ui.text'], function() {
+  /**
+   * Continuous-range slider with a draggable handle. Drag, click, or scroll
+   * the track to change the value; `snap` restricts values to a multiple of
+   * that increment. Fires `change` with the new `value` whenever the handle
+   * moves.
+   *
+   * @class slider
+   * @hideconstructor
+   * @category UI
+   * @augments elation.elements.base
+   * @memberof elation.elements.ui
+   * @example
+   * <ui-slider label="Volume" min="0" max="100" value="30" snap="1"></ui-slider>
+   *
+   * @param {object} args
+   * @param {string} args.label
+   * @param {float} args.min
+   * @param {float} args.max
+   * @param {float} args.value
+   * @param {float} args.snap
+   */
   elation.elements.define('ui.slider', class extends elation.elements.base {
     init() {
       super.init();
@@ -100,7 +121,7 @@ elation.require(['elements.elements', 'elements.ui.input', 'elements.ui.text'], 
       this.defineAttributes({
         label: { type: 'string' },
         value: { type: 'float', default: 0, set: this.sendChangeEvent },
-        sendchangeevent: { type: 'bool', default: true},
+        sendchangeevent: { type: 'boolean', default: true},
       });
     }
     create() {

@@ -1,4 +1,27 @@
 elation.require(['elements.ui.item'], function() {
+  /**
+   * Single tab for use inside `ui.tabs`. The `label` renders as the tab
+   * button; `count` drives an optional badge; `tooltip` shows on hover.
+   * Only the selected tab is attached to the DOM at a time, so children
+   * are detached while unselected.
+   *
+   * @class tab
+   * @hideconstructor
+   * @category UI
+   * @augments elation.elements.ui.item
+   * @memberof elation.elements.ui
+   * @example
+   * <ui-tabs>
+   *   <ui-tab label="Overview" tooltip="Summary">Overview content</ui-tab>
+   *   <ui-tab label="Inbox" count="3">Inbox content</ui-tab>
+   * </ui-tabs>
+   *
+   * @param {object} args
+   * @param {string} args.label
+   * @param {integer} args.count
+   * @param {boolean} args.selected
+   * @param {string} args.tooltip
+   */
   elation.elements.define('ui.tab', class extends elation.elements.ui.item {
     init() {
       super.init();

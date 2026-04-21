@@ -4,7 +4,7 @@
  * @class text
  * @hideconstructor
  * @category UI
- * @augments elation.elements.ui.base
+ * @augments elation.elements.base
  * @memberof elation.elements.ui
  *
  * @param {object} args

@@ -4,7 +4,7 @@
  * @class textarea
  * @hideconstructor
  * @category UI
- * @augments elation.elements.ui.base
+ * @augments elation.elements.ui.input
  * @memberof elation.elements.ui
  *
  * @param {object} args

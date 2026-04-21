@@ -7,7 +7,7 @@ elation.require(['elements.base'], function() {
    * @class item
    * @hideconstructor
    * @category UI
-   * @augments elation.elements.ui.base
+   * @augments elation.elements.base
    * @memberof elation.elements.ui
    *
    * @param {object}  args
@@ -174,10 +174,10 @@ elation.require(['elements.base'], function() {
       }
     }
     /**
-     * Event handler: HTML element click
-     * @function click
+     * Event handler: HTML element mousedown
+     * @function mousedown
      * @memberof elation.elements.ui.item#
-     * @param {event} ev
+     * @param {Event} ev
      */
     mousedown(ev) {
       if (this.selectable && !this.selected) {

@@ -7,7 +7,7 @@ elation.require(["elements.elements"], function() {
    * @class wizard
    * @hideconstructor
    * @category UI
-   * @augments elation.elements.ui.base
+   * @augments elation.elements.base
    * @memberof elation.elements.ui
    * @example
    * <ui-wizard type="paginate">
@@ -30,7 +30,7 @@ elation.require(["elements.elements"], function() {
     constructor() {
       super();
       this.defineAttributes({
-        'step': {type: 'int', default: 1},
+        'step': {type: 'integer', default: 1},
         'type': {type: 'string', default: 'paginate'}, // "paginate" or "scroll"
         'oncomplete': {type: 'callback'}
       });
@@ -113,7 +113,7 @@ elation.require(["elements.elements"], function() {
    * @class wizard-backbutton
    * @hideconstructor
    * @category UI
-   * @augments elation.elements.ui.base
+   * @augments elation.elements.ui.button
    * @memberof elation.elements.ui
    */
   elation.elements.define('ui-wizard-backbutton', class extends elation.elements.ui.button {
@@ -128,13 +128,14 @@ elation.require(["elements.elements"], function() {
    * @class wizard-step
    * @hideconstructor
    * @category UI
-   * @augments elation.elements.ui.base
+   * @augments elation.elements.base
    * @memberof elation.elements.ui
    *
    * @param {object} args
-   * @param {int} args.step
-   * @param {string} args.type
-   * @param {callback} args.oncomplete
+   * @param {boolean} args.skip
+   * @param {boolean} args.finished
+   * @param {callback} args.onstart
+   * @param {callback} args.onfinish
    */
   elation.elements.define('ui-wizard-step', class extends elation.elements.base {
     constructor() {
@@ -144,7 +145,7 @@ elation.require(["elements.elements"], function() {
         'finished': {type: 'boolean', default: false },
         'onstart': {type: 'callback' },
         'onfinish': {type: 'callback'},
-        'pending': {type: 'attribute', default: true},
+        'pending': {type: 'boolean', default: true},
       });
     }
     create() {

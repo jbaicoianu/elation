@@ -4,7 +4,7 @@
  * @class buttonbar
  * @hideconstructor
  * @category UI
- * @augments elation.elements.ui.base
+ * @augments elation.elements.ui.list
  * @memberof elation.elements.ui
  *
  * @param {object} args

@@ -1,4 +1,28 @@
 elation.require(['elements.elements'], function() {
+  /**
+   * Absolutely-positioned container that snaps to its offsetParent's edges
+   * or center. The position is driven by boolean edge flags — any combination
+   * of `top` / `middle` / `bottom` with `left` / `center` / `right`. Auto-updates
+   * on window resize, orientation change, and child-list mutations.
+   *
+   * Base class for `ui.window`, `ui.flexpanel`, `ui.collapsiblepanel`, and `ui.tooltip`.
+   *
+   * @class panel
+   * @hideconstructor
+   * @category UI
+   * @augments elation.elements.base
+   * @memberof elation.elements.ui
+   * @example
+   * <ui-panel bottom right>Docked to bottom-right</ui-panel>
+   *
+   * @param {object} args
+   * @param {boolean} args.top
+   * @param {boolean} args.middle
+   * @param {boolean} args.bottom
+   * @param {boolean} args.left
+   * @param {boolean} args.center
+   * @param {boolean} args.right
+   */
   elation.elements.define('ui.panel', class extends elation.elements.base {
     init() { 
       super.init();

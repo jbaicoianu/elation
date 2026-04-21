@@ -77,9 +77,9 @@ Three hooks, called in order:
 
 ### Attributes
 
-`defineAttributes({ name: descriptor })` bridges HTML attributes ↔ JS properties automatically, with type coercion. Descriptor keys:
+`defineAttributes({ name: descriptor })` bridges HTML attributes ↔ JS properties automatically. Descriptor keys:
 
-- **`type`** — one of `int`, `float`, `boolean`, `string`, `object`, `vector2`, `callback`, and more.
+- **`type`** — the attribute's value type. Controls how it's coerced between its string form on the attribute and its typed form on the property. See [Type system](#type-system) below for built-in types and how to register new ones.
 - **`default`** — value used when the attribute is absent.
 - **`get` / `set`** — hooks that fire on property read/write, handy for derived values or for reacting to changes.
 
@@ -88,3 +88,44 @@ Setting `el.value = 42` from JS writes back to the HTML attribute, and `el.setAt
 ### Inheritance
 
 Extend `elation.elements.base` for standalone elements, or an existing element class (`elation.elements.ui.list`, `elation.elements.ui.button`, `elation.elements.collection.simple`, …) to build on its behavior. See the sidebar for available base classes.
+
+## Type system
+
+HTML attributes are always strings; JS properties aren't. Elation's type system bridges the two: declare a type on an attribute and reads and writes coerce transparently. It's what makes `<ui-counter value="42">` produce an element whose `.value` is the number `42`, not the string `"42"` — and assigning `el.value = 43` from JS writes `value="43"` back to the markup in the same shape.
+
+The same declaration drives the `set:` and `get:` hooks from the previous section, which fire whenever a property is read or written. `set:` is how an element reacts to its own attribute changes without writing a separate `attributeChangedCallback`.
+
+### Built-in types
+
+These coerce natively with no external dependencies:
+
+- **`boolean`** (alias: `bool`) — presence is true; an absent attribute, `'0'`, or `'false'` is false. Writing `true` sets the attribute to the empty string; writing `false` removes it.
+- **`integer`** (alias: `int`) — parsed with `value|0`, i.e. a 32-bit truncated integer.
+- **`float`** (alias: `number`) — parsed with `+value`; non-numeric strings become `NaN`.
+- **`callback`** — function values pass through; string values are wrapped in `new Function('event', value)`, so inline handlers like `onaccept="this.submit()"` work from markup the same way `onclick=` does on native elements.
+
+Unrecognized type names (including `string`, `object`, `array`) pass through with no coercion. That's harmless for `string` — attribute values are strings already — but for `object` and `array` it means markup attributes don't parse; only direct JS property assignment round-trips correctly. Declaring those types is still useful as a documentation hint and so editors and the docs generator can display the intent.
+
+### Registering new types
+
+Anything richer — vectors, colors, URLs, dates — gets registered by the consuming project via `elation.elements.registerType(name, handler)`. The handler is a `{ read, write }` pair: `read` turns the raw attribute string into the typed value, and `write` turns the typed value back into a string for `setAttribute`.
+
+```js
+// In a project that ships Three.js (e.g., Elation Engine):
+elation.elements.registerType('vector3', {
+  read(value) {
+    if (value instanceof THREE.Vector3) return value;
+    const [x, y, z] = ('' + value).split(/\s+/).map(Number);
+    return new THREE.Vector3(x, y, z);
+  },
+  write(value) {
+    return `${value.x} ${value.y} ${value.z}`;
+  }
+});
+```
+
+With that registered, any element can declare `position: { type: 'vector3' }` and its `.position` property is a live `THREE.Vector3` while the markup stays valid as `<my-element position="1 2 3">`. Elation core ships only the handful of built-ins above so it has no runtime dependencies; richer types are the consuming project's responsibility.
+
+## License
+
+MIT — see [LICENSE](LICENSE).

@@ -1,6 +1,24 @@
 elation.require(['elements.elements', 'elements.ui.label'], function() {
   elation.requireCSS('ui.toggle');
 
+  /**
+   * On/off switch control. Fires `toggle_on` / `toggle_off` events when
+   * flipped, plus a generic `toggle` event carrying the new state. Base
+   * class for `ui.checkbox` and `ui.radio`.
+   *
+   * @class toggle
+   * @hideconstructor
+   * @category UI
+   * @augments elation.elements.base
+   * @memberof elation.elements.ui
+   * @example
+   * <ui-toggle label="Notifications" checked></ui-toggle>
+   *
+   * @param {object} args
+   * @param {boolean} args.checked
+   * @param {boolean} args.disabled
+   * @param {string} args.label
+   */
   elation.elements.define('ui.toggle', class extends elation.elements.base {
     init() {
       super.init();

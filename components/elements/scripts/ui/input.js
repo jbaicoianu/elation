@@ -17,6 +17,7 @@ elation.require(['elements.elements'], function() {
    * @param {string} args.value
    * @param {string} args.inputname
    * @param {string} args.placeholder
+   * @param {string} args.enterkeyhint
    * @param {boolean} args.disabled
    * @param {boolean} args.hidden
    * @param {boolean} args.autofocus
@@ -35,6 +36,7 @@ elation.require(['elements.elements'], function() {
         label: { type: 'string' },
         type: { type: 'string' },
         placeholder: { type: 'string' },
+        enterkeyhint: { type: 'string', default:"enter" },
         value: { type: 'string', get: this.getValue, set: this.setValue },
         disabled: { type: 'boolean', default: false },
         autofocus: { type: 'boolean', get: this.getAutofocus, set: this.setAutofocus },
@@ -67,6 +69,8 @@ elation.require(['elements.elements'], function() {
       if (this.placeholder) {
         this.inputelement.placeholder = this.placeholder;
       }
+
+      this.inputelement.enterkeyhint = this.enterkeyhint;
 
       let value = this.value;
       elation.events.add(this, 'keydown', this.handlekeydown.bind(this));

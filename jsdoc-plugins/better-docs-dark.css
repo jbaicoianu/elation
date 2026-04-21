@@ -156,3 +156,39 @@ article > dl > dd { padding: 0.5em 0 1em 0.5em; }
 #sidebarNav h3:has(+ ul a[href*="#event:"]) + ul {
   display: none !important;
 }
+
+/* Top navbar — not dark-styled by the default theme */
+.top-nav {
+  background: var(--bg-alt) !important;
+  border-bottom: 1px solid var(--border);
+  color: var(--fg) !important;
+}
+.top-nav .inner { color: var(--fg) !important; }
+.top-nav a,
+.top-nav a:visited,
+.top-nav .link,
+.top-nav .navigation a {
+  color: var(--fg) !important;
+}
+.top-nav a:hover,
+.top-nav .link:hover,
+.top-nav .navigation a:hover {
+  color: var(--accent) !important;
+}
+.top-nav h1.navbar-item,
+.top-nav .logo h1 {
+  color: var(--fg-heading) !important;
+}
+.top-nav .top-buttons a.button {
+  background: var(--bg-inset) !important;
+  color: var(--fg) !important;
+  border: 1px solid var(--border) !important;
+}
+.top-nav .top-buttons a.button:hover {
+  background: var(--bg) !important;
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+}
+.navbar-burger span {
+  background-color: var(--fg) !important;
+}

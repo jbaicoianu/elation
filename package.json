@@ -6,10 +6,12 @@
   "author": "James Baicoianu",
   "license": "MIT",
   "scripts": {
-    "docs": "rm -rf docs/js && jsdoc -c jsdoc.conf.json && mkdir -p docs/js/styles && cp jsdoc-plugins/better-docs-dark.css docs/js/styles/dark.css"
+    "docs": "rm -rf docs/js && jsdoc -c jsdoc.conf.json && mkdir -p docs/js/styles && cp jsdoc-plugins/better-docs-dark.css docs/js/styles/dark.css",
+    "deploy:docs": "bash scripts/deploy-docs.sh"
   },
   "devDependencies": {
     "better-docs": "^2.7.3",
+    "gh-pages": "^6.3.0",
     "jsdoc": "^4.0.4"
   },
   "repository": {

@@ -2,6 +2,7 @@
  * TreeView UI component
  *
  * @class treeview
+ * @hideconstructor
  * @category UI
  * @augments elation.elements.base
  * @memberof elation.elements.ui

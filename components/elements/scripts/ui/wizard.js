@@ -1,11 +1,25 @@
 elation.require(["elements.elements"], function() {
-  /** 
-   * Wizard UI element
+  /**
+   * Multi-step workflow container. Each step is a `<ui-wizard-step>`. Set
+   * `type="paginate"` for one-step-at-a-time navigation with back/next
+   * buttons, or `type="scroll"` for a vertically-scrolling single page.
    *
    * @class wizard
+   * @hideconstructor
    * @category UI
    * @augments elation.elements.ui.base
    * @memberof elation.elements.ui
+   * @example
+   * <ui-wizard type="paginate">
+   *   <ui-wizard-step id="intro">
+   *     <p>Step one.</p>
+   *     <ui-wizard-pagination></ui-wizard-pagination>
+   *   </ui-wizard-step>
+   *   <ui-wizard-step id="done">
+   *     <p>Step two.</p>
+   *     <ui-wizard-pagination></ui-wizard-pagination>
+   *   </ui-wizard-step>
+   * </ui-wizard>
    *
    * @param {object} args
    * @param {int} args.step
@@ -97,6 +111,7 @@ elation.require(["elements.elements"], function() {
    * Wizard Back button UI element
    *
    * @class wizard-backbutton
+   * @hideconstructor
    * @category UI
    * @augments elation.elements.ui.base
    * @memberof elation.elements.ui
@@ -111,6 +126,7 @@ elation.require(["elements.elements"], function() {
    * Wizard Step UI element
    *
    * @class wizard-step
+   * @hideconstructor
    * @category UI
    * @augments elation.elements.ui.base
    * @memberof elation.elements.ui

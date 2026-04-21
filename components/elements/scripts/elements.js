@@ -490,6 +490,8 @@ elation.require(['utils.template'], function() {
         }
         /**
          * Render this element to an image
+         * @function toCanvas
+         * @memberof elation.elements.base#
          */
         toCanvas(width, height, scale) {
           this.canvasNeedsUpdate = true;

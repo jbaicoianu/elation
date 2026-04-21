@@ -3,6 +3,7 @@ elation.require([], function() {
    * Simple data collection
    *
    * @class simple
+   * @hideconstructor
    * @category Collections
    * @augments elation.component.base
    * @memberof elation.elements.collection
@@ -177,6 +178,7 @@ elation.require([], function() {
    * Uses the specified index parameter to enforce uniqueness
    *
    * @class indexed
+   * @hideconstructor
    * @category Collections
    * @augments elation.elements.collection.simple
    * @memberof elation.elements.collection
@@ -263,6 +265,7 @@ elation.require([], function() {
    * Auto-save changes to localStorage, loads on init.
    * 
    * @class localindexed
+   * @hideconstructor
    * @category Collections
    * @augments elation.elements.collection.indexed
    * @memberof elation.elements.collection
@@ -352,6 +355,7 @@ elation.require([], function() {
    * Provides a collection interface to a REST API
    *
    * @class api
+   * @hideconstructor
    * @category Collections
    * @augments elation.elements.collection.simple
    * @memberof elation.elements.collection
@@ -460,6 +464,7 @@ elation.require([], function() {
    * Provides a collection interface to a JSON REST API
    *
    * @class jsonapi
+   * @hideconstructor
    * @category Collections
    * @augments elation.elements.collection.api
    * @memberof elation.elements.collection
@@ -483,6 +488,7 @@ elation.require([], function() {
    * Provides a collection interface to a JSONP REST API
    *
    * @class jsonpapi
+   * @hideconstructor
    * @category Collections
    * @augments elation.elements.collection.api
    * @memberof elation.elements.collection
@@ -521,6 +527,7 @@ elation.require([], function() {
    * (For example, a collection which lists all the properties an object contains)
    *
    * @class custom
+   * @hideconstructor
    * @category Collections
    * @augments elation.elements.collection.simple
    * @memberof elation.elements.collection
@@ -542,6 +549,7 @@ elation.require([], function() {
    * Apply the specified filter to the parent list, and present it as its own collection
    *
    * @class filter
+   * @hideconstructor
    * @category Collections
    * @augments elation.elements.collection.simple
    * @memberof elation.elements.collection
@@ -595,6 +603,7 @@ elation.require([], function() {
    * Subset the data from the parent collection
    *
    * @class filter
+   * @hideconstructor
    * @category Collections
    * @augments elation.elements.collection.simple
    * @memberof elation.elements.collection
@@ -642,6 +651,7 @@ elation.require([], function() {
     * elation.collection.sqlite - nodejs sqlite-backed collection
 
    * @class sqlite
+   * @hideconstructor
    * @category Collections
    * @augments elation.elements.collection.localindexed
    * @memberof elation.elements.collection

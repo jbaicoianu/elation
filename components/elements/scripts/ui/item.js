@@ -5,6 +5,7 @@ elation.require(['elements.base'], function() {
    * Represents an individual item in a ui.list
    *
    * @class item
+   * @hideconstructor
    * @category UI
    * @augments elation.elements.ui.base
    * @memberof elation.elements.ui

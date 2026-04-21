@@ -6,15 +6,10 @@
   "author": "James Baicoianu",
   "license": "MIT",
   "scripts": {
-    "docs": "npm run docs:clean && npm run docs:docdash && npm run docs:better",
-    "docs:clean": "jsdoc -c jsdoc.conf.json",
-    "docs:docdash": "jsdoc -c jsdoc.docdash.json",
-    "docs:better": "jsdoc -c jsdoc.better.json"
+    "docs": "rm -rf docs/js && jsdoc -c jsdoc.conf.json && mkdir -p docs/js/styles && cp jsdoc-plugins/better-docs-dark.css docs/js/styles/dark.css"
   },
   "devDependencies": {
     "better-docs": "^2.7.3",
-    "clean-jsdoc-theme": "^4.3.0",
-    "docdash": "^2.0.2",
     "jsdoc": "^4.0.4"
   },
   "repository": {

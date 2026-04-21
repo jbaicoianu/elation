@@ -4,6 +4,7 @@ elation.require(['elements.collection.simple'], function() {
    * Apply the specified filter to the parent list, and present it as its own collection
    *
    * @class filter
+   * @hideconstructor
    * @category Collections
    * @augments elation.elements.collection.simple
    * @memberof elation.elements.collection

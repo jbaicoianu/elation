@@ -2,6 +2,7 @@
  * Tabbar UI component
  *
  * @class tabbar
+ * @hideconstructor
  * @category UI
  * @augments elation.elements.ui.base
  * @memberof elation.elements.ui

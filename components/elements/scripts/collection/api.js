@@ -4,6 +4,7 @@ elation.require(['elements.collection.simple'], function() {
    * Provides a collection interface to a REST API
    *
    * @class api
+   * @hideconstructor
    * @category Collections
    * @augments elation.elements.collection.simple
    * @memberof elation.elements.collection

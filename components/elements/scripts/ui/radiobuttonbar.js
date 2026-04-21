@@ -3,6 +3,7 @@
  * Like a normal ButtonBar, but only one button can be selected at a time
  *
  * @class radiobuttonbar
+ * @hideconstructor
  * @category UI
  * @augments elation.elements.ui.buttonbar
  * @memberof elation.elements.ui

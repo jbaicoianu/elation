@@ -2,6 +2,7 @@
  * Form label element
  *
  * @class label
+ * @hideconstructor
  * @category UI
  * @augments elation.elements.ui.base
  * @memberof elation.elements.ui

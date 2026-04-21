@@ -4,6 +4,7 @@ elation.require(['elements.collection.api'], function() {
    * Provides a collection interface to a JSONP REST API
    *
    * @class jsonpapi
+   * @hideconstructor
    * @category Collections
    * @augments elation.elements.collection.api
    * @memberof elation.elements.collection

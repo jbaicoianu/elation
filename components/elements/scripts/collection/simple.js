@@ -24,6 +24,7 @@ elation.require(['elements.base'], function() {
    * Simple data collection
    *
    * @class simple
+   * @hideconstructor
    * @category Collections
    * @augments elation.elements.base
    * @memberof elation.elements.collection

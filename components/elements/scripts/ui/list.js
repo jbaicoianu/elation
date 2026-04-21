@@ -1,13 +1,25 @@
 elation.require(["elements.elements", "elements.ui.item"], function() {
   elation.requireCSS("ui.list");
 
-  /** 
-   * List UI element
+  /**
+   * Container for selectable, sortable, draggable item collections. Accepts
+   * child `<li>` or `<ui-item>` elements statically, or bind a live data
+   * source via the `collection` attribute for auto-updating lists.
+   *
+   * Base class for `ui-grid`, `ui-select`, `ui-tabs`, `ui-buttonbar`, and
+   * other container components.
    *
    * @class list
+   * @hideconstructor
    * @category UI
    * @augments elation.elements.ui.base
    * @memberof elation.elements.ui
+   * @example
+   * <ui-list selectable>
+   *   <li>Apple</li>
+   *   <li>Banana</li>
+   *   <li>Cherry</li>
+   * </ui-list>
    *
    * @param {object}    args
    * @param {string}    args.tag
@@ -335,6 +347,8 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
     /**
      * Creates a new instance of an elation.ui.item
      * Can be overridden by inheriting classes to override the ui.item type
+     * @function createlistitem
+     * @memberof elation.elements.ui.list#
      * @param {Object} args
      */
     createlistitem(args) {
@@ -735,6 +749,8 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
 
     /**
      * Event handler: keydown
+     * @function handleKeydown
+     * @memberof elation.elements.ui.list#
      * @param {event} ev
      */
     handleKeydown(ev) {

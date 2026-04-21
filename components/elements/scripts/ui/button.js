@@ -4,6 +4,7 @@ elation.require(['elements.ui.item'], function() {
    * Button UI element
    *
    * @class button
+   * @hideconstructor
    * @category UI
    * @augments elation.elements.ui.base
    * @memberof elation.elements.ui

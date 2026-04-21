@@ -1,14 +1,18 @@
-/** 
- * Tabs UI component
+/**
+ * Horizontal tab bar paired with content panels. Child `<ui-tab>` elements
+ * become the tabs; each tab's `label` attribute provides the button text.
+ * Only the active tab is attached to the DOM at a time.
  *
  * @class tabs
+ * @hideconstructor
  * @category UI
  * @augments elation.elements.ui.base
  * @memberof elation.elements.ui
- * @todo this could probably inherit from ui.list to be more general
- *
- * @param {object} args
- * @param {string} args.items
+ * @example
+ * <ui-tabs>
+ *   <ui-tab label="Overview">Overview content</ui-tab>
+ *   <ui-tab label="Details">Detail content</ui-tab>
+ * </ui-tabs>
  */
 elation.require(['elements.ui.list', 'elements.ui.tabbar', 'elements.ui.tab'], function() {
   elation.requireCSS('ui.tabs');

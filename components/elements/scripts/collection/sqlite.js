@@ -3,6 +3,7 @@ elation.require(['elements.collection.localindexed'], function() {
     * elation.collection.sqlite - nodejs sqlite-backed collection
 
    * @class sqlite
+   * @hideconstructor
    * @category Collections
    * @augments elation.elements.collection.localindexed
    * @memberof elation.elements.collection

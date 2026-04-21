@@ -2,6 +2,7 @@
  * Simple text element
  *
  * @class text
+ * @hideconstructor
  * @category UI
  * @augments elation.elements.ui.base
  * @memberof elation.elements.ui

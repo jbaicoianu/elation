@@ -5,6 +5,7 @@ elation.require(['elements.collection.indexed'], function() {
    * Auto-save changes to localStorage, loads on init.
    * 
    * @class localindexed
+   * @hideconstructor
    * @category Collections
    * @augments elation.elements.collection.indexed
    * @memberof elation.elements.collection

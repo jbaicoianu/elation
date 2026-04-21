@@ -1,12 +1,16 @@
 elation.requireCSS('ui.input');
 elation.require(['elements.elements'], function() {
-  /** 
-   * Handles text input from users
+  /**
+   * Single-line text input. Fires `change` on blur, `accept` on Enter,
+   * and `cancel` on Escape.
    *
    * @class input
+   * @hideconstructor
    * @category UI
    * @augments elation.elements.ui.base
    * @memberof elation.elements.ui
+   * @example
+   * <ui-input placeholder="Name" value="Ada"></ui-input>
    *
    * @param {object} args
    * @param {string} args.type

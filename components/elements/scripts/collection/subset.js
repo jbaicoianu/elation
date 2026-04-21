@@ -4,6 +4,7 @@ elation.require(['elements.collection.simple'], function() {
    * Subset the data from the parent collection
    *
    * @class subset
+   * @hideconstructor
    * @category Collections
    * @augments elation.elements.collection.simple
    * @memberof elation.elements.collection

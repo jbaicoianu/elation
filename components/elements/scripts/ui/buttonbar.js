@@ -2,6 +2,7 @@
  * ButtonBar UI element
  *
  * @class buttonbar
+ * @hideconstructor
  * @category UI
  * @augments elation.elements.ui.base
  * @memberof elation.elements.ui

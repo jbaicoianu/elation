@@ -1,10 +1,17 @@
-/** 
- * Window UI component
+/**
+ * Draggable, resizable floating panel with an optional title bar and
+ * minimize/maximize/close controls. Child nodes are wrapped in an auto-created
+ * `<ui-window-content>` unless one is provided explicitly.
  *
  * @class window
+ * @hideconstructor
  * @category UI
  * @augments elation.elements.ui.base
  * @memberof elation.elements.ui
+ * @example
+ * <ui-window title="Inspector" movable resizable controls>
+ *   <p>Window contents.</p>
+ * </ui-window>
  *
  * @param {object} args
  * @param {array} args.items

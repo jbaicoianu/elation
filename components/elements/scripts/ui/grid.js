@@ -2,6 +2,7 @@
  * Grid UI element
  *
  * @class grid
+ * @hideconstructor
  * @category UI
  * @augments elation.elements.ui.list
  * @memberof elation.elements.ui

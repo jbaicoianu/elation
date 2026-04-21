@@ -4,6 +4,7 @@ elation.require(['elements.collection.simple'], function() {
    * Uses the specified index parameter to enforce uniqueness
    *
    * @class indexed
+   * @hideconstructor
    * @category Collections
    * @augments elation.elements.collection.simple
    * @memberof elation.elements.collection
@@ -15,6 +16,8 @@ elation.require(['elements.collection.simple'], function() {
    */
   elation.elements.define('collection.indexed', class extends elation.elements.collection.simple {
     /**
+     * @function init
+     * @memberof elation.elements.collection.indexed#
      */
     init() {
       super.init();

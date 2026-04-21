@@ -31,5 +31,13 @@ cat > "$STAGE/index.html" <<'HTML'
 </html>
 HTML
 
+# The repo's .gitignore ignores `docs`, which gh-pages otherwise inherits
+# from the master clone and uses to silently drop our entire docs tree.
+# Overriding with an empty .gitignore in staging fixes that, and --dotfiles
+# tells gh-pages to include it (plus the .nojekyll below).
+: > "$STAGE/.gitignore"
+# Ensure GitHub Pages serves _* paths (prettify etc. in better-docs output)
+touch "$STAGE/.nojekyll"
+
 echo "==> Publishing to gh-pages branch"
-npx gh-pages -d "$STAGE" -m "Deploy docs"
+npx gh-pages -d "$STAGE" --dotfiles -m "Deploy docs"

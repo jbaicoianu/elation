@@ -149,6 +149,52 @@ elation.elements.registerType('vector3', {
 
 With `vector3` registered, any element can declare `position: { type: 'vector3' }` and its `.position` property is a live `THREE.Vector3` while the markup stays valid as `<my-element position="1 2 3">`. Elation core registers types it can implement without external dependencies (like `anchor`); richer types are the consuming project's responsibility.
 
+## Collections
+
+Collections are the data layer of the library — a consistent interface for list-shaped data that changes over time. Each collection holds an array of items and emits `collection_add`, `collection_remove`, `collection_move`, and `collection_clear` events when its contents change. List-style UI elements (`ui.list`, `ui.grid`, `ui.tabs`, `ui.checklist`, …) accept a collection reference and re-render incrementally as those events fire — no manual subscriptions, no full re-renders.
+
+### Binding a list to data
+
+Set the `collection` property on the list element to a collection instance:
+
+```js
+const users = elation.elements.create('collection-jsonapi', {
+  host: 'https://api.example.com',
+  endpoint: '/users',
+});
+
+const list = elation.elements.create('ui-list', {
+  collection: users,
+  append: document.body,
+});
+// list populates when users loads, and updates whenever
+// users.add() / .remove() / .move() fires.
+```
+
+For one-off load completion, listen on the collection directly:
+
+```js
+elation.events.add(users, 'collection_load', () => {
+  console.log(`fetched ${users.items.length} users`);
+});
+```
+
+### What ships in core
+
+The class family covers three patterns of data backing, all built on the same event interface so any of them can drive any list element:
+
+- **In-memory** — `simple` (the base class; an ordered array with the four mutation events).
+- **Remote** — `api` (REST), `jsonapi` (parses JSON responses), `jsonpapi` (script-tag callback for cross-origin endpoints that don't ship CORS headers).
+- **Persistent + indexed** — `indexed` (uniqueness enforced by a per-item key), `localindexed` (auto-saves to `localStorage` and listens for cross-tab updates), `sqlite` (Node.js sqlite3 backing, server-side only).
+
+Plus three derivers that expose a transformed view of another collection:
+
+- **`filter`** — apply a predicate; the derived collection contains only matching items.
+- **`subset`** — re-shape a parent's raw response, so one API call can back several distinct list views.
+- **`custom`** — supply an `itemcallback` that returns the items array on demand; useful for surfacing a non-array data structure (an object's keys, a `Map`, a computed view) as a collection.
+
+See the [collection namespace](elation.elements.collection.html) in the API docs for the full per-class attribute and event reference.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).

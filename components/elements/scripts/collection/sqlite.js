@@ -1,19 +1,37 @@
 elation.require(['elements.collection.localindexed'], function() {
   /**
-    * elation.collection.sqlite - nodejs sqlite-backed collection
-
+   * Indexed collection persisted to a SQLite database via the Node.js
+   * `sqlite3` package. Reads pull every row of `table` into memory; writes
+   * are batched as `INSERT OR REPLACE` statements keyed by the inherited
+   * `index` column. Set `autocreate: true` along with a `schema` map to
+   * issue a `CREATE TABLE IF NOT EXISTS` on init.
+   *
+   * Server-side only — requires `sqlite3` available via `require()`.
+   *
    * @class sqlite
    * @hideconstructor
    * @category Collections
    * @augments elation.elements.collection.localindexed
    * @memberof elation.elements.collection
+   * @example
+   * const products = elation.elements.create('collection-sqlite', {
+   *   dbfile: 'products.db',
+   *   table: 'products',
+   *   index: 'sku',
+   *   autocreate: true,
+   *   schema: {
+   *     sku: 'TEXT PRIMARY KEY',
+   *     name: 'TEXT',
+   *     price: 'REAL'
+   *   }
+   * });
    *
    * @param {object} args
-   * @param {string} args.dbfile Path to database file
-   * @param {string} args.table Name of database table
-   * @param {object} args.schema Associative array describing table schema
-   * @param {boolean} args.autocreate Create schema automatically if supplied
-    */
+   * @param {string} args.dbfile path to the SQLite database file
+   * @param {string} args.table table name
+   * @param {object} args.schema map of column name → SQL column definition
+   * @param {boolean} args.autocreate run `CREATE TABLE IF NOT EXISTS` on init
+   */
   elation.elements.define('collection.sqlite', class extends elation.elements.collection.localindexed {
     init() {
       super.init();

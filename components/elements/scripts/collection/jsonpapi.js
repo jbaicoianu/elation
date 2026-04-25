@@ -1,19 +1,29 @@
 elation.require(['elements.collection.api'], function() {
-  /** 
-   * JSONP API-backed data collection
-   * Provides a collection interface to a JSONP REST API
+  /**
+   * JSONP-backed data collection. Loads via a `<script>` tag and a global
+   * callback, which sidesteps CORS for cross-origin endpoints that don't
+   * set the right headers. The callback URL parameter name defaults to
+   * `callback`; set `callbackarg` if the API uses a different name.
    *
    * @class jsonpapi
    * @hideconstructor
    * @category Collections
    * @augments elation.elements.collection.api
    * @memberof elation.elements.collection
+   * @example
+   * const photos = elation.elements.create('collection-jsonpapi', {
+   *   host: 'https://photos.example.com',
+   *   endpoint: '/feed',
+   *   apiargs: { tag: 'sunset' },
+   *   callbackarg: 'jsonp'
+   * });
    *
    * @param {object} args
    * @param {string} args.host
    * @param {string} args.endpoint
    * @param {object} args.apiargs
-   * @param {object} args.callbackarg
+   * @param {string} args.callbackarg
+   * @param {object} args.datatransform
    * @param {function} args.datatransform.items
    * @param {function} args.datatransform.count
    */

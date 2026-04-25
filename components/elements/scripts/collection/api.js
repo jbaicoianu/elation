@@ -1,22 +1,36 @@
 elation.require(['elements.collection.simple'], function() {
-  /** 
-   * API-backed data collection
-   * Provides a collection interface to a REST API
+  /**
+   * REST-backed data collection. Sends a GET to `host` + `endpoint` (with
+   * `apiargs` as URL parameters) and exposes the response as a live items
+   * array. Reading `.items` for the first time triggers an automatic load;
+   * call `load()` to refresh, `append()` to merge additional pages.
+   *
+   * Use `datatransform.items` and `datatransform.count` to extract items
+   * and total count from a non-flat response (or set `itempath` to a
+   * dot-separated path for the simple case).
    *
    * @class api
    * @hideconstructor
    * @category Collections
    * @augments elation.elements.collection.simple
    * @memberof elation.elements.collection
+   * @example
+   * const users = elation.elements.create('collection-api', {
+   *   host: 'https://api.example.com',
+   *   endpoint: '/users',
+   *   apiargs: { active: true },
+   *   itempath: 'data.users'
+   * });
+   * elation.events.add(users, 'collection_load', () => render(users.items));
    *
    * @param {object} args
    * @param {string} args.host
    * @param {string} args.endpoint
    * @param {object} args.apiargs
+   * @param {string} args.itempath
    * @param {object} args.datatransform
    * @param {function} args.datatransform.items
    * @param {function} args.datatransform.count
-   *
    */
   /**
    * Fired when this collection starts fetching items

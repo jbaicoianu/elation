@@ -21,16 +21,33 @@ elation.require(['elements.base'], function() {
    */
 
   /**
-   * Simple data collection
+   * In-memory data collection. Holds an ordered array of items and emits
+   * `collection_add` / `collection_remove` / `collection_move` /
+   * `collection_clear` events when the contents change. Bind a list-style
+   * UI element (`ui.list`, `ui.grid`, `ui.tabs`, …) to a collection by
+   * setting its `collection` attribute and the UI element will keep itself
+   * in sync with the data automatically.
+   *
+   * Base class for every other collection in the library — REST-backed
+   * (`api`, `jsonapi`, `jsonpapi`), index-enforced (`indexed`,
+   * `localindexed`, `sqlite`), and derivers (`filter`, `subset`, `custom`).
    *
    * @class simple
    * @hideconstructor
    * @category Collections
    * @augments elation.elements.base
    * @memberof elation.elements.collection
+   * @example
+   * const people = elation.elements.create('collection-simple', {
+   *   items: [{ name: 'Ada' }, { name: 'Grace' }]
+   * });
+   * people.add({ name: 'Hedy' });
+   * elation.events.add(people, 'collection_add', ev => console.log('+', ev.data.item));
    *
    * @param {object} args
-   *
+   * @param {array} args.items
+   * @param {boolean} args.allowduplicates
+   * @param {object} args.datatransform
    */
   elation.elements.define('collection.simple', class extends elation.elements.base {
     init() {

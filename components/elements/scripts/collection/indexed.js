@@ -1,18 +1,30 @@
 elation.require(['elements.collection.simple'], function() {
-  /** 
-   * Indexed data collection
-   * Uses the specified index parameter to enforce uniqueness
+  /**
+   * Collection that enforces uniqueness on a per-item key. Adding an item
+   * whose `index` value already exists merges the new properties into the
+   * existing item rather than creating a duplicate, making this useful as
+   * a primary-key store for incremental updates from an API.
+   *
+   * Set `indextransform` to normalize keys before lookup — e.g. lowercase
+   * a username or strip whitespace.
+   *
+   * Base class for `localindexed` (localStorage persistence) and `sqlite`
+   * (Node.js sqlite3 persistence).
    *
    * @class indexed
    * @hideconstructor
    * @category Collections
    * @augments elation.elements.collection.simple
    * @memberof elation.elements.collection
+   * @example
+   * const products = elation.elements.create('collection-indexed', { index: 'sku' });
+   * products.add({ sku: 'A100', name: 'Widget' });
+   * products.add({ sku: 'A100', price: 9.99 });
+   * // → { sku: 'A100', name: 'Widget', price: 9.99 }
    *
    * @param {object}   args
-   * @param {string}   args.index          Name of property to use for indexing
-   * @param {function} args.indextransform Transform function for normalizing index keys
-   *
+   * @param {string}   args.index          property name used as the unique key
+   * @param {function} args.indextransform optional `(key) => normalizedKey`
    */
   elation.elements.define('collection.indexed', class extends elation.elements.collection.simple {
     /**

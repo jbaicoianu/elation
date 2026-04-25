@@ -1,22 +1,39 @@
 elation.require(['elements.collection.simple'], function() {
-  /** 
-   * Subset collection
-   * Subset the data from the parent collection
+  /**
+   * Derived collection produced by transforming a parent's raw response
+   * data. Where `filter` operates on already-parsed items via a predicate,
+   * `subset` runs on `parent.rawdata` (typically a fresh server response)
+   * and is meant for cases where a single API call backs multiple list
+   * views — e.g. one collection holds the response, several subsets each
+   * pull out a different slice.
+   *
+   * Configure the slice via `datatransform.items` / `datatransform.count`
+   * inherited from `simple`, the same way you'd shape a non-flat API
+   * response in `collection.api`.
    *
    * @class subset
    * @hideconstructor
    * @category Collections
    * @augments elation.elements.collection.simple
    * @memberof elation.elements.collection
+   * @example
+   * const admins = elation.elements.create('collection-subset', {
+   *   parent: users,
+   *   datatransform: {
+   *     items: data => data.users.filter(u => u.role === 'admin'),
+   *     count: data => data.users.filter(u => u.role === 'admin').length
+   *   }
+   * });
    *
    * @param {object} args
-   * @param {elation.collection.simple} args.parent List to subset
-   *
-   *
+   * @param {elation.elements.collection.simple} args.parent source collection
+   * @param {object} args.datatransform
+   * @param {function} args.datatransform.items
+   * @param {function} args.datatransform.count
    */
   /**
    * Fired when this collection has fetched items
-   * @event elation.elements.collection.filter#collection_load
+   * @event elation.elements.collection.subset#collection_load
    * @type {Object}
    */
   elation.elements.define('collection.subset', class extends elation.elements.collection.simple {

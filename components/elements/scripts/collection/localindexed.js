@@ -1,19 +1,30 @@
 elation.require(['elements.collection.indexed'], function() {
 
   /**
-   * localStorage-backed indexed collection
-   * Auto-save changes to localStorage, loads on init.
-   * 
+   * Indexed collection persisted to `localStorage`. Loads from storage on
+   * init and re-serializes on every add/remove/move; cross-tab updates
+   * arrive via the browser's `storage` event so tabs sharing a key stay
+   * in sync.
+   *
+   * `storagekey` is the localStorage key used for persistence. `index` is
+   * the per-item primary key inherited from `collection.indexed`.
+   *
    * @class localindexed
    * @hideconstructor
    * @category Collections
    * @augments elation.elements.collection.indexed
    * @memberof elation.elements.collection
+   * @example
+   * const todos = elation.elements.create('collection-localindexed', {
+   *   index: 'id',
+   *   storagekey: 'app.todos'
+   * });
+   * todos.add({ id: 1, text: 'Write docs' });
+   * // Persisted across reloads automatically.
    *
    * @param {object} args
    * @param {string} args.index
    * @param {string} args.storagekey
-   *
    */
   /**
    * Fired when this collection is saved

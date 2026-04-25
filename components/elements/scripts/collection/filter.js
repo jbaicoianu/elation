@@ -1,19 +1,24 @@
 elation.require(['elements.collection.simple'], function() {
-  /** 
-   * Filter collection
-   * Apply the specified filter to the parent list, and present it as its own collection
+  /**
+   * Derived collection that exposes a subset of a parent's items selected
+   * by a user-supplied predicate. Re-evaluates `filterfunc` against every
+   * parent item on each read; bind it to a list and the list updates as
+   * the parent's data changes.
    *
    * @class filter
    * @hideconstructor
    * @category Collections
    * @augments elation.elements.collection.simple
    * @memberof elation.elements.collection
+   * @example
+   * const activeUsers = elation.elements.create('collection-filter', {
+   *   parent: users,
+   *   filterfunc: u => u.active && !u.archived
+   * });
    *
    * @param {object} args
-   * @param {elation.collection.simple} args.parent List to filter
-   * @param {function} args.filterfunc Callback function for filtering list 
-   *
-   *
+   * @param {elation.elements.collection.simple} args.parent collection to filter
+   * @param {function} args.filterfunc predicate `(item) => boolean`
    */
   /**
    * Fired when this collection has fetched items

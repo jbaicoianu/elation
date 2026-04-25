@@ -152,6 +152,14 @@ elation.require(['utils.template'], function() {
           this.init();
           //this.initAttributes();
         }
+        /**
+         * Lifecycle hook: declare attributes via `defineAttributes` and
+         * set per-instance state. Subclasses should call `super.init()`
+         * first, then add their own `defineAttributes` call.
+         *
+         * @function init
+         * @memberof elation.elements.base#
+         */
         init() {
           this.defineAttributes({
             deferred: { type: 'boolean', default: false },
@@ -166,6 +174,18 @@ elation.require(['utils.template'], function() {
           elation.events.add(this, 'mouseover', (ev) => this.onhover(ev));
           elation.events.add(this, 'mouseout', (ev) => this.onunhover(ev));
         }
+        /**
+         * Declare a set of typed attributes on this element. Each entry is
+         * a descriptor `{ type, default?, get?, set? }` keyed by attribute
+         * name. The descriptor's `type` controls coercion between the HTML
+         * attribute string and the JS property value; see the project
+         * README's Type system section for built-in types and how to
+         * register new ones.
+         *
+         * @function defineAttributes
+         * @memberof elation.elements.base#
+         * @param {object} attrs map of attribute name → descriptor
+         */
         defineAttributes(attrs) {
           for (var k in attrs) {
             this.defineAttribute(k, attrs[k]);
@@ -277,6 +297,18 @@ elation.require(['utils.template'], function() {
             this['on' + ev.type](ev);
           }
         }
+        /**
+         * Fire an event on this element. If `ev.bubbles` is true the event
+         * walks up through parent nodes, with each ancestor receiving a
+         * cloned event whose `target` stays this element but whose
+         * `currentTarget` is the ancestor. A method named `on<type>` on
+         * this element, if present, runs as a default handler before
+         * registered listeners.
+         *
+         * @function dispatchEvent
+         * @memberof elation.elements.base#
+         * @param {object} ev event payload, e.g. `{type, bubbles, data}`
+         */
         dispatchEvent(ev) {
           if (typeof this['on' + ev.type] == 'function') {
             this['on' + ev.type](ev);
@@ -295,8 +327,15 @@ elation.require(['utils.template'], function() {
             }
           }
         }
-         /*
-         * Handle default element creation.  If template is specified, use it for our contents.
+        /**
+         * Lifecycle hook: fires once after the element is connected to the
+         * DOM and its child nodes have parsed. The default implementation
+         * expands `template` into `innerHTML` if one is set; subclasses
+         * typically override `create()` to wire event listeners, query
+         * children, and produce initial content.
+         *
+         * @function create
+         * @memberof elation.elements.base#
          */
         create() {
           if (this.template) {

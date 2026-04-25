@@ -97,21 +97,44 @@ The same declaration drives the `set:` and `get:` hooks from the previous sectio
 
 ### Built-in types
 
-These coerce natively with no external dependencies:
+The four numeric / function / boolean types coerce in the type-system switch with no external dependencies:
 
 - **`boolean`** (alias: `bool`) — presence is true; an absent attribute, `'0'`, or `'false'` is false. Writing `true` sets the attribute to the empty string; writing `false` removes it.
 - **`integer`** (alias: `int`) — parsed with `value|0`, i.e. a 32-bit truncated integer.
 - **`float`** (alias: `number`) — parsed with `+value`; non-numeric strings become `NaN`.
 - **`callback`** — function values pass through; string values are wrapped in `new Function('event', value)`, so inline handlers like `onaccept="this.submit()"` work from markup the same way `onclick=` does on native elements.
 
+One additional type ships pre-registered via `registerType()` (covered below):
+
+- **`anchor`** — hybrid boolean / pixel-offset value used by `ui.panel`'s edge-snap attributes (`top` / `bottom` / `left` / `right`). Presence with no value or any non-numeric truthy value reads as `true`; numeric values read as the offset. Used internally by `ui.window` so the same attribute can mean either "snap to top edge" (`<ui-window top>`) or "snap with a 50px offset" (`<ui-window top="50">`).
+
 Unrecognized type names (including `string`, `object`, `array`) pass through with no coercion. That's harmless for `string` — attribute values are strings already — but for `object` and `array` it means markup attributes don't parse; only direct JS property assignment round-trips correctly. Declaring those types is still useful as a documentation hint and so editors and the docs generator can display the intent.
 
 ### Registering new types
 
-Anything richer — vectors, colors, URLs, dates — gets registered by the consuming project via `elation.elements.registerType(name, handler)`. The handler is a `{ read, write }` pair: `read` turns the raw attribute string into the typed value, and `write` turns the typed value back into a string for `setAttribute`.
+Anything richer — vectors, colors, URLs, dates — gets registered via `elation.elements.registerType(name, handler)`. The handler is a `{ read, write }` pair: `read` turns the raw attribute string into the typed value, and `write` turns the typed value back into a string for `setAttribute`. Core itself uses this to register `anchor`; consumers register types that depend on libraries core doesn't ship.
 
 ```js
-// In a project that ships Three.js (e.g., Elation Engine):
+// Anchor is registered in core, alongside ui.panel — the hybrid type
+// used for edge-snap attributes. Returns true for presence with no value,
+// or a number when an explicit pixel offset is supplied.
+elation.elements.registerType('anchor', {
+  read(value) {
+    if (value === true || value === '' || value === 'true') return true;
+    if (value === false || value == null || value === 'false') return false;
+    const n = Number(value);
+    if (isNaN(n) || n === 0) return true;
+    return n | 0;
+  },
+  write(value) {
+    if (value === true) return '';
+    if (value === false || value == null) return 'false';
+    return String(value);
+  }
+});
+
+// And in a project that ships Three.js (e.g., Elation Engine), a
+// downstream registration that depends on a runtime core won't pull in:
 elation.elements.registerType('vector3', {
   read(value) {
     if (value instanceof THREE.Vector3) return value;
@@ -124,7 +147,7 @@ elation.elements.registerType('vector3', {
 });
 ```
 
-With that registered, any element can declare `position: { type: 'vector3' }` and its `.position` property is a live `THREE.Vector3` while the markup stays valid as `<my-element position="1 2 3">`. Elation core ships only the handful of built-ins above so it has no runtime dependencies; richer types are the consuming project's responsibility.
+With `vector3` registered, any element can declare `position: { type: 'vector3' }` and its `.position` property is a live `THREE.Vector3` while the markup stays valid as `<my-element position="1 2 3">`. Elation core registers types it can implement without external dependencies (like `anchor`); richer types are the consuming project's responsibility.
 
 ## License
 

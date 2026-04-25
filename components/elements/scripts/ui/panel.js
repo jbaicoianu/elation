@@ -1,9 +1,34 @@
 elation.require(['elements.elements'], function() {
+  // Hybrid boolean / pixel-offset type used by the edge-snap attributes.
+  // Presence (with or without a value) means "snap to this edge"; a numeric
+  // value carries an additional pixel offset that subclasses may consult.
+  elation.elements.registerType('anchor', {
+    read(value) {
+      if (value === true || value === '' || value === 'true') return true;
+      if (value === false || value == null || value === 'false') return false;
+      const n = Number(value);
+      if (isNaN(n) || n === 0) return true;
+      return n | 0;
+    },
+    write(value) {
+      if (value === true) return '';
+      if (value === false || value == null) return 'false';
+      return String(value);
+    }
+  });
+
   /**
    * Absolutely-positioned container that snaps to its offsetParent's edges
-   * or center. The position is driven by boolean edge flags — any combination
-   * of `top` / `middle` / `bottom` with `left` / `center` / `right`. Auto-updates
+   * or center. The position is driven by edge flags — any combination of
+   * `top` / `middle` / `bottom` with `left` / `center` / `right`. Auto-updates
    * on window resize, orientation change, and child-list mutations.
+   *
+   * The four corner attributes (`top` / `bottom` / `left` / `right`) use the
+   * `anchor` type: an absent attribute means "don't constrain this edge",
+   * and presence — boolean form, empty value, or a numeric pixel offset —
+   * means "snap to this edge". Panel's own layout treats anchor values
+   * purely as truthy/falsy snap signals; subclasses like `ui.window` read
+   * the numeric value and apply it as a pixel offset.
    *
    * Base class for `ui.window`, `ui.flexpanel`, `ui.collapsiblepanel`, and `ui.tooltip`.
    *
@@ -16,23 +41,23 @@ elation.require(['elements.elements'], function() {
    * <ui-panel bottom right>Docked to bottom-right</ui-panel>
    *
    * @param {object} args
-   * @param {boolean} args.top
+   * @param {boolean|integer} args.top
    * @param {boolean} args.middle
-   * @param {boolean} args.bottom
-   * @param {boolean} args.left
+   * @param {boolean|integer} args.bottom
+   * @param {boolean|integer} args.left
    * @param {boolean} args.center
-   * @param {boolean} args.right
+   * @param {boolean|integer} args.right
    */
   elation.elements.define('ui.panel', class extends elation.elements.base {
-    init() { 
+    init() {
       super.init();
       this.defineAttributes({
-        top:    {type: 'boolean', default: false, set: this.updateLayout },
+        top:    {type: 'anchor',  default: false, set: this.updateLayout },
         middle: {type: 'boolean', default: false, set: this.updateLayout },
-        bottom: {type: 'boolean', default: false, set: this.updateLayout },
-        left:   {type: 'boolean', default: false, set: this.updateLayout },
+        bottom: {type: 'anchor',  default: false, set: this.updateLayout },
+        left:   {type: 'anchor',  default: false, set: this.updateLayout },
         center: {type: 'boolean', default: false, set: this.updateLayout },
-        right:  {type: 'boolean', default: false, set: this.updateLayout },
+        right:  {type: 'anchor',  default: false, set: this.updateLayout },
       });
     }
     create() {

@@ -3,29 +3,41 @@
  * minimize/maximize/close controls. Child nodes are wrapped in an auto-created
  * `<ui-window-content>` unless one is provided explicitly.
  *
+ * The edge-snap attributes (`top` / `bottom` / `left` / `right`) follow a
+ * hybrid convention: an absent attribute means "don't constrain this edge",
+ * while any value — `true`, an empty attribute, or a pixel offset — means
+ * "snap to this edge", with numeric values applied as pixel offsets from
+ * that edge.
+ *
  * @class window
  * @hideconstructor
  * @category UI
  * @augments elation.elements.ui.panel
  * @memberof elation.elements.ui
  * @example
- * <ui-window title="Inspector" movable resizable controls>
+ * <ui-window windowtitle="Inspector" movable resizable controls>
  *   <p>Window contents.</p>
  * </ui-window>
  *
  * @param {object} args
- * @param {array} args.items
- * @param {boolean} args.controls
- * @param {string} args.title
- * @param {string} args.content
- * @param {array} args.position
+ * @param {string} args.windowtitle title shown in the window's title bar
+ * @param {string} args.title alias for `windowtitle`; kept for backwards compatibility but collides with the browser's native tooltip behavior, so prefer `windowtitle` in new code
+ * @param {string|HTMLElement} args.content
+ * @param {array|vector2} args.position
+ * @param {string} args.width CSS width (e.g. `"400px"`, `"50%"`)
+ * @param {string} args.height CSS height (e.g. `"300px"`, `"auto"`)
+ * @param {boolean|integer} args.top
+ * @param {boolean|integer} args.bottom
+ * @param {boolean|integer} args.left
+ * @param {boolean|integer} args.right
  * @param {boolean} args.center
- * @param {int} args.width
- * @param {int} args.height
- * @param {int} args.top
- * @param {int} args.bottom
- * @param {int} args.left
- * @param {int} args.right
+ * @param {boolean} args.controls show the minimize/maximize/close buttons
+ * @param {boolean} args.movable
+ * @param {boolean} args.resizable
+ * @param {boolean} args.scrollable
+ * @param {boolean} args.minimizable
+ * @param {boolean} args.maximizable
+ * @param {boolean} args.closable
  */
 
 elation.require(['elements.elements', 'elements.ui.button', 'elements.ui.buttonbar'], function() {
@@ -42,11 +54,6 @@ elation.require(['elements.elements', 'elements.ui.button', 'elements.ui.buttonb
         content:   { type: 'object' },
         movable:   { type: 'boolean' },
         controls: { type: 'boolean' },
-        center: { type: 'boolean' },
-        left: { type: 'boolean' },
-        right: { type: 'boolean' },
-        top: { type: 'boolean' },
-        bottom: { type: 'boolean' },
         width: { type: 'string' },
         height: { type: 'string' },
         resizable: { type: 'boolean' },

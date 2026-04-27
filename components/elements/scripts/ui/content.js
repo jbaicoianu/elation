@@ -1,4 +1,6 @@
 elation.require(['elements.elements'], function() {
+  elation.requireCSS('ui.content');
+
   /**
    * Generic content container. Assigning a string or `HTMLElement` to
    * `value` replaces the current contents — useful as a slot for

@@ -12,7 +12,7 @@
  * @param {string} args.type
  */
 elation.require(['elements.elements'], function() {
-  elation.requireCSS("elements.ui.spinner");
+  elation.requireCSS('ui.spinner');
 
   elation.elements.define('ui.spinner', class extends elation.elements.base {
     init() {

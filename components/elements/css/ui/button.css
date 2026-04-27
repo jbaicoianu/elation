@@ -1,0 +1,67 @@
+/*
+ * Structural styles for ui-button and its variants.
+ * Visual styling (colors, gradients, fonts) lives in the theme layer.
+ */
+
+ui-button,
+ui-togglebutton,
+ui-dropdownbutton,
+ui-tabbutton,
+ui-tabcountbutton,
+ui-popupbutton,
+ui-notificationbutton {
+  display: inline-block;
+  padding: .1em .5em;
+  cursor: pointer;
+  position: relative;
+  text-align: center;
+  user-select: none;
+  -ms-user-select: none;
+  -moz-user-select: none;
+}
+ui-button[disabled],
+ui-togglebutton:disabled,
+ui-dropdownbutton:disabled,
+ui-tabcountbutton:disabled,
+ui-popupbutton:disabled,
+ui-notificationbutton:disabled {
+  cursor: not-allowed;
+}
+
+ui-dropdownbutton {
+  padding-right: 1em;
+}
+ui-dropdownbutton::after {
+  display: inline-block;
+  content: '\25be';
+  position: absolute;
+  right: 0;
+  top: 0;
+  padding-top: .2em;
+}
+ui-dropdownbutton>ui-button {
+  display: none;
+  width: 100%;
+}
+ui-dropdownbutton:active>ui-button {
+  display: block;
+}
+
+ui-notificationbutton {
+  padding: 0;
+  transform: scale(1, 1);
+  transition: transform 125ms ease-out;
+}
+ui-notificationbutton[count="0"] {
+  transform: scale(0, 0);
+}
+ui-notificationbutton ui-indicator {
+  display: inline-block;
+  min-width: 1em;
+  position: absolute;
+  top: -.8em;
+  right: -.8em;
+  text-align: center;
+  vertical-align: middle;
+  padding: 0 .2em;
+}

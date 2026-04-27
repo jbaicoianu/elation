@@ -1,4 +1,6 @@
 elation.require(['elements.ui.window'], function() {
+  elation.requireCSS('ui.tooltip');
+
   /**
    * Headless floating window that follows the mouse while its parent is
    * hovered and auto-hides on `mouseout`. Contents are set via

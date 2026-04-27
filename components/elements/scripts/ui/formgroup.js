@@ -1,4 +1,6 @@
 elation.require(['elements.elements'], function() {
+  elation.requireCSS('ui.formgroup');
+
   /**
    * Container for grouping form controls under an optional header label.
    * Use as a logical (and visual) section divider inside larger forms.

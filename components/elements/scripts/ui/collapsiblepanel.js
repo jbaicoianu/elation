@@ -1,4 +1,6 @@
 elation.require(['elements.ui.panel', 'elements.ui.togglebutton'], function() {
+  elation.requireCSS('ui.collapsiblepanel');
+
   /**
    * Panel that slides open and closed via a toggle handle. Content is
    * wrapped in double-div containers so the collapse animation can use

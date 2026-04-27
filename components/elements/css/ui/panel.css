@@ -1,0 +1,39 @@
+/*
+ * Structural styles for ui-panel and ui-flexpanel.
+ * Edge-snap positioning is driven by the boolean/anchor attributes
+ * top/bottom/left/right (and middle/center) defined on ui-panel.
+ */
+
+ui-panel,
+ui-collapsiblepanel {
+  position: absolute;
+  z-index: 5;
+}
+ui-panel[top],
+ui-collapsiblepanel[top]    { top: 0; }
+ui-panel[bottom],
+ui-collapsiblepanel[bottom] { bottom: 0; }
+ui-panel[left],
+ui-collapsiblepanel[left]   { left: 0; }
+ui-panel[right],
+ui-collapsiblepanel[right]  { right: 0; }
+ui-panel[top]:not([left]):not([right]) {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+ui-flexpanel {
+  display: flex;
+  width: calc(100% - 1em);
+  height: calc(100% - 1em);
+  padding: .5em;
+}
+ui-flexpanel[vertical] {
+  flex-direction: column;
+}
+ui-flexpanel>* {
+  flex: 1 1;
+}
+ui-flexpanel>*[noflex] {
+  flex: 0 1;
+}

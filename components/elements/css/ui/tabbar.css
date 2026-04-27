@@ -1,0 +1,7 @@
+/*
+ * ui-tabbar's structural and visual rules live in tabs.css and the
+ * default theme respectively, since they describe how a tabbar fits
+ * inside a ui-tabs container. This file exists so requireCSS('ui.tabbar')
+ * resolves cleanly; standalone use of <ui-tabbar> picks up its layout
+ * from ui-buttonbar (which it extends).
+ */

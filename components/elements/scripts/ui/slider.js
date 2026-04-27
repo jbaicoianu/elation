@@ -1,4 +1,6 @@
 elation.require(['elements.elements', 'elements.ui.input', 'elements.ui.text'], function() {
+  elation.requireCSS('ui.slider');
+
   /**
    * Continuous-range slider with a draggable handle. Drag, click, or scroll
    * the track to change the value; `snap` restricts values to a multiple of

@@ -1,0 +1,32 @@
+/*
+ * Structural styles for ui-list and ui-checklist.
+ */
+
+ui-list,
+ui-checklist {
+  display: block;
+  position: relative;
+  overflow: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+ui-list>ui-item,
+ui-checklist>ui-checklistitem {
+  display: block;
+  position: relative;
+  padding: .2em .5em;
+  user-select: none;
+  transform: translate3d(0, 0, 0);
+}
+ui-list[selectable]>ui-item[hover] {
+  cursor: pointer;
+}
+ui-list[selectable] {
+  cursor: text;
+  user-select: text;
+}
+ui-list>[selectable] {
+  cursor: text;
+  user-select: text;
+}

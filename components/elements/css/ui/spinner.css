@@ -1,0 +1,52 @@
+/*
+ * Structural styles for ui-spinner.
+ * Animation timing is structural; colors come from the theme.
+ */
+
+@keyframes elation-rotate-loading {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes elation-loading-text-opacity {
+  0%   { opacity: .5; }
+  20%  { opacity: .5; }
+  50%  { opacity: 1; }
+  100% { opacity: .5; }
+}
+
+ui-spinner .loading-container,
+ui-spinner .loading {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border-radius: 100%;
+}
+ui-spinner .loading-container {
+  margin: 0 auto;
+  overflow: hidden;
+}
+ui-spinner .loading {
+  animation: elation-rotate-loading 1.5s linear 0s infinite normal;
+  transform-origin: 50% 50%;
+}
+ui-spinner .loading-container:hover .loading,
+ui-spinner .loading-container .loading {
+  transition: all 0.5s ease-in-out;
+}
+ui-spinner .loading-text {
+  position: absolute;
+  top: 0;
+  width: 100px;
+  margin-top: 45px;
+  text-align: center;
+  text-transform: uppercase;
+  opacity: 0;
+  animation: elation-loading-text-opacity 2s linear 0s infinite normal;
+}
+ui-spinner[full] {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}

@@ -11,6 +11,8 @@
  * @param {object} args.buttons
  */
 elation.require(['elements.ui.list', 'elements.ui.button', 'elements.ui.togglebutton'], function() {
+  elation.requireCSS('ui.buttonbar');
+
   elation.elements.define('ui.buttonbar', class extends elation.elements.ui.list {
     init() {
       super.init();

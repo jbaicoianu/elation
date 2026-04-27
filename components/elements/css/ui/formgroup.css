@@ -1,0 +1,35 @@
+/*
+ * Structural styles for ui-formgroup.
+ */
+
+ui-formgroup {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  width: 100%;
+  margin: .5em 0;
+}
+ui-formgroup>ui-label.groupheader {
+  display: block;
+  width: 100%;
+  order: -1;
+}
+ui-formgroup>ui-input,
+ui-formgroup>ui-select,
+ui-formgroup>ui-toggle,
+ui-formgroup>ui-slider,
+ui-formgroup>ui-textarea {
+  display: flex;
+  padding: .2em;
+}
+ui-formgroup>ui-input>input,
+ui-formgroup>ui-textarea>textarea,
+ui-formgroup>ui-select>select,
+ui-formgroup>ui-slider>ui-slider-track {
+  flex: 1;
+}
+ui-formgroup ui-label,
+ui-formgroup ui-text {
+  display: inline-block;
+  width: 10em;
+}

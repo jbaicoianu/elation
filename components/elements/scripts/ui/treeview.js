@@ -13,7 +13,7 @@
  * @param {object} args.attrs
  */
 elation.require(["elements.elements", "elements.ui.item"], function() {
-  //elation.requireCSS('ui.treeview');
+  elation.requireCSS('ui.treeview');
 
   elation.elements.define('ui.treeview', class extends elation.elements.base {
     init() {

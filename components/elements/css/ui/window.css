@@ -1,0 +1,82 @@
+/*
+ * Structural styles for ui-window.
+ * Window is positioned absolutely and lays out its parts via flex column;
+ * resizers are positioned absolutely at edges.
+ */
+
+ui-window {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 5;
+  vertical-align: top;
+}
+ui-window>ui-window-titlebar {
+  display: flex;
+  position: relative;
+  margin: 0;
+  cursor: default;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  vertical-align: middle;
+  user-select: none;
+  -ms-user-select: none;
+  -moz-user-select: none;
+  order: 0;
+}
+ui-window.state_movable>ui-window-titlebar:hover {
+  cursor: grab;
+  cursor: -webkit-grab;
+  cursor: -moz-grab;
+}
+ui-window.state_movable>ui-window-titlebar.state_dragging {
+  cursor: grabbing;
+  cursor: -webkit-grabbing;
+  cursor: -moz-grabbing;
+}
+ui-window>ui-window-titlebar>span {
+  flex: 1;
+  order: 1;
+  padding: 0 0 0 .5em;
+  line-height: 1.8em;
+}
+ui-window>ui-window-titlebar>ui-buttonbar {
+  flex: 0;
+  order: 2;
+}
+ui-window>ui-window-content {
+  display: block;
+  position: relative;
+  order: 1;
+}
+ui-window[scrollable]>ui-window-content {
+  display: block;
+  overflow: auto;
+}
+ui-window[maximized] {
+  z-index: 1000;
+}
+ui-window[maximized]>ui-window-content {
+  max-width: none;
+  max-height: none;
+  padding: 0;
+}
+ui-window>.ui_window_resizer {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  bottom: -2px;
+  right: -2px;
+  cursor: se-resize;
+  z-index: 10;
+}
+ui-window[right]>.ui_window_resizer  { right: auto; left: -2px; }
+ui-window[top]>.ui_window_resizer    { bottom: -2px; top: auto; }
+ui-window[bottom]>.ui_window_resizer { top: -2px; bottom: auto; }
+ui-window[top][right]>.ui_window_resizer    { cursor: sw-resize; }
+ui-window[top][left]>.ui_window_resizer     { cursor: se-resize; }
+ui-window[bottom][right]>.ui_window_resizer { cursor: se-resize; }
+ui-window[bottom][left]>.ui_window_resizer  { cursor: sw-resize; }

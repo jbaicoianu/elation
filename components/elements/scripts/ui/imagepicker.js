@@ -1,4 +1,6 @@
 elation.require(['elements.elements'], function() {
+  elation.requireCSS('ui.imagepicker');
+
   /**
    * Image file-picker control with a preview canvas. Accepts file input via
    * the standard `<input type="file">` flow and renders the selected image

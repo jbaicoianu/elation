@@ -1,0 +1,16 @@
+/*
+ * Structural styles for ui-input and ui-textarea.
+ */
+
+ui-input {
+  display: flex;
+}
+ui-input>ui-label {
+  min-width: 5em;
+}
+ui-input>input {
+  flex: 1 1;
+}
+ui-textarea>textarea {
+  resize: vertical;
+}

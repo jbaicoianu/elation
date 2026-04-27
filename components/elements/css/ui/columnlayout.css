@@ -1,0 +1,20 @@
+/*
+ * Structural styles for ui-columnlayout.
+ */
+
+ui-columnlayout {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+ui-columnlayout>* {
+  display: flex;
+  flex: 1 1;
+  flex-direction: column;
+  width: calc(33% - 1px - 1em);
+  margin-left: .5em;
+  padding-left: .5em;
+}
+ui-columnlayout>*:first-child {
+  margin-left: 0;
+}

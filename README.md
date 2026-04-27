@@ -14,11 +14,15 @@ The fastest path is a CDN include — one script, one stylesheet, every element 
 <!DOCTYPE html>
 <script src="https://cdn.jsdelivr.net/npm/elation/build/elation.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/elation/build/elation.css">
+<!-- Optional: layered visual theme -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/elation/build/themes/default.css">
 
 <ui-button label="Click me"></ui-button>
 ```
 
 That's the whole setup. Once the bundle loads it registers every UI element and collection class with the browser's custom-element registry; markup like `<ui-button>` and `<ui-tabs>` works from then on. unpkg also serves the same artifact at `https://unpkg.com/elation/build/elation.js`.
+
+`elation.css` is the structural layer — it gives every component the layout, dimensions, and event behaviour it needs to function, but no colours or fonts. With just `elation.css` loaded, components look like a plain HTML page; pair it with one of the theme files in `build/themes/` (or your own) for the visual polish.
 
 ### npm
 

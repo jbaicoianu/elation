@@ -1,0 +1,441 @@
+/*
+ * Default theme for Elation Elements.
+ *
+ * This file applies the visual layer — colors, gradients, fonts, borders,
+ * shadows — on top of each component's structural CSS. Loading the
+ * structural CSS alone (build/elation.css) leaves components functional
+ * but un-styled, like raw HTML; pair it with this file (or your own
+ * theme) for the polished look.
+ */
+
+@font-face {
+  font-family: "Montserrat";
+  src: url('fonts/Montserrat-Regular.ttf');
+}
+
+body {
+  background: #333;
+  color: #eee;
+  font-family: "Montserrat", sans-serif;
+}
+
+/*
+ * Lists & grids
+ */
+ui-list,
+ui-checklist {
+  border: 1px solid #111;
+  border-radius: .5em;
+  background: rgba(0, 0, 0, .1);
+}
+ui-list>ui-item,
+ui-checklist>ui-checklistitem {
+  border: 1px solid transparent;
+  border-bottom: 1px solid rgba(0, 0, 0, .2);
+}
+ui-list>ui-item:last-of-type,
+ui-checklist>ui-checklistitem:last-of-type {
+  border-bottom: 0;
+}
+ui-list>ui-item[hover],
+ui-checklist>ui-checklistitem[hover] {
+  background-color: rgba(128, 128, 255, .05);
+}
+ui-list[selectable]>ui-item[hover] {
+  background-color: rgba(128, 128, 255, .2);
+}
+ui-list>ui-item.state_selected,
+ui-checklist>ui-checklistitem.state_selected {
+  background: rgba(128, 128, 255, .5);
+}
+ui-grid>ui-item {
+  border: 1px solid #111;
+  border-radius: .5em;
+  background: rgba(0, 0, 0, .1);
+}
+ui-grid>ui-item[hover] {
+  background-color: rgba(128, 128, 255, .2);
+}
+
+/*
+ * Tabs
+ */
+ui-tabs>ui-tab {
+  border: 1px solid black;
+  border-top: 0;
+  background: #3a3f44;
+}
+ui-tabs>ui-tabbar {
+  color: white;
+  border-bottom: 1px solid #1c1e22;
+  font-size: .8em;
+}
+ui-tabs>ui-tabbar>ui-button,
+ui-tabs>ui-tabbar>ui-tabbutton,
+ui-tabs>ui-tabbar>ui-tabcountbutton {
+  border: 1px solid #1c1e22;
+  border-radius: .5em .5em 0 0;
+}
+ui-tabs>ui-tabbar>ui-button[selected],
+ui-tabs>ui-tabbar>ui-button[selected][hover],
+ui-tabs>ui-tabbar>ui-tabbutton[selected],
+ui-tabs>ui-tabbar>ui-tabcountbutton[selected],
+ui-tabs>ui-tabbar>ui-tabcountbutton[selected][hover] {
+  background-color: #4cb96f;
+  border-bottom-color: transparent;
+}
+ui-tabs>ui-tabbar>ui-button[hover],
+ui-tabs>ui-tabbar>ui-tabcountbutton[hover] {
+  background-image: linear-gradient(rgba(128, 128, 128, 1), rgba(128, 128, 128, 1) 60%, rgba(128, 128, 128, 1));
+  border-color: #1c1e22 #1c1e22 transparent #1c1e22;
+}
+ui-tabs>ui-tabbar>ui-button[disabled],
+ui-tabs>ui-tabbar>ui-tabcountbutton[disabled] {
+  color: #777;
+}
+
+/*
+ * Window & tooltip
+ */
+ui-window {
+  border: 1px solid #666;
+  border-radius: .5em;
+  background-color: rgba(0, 0, 0, .5);
+  color: white;
+  box-shadow: 1px 1px 10px rgba(0, 0, 0, 1);
+}
+ui-window>ui-window-titlebar {
+  border-bottom: 1px solid #666;
+}
+ui-window>ui-window-titlebar>span {
+  font-size: 1em;
+}
+ui-window>ui-window-titlebar>ui-buttonbar>ui-button {
+  background: none;
+  border: none;
+}
+ui-window>.ui_window_resizer {
+  border-bottom: 2px solid #ccc;
+  border-right: 2px solid #ccc;
+  border-radius: 0 0 5px 0;
+}
+ui-window[right]>.ui_window_resizer  { border-right: 0; border-left: 2px solid #ccc; }
+ui-window[top]>.ui_window_resizer    { border-top: 0; border-bottom: 2px solid #ccc; }
+ui-window[bottom]>.ui_window_resizer { border-bottom: 0; border-top: 2px solid #ccc; }
+ui-window[top][right]>.ui_window_resizer    { border-radius: 0 0 0 5px; }
+ui-window[top][left]>.ui_window_resizer     { border-radius: 0 0 5px 0; }
+ui-window[bottom][right]>.ui_window_resizer { border-radius: 5px 0 0 0; }
+ui-window[bottom][left]>.ui_window_resizer  { border-radius: 0 5px 0 0; }
+ui-window[maximized] {
+  border-width: 0;
+  border-radius: 0;
+}
+
+ui-tooltip {
+  border: 1px solid #666;
+  border-radius: .5em;
+  background-color: rgba(0, 0, 0, .5);
+  color: white;
+  box-shadow: 1px 1px 10px rgba(0, 0, 0, 1);
+}
+
+/*
+ * Form elements
+ */
+ui-input>input {
+  border: 1px solid black;
+  border-radius: 4px;
+  background: #999;
+}
+ui-input>input:hover,
+ui-input>input[hover] {
+  background: #aaa;
+}
+ui-input>input:focus {
+  background: #bbb;
+}
+
+ui-toggle>div {
+  border: 1px solid black;
+  border-radius: .5em;
+  background: #333;
+}
+ui-toggle[hover]>div {
+  background: #444;
+}
+ui-toggle>div::before {
+  background: #700;
+  border-radius: 10px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, .8);
+}
+ui-toggle[checked]>div::before {
+  background: green;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, .8);
+}
+ui-toggle[disabled]>div {
+  color: #999;
+}
+ui-toggle[disabled]>div::before {
+  background: #666;
+}
+
+ui-checkbox>input {
+  border: 1px solid #cacece;
+  border-radius: 3px;
+  background-color: #fafafa;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .05), inset 0 -15px 10px -12px rgba(0, 0, 0, .05);
+}
+ui-checkbox>input:active,
+ui-checkbox>input:checked:active {
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .05), inset 0 1px 3px rgba(0, 0, 0, .1);
+}
+ui-checkbox[hover]>input,
+ui-checkbox[hover]>input:checked {
+  background: #ddffee;
+  box-shadow: 0 0 6px rgba(0, 255, 0, 1);
+}
+ui-checkbox>input:checked {
+  border: 1px solid #adb8c0;
+  background-color: #e9ecee;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .05), inset 0 -15px 10px -12px rgba(0, 0, 0, .05);
+  color: #99a1a7;
+}
+ui-checkbox>input:checked:after {
+  font-size: 1em;
+  color: #000;
+}
+ui-checkbox[disabled] {
+  color: #666;
+}
+ui-checkbox[disabled]>input {
+  background: #aaa;
+  color: #666;
+}
+ui-checkbox[disabled][hover]>input,
+ui-checkbox[disabled][hover]>input:checked {
+  background: #aaa;
+  box-shadow: none;
+}
+
+ui-slider>ui-slider-track {
+  border: 1px solid black;
+  border-radius: .2em;
+  background: #4cb96f;
+}
+ui-slider>ui-slider-track[hover] {
+  background: #46db76;
+}
+ui-slider-handle {
+  border: 1px solid black;
+  border-radius: .5em;
+  background: #999;
+  box-shadow: 0 0 5px rgba(0, 0, 0, .8);
+}
+ui-slider-handle>ui-label {
+  background: rgba(0, 0, 0, .5);
+  border-radius: 20px;
+}
+
+ui-select>select {
+  border: 1px solid #222;
+  background: #444;
+  color: white;
+  box-shadow: 0 0 2px #222;
+}
+ui-select:hover>select {
+  background: #555;
+}
+
+ui-label {
+  text-shadow: 0 0 1px #000;
+}
+
+ui-formgroup>ui-label.groupheader {
+  font-weight: bold;
+  border-bottom: 1px solid #666;
+}
+
+/*
+ * Buttons
+ */
+ui-button,
+ui-togglebutton,
+ui-dropdownbutton,
+ui-tabbutton,
+ui-tabcountbutton,
+ui-popupbutton,
+ui-notificationbutton {
+  color: white;
+  background-image: linear-gradient(#484e55, #3a3f44 60%, #313539);
+  background-color: transparent;
+  border: none;
+  border-radius: .5em;
+}
+ui-button[hover],
+ui-togglebutton[hover],
+ui-dropdownbutton[hover],
+ui-tabbutton[hover],
+ui-tabcountbutton[hover],
+ui-popupbutton[hover],
+ui-notificationbutton[hover] {
+  background-image: linear-gradient(#323232, #404142 40%, #393b3d);
+}
+ui-button:active,
+ui-togglebutton:active,
+ui-dropdownbutton:active,
+ui-tabbutton:active,
+ui-tabcountbutton:active,
+ui-popupbutton:active,
+ui-notificationbutton:active {
+  background-image: linear-gradient(#020202, #101112 40%, #191b1d);
+}
+ui-button[disabled],
+ui-togglebutton:disabled,
+ui-dropdownbutton:disabled,
+ui-tabcountbutton:disabled,
+ui-popupbutton:disabled,
+ui-notificationbutton:disabled {
+  color: #999;
+  background-image: linear-gradient(#383e45, #2a2f34 60%, #212549);
+}
+
+ui-togglebutton[active] {
+  background-image: linear-gradient(#028202, #109112 40%, #199b1d);
+}
+
+ui-dropdownbutton>ui-button {
+  border: none;
+  border-radius: 0;
+}
+
+ui-notificationbutton ui-indicator {
+  background: rgba(255, 0, 0, .8);
+  border: 1px solid rgba(0, 0, 0, .5);
+  border-radius: .5em;
+  font-size: .8em;
+  box-shadow: 0 0 5px rgba(0, 0, 0, .8);
+}
+
+ui-buttonbar>ui-button,
+ui-buttonbar>ui-togglebutton,
+ui-radiobuttonbar>ui-togglebutton {
+  border-radius: 0;
+  border-right: 1px solid #333;
+  border-left: 0;
+}
+ui-buttonbar>ui-button:first-of-type,
+ui-buttonbar>ui-togglebutton:first-of-type,
+ui-radiobuttonbar>ui-togglebutton:first-of-type {
+  border-radius: .5em 0 0 .5em;
+  border-left: 1px solid transparent;
+}
+ui-buttonbar>ui-button:last-of-type,
+ui-buttonbar>ui-togglebutton:last-of-type,
+ui-radiobuttonbar>ui-togglebutton:last-of-type {
+  border-radius: 0 .5em .5em 0;
+  border-right: 1px solid transparent;
+}
+ui-buttonlist>ui-button {
+  border-radius: 0;
+  border-right: 1px solid #333;
+  border-left: 0;
+}
+ui-buttonlist>ui-button:first-of-type {
+  border-radius: .5em .5em 0 0;
+  border-left: 1px solid transparent;
+}
+ui-buttonlist>ui-button:last-of-type {
+  border-radius: 0 0 .5em .5em;
+  border-right: 1px solid transparent;
+}
+
+/*
+ * Collapsible panel
+ */
+ui-collapsiblepanel {
+  border: 1px solid black;
+  background: #333;
+  box-shadow: 0 0 8px black;
+}
+ui-collapsiblepanel[top]    { border-radius: 0 0 .5em 0; }
+ui-collapsiblepanel[bottom] { border-radius: 0 .5em 0 0; }
+ui-collapsiblepanel[left]   { border-radius: 0 0 .5em 0; }
+ui-collapsiblepanel[right]  { border-radius: 0 0 0 .5em; }
+ui-collapsiblepanel>ui-togglebutton {
+  border: 1px solid black;
+  background: #333;
+}
+ui-collapsiblepanel[top]>ui-togglebutton    { border-radius: 0 0 .5em .5em; border-top: none; }
+ui-collapsiblepanel[bottom]>ui-togglebutton { border-radius: .5em .5em 0 0; border-bottom: none; }
+ui-collapsiblepanel[left]>ui-togglebutton   { border-radius: 0 .5em .5em 0; border-left: none; }
+ui-collapsiblepanel[right]>ui-togglebutton  { border-radius: .5em 0 0 .5em; border-right: none; }
+
+/*
+ * Column layout dividers
+ */
+ui-columnlayout>* {
+  border-left: 1px solid #666;
+}
+ui-columnlayout>*:first-child {
+  border-left: 0;
+}
+
+/*
+ * Treeview
+ */
+ui-treeview ui-list {
+  border-left: .15em solid #999;
+}
+ui-treeview>ui-list {
+  border-left: 0;
+}
+ui-treeview ui-treeviewitem:hover>ui-text {
+  color: #9c9;
+}
+ui-treeview ui-treeviewitem>ui-text:hover {
+  color: #7f7;
+}
+ui-treeview ui-treeviewitem.state_selected>ui-text {
+  color: #0f0;
+}
+ui-treeview ui-treeviewitem:last-child>ul {
+  border-left: 0;
+}
+
+/*
+ * Spinner
+ */
+ui-spinner .loading {
+  border: 2px solid transparent;
+  border-color: transparent #fff transparent #fff;
+}
+ui-spinner .loading-container:hover .loading {
+  border-color: transparent #e45635 transparent #e45635;
+}
+ui-spinner .loading-container.dark .loading {
+  border-color: transparent #000 transparent #000;
+}
+ui-spinner .loading-container.dark:hover .loading {
+  border-color: transparent #e45635 transparent #e45635;
+}
+ui-spinner .loading-text {
+  color: #fff;
+  font-family: "Helvetica Neue", "Helvetica", "arial";
+  font-size: 10px;
+  font-weight: bold;
+}
+ui-spinner .loading-container.dark .loading-text {
+  color: #000;
+}
+ui-spinner[full] {
+  background: rgba(0, 0, 0, .1);
+}
+
+/*
+ * Image picker
+ */
+ui-imagepicker canvas,
+ui-image-picker canvas {
+  border: 1px solid black;
+  border-radius: 2px;
+}

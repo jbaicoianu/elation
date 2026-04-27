@@ -1,0 +1,7 @@
+/*
+ * Structural styles for ui-content.
+ */
+
+ui-content[align="right"] {
+  align-content: end;
+}

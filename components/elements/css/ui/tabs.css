@@ -1,0 +1,41 @@
+/*
+ * Structural styles for ui-tabs and its parts: ui-tab, ui-tabbar, ui-tabbutton, ui-tabcountbutton.
+ */
+
+ui-tabs {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  flex: 1 1;
+}
+ui-tabs>ui-tab {
+  display: none;
+  position: relative;
+  padding: .5em;
+}
+ui-tabs>ui-tab[selected] {
+  display: flex;
+  flex: 1 1;
+  flex-direction: column;
+}
+ui-tabs>ui-tabbar {
+  position: relative;
+  display: block;
+  order: -1;
+  white-space: nowrap;
+}
+ui-tabs>ui-tabbar>ui-button,
+ui-tabs>ui-tabbar>ui-tabbutton,
+ui-tabs>ui-tabbar>ui-tabcountbutton {
+  display: inline-block;
+  min-width: 5em;
+  max-width: 10em;
+  padding: 0 .4em;
+  text-align: center;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  direction: rtl;
+  overflow: hidden;
+}
+ui-tabcountbutton>ui-indicator::before { content: '('; }
+ui-tabcountbutton>ui-indicator::after  { content: ')'; }

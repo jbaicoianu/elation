@@ -1,0 +1,70 @@
+/*
+ * Structural styles for ui-collapsiblepanel.
+ * Visual styling (borders, backgrounds, shadows) lives in the theme.
+ */
+
+ui-collapsiblepanel {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  max-width: calc(100% - 2em);
+  max-height: calc(100% - 2em);
+  min-height: .8em;
+  padding: .2em;
+  transition: width 150ms ease-out, height 150ms ease-out, min-height 150ms ease-out;
+}
+ui-collapsiblepanel.default {
+  width: 24em;
+}
+ui-collapsiblepanel>.container {
+  display: flex;
+  width: 100%;
+  overflow: hidden;
+}
+ui-collapsiblepanel>.container>.container-inner {
+  display: flex;
+  flex: 1 1;
+  flex-direction: column;
+  transform: translate(0, 0);
+  transition: transform 150ms ease-out;
+}
+ui-collapsiblepanel>.container>.container-inner>* {
+  flex: 1 1;
+}
+ui-collapsiblepanel[top],
+ui-collapsiblepanel[bottom] {
+  min-height: 12em;
+}
+ui-collapsiblepanel[top][collapsed] {
+  height: 0;
+  min-height: 0;
+  padding-top: 0;
+}
+ui-collapsiblepanel[top][collapsed]>.container {
+  transform: translate(0, -100%);
+}
+ui-collapsiblepanel[bottom][collapsed] {
+  height: 0;
+  min-height: 0;
+  padding-bottom: 0;
+}
+ui-collapsiblepanel[left][collapsed] {
+  width: 0;
+  padding-left: 0;
+}
+ui-collapsiblepanel[left][collapsed]>.container {
+  transform: translate(-100%, 0);
+}
+ui-collapsiblepanel[right][collapsed] {
+  width: 0;
+  padding-right: 0;
+}
+ui-collapsiblepanel>ui-togglebutton {
+  position: absolute;
+  transform-origin: bottom left;
+  line-height: 1em;
+}
+ui-collapsiblepanel[top]>ui-togglebutton    { bottom: -1.4em; left: -1px; }
+ui-collapsiblepanel[bottom]>ui-togglebutton { top: -1.4em;    left: -1px; }
+ui-collapsiblepanel[left]>ui-togglebutton   { right: -1.4em;  top: -1px; }
+ui-collapsiblepanel[right]>ui-togglebutton  { left: -1.4em;   top: -1px; }

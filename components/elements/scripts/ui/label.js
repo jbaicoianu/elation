@@ -11,6 +11,8 @@
  * @param {string} args.label
  */
 elation.require(["elements.elements"], function() {
+  elation.requireCSS('ui.label');
+
   elation.elements.define("ui.label", class extends elation.elements.base {
     init() {
       super.init();

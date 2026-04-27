@@ -1,0 +1,22 @@
+/*
+ * Structural styles for ui-imagepicker.
+ */
+
+ui-imagepicker,
+ui-image-picker {
+  display: block;
+}
+ui-imagepicker ui-label,
+ui-image-picker ui-label {
+  display: inline-block;
+  min-width: 5em;
+  vertical-align: top;
+}
+ui-imagepicker canvas,
+ui-image-picker canvas {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  padding: 2px;
+  vertical-align: top;
+}

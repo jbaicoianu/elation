@@ -1,0 +1,15 @@
+/*
+ * Structural styles for ui-tooltip.
+ * Floats above content; mouse events pass through.
+ */
+
+ui-tooltip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 5;
+  vertical-align: top;
+  pointer-events: none;
+  white-space: nowrap;
+  padding: .2em .4em;
+}

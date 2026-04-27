@@ -1,4 +1,6 @@
 elation.require(['elements.elements'], function() {
+  elation.requireCSS('ui.panel');
+
   // Hybrid boolean / pixel-offset type used by the edge-snap attributes.
   // Presence (with or without a value) means "snap to this edge"; a numeric
   // value carries an additional pixel offset that subclasses may consult.

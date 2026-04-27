@@ -1,0 +1,56 @@
+/*
+ * Structural styles for ui-treeview.
+ */
+
+ui-treeview {
+  display: block;
+}
+ui-treeview ui-list {
+  list-style: none;
+  margin: 0 0 0 .3em;
+  padding-left: .8em;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+ui-treeview>ui-list {
+  margin-left: 0;
+  padding-left: 0;
+}
+ui-treeview ui-treeviewitem {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  white-space: nowrap;
+  overflow: hidden;
+  line-height: 1.2em;
+  padding-left: 1em;
+  order: 2;
+}
+ui-treeview ui-treeviewitem[collapsed]>ui-treeviewitem {
+  display: none;
+}
+ui-treeview ui-treeviewitem>ui-text {
+  user-select: none;
+  order: 1;
+}
+ui-treeview ui-treeviewitem:hover>ui-text {
+  cursor: pointer;
+}
+ui-treeview ui-treeviewitem ui-text:before {
+  content: ' ';
+  display: inline-block;
+  float: left;
+  clear: left;
+  width: .8em;
+  padding-right: .5em;
+}
+ui-treeview ui-treeviewitem.haschildren>ui-text:before {
+  content: '\25BC';
+}
+ui-treeview ui-treeviewitem.haschildren[collapsed]>ui-text:before {
+  content: '\25B6';
+}
+ui-treeview ul li.state_selected,
+ui-treeview ul li.state_hover li.state_selected {
+  max-height: none;
+}

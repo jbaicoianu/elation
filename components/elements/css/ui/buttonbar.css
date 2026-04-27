@@ -1,0 +1,16 @@
+/*
+ * Structural styles for ui-buttonbar, ui-radiobuttonbar, ui-buttonlist.
+ */
+
+ui-buttonbar,
+ui-radiobuttonbar {
+  display: flex;
+}
+
+ui-buttonlist {
+  display: block;
+}
+ui-buttonlist>ui-button {
+  display: block;
+  text-align: center;
+}

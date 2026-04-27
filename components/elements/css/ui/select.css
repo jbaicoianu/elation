@@ -1,0 +1,11 @@
+/*
+ * Structural styles for ui-select.
+ */
+
+ui-select {
+  display: flex;
+  white-space: nowrap;
+}
+ui-select>ui-label {
+  min-width: 5em;
+}

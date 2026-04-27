@@ -1,0 +1,36 @@
+/*
+ * Structural styles for ui-grid.
+ */
+
+ui-grid {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  grid-template-columns: repeat(auto-fill, minmax(10em, 1fr));
+}
+ui-grid[scrollable] {
+  overflow-x: auto;
+  overflow-y: auto;
+}
+ui-grid[scrollable-x] {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+ui-grid[scrollable-y] {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+ui-grid>ui-item {
+  display: inline-block;
+  margin: .2em;
+  padding: .2em;
+}
+ui-grid.twocolumn>ui-item   { width: 50%; }
+ui-grid.threecolumn>ui-item { width: calc(33% - .8em - 2px); }
+ui-grid.fourcolumn>ui-item  { width: 25%; }
+ui-grid.fivecolumn>ui-item  { width: 20%; }
+ui-grid.sixcolumn>ui-item   { width: 16%; }
+ui-grid.sevencolumn>ui-item { width: 14%; }
+ui-grid.eightcolumn>ui-item { width: 12.5%; }
+ui-grid.ninecolumn>ui-item  { width: 11%; }
+ui-grid.tencolumn>ui-item   { width: 10%; }

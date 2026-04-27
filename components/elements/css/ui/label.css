@@ -1,0 +1,9 @@
+/*
+ * Structural styles for ui-label.
+ */
+
+ui-label {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}

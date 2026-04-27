@@ -1,4 +1,6 @@
 elation.require(["elements.elements"], function() {
+  elation.requireCSS('ui.wizard');
+
   /**
    * Multi-step workflow container. Each step is a `<ui-wizard-step>`. Set
    * `type="paginate"` for one-step-at-a-time navigation with back/next

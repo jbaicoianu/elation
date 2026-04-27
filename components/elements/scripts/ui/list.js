@@ -380,13 +380,21 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
 
       if (!items) return;
 
-/*
-      for (var i = 0; i < items.length; i++) {
-        if (items[i].parentNode == ul) {
-          ul.removeChild(items[i]); 
+      // Drop any cached listitems whose backing item is no longer in items[].
+      // Without this, removals (and filter narrowings, which fire on the
+      // derived collection as a load event) would leave stale rows in the DOM.
+      for (var __i = this.listitems.length - 1; __i >= 0; __i--) {
+        var stale = this.listitems[__i];
+        if (!stale) continue;
+        var stillPresent =
+          items.indexOf(stale) !== -1
+          || (stale.value !== undefined && items.indexOf(stale.value) !== -1);
+        if (!stillPresent) {
+          if (stale.parentNode === ul) ul.removeChild(stale);
+          this.listitems.splice(__i, 1);
         }
       }
-*/
+
       if (items.length > 0) {
         if (this.emptyitem && this.emptyitem.parentNode == ul) {
           ul.removeChild(this.emptyitem);

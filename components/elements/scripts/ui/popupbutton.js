@@ -54,8 +54,10 @@ elation.require(['elements.ui.button'], function() {
     createPopup() {
       let content = this.popupcontent;
       if (elation.utils.isString(content)) {
-        content = elation.elements.create('ui-content');
-        content.fromString(this.popupcontent);
+        // ui.content has no fromString helper; just set innerHTML directly.
+        const wrapper = elation.elements.create('ui-content');
+        wrapper.innerHTML = this.popupcontent;
+        content = wrapper;
       }
       if (this.detached) {
         let pos = this.getBoundingClientRect();

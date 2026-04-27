@@ -1,0 +1,14 @@
+[
+  { "id": 1,  "from": "STARBASE-7",  "priority": 3, "timestamp": "T-04:12:08", "subject": "Routine check-in",        "body": "Status nominal. Resume scheduled survey." },
+  { "id": 2,  "from": "ENG-LEAD",    "priority": 1, "timestamp": "T-00:42:11", "subject": "Coolant pressure drop",    "body": "Loop B reads 0.4 atm below threshold. Recommending isolation." },
+  { "id": 3,  "from": "NAV",         "priority": 2, "timestamp": "T-00:31:50", "subject": "Course correction filed",  "body": "+0.018 rad on yaw axis. Approval queued." },
+  { "id": 4,  "from": "STARBASE-7",  "priority": 2, "timestamp": "T-00:18:24", "subject": "Vessel-A bearing query",   "body": "Confirm friendly transponder on contact VES-A47." },
+  { "id": 5,  "from": "MEDICAL",     "priority": 3, "timestamp": "T-00:14:55", "subject": "Crew rotation",            "body": "Shift change in 23 min. Update duty roster." },
+  { "id": 6,  "from": "SCI-OPS",     "priority": 2, "timestamp": "T-00:09:02", "subject": "Anomaly-2 spectra",        "body": "Reading consistent with low-yield gravitational distortion." },
+  { "id": 7,  "from": "ENG-LEAD",    "priority": 1, "timestamp": "T-00:06:18", "subject": "Coolant follow-up",        "body": "Manual valve close failed. Routing to bypass." },
+  { "id": 8,  "from": "STARBASE-7",  "priority": 3, "timestamp": "T-00:03:33", "subject": "Daily digest",             "body": "Three anomalies logged in sector 12-G this rotation." },
+  { "id": 9,  "from": "PROBE-XR",    "priority": 2, "timestamp": "T-00:02:14", "subject": "Outbound telemetry",       "body": "Mass spectrometer returning expected values. Position +31km." },
+  { "id": 10, "from": "ENG-LEAD",    "priority": 1, "timestamp": "T-00:00:48", "subject": "URGENT: Bypass online",    "body": "Coolant loop stable on bypass. Recommending repair within 6h." },
+  { "id": 11, "from": "NAV",         "priority": 2, "timestamp": "T-00:00:22", "subject": "Vessel-D approach vector", "body": "Vessel-D maintaining current bearing. No conflict." },
+  { "id": 12, "from": "SCI-OPS",     "priority": 3, "timestamp": "T-00:00:05", "subject": "Sensor calibration",       "body": "Thermal imaging scheduled drift compensation: complete." }
+]

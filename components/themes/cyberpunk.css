@@ -1,0 +1,269 @@
+/*
+ * Cyberpunk theme — magenta/yellow neon, glitch on hover, dark surfaces.
+ *
+ * Distinct from holographic: hotter colors, sharper contrast, more
+ * aggressive. Where holographic is restrained sci-fi (pale cyan
+ * hairlines), cyberpunk is loud (magenta on yellow, hard glows,
+ * occasional offset highlights mimicking chromatic aberration).
+ */
+
+:root {
+  --cy-bg:        #0d0118;
+  --cy-bg-panel:  #1a0226;
+  --cy-fg:        #f3e9ff;
+  --cy-magenta:   #ff2d95;
+  --cy-yellow:    #faff00;
+  --cy-cyan:      #00f5ff;
+  --cy-dim:       rgba(255, 45, 149, .3);
+  --cy-glow-mag:  0 0 8px var(--cy-magenta), 0 0 16px rgba(255, 45, 149, .4);
+  --cy-glow-yel:  0 0 6px var(--cy-yellow);
+}
+
+body {
+  background: var(--cy-bg);
+  background-image:
+    repeating-linear-gradient(0deg,
+      transparent 0, transparent 3px,
+      rgba(255, 45, 149, .03) 3px, rgba(255, 45, 149, .03) 4px);
+  color: var(--cy-fg);
+  font-family: "Courier New", Courier, monospace;
+}
+
+ui-list,
+ui-checklist {
+  background: var(--cy-bg-panel);
+  border: 1px solid var(--cy-magenta);
+  box-shadow: var(--cy-glow-mag);
+  border-radius: 0;
+}
+ui-list>ui-item,
+ui-checklist>ui-checklistitem {
+  border-bottom: 1px dashed var(--cy-dim);
+}
+ui-list>ui-item:last-of-type,
+ui-checklist>ui-checklistitem:last-of-type { border-bottom: 0; }
+ui-list>ui-item[hover] {
+  background: rgba(255, 45, 149, .15);
+  color: var(--cy-yellow);
+  text-shadow: 1px 0 0 var(--cy-magenta), -1px 0 0 var(--cy-cyan);
+}
+ui-list>ui-item.state_selected {
+  background: var(--cy-magenta);
+  color: var(--cy-yellow);
+}
+ui-grid>ui-item {
+  background: var(--cy-bg-panel);
+  border: 1px solid var(--cy-magenta);
+  box-shadow: var(--cy-glow-mag);
+}
+
+ui-tabs>ui-tab {
+  background: var(--cy-bg-panel);
+  border: 1px solid var(--cy-magenta);
+  box-shadow: inset 0 0 12px rgba(255, 45, 149, .2);
+}
+ui-tabs>ui-tabbar { border-bottom: 1px solid var(--cy-magenta); color: var(--cy-fg); }
+ui-tabs>ui-tabbar>ui-button,
+ui-tabs>ui-tabbar>ui-tabbutton,
+ui-tabs>ui-tabbar>ui-tabcountbutton {
+  background: var(--cy-bg-panel);
+  border: 1px solid var(--cy-dim);
+  border-radius: 0;
+  color: var(--cy-fg);
+  text-transform: uppercase;
+}
+ui-tabs>ui-tabbar>ui-button[selected],
+ui-tabs>ui-tabbar>ui-tabbutton[selected] {
+  background: var(--cy-magenta);
+  border-color: var(--cy-yellow);
+  color: var(--cy-yellow);
+  box-shadow: var(--cy-glow-yel);
+}
+
+ui-window {
+  background: var(--cy-bg-panel);
+  border: 1px solid var(--cy-magenta);
+  border-radius: 0;
+  box-shadow: var(--cy-glow-mag);
+  color: var(--cy-fg);
+}
+ui-window>ui-window-titlebar {
+  background: var(--cy-magenta);
+  color: var(--cy-yellow);
+  border-bottom: 1px solid var(--cy-yellow);
+  text-transform: uppercase;
+  font-weight: bold;
+  text-shadow: 0 0 4px var(--cy-yellow);
+}
+
+ui-tooltip {
+  background: var(--cy-magenta);
+  border: 1px solid var(--cy-yellow);
+  color: var(--cy-yellow);
+  box-shadow: var(--cy-glow-mag);
+  border-radius: 0;
+}
+
+ui-input>input,
+ui-textarea>textarea,
+ui-select>select {
+  background: var(--cy-bg);
+  border: 1px solid var(--cy-magenta);
+  border-radius: 0;
+  color: var(--cy-fg);
+  font-family: "Courier New", monospace;
+  outline: none;
+}
+ui-input>input:focus,
+ui-textarea>textarea:focus {
+  border-color: var(--cy-yellow);
+  box-shadow: var(--cy-glow-yel);
+}
+
+ui-toggle>div {
+  background: var(--cy-bg);
+  border: 1px solid var(--cy-magenta);
+  border-radius: 0;
+}
+ui-toggle>div::before { background: var(--cy-dim); border-radius: 0; box-shadow: none; }
+ui-toggle[checked]>div { box-shadow: var(--cy-glow-yel); border-color: var(--cy-yellow); }
+ui-toggle[checked]>div::before { background: var(--cy-yellow); box-shadow: var(--cy-glow-yel); }
+
+ui-checkbox>input {
+  background: var(--cy-bg);
+  border: 1px solid var(--cy-magenta);
+  border-radius: 0;
+  box-shadow: none;
+}
+ui-checkbox>input:checked {
+  background: var(--cy-magenta);
+  border-color: var(--cy-yellow);
+  box-shadow: var(--cy-glow-yel);
+}
+ui-checkbox>input:checked:after { color: var(--cy-yellow); }
+
+ui-slider>ui-slider-track {
+  background: var(--cy-bg);
+  border: 1px solid var(--cy-magenta);
+  border-radius: 0;
+}
+ui-slider-handle {
+  background: var(--cy-yellow);
+  border: 1px solid var(--cy-magenta);
+  border-radius: 0;
+  box-shadow: var(--cy-glow-mag);
+}
+ui-slider-handle>ui-label {
+  background: var(--cy-magenta);
+  color: var(--cy-yellow);
+  border-radius: 0;
+}
+
+ui-label {
+  text-shadow: 1px 0 0 var(--cy-magenta);
+  color: var(--cy-fg);
+  text-transform: uppercase;
+  font-size: .85em;
+  letter-spacing: .1em;
+}
+ui-formgroup>ui-label.groupheader {
+  color: var(--cy-yellow);
+  border-bottom: 1px solid var(--cy-magenta);
+  text-shadow: var(--cy-glow-yel);
+  text-transform: uppercase;
+}
+
+ui-button,
+ui-togglebutton,
+ui-dropdownbutton,
+ui-tabbutton,
+ui-tabcountbutton,
+ui-popupbutton,
+ui-notificationbutton {
+  background: var(--cy-bg-panel);
+  background-image: none;
+  border: 1px solid var(--cy-magenta);
+  border-radius: 0;
+  color: var(--cy-yellow);
+  font-family: "Courier New", monospace;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  box-shadow: var(--cy-glow-mag);
+}
+ui-button[hover],
+ui-togglebutton[hover],
+ui-dropdownbutton[hover] {
+  background: var(--cy-magenta);
+  background-image: none;
+  color: var(--cy-yellow);
+  text-shadow: 1px 0 0 var(--cy-cyan);
+}
+ui-button:active {
+  background: var(--cy-yellow);
+  background-image: none;
+  color: var(--cy-magenta);
+}
+ui-togglebutton[active] {
+  background: var(--cy-yellow);
+  background-image: none;
+  color: var(--cy-bg);
+  border-color: var(--cy-yellow);
+  box-shadow: var(--cy-glow-yel);
+}
+ui-button[disabled],
+ui-togglebutton:disabled {
+  background: var(--cy-bg);
+  background-image: none;
+  color: var(--cy-dim);
+  border-color: var(--cy-dim);
+  box-shadow: none;
+}
+
+ui-notificationbutton ui-indicator {
+  background: var(--cy-yellow);
+  color: var(--cy-magenta);
+  border: 1px solid var(--cy-magenta);
+  border-radius: 0;
+  box-shadow: var(--cy-glow-yel);
+}
+
+ui-collapsiblepanel {
+  background: var(--cy-bg-panel);
+  border: 1px solid var(--cy-magenta);
+  box-shadow: var(--cy-glow-mag);
+  border-radius: 0;
+}
+ui-collapsiblepanel[top],
+ui-collapsiblepanel[bottom],
+ui-collapsiblepanel[left],
+ui-collapsiblepanel[right] { border-radius: 0; }
+
+ui-treeview ui-list {
+  border-left: 1px solid var(--cy-magenta);
+  background: transparent;
+  box-shadow: none;
+}
+ui-treeview ui-treeviewitem.state_selected>ui-text {
+  color: var(--cy-yellow);
+  text-shadow: var(--cy-glow-yel);
+}
+
+ui-spinner .loading {
+  border-color: transparent var(--cy-magenta) transparent var(--cy-yellow);
+}
+ui-spinner .loading-text {
+  color: var(--cy-yellow);
+  text-shadow: var(--cy-glow-mag);
+  text-transform: uppercase;
+}
+
+ui-imagepicker canvas {
+  border: 1px solid var(--cy-magenta);
+  border-radius: 0;
+  box-shadow: var(--cy-glow-mag);
+}
+
+ui-columnlayout>* {
+  border-left: 1px dashed var(--cy-dim);
+}
+ui-columnlayout>*:first-child { border-left: 0; }

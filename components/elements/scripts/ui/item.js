@@ -62,6 +62,11 @@ elation.require(['elements.base'], function() {
           }
         } else if (this.itemtemplate) {
           this.setcontent(this.value);
+        } else if (this.labelattr && typeof this.value === 'object' && !this.value.nodeType) {
+          // Plain data object with a label-attribute — render that property.
+          // Skip DOM nodes (Text/Element) which extractItems() sometimes
+          // assigns to `value`; those need to keep the existing innerHTML.
+          this.setcontent(this.value);
         }
 
         if (this.selected) {

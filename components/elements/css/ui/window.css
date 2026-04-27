@@ -25,6 +25,7 @@ ui-window>ui-window-titlebar {
   user-select: none;
   -ms-user-select: none;
   -moz-user-select: none;
+  flex: 0 0 auto;  /* never shrink — keeps the title visible when content overflows */
   order: 0;
 }
 ui-window.state_movable>ui-window-titlebar:hover {
@@ -50,6 +51,9 @@ ui-window>ui-window-titlebar>ui-buttonbar {
 ui-window>ui-window-content {
   display: block;
   position: relative;
+  flex: 1 1 auto;   /* fill remaining space below the titlebar */
+  min-height: 0;    /* allow children with overflow to constrain themselves */
+  overflow: hidden;
   order: 1;
 }
 ui-window[scrollable]>ui-window-content {

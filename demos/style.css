@@ -1,0 +1,339 @@
+/*
+ * Demo page chrome.
+ *
+ * Styles only the demo's own scaffolding — page header, footer, step
+ * layout, source-view containers. No component overrides; the active
+ * theme controls how every <ui-*> element renders.
+ */
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ========== page header ========== */
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: .8em 1.2em;
+  border-bottom: 1px solid currentColor;
+  opacity: .98;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: inherit;
+  backdrop-filter: blur(4px);
+}
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: .5em;
+}
+.brand-mark { font-size: 1.2em; opacity: .7; }
+.brand-name { font-weight: bold; letter-spacing: .05em; }
+.brand-tag {
+  font-size: .8em;
+  opacity: .6;
+  font-family: ui-monospace, monospace;
+  text-transform: uppercase;
+  letter-spacing: .15em;
+}
+
+.header-controls {
+  display: flex;
+  gap: 1em;
+  align-items: center;
+}
+.picker {
+  display: inline-flex;
+  align-items: center;
+  gap: .4em;
+  font-size: .9em;
+  cursor: pointer;
+}
+.picker > span { opacity: .8; font-family: ui-monospace, monospace; }
+.picker select,
+.picker input[type="checkbox"] { font: inherit; cursor: pointer; }
+
+/* ========== wizard step content ========== */
+
+#tour {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.step-nav {
+  margin: 1em auto;
+  max-width: 1100px;
+  width: 95%;
+}
+.step-nav ui-togglebutton {
+  flex: 1;
+}
+
+.step {
+  max-width: 1100px;
+  width: 95%;
+  margin: 0 auto 2em;
+  padding: 1em;
+}
+.step h2 {
+  margin: .5em 0;
+  font-weight: 500;
+  letter-spacing: -.01em;
+}
+.step p { line-height: 1.55; max-width: 60ch; opacity: .9; }
+.step h3 {
+  margin: 1em 0 .4em;
+  font-size: .9em;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  opacity: .7;
+}
+
+.demo {
+  display: flex;
+  gap: .8em;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 1em 0;
+}
+.bar-row {
+  display: flex;
+  gap: .6em;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: .4em 0 1em;
+}
+.bar-buttonlist {
+  display: inline-block;
+  width: 12em;
+  margin: .2em 0 1em;
+}
+.hint {
+  font-family: ui-monospace, monospace;
+  font-size: .85em;
+  opacity: .6;
+}
+.readout {
+  display: inline-block;
+  padding: .3em .6em;
+  font-family: ui-monospace, monospace;
+  font-size: .9em;
+  opacity: .8;
+  border: 1px dashed currentColor;
+}
+
+.two-col,
+.three-col {
+  display: grid;
+  gap: 1.2em;
+  margin: 1em 0;
+}
+.two-col   { grid-template-columns: 1fr 1fr; }
+.three-col { grid-template-columns: 1fr 1fr 1fr; }
+@media (max-width: 800px) {
+  .two-col, .three-col { grid-template-columns: 1fr; }
+}
+
+.state-panel {
+  border: 1px solid currentColor;
+  padding: .6em .8em;
+  opacity: .9;
+}
+.state-json {
+  margin: 0;
+  font-family: ui-monospace, monospace;
+  font-size: .85em;
+  white-space: pre-wrap;
+  max-height: 16em;
+  overflow: auto;
+}
+
+/* source-view block (toggled globally via body class) */
+details.source {
+  margin-top: 1em;
+  border: 1px dashed currentColor;
+  opacity: .85;
+}
+details.source > summary {
+  padding: .4em .8em;
+  cursor: pointer;
+  font-family: ui-monospace, monospace;
+  font-size: .85em;
+  opacity: .7;
+}
+details.source pre {
+  margin: 0;
+  padding: .8em 1em;
+  font-family: ui-monospace, monospace;
+  font-size: .85em;
+  overflow: auto;
+}
+body:not(.show-source) details.source {
+  display: none;
+}
+
+/* ========== theme gallery (step 7) ========== */
+
+.theme-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1em;
+  margin-top: 1em;
+}
+.theme-card {
+  padding: 1em;
+  border: 1px dashed currentColor;
+  display: flex;
+  flex-direction: column;
+  gap: .6em;
+}
+
+/* ========== console (step 8) ========== */
+
+.console-step {
+  max-width: 1200px;
+}
+.console-step .console-actions {
+  margin: .5em 0;
+  display: inline-flex;
+}
+
+.console-status {
+  display: grid !important;
+  grid-template-columns: 6em 1fr 6em 1fr;
+  gap: .5em 1em;
+  align-items: center;
+  margin: 1em 0;
+  padding: .8em 1em;
+  border: 1px solid currentColor;
+  opacity: .95;
+}
+.console-status .status-label {
+  font-family: ui-monospace, monospace;
+  font-size: .8em;
+  letter-spacing: .15em;
+  opacity: .7;
+}
+.console-status ui-slider {
+  width: 100%;
+}
+
+.console-desktop {
+  position: relative;
+  height: 780px;
+  margin-top: 1em;
+  border: 1px dashed currentColor;
+  background-image:
+    radial-gradient(circle, currentColor 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-position: 0 0;
+  opacity: .98;
+  overflow: hidden;
+}
+.console-desktop > ui-window {
+  pointer-events: auto;
+}
+
+/* Each window's content is a flex column: optional toolbar at natural height,
+   then a list that grows to fill and scrolls when overflowing. */
+.console-desktop ui-window > ui-window-content {
+  display: flex;
+  flex-direction: column;
+}
+.window-toolbar {
+  display: flex;
+  gap: .4em;
+  padding: .4em;
+  align-items: center;
+  border-bottom: 1px solid currentColor;
+  flex: 0 0 auto;
+}
+.window-toolbar ui-radiobuttonbar { flex: 0; }
+.console-desktop ui-window > ui-window-content > ui-list {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  font-family: ui-monospace, monospace;
+  font-size: .85em;
+}
+#subsystem-tree {
+  padding: .4em .6em;
+}
+
+.scope-canvas {
+  display: block;
+  width: 100%;
+  height: calc(100% - 2em);
+  background: rgba(0, 0, 0, .6);
+}
+.scope-readout {
+  display: block;
+  font-family: ui-monospace, monospace;
+  font-size: .75em;
+  padding: .3em .6em;
+  opacity: .8;
+}
+
+#contact-detail {
+  font-size: .8em;
+  white-space: pre-wrap;
+  margin: 0;
+  padding: .6em;
+}
+
+/* Helm controls layout */
+.controls-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr;
+  gap: 1em;
+  padding: .8em 1em;
+  height: 100%;
+  box-sizing: border-box;
+}
+.ctl-block {
+  display: flex;
+  flex-direction: column;
+  gap: .5em;
+}
+.ctl-block h4 {
+  margin: 0;
+  font-family: ui-monospace, monospace;
+  font-size: .75em;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  opacity: .7;
+}
+.ctl-readout {
+  font-family: ui-monospace, monospace;
+  font-size: .85em;
+  opacity: .8;
+}
+.alloc-row {
+  display: grid;
+  grid-template-columns: 3em 1fr;
+  gap: .6em;
+  align-items: center;
+}
+.alloc-row ui-label {
+  font-size: .75em;
+}
+
+/* ========== footer ========== */
+
+.page-footer {
+  padding: 1em;
+  text-align: center;
+  font-size: .85em;
+  opacity: .6;
+  border-top: 1px dashed currentColor;
+}
+.page-footer a { color: inherit; }

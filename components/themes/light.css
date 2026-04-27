@@ -1,0 +1,266 @@
+/*
+ * Light theme — clean and quiet.
+ *
+ * Inverts the default theme's dark surfaces for environments where a
+ * light look is required. Same component shapes, lighter palette.
+ */
+
+:root {
+  --light-bg:        #fafafa;
+  --light-bg-panel:  #ffffff;
+  --light-fg:        #2c2c2c;
+  --light-fg-muted:  #666;
+  --light-accent:    #2196f3;
+  --light-accent-2:  #1976d2;
+  --light-border:    #d0d0d0;
+  --light-border-2:  #999;
+}
+
+body {
+  background: var(--light-bg);
+  color: var(--light-fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+               "Helvetica Neue", Arial, sans-serif;
+}
+
+ui-list,
+ui-checklist {
+  background: var(--light-bg-panel);
+  border: 1px solid var(--light-border);
+  border-radius: 6px;
+}
+ui-list>ui-item,
+ui-checklist>ui-checklistitem {
+  border-bottom: 1px solid var(--light-border);
+}
+ui-list>ui-item:last-of-type,
+ui-checklist>ui-checklistitem:last-of-type {
+  border-bottom: 0;
+}
+ui-list>ui-item[hover],
+ui-checklist>ui-checklistitem[hover] {
+  background: rgba(33, 150, 243, .06);
+}
+ui-list>ui-item.state_selected,
+ui-checklist>ui-checklistitem.state_selected {
+  background: rgba(33, 150, 243, .15);
+  color: var(--light-accent-2);
+}
+ui-grid>ui-item {
+  background: var(--light-bg-panel);
+  border: 1px solid var(--light-border);
+  border-radius: 4px;
+}
+
+ui-tabs>ui-tab {
+  background: var(--light-bg-panel);
+  border: 1px solid var(--light-border);
+}
+ui-tabs>ui-tabbar {
+  border-bottom: 1px solid var(--light-border);
+  color: var(--light-fg-muted);
+}
+ui-tabs>ui-tabbar>ui-button,
+ui-tabs>ui-tabbar>ui-tabbutton,
+ui-tabs>ui-tabbar>ui-tabcountbutton {
+  background: transparent;
+  border: 1px solid var(--light-border);
+  border-radius: 4px 4px 0 0;
+  color: var(--light-fg-muted);
+}
+ui-tabs>ui-tabbar>ui-button[selected],
+ui-tabs>ui-tabbar>ui-tabbutton[selected],
+ui-tabs>ui-tabbar>ui-tabcountbutton[selected] {
+  background: var(--light-bg-panel);
+  border-color: var(--light-accent);
+  border-bottom-color: transparent;
+  color: var(--light-accent);
+}
+
+ui-window {
+  background: var(--light-bg-panel);
+  border: 1px solid var(--light-border-2);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, .12);
+  color: var(--light-fg);
+}
+ui-window>ui-window-titlebar {
+  background: #f0f0f0;
+  border-bottom: 1px solid var(--light-border);
+  color: var(--light-fg);
+}
+ui-window>.ui_window_resizer {
+  border-color: var(--light-border-2);
+}
+
+ui-tooltip {
+  background: var(--light-fg);
+  border: 1px solid var(--light-fg);
+  color: var(--light-bg);
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .25);
+}
+
+ui-input>input,
+ui-textarea>textarea,
+ui-select>select {
+  background: var(--light-bg-panel);
+  border: 1px solid var(--light-border);
+  color: var(--light-fg);
+  border-radius: 4px;
+  outline: none;
+}
+ui-input>input:focus,
+ui-textarea>textarea:focus,
+ui-select>select:focus {
+  border-color: var(--light-accent);
+  box-shadow: 0 0 0 2px rgba(33, 150, 243, .2);
+}
+
+ui-toggle>div {
+  background: #e0e0e0;
+  border: 1px solid var(--light-border);
+  border-radius: 1em;
+}
+ui-toggle>div::before {
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .2);
+}
+ui-toggle[checked]>div {
+  background: var(--light-accent);
+}
+ui-toggle[checked]>div::before {
+  background: #fff;
+}
+
+ui-checkbox>input {
+  background: var(--light-bg-panel);
+  border: 1px solid var(--light-border);
+  border-radius: 3px;
+}
+ui-checkbox>input:checked {
+  background: var(--light-accent);
+  border-color: var(--light-accent);
+}
+ui-checkbox>input:checked:after {
+  color: #fff;
+}
+
+ui-slider>ui-slider-track {
+  background: #e0e0e0;
+  border: 1px solid var(--light-border);
+  border-radius: 1em;
+}
+ui-slider-handle {
+  background: var(--light-accent);
+  border: 1px solid var(--light-accent-2);
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, .15);
+}
+ui-slider-handle>ui-label {
+  background: var(--light-fg);
+  color: var(--light-bg);
+  border-radius: 4px;
+}
+
+ui-label {
+  text-shadow: none;
+  color: var(--light-fg);
+}
+ui-formgroup>ui-label.groupheader {
+  color: var(--light-fg);
+  border-bottom: 1px solid var(--light-border);
+  font-weight: bold;
+}
+
+ui-button,
+ui-togglebutton,
+ui-dropdownbutton,
+ui-tabbutton,
+ui-tabcountbutton,
+ui-popupbutton,
+ui-notificationbutton {
+  background: var(--light-bg-panel);
+  background-image: none;
+  border: 1px solid var(--light-border);
+  border-radius: 4px;
+  color: var(--light-fg);
+}
+ui-button[hover],
+ui-togglebutton[hover],
+ui-dropdownbutton[hover] {
+  background: #f0f0f0;
+  background-image: none;
+  border-color: var(--light-border-2);
+}
+ui-button:active {
+  background: #e0e0e0;
+  background-image: none;
+}
+ui-togglebutton[active] {
+  background: var(--light-accent);
+  background-image: none;
+  color: #fff;
+  border-color: var(--light-accent-2);
+}
+ui-button[disabled],
+ui-togglebutton:disabled {
+  background: #f5f5f5;
+  background-image: none;
+  color: #aaa;
+}
+
+ui-notificationbutton ui-indicator {
+  background: #f44336;
+  border: 1px solid #fff;
+  color: #fff;
+  border-radius: 1em;
+}
+
+ui-buttonbar>ui-button:first-of-type,
+ui-buttonbar>ui-togglebutton:first-of-type {
+  border-radius: 4px 0 0 4px;
+}
+ui-buttonbar>ui-button:last-of-type,
+ui-buttonbar>ui-togglebutton:last-of-type {
+  border-radius: 0 4px 4px 0;
+}
+
+ui-collapsiblepanel {
+  background: var(--light-bg-panel);
+  border: 1px solid var(--light-border);
+  border-radius: 4px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .08);
+}
+
+ui-treeview ui-list {
+  border-left: 1px solid var(--light-border);
+}
+ui-treeview ui-treeviewitem:hover>ui-text {
+  color: var(--light-accent);
+}
+ui-treeview ui-treeviewitem.state_selected>ui-text {
+  color: var(--light-accent-2);
+  font-weight: bold;
+}
+
+ui-spinner .loading {
+  border-color: transparent var(--light-accent) transparent var(--light-accent);
+}
+ui-spinner .loading-text {
+  color: var(--light-fg);
+  font-weight: normal;
+}
+
+ui-imagepicker canvas {
+  border: 1px solid var(--light-border);
+  border-radius: 4px;
+}
+
+ui-columnlayout>* {
+  border-left: 1px solid var(--light-border);
+}
+ui-columnlayout>*:first-child {
+  border-left: 0;
+}

@@ -1,0 +1,14 @@
+[
+  { "id": "VES-A47", "name": "Vessel-A",     "type": "vessel",   "distance_km": 4.2,    "threat": 3, "vector": "012.4° / 8.1 km/s" },
+  { "id": "VES-B19", "name": "Vessel-B",     "type": "vessel",   "distance_km": 8.7,    "threat": 1, "vector": "287.0° / 4.2 km/s" },
+  { "id": "DEB-α1",  "name": "Debris-α1",    "type": "debris",   "distance_km": 12.0,   "threat": 0, "vector": "drifting" },
+  { "id": "DEB-α2",  "name": "Debris-α2",    "type": "debris",   "distance_km": 14.6,   "threat": 0, "vector": "drifting" },
+  { "id": "ANO-001", "name": "Anomaly",      "type": "anomaly",  "distance_km": 18.3,   "threat": 2, "vector": "stationary" },
+  { "id": "VES-C03", "name": "Vessel-C",     "type": "vessel",   "distance_km": 22.1,   "threat": 1, "vector": "118.5° / 12.4 km/s" },
+  { "id": "DEB-β7",  "name": "Debris-β7",    "type": "debris",   "distance_km": 27.8,   "threat": 0, "vector": "drifting" },
+  { "id": "PRB-XR",  "name": "Probe-XR",     "type": "probe",    "distance_km": 31.0,   "threat": 0, "vector": "outbound" },
+  { "id": "VES-D11", "name": "Vessel-D",     "type": "vessel",   "distance_km": 38.4,   "threat": 0, "vector": "010.2° / 6.0 km/s" },
+  { "id": "ANO-002", "name": "Anomaly-2",    "type": "anomaly",  "distance_km": 45.7,   "threat": 2, "vector": "stationary" },
+  { "id": "STN-G4",  "name": "Station-G4",   "type": "station",  "distance_km": 124.0,  "threat": 0, "vector": "geosync" },
+  { "id": "VES-E08", "name": "Vessel-E",     "type": "vessel",   "distance_km": 156.2,  "threat": 0, "vector": "342.0° / 9.7 km/s" }
+]

@@ -2,201 +2,490 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Elation Elements — UI Gallery</title>
-  <link rel="stylesheet" href="https://web.janusxr.org/media/assets/webui/themes/default.css">
-  <link rel="stylesheet" href="bundle.css">
-  <script src="bundle.js"></script>
-  <style>
-    body { max-width: 960px; margin: 2em auto; padding: 0 1em; background: #222; color: #eee; }
-    h1 { margin-bottom: .2em; }
-    p.lede { color: #999; margin-top: 0; }
-    a { color: #7cf; }
-    ul.ui_examples { list-style: none; padding: 0; }
-    ul.ui_examples > li { border: 1px solid #444; padding: 1em 1.2em; margin: 1em 0; border-radius: 6px; background: #2a2a2a; }
-    ul.ui_examples > li > h2 { margin: 0 0 .5em; font-size: 1.05em; color: #cfc; font-family: ui-monospace, monospace; }
-    ul.ui_examples > li.harness { border-color: #4cb96f; background: #263028; }
-    .harness-controls { display: flex; flex-wrap: wrap; gap: .4em; margin-top: .8em; padding-top: .8em; border-top: 1px dashed #4cb96f; }
-    .harness-controls button { font: inherit; padding: .35em .75em; cursor: pointer; background: #333; color: #eee; border: 1px solid #555; border-radius: 3px; }
-    .harness-controls button:hover { background: #3c3c3c; border-color: #4cb96f; }
-    .harness-log { margin-top: .6em; font-family: ui-monospace, monospace; font-size: .85em; color: #bbb; max-height: 6em; overflow: auto; background: #1a1a1a; border: 1px solid #444; padding: .4em .6em; }
-    ui-tabs { display: block; border: 1px solid #444; border-radius: 4px; min-height: 4em; background: #1e1e1e; }
-    ui-tab { display: block; padding: .6em .8em; color: #eee; }
-  </style>
+  <title>Elation Elements — Live Tour</title>
+  <link rel="stylesheet" href="../build/elation.css">
+  <link rel="stylesheet" id="theme-link" href="../build/themes/default.css">
+  <link rel="stylesheet" href="style.css">
+  <script src="../build/elation.js"></script>
 </head>
 <body>
-  <h1>Elation Elements — UI Gallery</h1>
-  <p class="lede">Live instances of the custom elements defined in <code>components/elements/scripts/ui/</code>. The tabs section at the top exercises the dynamic <code>addTab()</code> / <code>removeTab()</code> API. <a href="../docs/js/index.html">API docs →</a></p>
 
-  <ul class="ui_examples">
-    <li class="harness">
-      <h2>ui.tabs — dynamic add/remove harness</h2>
-      <ui-tabs id="tabs-harness">
-        <ui-tab label="One">Content for tab one.</ui-tab>
-        <ui-tab label="Two">Content for tab two.</ui-tab>
-        <ui-tab label="Three">Content for tab three.</ui-tab>
-      </ui-tabs>
-      <div class="harness-controls">
-        <button data-action="append">append</button>
-        <button data-action="prepend">prepend (position: 0)</button>
-        <button data-action="before">insert before active</button>
-        <button data-action="after">insert after active</button>
-        <button data-action="remove-active">remove active</button>
-        <button data-action="remove-first">remove first</button>
-        <button data-action="clear">remove all</button>
-      </div>
-      <div class="harness-log" id="tabs-harness-log"></div>
-    </li>
+<header class="page-header">
+  <div class="brand">
+    <span class="brand-mark">▶</span>
+    <span class="brand-name">Elation Elements</span>
+    <span class="brand-tag">live tour</span>
+  </div>
+  <nav class="header-controls">
+    <label class="picker">
+      <span>theme</span>
+      <select id="theme-picker">
+        <option value="default">default</option>
+        <option value="holographic">holographic</option>
+        <option value="cyberpunk">cyberpunk</option>
+        <option value="light">light</option>
+        <option value="brutalist">brutalist</option>
+        <option value="none">none</option>
+      </select>
+    </label>
+    <label class="picker">
+      <input type="checkbox" id="source-toggle">
+      <span>show source</span>
+    </label>
+  </nav>
+</header>
 
-    <li>
-      <h2>ui.button</h2>
-      <ui-button label="Click me"></ui-button>
-      <ui-button label="Disabled" disabled></ui-button>
-    </li>
-    <li>
-      <h2>ui.togglebutton</h2>
-      <ui-togglebutton label="Toggle"></ui-togglebutton>
-    </li>
-    <li>
-      <h2>ui.buttonbar</h2>
-      <ui-buttonbar>
-        <ui-button label="One"></ui-button>
-        <ui-button label="Two"></ui-button>
-        <ui-button label="Three"></ui-button>
-      </ui-buttonbar>
-    </li>
-    <li>
-      <h2>ui.radiobuttonbar</h2>
-      <ui-radiobuttonbar>
-        <ui-button label="Low"></ui-button>
-        <ui-button label="Medium"></ui-button>
-        <ui-button label="High"></ui-button>
-      </ui-radiobuttonbar>
-    </li>
-    <li>
-      <h2>ui.input</h2>
-      <ui-input placeholder="Type something…"></ui-input>
-    </li>
-    <li>
-      <h2>ui.textarea</h2>
-      <ui-textarea placeholder="Multi-line text…"></ui-textarea>
-    </li>
-    <li>
-      <h2>ui.toggle</h2>
-      <ui-toggle label="Enable notifications"></ui-toggle>
-    </li>
-    <li>
-      <h2>ui.checkbox</h2>
-      <ui-checkbox label="I agree"></ui-checkbox>
-    </li>
-    <li>
-      <h2>ui.radio</h2>
-      <ui-radio label="Option A"></ui-radio>
-      <ui-radio label="Option B"></ui-radio>
-    </li>
-    <li>
-      <h2>ui.slider</h2>
-      <ui-slider min="0" max="100" value="42"></ui-slider>
-    </li>
-    <li>
-      <h2>ui.list</h2>
-      <ui-list>
-        <li>Apple</li>
-        <li>Banana</li>
-        <li>Cherry</li>
-      </ui-list>
-    </li>
-    <li>
-      <h2>ui.panel</h2>
-      <ui-panel>A generic panel for grouping content.</ui-panel>
-    </li>
-    <li>
-      <h2>ui.collapsiblepanel</h2>
-      <ui-collapsiblepanel label="Expand me">Hidden content inside a collapsible panel.</ui-collapsiblepanel>
-    </li>
-    <li>
-      <h2>ui.formgroup</h2>
-      <ui-formgroup label="Contact info">
-        <ui-input placeholder="Email"></ui-input>
-        <ui-input placeholder="Phone"></ui-input>
+<ui-wizard type="paginate" id="tour" step="1">
+
+<!-- ============================================================ -->
+<!-- Persistent step-jump nav                                     -->
+<!-- ============================================================ -->
+<ui-buttonbar id="step-nav" class="step-nav">
+  <ui-togglebutton data-step="1" label="1 · start"></ui-togglebutton>
+  <ui-togglebutton data-step="2" label="2 · forms"></ui-togglebutton>
+  <ui-togglebutton data-step="3" label="3 · layout"></ui-togglebutton>
+  <ui-togglebutton data-step="4" label="4 · data"></ui-togglebutton>
+  <ui-togglebutton data-step="5" label="5 · live"></ui-togglebutton>
+  <ui-togglebutton data-step="6" label="6 · derived"></ui-togglebutton>
+  <ui-togglebutton data-step="7" label="7 · themes"></ui-togglebutton>
+  <ui-togglebutton data-step="8" label="8 · console"></ui-togglebutton>
+</ui-buttonbar>
+
+<!-- ============================================================ -->
+<!-- 1. Hello                                                     -->
+<!-- ============================================================ -->
+<ui-wizard-step id="start">
+  <section class="step">
+    <h2>One element</h2>
+    <p>The button below is a custom element. The framework registered it with the browser at page load, mapped its <code>label</code> attribute to a typed JS property, and wired up its click handler through the same lifecycle every primitive in this tour shares. Toggle <em>show source</em> in the header to see the markup.</p>
+
+    <div class="demo">
+      <ui-button id="hello-btn" label="Press me"></ui-button>
+      <output id="hello-counter" class="readout">0 presses so far</output>
+    </div>
+
+    <details class="source">
+      <summary>source</summary>
+<pre><code>&lt;ui-button label="Press me"&gt;&lt;/ui-button&gt;</code></pre>
+    </details>
+
+    <ui-wizard-pagination></ui-wizard-pagination>
+  </section>
+</ui-wizard-step>
+
+<!-- ============================================================ -->
+<!-- 2. Form controls                                             -->
+<!-- ============================================================ -->
+<ui-wizard-step id="forms">
+  <section class="step">
+    <h2>Form controls</h2>
+    <p>Every input element in the library, side by side. Each one round-trips through the typed-attribute system — values you set in markup are coerced to JS types, and changes from the user write back to the attribute.</p>
+
+    <div class="two-col">
+      <ui-formgroup label="Sample form" id="form-sample">
+        <ui-input id="f-name"     placeholder="Name"    value="Ada Lovelace"></ui-input>
+        <ui-input id="f-email"    placeholder="Email"   type="email"></ui-input>
+        <ui-textarea id="f-notes" placeholder="Notes"></ui-textarea>
+        <ui-toggle  id="f-active" label="Active"></ui-toggle>
+        <ui-checkbox id="f-news"  label="Subscribe to newsletter"></ui-checkbox>
+        <ui-slider  id="f-vol"    min="0" max="100" value="42"></ui-slider>
+        <ui-select  id="f-role">
+          <option value="admin">Admin</option>
+          <option value="editor" selected>Editor</option>
+          <option value="viewer">Viewer</option>
+        </ui-select>
       </ui-formgroup>
-    </li>
-    <li>
-      <h2>ui.wizard</h2>
-      <ui-wizard type="paginate">
-        <ui-wizard-step id="intro"><p>Step 1 — welcome.</p><ui-wizard-pagination></ui-wizard-pagination></ui-wizard-step>
-        <ui-wizard-step id="details"><p>Step 2 — details.</p><ui-wizard-pagination></ui-wizard-pagination></ui-wizard-step>
-        <ui-wizard-step id="done"><p>Step 3 — finished.</p><ui-wizard-pagination></ui-wizard-pagination></ui-wizard-step>
-      </ui-wizard>
-    </li>
-  </ul>
 
-  <script>
-  (function() {
-    function ready(fn) {
-      if (document.readyState !== 'loading') fn();
-      else document.addEventListener('DOMContentLoaded', fn);
-    }
-    ready(function() {
-      const tabs = document.getElementById('tabs-harness');
-      const logEl = document.getElementById('tabs-harness-log');
-      let counter = 4;
+      <aside class="state-panel">
+        <h3>live state</h3>
+        <pre id="form-state" class="state-json">{}</pre>
+      </aside>
+    </div>
 
-      function log(msg) {
-        const line = document.createElement('div');
-        line.textContent = msg;
-        logEl.appendChild(line);
-        logEl.scrollTop = logEl.scrollHeight;
-      }
-      function activeTab() {
-        for (let i = 0; i < tabs.items.length; i++) {
-          if (tabs.items[i].selected) return tabs.items[i];
-        }
-        return null;
-      }
-      function labelFor() {
-        const n = counter++;
-        return { label: 'Tab ' + n, innerHTML: 'Dynamically added tab ' + n };
-      }
+    <details class="source">
+      <summary>source</summary>
+<pre><code>&lt;ui-formgroup label="Sample form"&gt;
+  &lt;ui-input    placeholder="Name"&gt;&lt;/ui-input&gt;
+  &lt;ui-textarea placeholder="Notes"&gt;&lt;/ui-textarea&gt;
+  &lt;ui-toggle   label="Active"&gt;&lt;/ui-toggle&gt;
+  &lt;ui-slider   min="0" max="100" value="42"&gt;&lt;/ui-slider&gt;
+  ...
+&lt;/ui-formgroup&gt;</code></pre>
+    </details>
 
-      tabs.addEventListener('tabadd', (ev) => log('tabadd → ' + ev.data.label));
-      tabs.addEventListener('tabremove', (ev) => log('tabremove → ' + ev.data.label));
-      tabs.addEventListener('tabchange', () => {
-        const t = activeTab();
-        if (t) log('tabchange → ' + t.label);
-      });
+    <ui-wizard-pagination></ui-wizard-pagination>
+  </section>
+</ui-wizard-step>
 
-      const actions = {
-        append() { tabs.addTab(labelFor()); },
-        prepend() { tabs.addTab(labelFor(), { position: 0 }); },
-        before() {
-          const t = activeTab();
-          if (!t) return log('(no active tab)');
-          tabs.addTab(labelFor(), { before: t });
-        },
-        after() {
-          const t = activeTab();
-          if (!t) return log('(no active tab)');
-          tabs.addTab(labelFor(), { after: t });
-        },
-        'remove-active'() {
-          const t = activeTab();
-          if (!t) return log('(no active tab)');
-          tabs.removeTab(t);
-        },
-        'remove-first'() {
-          if (tabs.items.length === 0) return log('(no tabs)');
-          tabs.removeTab(0);
-        },
-        clear() {
-          while (tabs.items.length > 0) tabs.removeTab(0);
-        }
-      };
+<!-- ============================================================ -->
+<!-- 3. Layout                                                    -->
+<!-- ============================================================ -->
+<ui-wizard-step id="layout">
+  <section class="step">
+    <h2>Layout containers</h2>
+    <p>Compose elements into pages with panels, tabs, formgroups, and floating windows. The window below is draggable and resizable — drag its title bar; grab its corner.</p>
 
-      document.querySelectorAll('.harness-controls button').forEach((btn) => {
-        btn.addEventListener('click', () => actions[btn.dataset.action]());
-      });
-    });
-  })();
-  </script>
+    <ui-tabs id="layout-tabs">
+      <ui-tab label="Buttons & bars" selected>
+        <p>Every button-family primitive in the library. Click any one and the log below shows which fired.</p>
+
+        <h3>Individual buttons</h3>
+        <div class="bar-row">
+          <ui-button       label="Plain"></ui-button>
+          <ui-button       label="Disabled" disabled></ui-button>
+          <ui-togglebutton label="Toggle"></ui-togglebutton>
+          <ui-notificationbutton label="Inbox" count="3"></ui-notificationbutton>
+          <ui-tabcountbutton     label="Tasks" count="12"></ui-tabcountbutton>
+        </div>
+
+        <h3>Horizontal grouping — buttonbar</h3>
+        <ui-buttonbar>
+          <ui-button label="Cut"></ui-button>
+          <ui-button label="Copy"></ui-button>
+          <ui-button label="Paste"></ui-button>
+        </ui-buttonbar>
+
+        <h3>Mutual exclusion — radiobuttonbar</h3>
+        <ui-radiobuttonbar>
+          <ui-togglebutton label="Low"></ui-togglebutton>
+          <ui-togglebutton label="Medium"></ui-togglebutton>
+          <ui-togglebutton label="High"></ui-togglebutton>
+        </ui-radiobuttonbar>
+
+        <h3>Vertical stack — buttonlist</h3>
+        <ui-buttonlist class="bar-buttonlist">
+          <ui-button label="Open file"></ui-button>
+          <ui-button label="Save"></ui-button>
+          <ui-button label="Close"></ui-button>
+        </ui-buttonlist>
+
+        <h3>Openers — dropdown &amp; popup</h3>
+        <div class="bar-row">
+          <ui-dropdownbutton label="More ▾">
+            <ui-button label="Edit"></ui-button>
+            <ui-button label="Duplicate"></ui-button>
+            <ui-button label="Delete"></ui-button>
+          </ui-dropdownbutton>
+          <ui-popupbutton label="Open popup" popupcontent="<div style='padding:.8em 1em;'>This popup is its own ui-window. Click anywhere outside to close.</div>"></ui-popupbutton>
+        </div>
+
+        <output id="bar-log" class="readout">click any button</output>
+      </ui-tab>
+
+      <ui-tab label="Tree view">
+        <p>Self-collapsing hierarchy. Click any node to toggle its children.</p>
+        <ui-treeview id="layout-tree"></ui-treeview>
+      </ui-tab>
+
+      <ui-tab label="Spinner">
+        <p>Indicates a long-running operation. Click to start a fake 2-second task.</p>
+        <ui-button id="spinner-go" label="Start task"></ui-button>
+        <div id="spinner-host" style="margin-top: 1em; min-height: 110px;"></div>
+      </ui-tab>
+    </ui-tabs>
+
+    <p style="margin-top: 1.5em;">
+      <ui-button id="open-window" label="Open a window"></ui-button>
+      <span class="hint">click and a draggable ui-window appears at the top-left of the page</span>
+    </p>
+
+    <ui-wizard-pagination></ui-wizard-pagination>
+  </section>
+</ui-wizard-step>
+
+<!-- ============================================================ -->
+<!-- 4. Lists from data                                           -->
+<!-- ============================================================ -->
+<ui-wizard-step id="data">
+  <section class="step">
+    <h2>Data, bound to UI</h2>
+    <p>Collections hold the data; UI elements render it. The list and grid below both point at the <em>same</em> <code>&lt;collection-simple&gt;</code> — adding an item updates both views, no manual re-render. The right column shows the framework's own events firing in real time.</p>
+
+    <div class="three-col">
+      <div>
+        <h3>list view</h3>
+        <ui-list id="data-list" labelattr="name"></ui-list>
+      </div>
+      <div>
+        <h3>grid view</h3>
+        <ui-grid id="data-grid" labelattr="name"></ui-grid>
+      </div>
+      <aside class="state-panel">
+        <h3>collection events</h3>
+        <pre id="data-log" class="state-json"></pre>
+      </aside>
+    </div>
+
+    <div class="demo" style="margin-top: 1em;">
+      <ui-button id="data-add"     label="+ add"></ui-button>
+      <ui-button id="data-remove"  label="− remove last"></ui-button>
+      <ui-button id="data-shuffle" label="↻ shuffle"></ui-button>
+      <ui-button id="data-clear"   label="✕ clear"></ui-button>
+    </div>
+
+    <details class="source">
+      <summary>source</summary>
+<pre><code>// JS
+const items = elation.elements.create('collection-simple', {
+  items: [{ name: 'Alpha' }, { name: 'Bravo' }, { name: 'Charlie' }]
+});
+
+// Markup — both views bound to the same collection
+&lt;ui-list collection="items"&gt;&lt;/ui-list&gt;
+&lt;ui-grid collection="items"&gt;&lt;/ui-grid&gt;
+
+items.add({ name: 'Delta' });    // both views update</code></pre>
+    </details>
+
+    <ui-wizard-pagination></ui-wizard-pagination>
+  </section>
+</ui-wizard-step>
+
+<!-- ============================================================ -->
+<!-- 5. Live API data                                             -->
+<!-- ============================================================ -->
+<ui-wizard-step id="live">
+  <section class="step">
+    <h2>Same markup, real data</h2>
+    <p>Swap the in-memory collection for one backed by a REST endpoint. The list and grid don't change — they're already bound to a collection. <code>collection_load_begin</code> fires when the request starts; <code>collection_load</code> when items arrive.</p>
+
+    <div class="three-col">
+      <div>
+        <h3>list view</h3>
+        <ui-list id="live-list" labelattr="name"></ui-list>
+      </div>
+      <div>
+        <h3>grid view</h3>
+        <ui-grid id="live-grid" labelattr="name"></ui-grid>
+      </div>
+      <aside class="state-panel">
+        <h3>collection events</h3>
+        <pre id="live-log" class="state-json"></pre>
+      </aside>
+    </div>
+
+    <div class="demo" style="margin-top: 1em;">
+      <ui-button id="live-reload" label="↻ reload"></ui-button>
+      <span class="hint">data from <code>jsonplaceholder.typicode.com/users</code></span>
+    </div>
+
+    <ui-wizard-pagination></ui-wizard-pagination>
+  </section>
+</ui-wizard-step>
+
+<!-- ============================================================ -->
+<!-- 6. Filters & subsets                                         -->
+<!-- ============================================================ -->
+<ui-wizard-step id="derived">
+  <section class="step">
+    <h2>Derived views</h2>
+    <p>Wrap a collection in a <code>collection-filter</code> to expose a subset selected by a predicate. Type below — the filtered list updates as you type, while the count and the source list stay live in their own right.</p>
+
+    <div class="demo">
+      <ui-input id="filter-input" placeholder="filter by name…"></ui-input>
+      <span class="hint">matching <output id="filter-count">10</output> of <output id="filter-total">10</output></span>
+    </div>
+
+    <div class="two-col">
+      <div>
+        <h3>source (10)</h3>
+        <ui-list id="derived-source" labelattr="name"></ui-list>
+      </div>
+      <div>
+        <h3>filtered</h3>
+        <ui-list id="derived-filtered" labelattr="name"></ui-list>
+      </div>
+    </div>
+
+    <ui-wizard-pagination></ui-wizard-pagination>
+  </section>
+</ui-wizard-step>
+
+<!-- ============================================================ -->
+<!-- 7. Themes                                                    -->
+<!-- ============================================================ -->
+<ui-wizard-step id="themes">
+  <section class="step">
+    <h2>Same markup, different look</h2>
+    <p>Try the <em>theme</em> picker in the header. Every component on this page (and every step you've seen) re-skins instantly — no rebuild, no markup changes, just a different stylesheet layered on top of the structural CSS. Six themes ship in <code>build/themes/</code>; bring your own and you can target every Elation app at once.</p>
+
+    <div class="theme-grid">
+      <div class="theme-card">
+        <h3>default</h3>
+        <ui-button label="Sample"></ui-button>
+        <ui-checkbox label="Option" checked></ui-checkbox>
+        <ui-slider min="0" max="100" value="64"></ui-slider>
+      </div>
+      <div class="theme-card">
+        <h3>holographic</h3>
+        <p class="hint">sci-fi HUD</p>
+      </div>
+      <div class="theme-card">
+        <h3>cyberpunk</h3>
+        <p class="hint">neon, magenta on yellow</p>
+      </div>
+      <div class="theme-card">
+        <h3>light</h3>
+        <p class="hint">clean, document-friendly</p>
+      </div>
+      <div class="theme-card">
+        <h3>brutalist</h3>
+        <p class="hint">mono, hard borders, no smoothing</p>
+      </div>
+      <div class="theme-card">
+        <h3>none</h3>
+        <p class="hint">structural CSS only — raw HTML look</p>
+      </div>
+    </div>
+
+    <ui-wizard-pagination></ui-wizard-pagination>
+  </section>
+</ui-wizard-step>
+
+<!-- ============================================================ -->
+<!-- 8. Operations console                                        -->
+<!-- ============================================================ -->
+<ui-wizard-step id="console">
+  <section class="step console-step">
+    <h2>ELATION-IX // Operations console</h2>
+    <p class="hint">A composed view: every primitive together, all collection-driven, all live. Drag the windows. Try a different theme. Each window is a separate <code>&lt;ui-window&gt;</code>; the panels inside are bound to shared collections so changes ripple across views.</p>
+
+    <ui-buttonbar class="console-actions">
+      <ui-button id="console-reset" label="↺ reset layout"></ui-button>
+      <ui-togglebutton id="console-feed-toggle" label="⏸ pause feed"></ui-togglebutton>
+    </ui-buttonbar>
+
+    <!-- Status bar: 4 sliders bound to a collection of system readings -->
+    <ui-formgroup id="console-status" class="console-status">
+      <ui-label class="status-label" label="POWER"></ui-label>
+      <ui-slider id="status-power"   min="0" max="100" value="78" disabled></ui-slider>
+      <ui-label class="status-label" label="SHIELDS"></ui-label>
+      <ui-slider id="status-shields" min="0" max="100" value="92" disabled></ui-slider>
+      <ui-label class="status-label" label="HULL"></ui-label>
+      <ui-slider id="status-hull"    min="0" max="100" value="88" disabled></ui-slider>
+      <ui-label class="status-label" label="FUEL"></ui-label>
+      <ui-slider id="status-fuel"    min="0" max="100" value="34" disabled></ui-slider>
+    </ui-formgroup>
+
+    <!-- The desktop where windows live -->
+    <div id="console-desktop" class="console-desktop">
+
+      <ui-window data-key="tactical" windowtitle="TACTICAL" movable resizable
+                 style="left: 0; top: 0; width: 360px; height: 280px;">
+        <ui-window-content>
+          <div class="window-toolbar">
+            <ui-radiobuttonbar id="tactical-filter">
+              <ui-togglebutton label="all"   data-filter="all"   active></ui-togglebutton>
+              <ui-togglebutton label="hostile" data-filter="hostile"></ui-togglebutton>
+              <ui-togglebutton label="debris" data-filter="debris"></ui-togglebutton>
+              <ui-togglebutton label="anomaly" data-filter="anomaly"></ui-togglebutton>
+            </ui-radiobuttonbar>
+          </div>
+          <ui-list id="tactical-list" selectable labelattr="name"></ui-list>
+        </ui-window-content>
+      </ui-window>
+
+      <ui-window data-key="sensors" windowtitle="SENSOR FEED" movable resizable
+                 style="left: 380px; top: 0; width: 360px; height: 280px;">
+        <ui-window-content>
+          <ui-list id="sensor-list" labelattr="text"></ui-list>
+        </ui-window-content>
+      </ui-window>
+
+      <ui-window data-key="subsystems" windowtitle="SUBSYSTEMS" movable resizable
+                 style="left: 0; top: 300px; width: 280px; height: 240px;">
+        <ui-window-content>
+          <ui-treeview id="subsystem-tree"></ui-treeview>
+        </ui-window-content>
+      </ui-window>
+
+      <ui-window data-key="comms" windowtitle="COMMS" movable resizable
+                 style="left: 300px; top: 300px; width: 440px; height: 240px;">
+        <ui-window-content>
+          <div class="window-toolbar">
+            <ui-radiobuttonbar id="comms-priority">
+              <ui-togglebutton label="all"   data-priority="all" active></ui-togglebutton>
+              <ui-togglebutton label="P1"    data-priority="1"></ui-togglebutton>
+              <ui-togglebutton label="P2"    data-priority="2"></ui-togglebutton>
+              <ui-togglebutton label="P3"    data-priority="3"></ui-togglebutton>
+            </ui-radiobuttonbar>
+            <ui-notificationbutton id="comms-alert" label="⚠ alerts" count="0"></ui-notificationbutton>
+          </div>
+          <ui-list id="comms-list" selectable labelattr="subject"></ui-list>
+        </ui-window-content>
+      </ui-window>
+
+      <ui-window data-key="scope" windowtitle="SCOPE" movable resizable
+                 style="left: 760px; top: 0; width: 280px; height: 280px;">
+        <ui-window-content>
+          <canvas id="scope-canvas" width="280" height="240" class="scope-canvas"></canvas>
+          <output id="scope-readout" class="scope-readout">no contact selected</output>
+        </ui-window-content>
+      </ui-window>
+
+      <ui-window data-key="contact-detail" windowtitle="CONTACT DETAIL" movable resizable
+                 style="left: 760px; top: 300px; width: 280px; height: 240px;">
+        <ui-window-content>
+          <pre id="contact-detail" class="state-json">select a contact</pre>
+        </ui-window-content>
+      </ui-window>
+
+      <ui-window data-key="controls" windowtitle="HELM CONTROLS" movable resizable
+                 style="left: 0; top: 560px; width: 1040px; height: 200px;">
+        <ui-window-content>
+          <div class="controls-grid">
+
+            <div class="ctl-block">
+              <h4>STATE</h4>
+              <ui-buttonbar id="ctl-state">
+                <ui-togglebutton id="ctl-engage"   label="standby"></ui-togglebutton>
+                <ui-togglebutton id="ctl-weapons"  label="weapons safed"></ui-togglebutton>
+              </ui-buttonbar>
+              <ui-button id="ctl-fire" label="◎ FIRE" disabled></ui-button>
+            </div>
+
+            <div class="ctl-block">
+              <h4>SHIELDS</h4>
+              <ui-slider id="ctl-shields" min="0" max="100" value="92"></ui-slider>
+              <output id="ctl-shields-out" class="ctl-readout">92%</output>
+            </div>
+
+            <div class="ctl-block">
+              <h4>POWER ALLOCATION</h4>
+              <div class="alloc-row">
+                <ui-label label="ENG"></ui-label>
+                <ui-slider id="ctl-pwr-engines"  min="0" max="100" value="25"></ui-slider>
+              </div>
+              <div class="alloc-row">
+                <ui-label label="WPN"></ui-label>
+                <ui-slider id="ctl-pwr-weapons"  min="0" max="100" value="15"></ui-slider>
+              </div>
+              <div class="alloc-row">
+                <ui-label label="SHL"></ui-label>
+                <ui-slider id="ctl-pwr-shields"  min="0" max="100" value="35"></ui-slider>
+              </div>
+              <div class="alloc-row">
+                <ui-label label="LIFE"></ui-label>
+                <ui-slider id="ctl-pwr-life"     min="0" max="100" value="25"></ui-slider>
+              </div>
+            </div>
+
+          </div>
+        </ui-window-content>
+      </ui-window>
+
+    </div>
+
+    <ui-wizard-pagination></ui-wizard-pagination>
+  </section>
+</ui-wizard-step>
+
+</ui-wizard>
+
+<footer class="page-footer">
+  <span>Elation Elements · <a href="../docs/js/index.html">API docs</a> · <a href="https://github.com/jbaicoianu/elation">source</a></span>
+</footer>
+
+<script src="app.js"></script>
 </body>
 </html>

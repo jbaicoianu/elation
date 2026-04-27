@@ -11,15 +11,17 @@ REMOTE_URL=$(git remote get-url "$REMOTE")
 echo "==> Generating API docs"
 npm run docs
 
-echo "==> Building demos bundle"
-./demos/build.sh >/dev/null
+echo "==> Building dist bundle"
+npm run build >/dev/null
 
 STAGE=.gh-pages-staging
 rm -rf "$STAGE"
-mkdir -p "$STAGE/docs/js" "$STAGE/demos"
+mkdir -p "$STAGE/docs/js" "$STAGE/demos" "$STAGE/build"
 
 cp -r docs/js/. "$STAGE/docs/js/"
-cp demos/index.html demos/bundle.js demos/bundle.css "$STAGE/demos/"
+cp -r build/. "$STAGE/build/"
+cp demos/index.html demos/app.js demos/style.css "$STAGE/demos/"
+cp -r demos/data "$STAGE/demos/data"
 touch "$STAGE/.nojekyll"
 
 cat > "$STAGE/index.html" <<'HTML'

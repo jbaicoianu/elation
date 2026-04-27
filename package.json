@@ -3,9 +3,23 @@
   "description": "Elation Javascript Component Framework",
   "version": "2.3.24",
   "main": "build/elation.js",
+  "style": "build/elation.css",
+  "unpkg": "build/elation.js",
+  "jsdelivr": "build/elation.js",
+  "files": [
+    "build/",
+    "components/",
+    "elation",
+    "scripts/build.sh",
+    "util/",
+    "LICENSE",
+    "README.md"
+  ],
   "author": "James Baicoianu",
   "license": "MIT",
   "scripts": {
+    "build": "bash scripts/build.sh",
+    "prepublishOnly": "npm run build",
     "docs": "rm -rf docs/js && jsdoc -c jsdoc.conf.json && mkdir -p docs/js/styles && cp jsdoc-plugins/better-docs-dark.css docs/js/styles/dark.css",
     "deploy:docs": "bash scripts/deploy-docs.sh"
   },
@@ -18,6 +32,10 @@
     "url": "https://github.com/jbaicoianu/elation"
   },
   "keywords": [
-    "elation"
+    "elation",
+    "components",
+    "custom-elements",
+    "web-components",
+    "ui"
   ]
 }

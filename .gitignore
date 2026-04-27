@@ -5,4 +5,5 @@ tmp
 node_modules
 package-lock.json
 docs
+build
 .gh-pages-staging

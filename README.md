@@ -4,6 +4,53 @@ Lightweight JavaScript component framework built with HTML custom elements, with
 
 On top of the standard custom element API, Elation layers a typed attribute system (`int`, `float`, `boolean`, `vector2`, etc.) with automatic attribute ↔ property coercion, lifecycle hooks (`init` / `create` / `render`) that fire at the right time relative to child parsing, inheritance via `elation.elements.base`, and an `elation.elements.create()` constructor that accepts an args object in place of the usual `document.createElement` + `setAttribute` dance.
 
+## Installation
+
+### Script tag
+
+The fastest path is a CDN include — one script, one stylesheet, every element registered:
+
+```html
+<!DOCTYPE html>
+<script src="https://cdn.jsdelivr.net/npm/elation/build/elation.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/elation/build/elation.css">
+
+<ui-button label="Click me"></ui-button>
+```
+
+That's the whole setup. Once the bundle loads it registers every UI element and collection class with the browser's custom-element registry; markup like `<ui-button>` and `<ui-tabs>` works from then on. unpkg also serves the same artifact at `https://unpkg.com/elation/build/elation.js`.
+
+### npm
+
+```sh
+npm install elation
+```
+
+The package's `main` field resolves to the pre-bundled `build/elation.js`, so a bundler-aware project can just import the side-effecting bundle:
+
+```js
+import 'elation';
+import 'elation/build/elation.css';
+```
+
+For a non-bundler project that imports straight from `node_modules`:
+
+```html
+<script src="node_modules/elation/build/elation.js"></script>
+<link rel="stylesheet" href="node_modules/elation/build/elation.css">
+```
+
+### Building only what you need
+
+The pre-bundled `elation.js` registers the entire library — roughly 430KB un-minified. Production projects typically use a subset, so Elation ships a dependency-graph packer (`pack.js`) that resolves only the modules you actually reference. The library's own [`scripts/build.sh`](scripts/build.sh) is a thin wrapper around it — copy that script as a starting point, then change the module list at the bottom to match your slice:
+
+```sh
+node htdocs/scripts/utils/pack.js -bundle myapp \
+  elements.ui.button elements.ui.input elements.collection.jsonapi
+```
+
+`pack.js` walks the `elation.require()` graph starting from each module you list, gathers every transitive dependency, and emits a single bundle plus its CSS sidecar. This is the same pattern projects like [janusweb](https://github.com/jbaicoianu/janusweb) use to ship a custom build of just the elements they need.
+
 ## Namespaces
 
 - **`elation.elements.ui`** — elements for building UI: buttons, inputs, tabs, lists, layouts, and feedback indicators.

@@ -31,3 +31,18 @@ ui-slider-handle>ui-label {
 ui-slider-track[hover] ui-slider-handle>ui-label {
   display: block !important;
 }
+
+/* Touch devices: thicker track and bigger handle for finger control. */
+@media (pointer: coarse) {
+  ui-slider {
+    min-width: 10em;
+  }
+  ui-slider>ui-slider-track {
+    height: .9em;
+    margin: .6em 0;
+  }
+  ui-slider-handle {
+    width: 1em;
+    height: 1.8em;
+  }
+}

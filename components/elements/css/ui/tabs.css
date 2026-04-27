@@ -23,6 +23,8 @@ ui-tabs>ui-tabbar {
   display: block;
   order: -1;
   white-space: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 ui-tabs>ui-tabbar>ui-button,
 ui-tabs>ui-tabbar>ui-tabbutton,

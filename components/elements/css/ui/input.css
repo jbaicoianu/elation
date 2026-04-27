@@ -14,3 +14,13 @@ ui-input>input {
 ui-textarea>textarea {
   resize: vertical;
 }
+
+/* Narrow viewports: stack the label above the input. */
+@media (max-width: 600px) {
+  ui-input {
+    flex-wrap: wrap;
+  }
+  ui-input>ui-label {
+    flex: 0 0 100%;
+  }
+}

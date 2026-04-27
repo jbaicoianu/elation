@@ -18,3 +18,16 @@ ui-columnlayout>* {
 ui-columnlayout>*:first-child {
   margin-left: 0;
 }
+
+/* Narrow viewports: stack columns vertically. */
+@media (max-width: 600px) {
+  ui-columnlayout {
+    flex-direction: column;
+    height: auto;
+  }
+  ui-columnlayout>* {
+    width: 100%;
+    margin-left: 0;
+    padding-left: 0;
+  }
+}

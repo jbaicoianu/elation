@@ -30,3 +30,12 @@ ui-list>[selectable] {
   cursor: text;
   user-select: text;
 }
+
+/* Touch devices: comfortable row height for tap selection. */
+@media (pointer: coarse) {
+  ui-list>ui-item,
+  ui-checklist>ui-checklistitem {
+    padding: .55em .8em;
+    min-height: 2.4em;
+  }
+}

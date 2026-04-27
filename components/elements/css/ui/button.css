@@ -65,3 +65,17 @@ ui-notificationbutton ui-indicator {
   vertical-align: middle;
   padding: 0 .2em;
 }
+
+/* Touch devices: enforce a comfortable tap target on every button variant. */
+@media (pointer: coarse) {
+  ui-button,
+  ui-togglebutton,
+  ui-dropdownbutton,
+  ui-tabbutton,
+  ui-tabcountbutton,
+  ui-popupbutton,
+  ui-notificationbutton {
+    min-height: 2.4em;
+    padding: .4em .8em;
+  }
+}

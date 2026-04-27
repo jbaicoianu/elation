@@ -139,7 +139,10 @@ body {
 }
 .two-col   { grid-template-columns: 1fr 1fr; }
 .three-col { grid-template-columns: 1fr 1fr 1fr; }
-@media (max-width: 800px) {
+@media (max-width: 900px) {
+  .three-col { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 600px) {
   .two-col, .three-col { grid-template-columns: 1fr; }
 }
 
@@ -325,6 +328,63 @@ body:not(.show-source) details.source {
 }
 .alloc-row ui-label {
   font-size: .75em;
+}
+
+/* ========== narrow viewports ========== */
+
+/* Header wraps and shrinks tightly on phones. */
+@media (max-width: 600px) {
+  .page-header {
+    flex-wrap: wrap;
+    gap: .5em;
+    padding: .6em .8em;
+  }
+  .brand-tag { display: none; }
+  .header-controls { gap: .6em; flex-wrap: wrap; }
+  .step { padding: .8em; }
+  .step h2 { font-size: 1.4em; }
+}
+
+/* Step jump-nav can be horizontally scrolled when too many steps to fit. */
+.step-nav {
+  overflow-x: auto;
+}
+@media (max-width: 600px) {
+  .step-nav ui-togglebutton {
+    flex: 0 0 auto;       /* don't try to evenly divide; let labels size naturally */
+    min-width: 7em;
+  }
+}
+
+/* The console desktop uses absolute-positioned windows with inline styles for
+   pixel layout. On phones we override that and let them stack vertically. */
+@media (max-width: 900px) {
+  .console-desktop {
+    height: auto;
+    background-image: none;
+    border: 0;
+    overflow: visible;
+  }
+  .console-desktop > ui-window {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 14em;
+    margin-bottom: 1em;
+  }
+  .controls-grid {
+    grid-template-columns: 1fr;
+  }
+  .console-status {
+    grid-template-columns: 5em 1fr !important;
+  }
+}
+
+/* Source-view code blocks shouldn't blow past the viewport. */
+details.source pre {
+  max-width: 100%;
 }
 
 /* ========== footer ========== */

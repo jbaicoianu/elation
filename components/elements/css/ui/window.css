@@ -84,3 +84,14 @@ ui-window[top][right]>.ui_window_resizer    { cursor: sw-resize; }
 ui-window[top][left]>.ui_window_resizer     { cursor: se-resize; }
 ui-window[bottom][right]>.ui_window_resizer { cursor: se-resize; }
 ui-window[bottom][left]>.ui_window_resizer  { cursor: sw-resize; }
+
+/* Touch devices: bigger resize grip; titlebar comfortable for thumb-drag. */
+@media (pointer: coarse) {
+  ui-window>.ui_window_resizer {
+    width: 28px;
+    height: 28px;
+  }
+  ui-window>ui-window-titlebar {
+    min-height: 2.4em;
+  }
+}

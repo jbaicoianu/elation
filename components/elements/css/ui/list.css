@@ -31,6 +31,23 @@ ui-list>[selectable] {
   user-select: text;
 }
 
+/* Drag-to-reorder hints (when the list has `draggable` set). */
+ui-list[draggable]>ui-item,
+ui-checklist[draggable]>ui-checklistitem,
+ui-grid[draggable]>ui-item {
+  cursor: grab;
+}
+ui-list[draggable]>ui-item:active,
+ui-checklist[draggable]>ui-checklistitem:active,
+ui-grid[draggable]>ui-item:active {
+  cursor: grabbing;
+}
+ui-list>ui-item.state_dragging,
+ui-checklist>ui-checklistitem.state_dragging,
+ui-grid>ui-item.state_dragging {
+  opacity: .35;
+}
+
 /* Touch devices: comfortable row height for tap selection. */
 @media (pointer: coarse) {
   ui-list>ui-item,

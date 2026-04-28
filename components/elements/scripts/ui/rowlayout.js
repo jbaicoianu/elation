@@ -1,4 +1,6 @@
 elation.require(['elements.base'], function() {
+  elation.requireCSS('ui.rowlayout');
+
   /**
    * List variant that arranges its items into a fixed number of rows.
    *

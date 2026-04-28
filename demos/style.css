@@ -117,6 +117,72 @@ body {
   width: 12em;
   margin: .2em 0 1em;
 }
+
+/* ========== container demos (step 3) ========== */
+
+.container-demo {
+  border: 1px dashed currentColor;
+  padding: .8em;
+  margin: .6em 0 1.4em;
+  min-height: 4em;
+}
+ui-columnlayout.container-demo > *,
+ui-rowlayout.container-demo > * {
+  padding: .4em .6em;
+}
+ui-rowlayout.container-demo > * {
+  border-bottom: 1px solid currentColor;
+}
+ui-rowlayout.container-demo > *:last-child {
+  border-bottom: 0;
+}
+.container-demo h4 {
+  margin: 0 0 .3em;
+  font-size: .9em;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+}
+ui-flexpanel.container-demo {
+  width: auto;
+  height: auto;
+  min-height: 3.5em;
+}
+ui-flexpanel.container-demo > * {
+  padding: .5em .8em;
+  border: 1px solid currentColor;
+  margin: 0 .3em;
+}
+ui-flexpanel.container-demo > *:first-child { margin-left: 0; }
+ui-flexpanel.container-demo > *:last-child  { margin-right: 0; }
+
+.panel-host {
+  position: relative;
+  border: 1px dashed currentColor;
+  padding: .8em;
+  min-height: 6em;
+  margin: .6em 0 1.4em;
+}
+.panel-host-prose { margin: 0; max-width: 32em; }
+.panel-demo {
+  padding: .4em .8em;
+  border: 1px solid currentColor;
+}
+
+#content-demo {
+  display: block;
+  border: 1px dashed currentColor;
+  padding: .6em;
+  margin: .5em 0 1em;
+}
+
+/* ========== tooltip demo (step 4) ========== */
+
+.tooltip-host {
+  display: inline-block;
+  padding: .5em .9em;
+  border: 1px dashed currentColor;
+  cursor: help;
+}
 .hint {
   font-family: ui-monospace, monospace;
   font-size: .85em;

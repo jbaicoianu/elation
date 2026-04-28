@@ -1,0 +1,11 @@
+/*
+ * Structural styles for ui-rowlayout — children flex into vertical rows.
+ */
+
+ui-rowlayout {
+  display: flex;
+  flex-direction: column;
+}
+ui-rowlayout > * {
+  flex: 1 1;
+}

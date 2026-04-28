@@ -44,33 +44,63 @@
 <!-- Persistent step-jump nav                                     -->
 <!-- ============================================================ -->
 <ui-buttonbar id="step-nav" class="step-nav">
-  <ui-togglebutton data-step="1" label="1 · start"></ui-togglebutton>
+  <ui-togglebutton data-step="1" label="1 · buttons"></ui-togglebutton>
   <ui-togglebutton data-step="2" label="2 · forms"></ui-togglebutton>
-  <ui-togglebutton data-step="3" label="3 · layout"></ui-togglebutton>
+  <ui-togglebutton data-step="3" label="3 · containers"></ui-togglebutton>
   <ui-togglebutton data-step="4" label="4 · data"></ui-togglebutton>
-  <ui-togglebutton data-step="5" label="5 · live"></ui-togglebutton>
-  <ui-togglebutton data-step="6" label="6 · derived"></ui-togglebutton>
-  <ui-togglebutton data-step="7" label="7 · themes"></ui-togglebutton>
-  <ui-togglebutton data-step="8" label="8 · console"></ui-togglebutton>
+  <ui-togglebutton data-step="5" label="5 · themes"></ui-togglebutton>
+  <ui-togglebutton data-step="6" label="6 · console"></ui-togglebutton>
 </ui-buttonbar>
 
 <!-- ============================================================ -->
-<!-- 1. Hello                                                     -->
+<!-- 1. Buttons                                                   -->
 <!-- ============================================================ -->
-<ui-wizard-step id="start">
+<ui-wizard-step id="buttons">
   <section class="step">
-    <h2>One element</h2>
-    <p>The button below is a custom element. The framework registered it with the browser at page load, mapped its <code>label</code> attribute to a typed JS property, and wired up its click handler through the same lifecycle every primitive in this tour shares. Toggle <em>show source</em> in the header to see the markup.</p>
+    <h2>Buttons &amp; bars</h2>
+    <p>Every button-family primitive in the library. Each is a custom element registered with the browser at page load — drop the markup anywhere and the framework wires up the lifecycle, the typed attributes, and the events. Click any one and the log below shows which fired.</p>
 
-    <div class="demo">
-      <ui-button id="hello-btn" label="Press me"></ui-button>
-      <output id="hello-counter" class="readout">0 presses so far</output>
+    <h3>Individual buttons</h3>
+    <div class="bar-row">
+      <ui-button       label="Plain"></ui-button>
+      <ui-button       label="Disabled" disabled></ui-button>
+      <ui-togglebutton label="Toggle"></ui-togglebutton>
+      <ui-notificationbutton label="Inbox" count="3"></ui-notificationbutton>
+      <ui-tabcountbutton     label="Tasks" count="12"></ui-tabcountbutton>
     </div>
 
-    <details class="source">
-      <summary>source</summary>
-<pre><code>&lt;ui-button label="Press me"&gt;&lt;/ui-button&gt;</code></pre>
-    </details>
+    <h3>Horizontal grouping — buttonbar</h3>
+    <ui-buttonbar id="bar-cut">
+      <ui-button label="Cut"></ui-button>
+      <ui-button label="Copy"></ui-button>
+      <ui-button label="Paste"></ui-button>
+    </ui-buttonbar>
+
+    <h3>Mutual exclusion — radiobuttonbar</h3>
+    <ui-radiobuttonbar id="bar-prio">
+      <ui-togglebutton label="Low"></ui-togglebutton>
+      <ui-togglebutton label="Medium"></ui-togglebutton>
+      <ui-togglebutton label="High"></ui-togglebutton>
+    </ui-radiobuttonbar>
+
+    <h3>Vertical stack — buttonlist</h3>
+    <ui-buttonlist class="bar-buttonlist">
+      <ui-button label="Open file"></ui-button>
+      <ui-button label="Save"></ui-button>
+      <ui-button label="Close"></ui-button>
+    </ui-buttonlist>
+
+    <h3>Openers — dropdown &amp; popup</h3>
+    <div class="bar-row">
+      <ui-dropdownbutton label="More ▾">
+        <ui-button label="Edit"></ui-button>
+        <ui-button label="Duplicate"></ui-button>
+        <ui-button label="Delete"></ui-button>
+      </ui-dropdownbutton>
+      <ui-popupbutton label="Open popup" popupcontent="<div style='padding:.8em 1em;'>This popup is its own ui-window. Click anywhere outside to close.</div>"></ui-popupbutton>
+    </div>
+
+    <output id="bar-log" class="readout">click any button</output>
 
     <ui-wizard-pagination></ui-wizard-pagination>
   </section>
@@ -97,6 +127,7 @@
           <option value="editor" selected>Editor</option>
           <option value="viewer">Viewer</option>
         </ui-select>
+        <ui-imagepicker id="f-avatar" label="Avatar"></ui-imagepicker>
       </ui-formgroup>
 
       <aside class="state-panel">
@@ -121,184 +152,198 @@
 </ui-wizard-step>
 
 <!-- ============================================================ -->
-<!-- 3. Layout                                                    -->
+<!-- 3. Containers                                                -->
 <!-- ============================================================ -->
-<ui-wizard-step id="layout">
+<ui-wizard-step id="containers">
   <section class="step">
-    <h2>Layout containers</h2>
-    <p>Compose elements into pages with panels, tabs, formgroups, and floating windows. The window below is draggable and resizable — drag its title bar; grab its corner.</p>
+    <h2>Containers</h2>
+    <p>Containers compose primitives into structured regions. Some are flex/grid wrappers, some switch between alternative content, some float over the rest of the page. Most extend <code>ui-panel</code>'s edge-snap positioning when they need it; many can be used as drop-in semantics with whatever theme styles them.</p>
 
-    <ui-tabs id="layout-tabs">
-      <ui-tab label="Buttons & bars" selected>
-        <p>Every button-family primitive in the library. Click any one and the log below shows which fired.</p>
+    <h3>formgroup — labelled section of fields</h3>
+    <ui-formgroup label="Display preferences">
+      <ui-toggle  label="Reduced motion"></ui-toggle>
+      <ui-toggle  label="High contrast"></ui-toggle>
+      <ui-slider  min="0" max="100" value="60"></ui-slider>
+    </ui-formgroup>
 
-        <h3>Individual buttons</h3>
-        <div class="bar-row">
-          <ui-button       label="Plain"></ui-button>
-          <ui-button       label="Disabled" disabled></ui-button>
-          <ui-togglebutton label="Toggle"></ui-togglebutton>
-          <ui-notificationbutton label="Inbox" count="3"></ui-notificationbutton>
-          <ui-tabcountbutton     label="Tasks" count="12"></ui-tabcountbutton>
-        </div>
+    <h3>flexpanel — explicit flex container</h3>
+    <ui-flexpanel class="container-demo">
+      <div>Flexes to fill</div>
+      <div noflex>Stays narrow</div>
+      <div>Flexes to fill</div>
+    </ui-flexpanel>
 
-        <h3>Horizontal grouping — buttonbar</h3>
-        <ui-buttonbar>
-          <ui-button label="Cut"></ui-button>
-          <ui-button label="Copy"></ui-button>
-          <ui-button label="Paste"></ui-button>
-        </ui-buttonbar>
+    <h3>columnlayout — equal-width columns</h3>
+    <ui-columnlayout class="container-demo">
+      <div><h4>One</h4><p>Each child gets <code>flex: 1 1</code> so columns share the width evenly.</p></div>
+      <div><h4>Two</h4><p>Stacks to a single column under 600px viewports.</p></div>
+      <div><h4>Three</h4><p>Useful for side-by-side content sections.</p></div>
+    </ui-columnlayout>
 
-        <h3>Mutual exclusion — radiobuttonbar</h3>
-        <ui-radiobuttonbar>
-          <ui-togglebutton label="Low"></ui-togglebutton>
-          <ui-togglebutton label="Medium"></ui-togglebutton>
-          <ui-togglebutton label="High"></ui-togglebutton>
-        </ui-radiobuttonbar>
+    <h3>rowlayout — stacked rows</h3>
+    <ui-rowlayout class="container-demo">
+      <div><h4>Top</h4></div>
+      <div><h4>Middle</h4></div>
+      <div><h4>Bottom</h4></div>
+    </ui-rowlayout>
 
-        <h3>Vertical stack — buttonlist</h3>
-        <ui-buttonlist class="bar-buttonlist">
-          <ui-button label="Open file"></ui-button>
-          <ui-button label="Save"></ui-button>
-          <ui-button label="Close"></ui-button>
-        </ui-buttonlist>
+    <h3>content — generic slot</h3>
+    <p>Holds an HTML string or an <code>HTMLElement</code> assigned via its <code>value</code> property. Mostly used internally by other elements (e.g. <code>ui-popupbutton</code>'s popup body).</p>
+    <ui-content id="content-demo">Plain inline content.</ui-content>
 
-        <h3>Openers — dropdown &amp; popup</h3>
-        <div class="bar-row">
-          <ui-dropdownbutton label="More ▾">
-            <ui-button label="Edit"></ui-button>
-            <ui-button label="Duplicate"></ui-button>
-            <ui-button label="Delete"></ui-button>
-          </ui-dropdownbutton>
-          <ui-popupbutton label="Open popup" popupcontent="<div style='padding:.8em 1em;'>This popup is its own ui-window. Click anywhere outside to close.</div>"></ui-popupbutton>
-        </div>
-
-        <output id="bar-log" class="readout">click any button</output>
+    <h3>tabs — switch between panes</h3>
+    <p>The active tab is the only one attached to the DOM at a time; the rest are detached and re-attached on selection. Each <code>ui-tab</code> can be arbitrary markup.</p>
+    <ui-tabs id="containers-tabs">
+      <ui-tab label="Overview" selected>
+        <p>This is the first tab. Click <em>Tree view</em> or <em>Spinner</em> above — the contents swap, no other state changes.</p>
       </ui-tab>
-
       <ui-tab label="Tree view">
-        <p>Self-collapsing hierarchy. Click any node to toggle its children.</p>
-        <ui-treeview id="layout-tree"></ui-treeview>
+        <p>Hierarchical data via <code>ui-treeview</code>. Click any node to toggle its children.</p>
+        <ui-treeview id="containers-tree"></ui-treeview>
       </ui-tab>
-
       <ui-tab label="Spinner">
-        <p>Indicates a long-running operation. Click to start a fake 2-second task.</p>
+        <p>Long-running operation indicator. Press the button below to start a fake 2-second task.</p>
         <ui-button id="spinner-go" label="Start task"></ui-button>
         <div id="spinner-host" style="margin-top: 1em; min-height: 110px;"></div>
       </ui-tab>
     </ui-tabs>
 
-    <p style="margin-top: 1.5em;">
+    <h3>collapsiblepanel — expand &amp; collapse</h3>
+    <p>A panel that slides open and closed from one of its anchored edges. Click the handle.</p>
+    <div class="panel-host" style="height: 8em;">
+      <ui-collapsiblepanel left class="panel-demo">
+        <p style="padding: .6em;">Sidebar contents. Click the handle on the right edge to collapse.</p>
+      </ui-collapsiblepanel>
+    </div>
+
+    <h3>panel — edge-anchored positioning</h3>
+    <p>Absolutely-positioned within a relatively-positioned parent; corner attributes anchor it. The combination of <code>top</code> / <code>middle</code> / <code>bottom</code> and <code>left</code> / <code>center</code> / <code>right</code> attributes determines which edge the panel snaps to. <code>ui-window</code>, <code>ui-tooltip</code>, and <code>ui-collapsiblepanel</code> all extend this behaviour.</p>
+    <div class="panel-host">
+      <ui-panel bottom right class="panel-demo">snapped<br>bottom-right</ui-panel>
+      <p class="panel-host-prose">This dashed box is a relatively-positioned host. The small "snapped" panel inside is anchored to its bottom-right corner via <code>&lt;ui-panel bottom right&gt;</code>.</p>
+    </div>
+
+    <h3>window — draggable floating overlay</h3>
+    <p>
       <ui-button id="open-window" label="Open a window"></ui-button>
-      <span class="hint">click and a draggable ui-window appears at the top-left of the page</span>
+      <span class="hint">opens a draggable, resizable <code>ui-window</code> at the top-left of the page</span>
     </p>
+
+    <h3>tooltip — hover-anchored floating detail</h3>
+    <p>Hover the swatch below; a <code>ui-tooltip</code> follows the mouse and disappears on mouseout.</p>
+    <span id="tooltip-host" class="tooltip-host">hover me</span>
 
     <ui-wizard-pagination></ui-wizard-pagination>
   </section>
 </ui-wizard-step>
 
 <!-- ============================================================ -->
-<!-- 4. Lists from data                                           -->
+<!-- 5. Data collections                                          -->
 <!-- ============================================================ -->
 <ui-wizard-step id="data">
   <section class="step">
-    <h2>Data, bound to UI</h2>
-    <p>Collections hold the data; UI elements render it. The list and grid below both point at the <em>same</em> <code>&lt;collection-simple&gt;</code> — adding an item updates both views, no manual re-render. The right column shows the framework's own events firing in real time.</p>
+    <h2>Data collections</h2>
+    <p>Collections are the data layer. Each holds an array of items and emits change events; UI elements bound to a collection update on those events. Below: three flavours of collection, three patterns of binding, all using the same <code>setItemCollection</code> hook on <code>ui-list</code>, <code>ui-grid</code>, and <code>ui-checklist</code>.</p>
 
-    <div class="three-col">
-      <div>
-        <h3>list view</h3>
-        <ui-list id="data-list" labelattr="name"></ui-list>
-      </div>
-      <div>
-        <h3>grid view</h3>
-        <ui-grid id="data-grid" labelattr="name"></ui-grid>
-      </div>
-      <aside class="state-panel">
-        <h3>collection events</h3>
-        <pre id="data-log" class="state-json"></pre>
-      </aside>
-    </div>
+    <ui-tabs id="data-tabs">
 
-    <div class="demo" style="margin-top: 1em;">
-      <ui-button id="data-add"     label="+ add"></ui-button>
-      <ui-button id="data-remove"  label="− remove last"></ui-button>
-      <ui-button id="data-shuffle" label="↻ shuffle"></ui-button>
-      <ui-button id="data-clear"   label="✕ clear"></ui-button>
-    </div>
+      <ui-tab label="In-memory" selected>
+        <p>The simplest case — a hand-managed array. Two views (list and grid) bound to the <em>same</em> <code>collection-simple</code> stay in lockstep. <strong>Drag any row to reorder</strong> — the move propagates through the collection and the other view follows. The event log on the right shows the framework's own events firing in real time.</p>
 
-    <details class="source">
-      <summary>source</summary>
-<pre><code>// JS
-const items = elation.elements.create('collection-simple', {
+        <div class="three-col">
+          <div>
+            <h3>list view</h3>
+            <ui-list id="data-list" labelattr="name" draggable></ui-list>
+          </div>
+          <div>
+            <h3>grid view</h3>
+            <ui-grid id="data-grid" labelattr="name" draggable></ui-grid>
+          </div>
+          <aside class="state-panel">
+            <h3>events</h3>
+            <pre id="data-log" class="state-json"></pre>
+          </aside>
+        </div>
+
+        <div class="demo" style="margin-top: 1em;">
+          <ui-button id="data-add"     label="+ add"></ui-button>
+          <ui-button id="data-remove"  label="− remove last"></ui-button>
+          <ui-button id="data-shuffle" label="↻ shuffle"></ui-button>
+          <ui-button id="data-clear"   label="✕ clear"></ui-button>
+        </div>
+
+        <details class="source">
+          <summary>source</summary>
+<pre><code>const items = elation.elements.create('collection-simple', {
   items: [{ name: 'Alpha' }, { name: 'Bravo' }, { name: 'Charlie' }]
 });
 
-// Markup — both views bound to the same collection
-&lt;ui-list collection="items"&gt;&lt;/ui-list&gt;
-&lt;ui-grid collection="items"&gt;&lt;/ui-grid&gt;
+list.setItemCollection(items);
+grid.setItemCollection(items);
 
-items.add({ name: 'Delta' });    // both views update</code></pre>
-    </details>
+items.add({ name: 'Delta' });   // both views update</code></pre>
+        </details>
+      </ui-tab>
 
-    <ui-wizard-pagination></ui-wizard-pagination>
-  </section>
-</ui-wizard-step>
+      <ui-tab label="Live API">
+        <p>Swap <code>collection-simple</code> for <code>collection-jsonapi</code> and the binding doesn't change — same <code>setItemCollection</code>, same views, real network now. Reading <code>.items</code> for the first time triggers an automatic load. Reload to refetch; the list listens for <code>collection_load_begin</code> / <code>collection_load</code> and re-renders accordingly.</p>
 
-<!-- ============================================================ -->
-<!-- 5. Live API data                                             -->
-<!-- ============================================================ -->
-<ui-wizard-step id="live">
-  <section class="step">
-    <h2>Same markup, real data</h2>
-    <p>Swap the in-memory collection for one backed by a REST endpoint. The list and grid don't change — they're already bound to a collection. <code>collection_load_begin</code> fires when the request starts; <code>collection_load</code> when items arrive.</p>
+        <div class="two-col">
+          <div>
+            <h3>list view</h3>
+            <ui-list id="live-list" labelattr="name"></ui-list>
+          </div>
+          <aside class="state-panel">
+            <h3>events</h3>
+            <pre id="live-log" class="state-json"></pre>
+          </aside>
+        </div>
 
-    <div class="three-col">
-      <div>
-        <h3>list view</h3>
-        <ui-list id="live-list" labelattr="name"></ui-list>
-      </div>
-      <div>
-        <h3>grid view</h3>
-        <ui-grid id="live-grid" labelattr="name"></ui-grid>
-      </div>
-      <aside class="state-panel">
-        <h3>collection events</h3>
-        <pre id="live-log" class="state-json"></pre>
-      </aside>
-    </div>
+        <div class="demo" style="margin-top: 1em;">
+          <ui-button id="live-reload" label="↻ reload"></ui-button>
+          <span class="hint">data from <code>jsonplaceholder.typicode.com/users</code></span>
+        </div>
 
-    <div class="demo" style="margin-top: 1em;">
-      <ui-button id="live-reload" label="↻ reload"></ui-button>
-      <span class="hint">data from <code>jsonplaceholder.typicode.com/users</code></span>
-    </div>
+        <details class="source">
+          <summary>source</summary>
+<pre><code>const users = elation.elements.create('collection-jsonapi', {
+  host: 'https://jsonplaceholder.typicode.com',
+  endpoint: '/users'
+});
+list.setItemCollection(users);   // automatic fetch on first access</code></pre>
+        </details>
+      </ui-tab>
 
-    <ui-wizard-pagination></ui-wizard-pagination>
-  </section>
-</ui-wizard-step>
+      <ui-tab label="Derived view">
+        <p>Wrap a collection in <code>collection-filter</code> to expose a subset selected by a predicate, in <code>collection-subset</code> to re-shape its data. Three views of the live API collection from the previous tab: the source unchanged, a filtered narrowing, and a count of matches. Type below — only the filtered view changes.</p>
 
-<!-- ============================================================ -->
-<!-- 6. Filters & subsets                                         -->
-<!-- ============================================================ -->
-<ui-wizard-step id="derived">
-  <section class="step">
-    <h2>Derived views</h2>
-    <p>Wrap a collection in a <code>collection-filter</code> to expose a subset selected by a predicate. Type below — the filtered list updates as you type, while the count and the source list stay live in their own right.</p>
+        <div class="demo">
+          <ui-input id="filter-input" placeholder="filter by name…"></ui-input>
+          <span class="hint">matching <output id="filter-count">10</output> of <output id="filter-total">10</output></span>
+        </div>
 
-    <div class="demo">
-      <ui-input id="filter-input" placeholder="filter by name…"></ui-input>
-      <span class="hint">matching <output id="filter-count">10</output> of <output id="filter-total">10</output></span>
-    </div>
+        <div class="two-col">
+          <div>
+            <h3>source — collection-jsonapi</h3>
+            <ui-list id="derived-source" labelattr="name"></ui-list>
+          </div>
+          <div>
+            <h3>filtered — collection-filter</h3>
+            <ui-list id="derived-filtered" labelattr="name"></ui-list>
+          </div>
+        </div>
 
-    <div class="two-col">
-      <div>
-        <h3>source (10)</h3>
-        <ui-list id="derived-source" labelattr="name"></ui-list>
-      </div>
-      <div>
-        <h3>filtered</h3>
-        <ui-list id="derived-filtered" labelattr="name"></ui-list>
-      </div>
-    </div>
+        <details class="source">
+          <summary>source</summary>
+<pre><code>const filter = elation.elements.create('collection-filter', {
+  parent: users,
+  filterfunc: u =&gt; u.name.toLowerCase().includes(query)
+});
+filteredList.setItemCollection(filter);</code></pre>
+        </details>
+      </ui-tab>
+
+    </ui-tabs>
 
     <ui-wizard-pagination></ui-wizard-pagination>
   </section>

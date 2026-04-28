@@ -21,13 +21,12 @@
     setupTheme();
     setupSourceToggle();
     setupStepNav();
-    setupHello();
+    setupButtons();
     setupForms();
-    setupLayout();
+    setupContainers();
     setupData();
-    setupLive();
-    setupDerived();
     setupConsole();
+    // step 5 (themes) is pure markup; no JS.
   }
 
   // ----- theme picker ------------------------------------------------
@@ -94,14 +93,19 @@
     });
   }
 
-  // ----- step 1: hello -----------------------------------------------
-  function setupHello() {
-    const btn = document.getElementById('hello-btn');
-    const out = document.getElementById('hello-counter');
-    let n = 0;
-    btn.addEventListener('click', function () {
-      n++;
-      out.textContent = n + ' press' + (n === 1 ? '' : 'es') + ' so far';
+  // ----- step 1: buttons ---------------------------------------------
+  function setupButtons() {
+    const step = document.getElementById('buttons');
+    if (!step) return;
+    const log = step.querySelector('#bar-log');
+    const sel = 'ui-button, ui-togglebutton, ui-notificationbutton, ui-tabcountbutton, ui-dropdownbutton, ui-popupbutton';
+    step.querySelectorAll(sel).forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        if (!log) return;
+        const tag = btn.tagName.toLowerCase().replace(/^ui-/, '');
+        const label = btn.label || btn.textContent.trim() || '(unnamed)';
+        log.textContent = tag + ' · ' + label;
+      });
     });
   }
 
@@ -141,31 +145,17 @@
     setTimeout(snapshot, 50);  // allow attributes to settle
   }
 
-  // ----- step 3: layout ----------------------------------------------
-  function setupLayout() {
-    // <ui-tabs> detaches inactive tab children from the DOM, so we reach
-    // into tabs.items[i] (which holds every ui-tab element regardless of
-    // selection) and query inside each tab.
-    const tabsEl = document.getElementById('layout-tabs');
+  // ----- step 3: containers ------------------------------------------
+  function setupContainers() {
+    // <ui-tabs> detaches inactive tab children from the DOM, so reach
+    // into tabsEl.items to query elements that may not be attached.
+    const tabsEl = document.getElementById('containers-tabs');
     const tabs = (tabsEl && tabsEl.items) || [];
-    const buttonsTab = tabs[0] || tabsEl;
     const treeTab    = tabs[1] || tabsEl;
     const spinnerTab = tabs[2] || tabsEl;
 
-    const log = buttonsTab.querySelector('#bar-log');
-    // One click handler for every button-family element in the section.
-    const btnSelector = 'ui-button, ui-togglebutton, ui-notificationbutton, ui-tabcountbutton, ui-dropdownbutton, ui-popupbutton';
-    buttonsTab.querySelectorAll(btnSelector).forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        if (!log) return;
-        const tag = btn.tagName.toLowerCase().replace(/^ui-/, '');
-        const label = btn.label || btn.textContent.trim() || '(unnamed)';
-        log.textContent = tag + ' · ' + label;
-      });
-    });
-
     // Treeview content
-    const tree = treeTab.querySelector('#layout-tree');
+    const tree = treeTab.querySelector('#containers-tree');
     if (tree && tree.setItems) {
       tree.setItems([
         { name: 'src', items: [
@@ -218,10 +208,56 @@
         win.innerHTML += '<div style="padding: 1em;">Drag the title bar to move me. Grab the bottom-right corner to resize.</div>';
       });
     }
+
+    // Tooltip — created on first hover, follows the mouse, hides on leave.
+    const tooltipHost = document.getElementById('tooltip-host');
+    if (tooltipHost) {
+      let tooltip = null;
+      tooltipHost.addEventListener('mouseenter', function () {
+        if (!tooltip) {
+          tooltip = elation.elements.create('ui-tooltip', { append: document.body });
+          tooltip.innerHTML = 'A floating ui-tooltip — hides on mouseout.';
+        }
+        tooltip.show();
+      });
+      tooltipHost.addEventListener('mouseleave', function () {
+        if (tooltip) tooltip.hide();
+      });
+      tooltipHost.addEventListener('mousemove', function (ev) {
+        if (tooltip && !tooltip.hidden) {
+          tooltip.setposition([ev.clientX + 14, ev.clientY + 14]);
+        }
+      });
+    }
   }
 
-  // ----- step 4: hand-managed collection -----------------------------
+  // ----- step 5: data collections (in-memory + live + derived) -------
+  // The data step has three internal <ui-tab>s; ui-tabs detaches inactive
+  // ones, so reach for elements through tabsEl.items[i].
   function setupData() {
+    const tabsEl = document.getElementById('data-tabs');
+    const tabs = (tabsEl && tabsEl.items) || [];
+    const memTab     = tabs[0] || tabsEl;
+    const apiTab     = tabs[1] || tabsEl;
+    const derivedTab = tabs[2] || tabsEl;
+
+    // Live API collection — shared between the API tab and the Derived tab,
+    // so the same data drives multiple bound views.
+    const apiCollection = elation.elements.create('collection-jsonapi', {
+      append: document.body,
+      host: 'https://jsonplaceholder.typicode.com',
+      endpoint: '/users'
+    });
+    apiCollection.style.display = 'none';
+
+    setupDataMemoryTab(memTab);
+    setupDataLiveTab(apiTab, apiCollection);
+    setupDataDerivedTab(derivedTab, apiCollection);
+
+    apiCollection.load();
+  }
+
+  function setupDataMemoryTab(tab) {
     const collection = elation.elements.create('collection-simple', {
       append: document.body,
       items: [
@@ -232,16 +268,18 @@
     });
     collection.style.display = 'none';
 
-    document.getElementById('data-list').setItemCollection(collection);
-    document.getElementById('data-grid').setItemCollection(collection);
+    const list = tab.querySelector('#data-list');
+    const grid = tab.querySelector('#data-grid');
+    if (list) list.setItemCollection(collection);
+    if (grid) grid.setItemCollection(collection);
 
-    const log = document.getElementById('data-log');
+    const log = tab.querySelector('#data-log');
     const lines = [];
     function record(name, info) {
       const time = new Date().toLocaleTimeString();
       lines.unshift('[' + time + '] ' + name + (info ? ' ' + info : ''));
       if (lines.length > 14) lines.pop();
-      log.textContent = lines.join('\n');
+      if (log) log.textContent = lines.join('\n');
     }
     ['collection_add', 'collection_remove', 'collection_move', 'collection_clear'].forEach(function (ev) {
       elation.events.add(collection, ev, function (e) {
@@ -252,17 +290,23 @@
     record('initial', '· 3 items seeded');
 
     let next = 4;
-    const names = ['Delta', 'Echo', 'Foxtrot', 'Golf', 'Hotel', 'India', 'Juliet', 'Kilo', 'Lima', 'Mike', 'November', 'Oscar', 'Papa', 'Quebec', 'Romeo'];
-    document.getElementById('data-add').addEventListener('click', function () {
+    const names = ['Delta', 'Echo', 'Foxtrot', 'Golf', 'Hotel', 'India', 'Juliet',
+                   'Kilo', 'Lima', 'Mike', 'November', 'Oscar', 'Papa', 'Quebec', 'Romeo'];
+    const addBtn     = tab.querySelector('#data-add');
+    const removeBtn  = tab.querySelector('#data-remove');
+    const shuffleBtn = tab.querySelector('#data-shuffle');
+    const clearBtn   = tab.querySelector('#data-clear');
+
+    if (addBtn) addBtn.addEventListener('click', function () {
       const i = (next - 4) % names.length;
       collection.add({ name: names[i], value: next++ });
     });
-    document.getElementById('data-remove').addEventListener('click', function () {
+    if (removeBtn) removeBtn.addEventListener('click', function () {
       if (collection.items.length > 0) {
         collection.remove(collection.items[collection.items.length - 1]);
       }
     });
-    document.getElementById('data-shuffle').addEventListener('click', function () {
+    if (shuffleBtn) shuffleBtn.addEventListener('click', function () {
       const items = collection.items.slice();
       for (let i = items.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -271,81 +315,62 @@
       collection.clear();
       items.forEach(function (it) { collection.add(it); });
     });
-    document.getElementById('data-clear').addEventListener('click', function () {
-      collection.clear();
-    });
+    if (clearBtn) clearBtn.addEventListener('click', function () { collection.clear(); });
   }
 
-  // ----- step 5: live API --------------------------------------------
-  function setupLive() {
-    const collection = elation.elements.create('collection-jsonapi', {
-      append: document.body,
-      host: 'https://jsonplaceholder.typicode.com',
-      endpoint: '/users'
-    });
-    collection.style.display = 'none';
+  function setupDataLiveTab(tab, apiCollection) {
+    const list = tab.querySelector('#live-list');
+    if (list) list.setItemCollection(apiCollection);
 
-    document.getElementById('live-list').setItemCollection(collection);
-    document.getElementById('live-grid').setItemCollection(collection);
-
-    const log = document.getElementById('live-log');
+    const log = tab.querySelector('#live-log');
     const lines = [];
     function record(name) {
       lines.unshift('[' + new Date().toLocaleTimeString() + '] ' + name);
       if (lines.length > 10) lines.pop();
-      log.textContent = lines.join('\n');
+      if (log) log.textContent = lines.join('\n');
     }
     ['collection_load_begin', 'collection_load', 'collection_clear'].forEach(function (ev) {
-      elation.events.add(collection, ev, function () { record(ev); });
+      elation.events.add(apiCollection, ev, function () { record(ev); });
     });
 
-    document.getElementById('live-reload').addEventListener('click', function () {
-      collection.clear();
-      collection.load();
+    const reload = tab.querySelector('#live-reload');
+    if (reload) reload.addEventListener('click', function () {
+      apiCollection.clear();
+      apiCollection.load();
     });
-
-    collection.load();
   }
 
-  // ----- step 6: filter ----------------------------------------------
-  function setupDerived() {
-    const source = elation.elements.create('collection-jsonapi', {
-      append: document.body,
-      host: 'https://jsonplaceholder.typicode.com',
-      endpoint: '/users'
-    });
-    source.style.display = 'none';
-
-    document.getElementById('derived-source').setItemCollection(source);
-
+  function setupDataDerivedTab(tab, source) {
     const filter = elation.elements.create('collection-filter', {
-      append: source,  // filter is a child of source — see filter.js getfiltereditems
+      append: source,  // filter reads from this.parentNode.items
       filterfunc: function (item) {
-        const inp = document.getElementById('filter-input');
-        const term = (inp.value || '').toLowerCase().trim();
+        const inp = document.getElementById('filter-input')
+                 || tab.querySelector('#filter-input');
+        const term = ((inp && inp.value) || '').toLowerCase().trim();
         if (!term) return true;
         return item && item.name && item.name.toLowerCase().indexOf(term) !== -1;
       }
     });
     filter.style.display = 'none';
 
-    document.getElementById('derived-filtered').setItemCollection(filter);
+    const sourceList   = tab.querySelector('#derived-source');
+    const filteredList = tab.querySelector('#derived-filtered');
+    if (sourceList)   sourceList.setItemCollection(source);
+    if (filteredList) filteredList.setItemCollection(filter);
 
-    const totalEl = document.getElementById('filter-total');
-    const countEl = document.getElementById('filter-count');
-
+    const totalEl = tab.querySelector('#filter-total');
+    const countEl = tab.querySelector('#filter-count');
     function updateCounts() {
-      totalEl.textContent = source.items ? source.items.length : 0;
-      countEl.textContent = filter.items ? filter.items.length : 0;
+      if (totalEl) totalEl.textContent = source.items ? source.items.length : 0;
+      if (countEl) countEl.textContent = filter.items ? filter.items.length : 0;
     }
     elation.events.add(source, 'collection_load', updateCounts);
 
-    document.getElementById('filter-input').addEventListener('input', function () {
+    const input = tab.querySelector('#filter-input');
+    if (input) input.addEventListener('input', function () {
       filter.update();
       updateCounts();
     });
-
-    source.load();
   }
 
   // ----- step 8: operations console ----------------------------------

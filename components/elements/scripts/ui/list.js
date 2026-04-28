@@ -108,6 +108,13 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
       }
       this.setAttribute('role', (this.selectable ? 'listbox' : 'list'));
 
+      if (this.draggable) {
+        this.addEventListener('dragstart', (ev) => this.handleDragStart(ev));
+        this.addEventListener('dragover',  (ev) => this.handleDragOver(ev));
+        this.addEventListener('drop',      (ev) => this.handleDrop(ev));
+        this.addEventListener('dragend',   (ev) => this.handleDragEnd(ev));
+      }
+
       if (this.orientation) {
         this.setOrientation(this.orientation);
       }
@@ -831,6 +838,138 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
       if (ev.target === this && this.selection.length > 0) {
         this.selectall(false);
       }
+    }
+
+    /**
+     * Drag/drop reorder support. Activated when the list has `draggable`
+     * set; the framework then makes each child item draggable and handles
+     * the dragstart/dragover/drop sequence to commit the reorder back to
+     * the underlying items array (or the bound collection, for
+     * collection-backed lists).
+     *
+     * @function handleDragStart
+     * @memberof elation.elements.ui.list#
+     * @param {DragEvent} ev
+     */
+    handleDragStart(ev) {
+      const item = this._dragItemFromEvent(ev);
+      if (!item) return;
+      this._dragItem = item;
+      this._dragOriginIdx = this.listitems.indexOf(item);
+      item.classList.add('state_dragging');
+      ev.dataTransfer.effectAllowed = 'move';
+      try { ev.dataTransfer.setData('text/plain', ''); } catch (e) {}
+    }
+
+    /**
+     * @function handleDragOver
+     * @memberof elation.elements.ui.list#
+     * @param {DragEvent} ev
+     */
+    handleDragOver(ev) {
+      if (!this._dragItem) return;
+      ev.preventDefault();
+      ev.dataTransfer.dropEffect = 'move';
+
+      const target = this._dragItemFromEvent(ev);
+      if (!target || target === this._dragItem || target.parentNode !== this) return;
+
+      // Vertical lists check Y; grids and inline-direction lists check X.
+      const rect = target.getBoundingClientRect();
+      const horizontal = rect.width > rect.height * 1.5;
+      const cursor = horizontal ? ev.clientX : ev.clientY;
+      const mid    = horizontal ? rect.left + rect.width / 2 : rect.top + rect.height / 2;
+      const ref = (cursor < mid) ? target : target.nextSibling;
+      if (this._dragItem !== ref && this._dragItem.nextSibling !== ref) {
+        this.insertBefore(this._dragItem, ref);
+      }
+    }
+
+    /**
+     * @function handleDrop
+     * @memberof elation.elements.ui.list#
+     * @param {DragEvent} ev
+     * @emits reorder
+     */
+    handleDrop(ev) {
+      if (!this._dragItem) return;
+      ev.preventDefault();
+      // The dragover live-shifted the item; just count its new index.
+      let newIdx = 0;
+      for (const li of this.listitems) {
+        if (li === this._dragItem) continue;
+        if (this._dragItem.compareDocumentPosition(li) & Node.DOCUMENT_POSITION_PRECEDING) {
+          newIdx++;
+        }
+      }
+      this.commitReorder(this._dragItem, this._dragOriginIdx, newIdx);
+    }
+
+    /**
+     * @function handleDragEnd
+     * @memberof elation.elements.ui.list#
+     */
+    handleDragEnd(ev) {
+      if (this._dragItem) this._dragItem.classList.remove('state_dragging');
+      this._dragItem = null;
+      this._dragOriginIdx = -1;
+    }
+
+    _dragItemFromEvent(ev) {
+      if (!ev.target || !ev.target.closest) return null;
+      // Match any direct ui.item descendant — covers ui-item, ui-tab,
+      // ui-checklistitem, etc., since they all extend ui.item.
+      let el = ev.target;
+      while (el && el !== this) {
+        if (el.parentNode === this && el instanceof elation.elements.ui.item) return el;
+        el = el.parentNode;
+      }
+      return null;
+    }
+
+    /**
+     * Commit a drag-reorder, syncing both the listitems[] cache and the
+     * underlying items array (or bound collection).
+     *
+     * @function commitReorder
+     * @memberof elation.elements.ui.list#
+     * @param {elation.elements.ui.item} item   listitem element being moved
+     * @param {integer} fromIdx
+     * @param {integer} toIdx
+     * @emits reorder
+     */
+    commitReorder(item, fromIdx, toIdx) {
+      if (fromIdx === toIdx || fromIdx < 0) return;
+
+      // Sync the listitems[] cache so subsequent renders see the new order.
+      const liIdx = this.listitems.indexOf(item);
+      if (liIdx !== -1) {
+        this.listitems.splice(liIdx, 1);
+        this.listitems.splice(toIdx, 0, item);
+      }
+
+      // Resolve the data item this listitem represents and move it in
+      // whichever data source backs the list.
+      let dataItem;
+      if (this.itemcollection && this.itemcollection.items) {
+        dataItem = this.itemcollection.items[fromIdx];
+      } else if (this.items && this.items[fromIdx] === item) {
+        dataItem = item;
+      } else {
+        dataItem = (item.value !== undefined) ? item.value : item;
+      }
+
+      if (this.itemcollection && typeof this.itemcollection.move === 'function') {
+        this.itemcollection.move(dataItem, toIdx);
+      } else if (this.items && typeof this.items.splice === 'function') {
+        const idx = this.items.indexOf(dataItem);
+        if (idx !== -1) {
+          const x = this.items.splice(idx, 1)[0];
+          this.items.splice(toIdx, 0, x);
+        }
+      }
+
+      this.dispatchEvent({type: 'reorder', data: {item, fromIdx, toIdx}});
     }
   });
 });

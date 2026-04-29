@@ -4,8 +4,18 @@
 
 ui-select {
   display: flex;
+  align-items: center;
+  gap: var(--elation-space-2);
   white-space: nowrap;
 }
-ui-select>ui-label {
+ui-select > ui-label {
+  flex: 0 0 auto;
   min-width: 5em;
+}
+ui-select > select {
+  flex: 1 1 auto;
+  padding: var(--elation-control-py) var(--elation-control-px);
+  min-height: var(--elation-control-h);
+  font: inherit;
+  box-sizing: border-box;
 }

@@ -6,15 +6,15 @@
  */
 
 ui-dropdownbutton {
-  padding-right: 1em;
+  padding-right: var(--elation-space-6);
 }
 ui-dropdownbutton::after {
   display: inline-block;
   content: '\25be';
   position: absolute;
-  right: .3em;
-  top: 0;
-  padding-top: .2em;
+  right: var(--elation-space-2);
+  top: 50%;
+  transform: translateY(-50%);
   pointer-events: none;
 }
 /* Trigger contains a hidden span per option, all stacked in a single
@@ -40,24 +40,25 @@ ui-dropdownbutton > .ui_dropdown_options {
   left: 0;
   min-width: 100%;
   z-index: 100;
-  margin-top: 4px;
+  margin-top: var(--elation-space-1);
 }
 ui-dropdownbutton.state_open > .ui_dropdown_options {
   display: flex;
   flex-direction: column;
 }
 ui-dropdownbutton > .ui_dropdown_options > ui-button {
-  display: block;
+  display: flex;
   width: 100%;
-  border-radius: 0;
+  justify-content: flex-start;
+  padding-left: calc(var(--elation-control-px) + var(--elation-space-4));
   text-align: left;
-  padding-left: 1.6em;
+  white-space: nowrap;
 }
 /* Default-visible marker for the currently-selected option so the
    indicator works even before a theme styles it. */
 ui-dropdownbutton > .ui_dropdown_options > ui-button.state_selected::before {
   content: '✓';
   position: absolute;
-  left: .4em;
+  left: var(--elation-control-px);
   pointer-events: none;
 }

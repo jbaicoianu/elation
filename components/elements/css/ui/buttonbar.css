@@ -1,16 +1,27 @@
 /*
  * Structural styles for ui-buttonbar, ui-radiobuttonbar, ui-buttonlist.
+ *
+ * Buttons sit flush together so themes can apply the segmented-control
+ * rounded-edges treatment to first/last children.
  */
 
 ui-buttonbar,
 ui-radiobuttonbar {
-  display: flex;
+  display: inline-flex;
+  align-items: stretch;
+}
+ui-buttonbar > ui-button,
+ui-buttonbar > ui-togglebutton,
+ui-radiobuttonbar > ui-togglebutton {
+  flex: 0 0 auto;
 }
 
 ui-buttonlist {
-  display: block;
+  display: inline-flex;
+  flex-direction: column;
 }
-ui-buttonlist>ui-button {
-  display: block;
+ui-buttonlist > ui-button {
+  display: flex;
+  flex: 0 0 auto;
   text-align: center;
 }

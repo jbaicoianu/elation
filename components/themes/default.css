@@ -142,16 +142,20 @@ ui-tooltip {
 /*
  * Form elements
  */
-ui-input>input {
+ui-input>input,
+ui-textarea>textarea {
   border: 1px solid black;
   border-radius: 4px;
   background: #999;
 }
 ui-input>input:hover,
-ui-input>input[hover] {
+ui-input>input[hover],
+ui-textarea>textarea:hover,
+ui-textarea>textarea[hover] {
   background: #aaa;
 }
-ui-input>input:focus {
+ui-input>input:focus,
+ui-textarea>textarea:focus {
   background: #bbb;
 }
 
@@ -310,6 +314,12 @@ ui-tabcountbutton.state_active {
 ui-dropdownbutton>ui-button {
   border: none;
   border-radius: 0;
+}
+ui-dropdownbutton > .ui_dropdown_options {
+  background: #2a2f34;
+  border: 1px solid #111;
+  border-radius: .25em;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .4);
 }
 
 ui-notificationbutton ui-indicator {

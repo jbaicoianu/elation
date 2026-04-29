@@ -8,10 +8,12 @@ ui-wizard {
   display: flex;
   flex: 1;
   flex-direction: column;
+  min-height: 0;          /* allow children to set up their own scroll regions */
 }
 ui-wizard[type="paginate"]>ui-wizard-step {
   display: none;
   flex: 1;
+  min-height: 0;
   opacity: 0;
   transition: opacity 500ms linear;
 }
@@ -34,6 +36,7 @@ ui-wizard[type="paginate"][step="10"]>ui-wizard-step:nth-of-type(10) {
   display: flex;
   flex: 1;
   flex-direction: column;
+  min-height: 0;
   opacity: 1;
 }
 ui-wizard-step>section {

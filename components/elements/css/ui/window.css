@@ -41,11 +41,11 @@ ui-window.state_movable>ui-window-titlebar.state_dragging {
 ui-window>ui-window-titlebar>span {
   flex: 1;
   order: 1;
-  padding: 0 0 0 .5em;
-  line-height: 1.8em;
+  padding: var(--elation-space-1) var(--elation-space-3);
+  line-height: 1.6;
 }
 ui-window>ui-window-titlebar>ui-buttonbar {
-  flex: 0;
+  flex: 0 0 auto;
   order: 2;
 }
 ui-window>ui-window-content {

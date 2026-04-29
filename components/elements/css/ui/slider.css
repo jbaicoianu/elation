@@ -1,34 +1,38 @@
 /*
  * Structural styles for ui-slider, ui-slider-track, ui-slider-handle.
+ *
+ * The slider's outer height matches the standard control height so it
+ * aligns with neighbouring buttons and inputs.
  */
 
 ui-slider {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--elation-control-h);
   min-width: 8em;
 }
-ui-slider>ui-slider-track {
-  display: inline-block;
+ui-slider > ui-slider-track {
+  display: block;
   position: relative;
   width: 100%;
   height: .5em;
-  margin: .5em 0;
   cursor: pointer;
 }
 ui-slider-handle {
   display: block;
   position: absolute;
   width: .5em;
-  height: 1.2em;
+  height: 1.4em;
   cursor: pointer;
 }
-ui-slider-handle>ui-label {
+ui-slider-handle > ui-label {
   position: absolute;
   left: 20px;
   z-index: 100;
   pointer-events: none;
-  padding: 0 .4em;
+  padding: 0 var(--elation-space-1);
 }
-ui-slider-track[hover] ui-slider-handle>ui-label {
+ui-slider-track[hover] ui-slider-handle > ui-label {
   display: block !important;
 }
 
@@ -37,12 +41,11 @@ ui-slider-track[hover] ui-slider-handle>ui-label {
   ui-slider {
     min-width: 10em;
   }
-  ui-slider>ui-slider-track {
+  ui-slider > ui-slider-track {
     height: .9em;
-    margin: .6em 0;
   }
   ui-slider-handle {
     width: 1em;
-    height: 1.8em;
+    height: 1.9em;
   }
 }

@@ -1,18 +1,35 @@
 /*
  * Structural styles for ui-input and ui-textarea.
+ *
+ * Inputs and textareas use the same control height and padding as
+ * buttons so a row of mixed controls aligns to a single baseline.
  */
 
 ui-input {
   display: flex;
+  align-items: center;
+  gap: var(--elation-space-2);
 }
-ui-input>ui-label {
+ui-input > ui-label {
+  flex: 0 0 auto;
   min-width: 5em;
 }
-ui-input>input {
-  flex: 1 1;
+ui-input > input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: var(--elation-control-py) var(--elation-control-px);
+  min-height: var(--elation-control-h);
+  font: inherit;
+  box-sizing: border-box;
 }
-ui-textarea>textarea {
+
+ui-textarea > textarea {
+  width: 100%;
+  padding: var(--elation-control-py) var(--elation-control-px);
+  min-height: calc(var(--elation-control-h) * 2.5);
+  font: inherit;
   resize: vertical;
+  box-sizing: border-box;
 }
 
 /* Narrow viewports: stack the label above the input. */
@@ -20,7 +37,7 @@ ui-textarea>textarea {
   ui-input {
     flex-wrap: wrap;
   }
-  ui-input>ui-label {
+  ui-input > ui-label {
     flex: 0 0 100%;
   }
 }

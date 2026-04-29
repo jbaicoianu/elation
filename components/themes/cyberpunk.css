@@ -224,6 +224,11 @@ ui-tabcountbutton.state_active {
   border-color: var(--cy-yellow);
   box-shadow: var(--cy-glow-yel);
 }
+ui-dropdownbutton > .ui_dropdown_options {
+  background: var(--cy-bg-panel);
+  border: 1px solid var(--cy-magenta);
+  box-shadow: var(--cy-glow-mag);
+}
 ui-button[disabled],
 ui-togglebutton:disabled {
   background: var(--cy-bg);

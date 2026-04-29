@@ -1,3 +1,53 @@
+/*
+ * Foundation: a 0.25em spacing scale, unified control sizing, and a
+ * shared border-radius hint that themes can pick up. All values are
+ * em-based so they scale with the host font-size.
+ */
+
+:root {
+  /* Spacing scale — multiples of .25em (4px at 16px root font). */
+  --elation-space-1: .25em;     /*  4 */
+  --elation-space-2: .5em;      /*  8 */
+  --elation-space-3: .75em;     /* 12 */
+  --elation-space-4: 1em;       /* 16 */
+  --elation-space-5: 1.25em;    /* 20 */
+  --elation-space-6: 1.5em;     /* 24 */
+  --elation-space-8: 2em;       /* 32 */
+  --elation-space-10: 2.5em;    /* 40 */
+
+  /* Standard control geometry — buttons, inputs, selects, toggles, the
+     dropdown trigger, and slider rows all align to the same height so
+     they line up in a row. */
+  --elation-control-h:  2em;
+  --elation-control-px: var(--elation-space-3);
+  --elation-control-py: var(--elation-space-1);
+
+  /* List/option rows — slightly less vertical padding than free
+     controls because lists pack many rows together. */
+  --elation-row-px: var(--elation-space-3);
+  --elation-row-py: var(--elation-space-2);
+
+  /* Gaps */
+  --elation-stack-gap:   var(--elation-space-2);   /* siblings in a vertical stack (formgroup) */
+  --elation-cluster-gap: var(--elation-space-2);   /* siblings in a horizontal cluster (bar-row) */
+  --elation-section-gap: var(--elation-space-6);   /* between major sections of a page */
+
+  /* Border-radius hint themes can opt into for consistency. */
+  --elation-radius:    .375em;
+  --elation-radius-sm: .25em;
+  --elation-radius-lg: .5em;
+}
+
+/* On touch devices, controls scale up so tap targets are comfortable. */
+@media (pointer: coarse) {
+  :root {
+    --elation-control-h:  2.5em;
+    --elation-control-px: var(--elation-space-4);
+    --elation-control-py: var(--elation-space-2);
+    --elation-row-py:     var(--elation-space-3);
+  }
+}
+
 * {
   margin: 0;
   padding: 0;

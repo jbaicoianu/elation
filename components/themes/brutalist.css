@@ -222,6 +222,11 @@ ui-tabcountbutton.state_active {
   background-image: none;
   color: var(--brut-bg);
 }
+ui-dropdownbutton > .ui_dropdown_options {
+  background: var(--brut-bg);
+  border: 2px solid var(--brut-fg);
+  box-shadow: 4px 4px 0 var(--brut-fg);
+}
 ui-button[disabled],
 ui-togglebutton:disabled {
   background: var(--brut-fill);

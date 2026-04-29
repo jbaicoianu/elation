@@ -1,23 +1,28 @@
 /*
  * Structural styles for ui-toggle, ui-checkbox, and ui-radio.
+ *
+ * The toggle/checkbox row aligns to the standard control height so it
+ * lines up with sibling buttons and inputs in a formgroup.
  */
 
 ui-toggle {
   display: flex;
+  align-items: center;
+  gap: var(--elation-space-2);
+  min-height: var(--elation-control-h);
 }
-ui-toggle>div {
+ui-toggle > div {
   display: inline-block;
   position: relative;
   width: 2em;
-  padding: .5em;
-  margin: .2em .8em .2em .4em;
-  vertical-align: middle;
+  height: 1.25em;
+  flex: 0 0 auto;
   cursor: pointer;
   user-select: none;
   -ms-user-select: none;
   z-index: 2;
 }
-ui-toggle[align="left"]>div {
+ui-toggle[align="left"] > div {
   order: -1;
 }
 ui-toggle input {
@@ -26,28 +31,31 @@ ui-toggle input {
 ui-toggle span {
   cursor: pointer;
 }
-ui-toggle>div::before {
+ui-toggle > div::before {
   display: block;
   position: absolute;
   top: 2px;
-  left: 4px;
+  left: 2px;
   bottom: 2px;
   width: 40%;
   z-index: -1;
   content: '';
 }
-ui-toggle[checked]>div::before {
-  right: 4px;
+ui-toggle[checked] > div::before {
+  right: 2px;
   left: auto;
   content: '';
 }
-ui-toggle[disabled]>div,
+ui-toggle[disabled] > div,
 ui-toggle[disabled] span {
   cursor: not-allowed;
 }
 
 ui-checkbox {
   display: flex;
+  align-items: center;
+  gap: var(--elation-space-2);
+  min-height: var(--elation-control-h);
   min-width: 6em;
   white-space: nowrap;
   cursor: pointer;
@@ -55,32 +63,32 @@ ui-checkbox {
   -ms-user-select: none;
   -moz-user-select: none;
 }
-ui-checkbox>input {
+ui-checkbox > input {
   display: inline-block;
   position: relative;
+  flex: 0 0 auto;
+  width: 1em;
   height: 1em;
-  padding: 9px;
-  margin-right: .5em;
-  vertical-align: middle;
   cursor: pointer;
   -webkit-appearance: none;
+  box-sizing: border-box;
 }
-ui-checkbox[align="left"]>input {
+ui-checkbox[align="left"] > input {
   order: -1;
 }
-ui-checkbox>input:checked:after {
+ui-checkbox > input:checked::after {
   content: '\2714';
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  text-align: center;
-  vertical-align: middle;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  line-height: 1;
 }
 ui-checkbox[disabled] {
   cursor: not-allowed;
 }
-ui-checkbox[disabled]>input {
+ui-checkbox[disabled] > input {
   pointer-events: none;
 }

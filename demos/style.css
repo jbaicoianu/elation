@@ -8,24 +8,26 @@
 
 * { box-sizing: border-box; }
 
+html, body {
+  height: 100%;
+}
 body {
   margin: 0;
-  min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow: hidden;     /* only inner scroll regions scroll */
 }
 
 /* ========== page header ========== */
 
 .page-header {
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
   justify-content: space-between;
   padding: .8em 1.2em;
   border-bottom: 1px solid currentColor;
   opacity: .98;
-  position: sticky;
-  top: 0;
   z-index: 1000;
   background: inherit;
   backdrop-filter: blur(4px);
@@ -35,14 +37,31 @@ body {
   align-items: baseline;
   gap: .5em;
 }
-.brand-mark { font-size: 1.2em; opacity: .7; }
 .brand-name { font-weight: bold; letter-spacing: .05em; }
 .brand-tag {
+  display: inline-block;
   font-size: .8em;
-  opacity: .6;
   font-family: ui-monospace, monospace;
+  font-weight: 300;
   text-transform: uppercase;
   letter-spacing: .15em;
+  animation: live-tag-throb 3s ease-in-out infinite;
+}
+@keyframes live-tag-throb {
+  0%, 100% {
+    opacity: .65;
+    text-shadow: 0 0 0 transparent;
+  }
+  50% {
+    opacity: .8;
+    text-shadow: 0 0 3px currentColor;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .brand-tag {
+    animation: none;
+    opacity: .7;
+  }
 }
 
 .header-controls {
@@ -67,10 +86,12 @@ body {
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
+  min-height: 0;
 }
 
 .step-nav {
   display: block;
+  flex: 0 0 auto;
   margin: 1em auto;
   max-width: 1100px;
   width: 95%;
@@ -83,10 +104,13 @@ body {
 }
 
 .step {
+  flex: 1 1 auto;
   max-width: 1100px;
   width: 95%;
-  margin: 0 auto 2em;
+  margin: 0 auto;
   padding: 1em;
+  overflow: auto;        /* the only scrollable region in the wizard */
+  min-height: 0;
 }
 .step h2 {
   margin: .5em 0;
@@ -457,9 +481,21 @@ details.source pre {
   max-width: 100%;
 }
 
+/* ========== wizard pagination — footer of each step ========== */
+
+#tour ui-wizard-pagination {
+  flex: 0 0 auto;
+  max-width: 1100px;
+  width: 95%;
+  margin: 0 auto;
+  padding: .8em 1em;
+  border-top: 1px solid currentColor;
+}
+
 /* ========== footer ========== */
 
 .page-footer {
+  flex: 0 0 auto;
   padding: 1em;
   text-align: center;
   font-size: .85em;

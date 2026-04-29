@@ -8,36 +8,40 @@ ui-tabs {
   position: relative;
   flex: 1 1;
 }
-ui-tabs>ui-tab {
+ui-tabs > ui-tab {
   display: none;
   position: relative;
-  padding: .5em;
+  padding: var(--elation-space-3);
 }
-ui-tabs>ui-tab[selected] {
+ui-tabs > ui-tab[selected] {
   display: flex;
   flex: 1 1;
   flex-direction: column;
 }
-ui-tabs>ui-tabbar {
+ui-tabs > ui-tabbar {
   position: relative;
-  display: block;
+  display: flex;
+  gap: var(--elation-space-1);
   order: -1;
   white-space: nowrap;
   overflow-x: auto;
   overflow-y: hidden;
 }
-ui-tabs>ui-tabbar>ui-button,
-ui-tabs>ui-tabbar>ui-tabbutton,
-ui-tabs>ui-tabbar>ui-tabcountbutton {
-  display: inline-block;
+ui-tabs > ui-tabbar > ui-button,
+ui-tabs > ui-tabbar > ui-tabbutton,
+ui-tabs > ui-tabbar > ui-tabcountbutton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-width: 5em;
-  max-width: 10em;
-  padding: 0 .4em;
+  max-width: 14em;
+  padding: var(--elation-control-py) var(--elation-space-3);
+  min-height: var(--elation-control-h);
   text-align: center;
   white-space: nowrap;
   text-overflow: ellipsis;
-  direction: rtl;
   overflow: hidden;
+  box-sizing: border-box;
 }
-ui-tabcountbutton>ui-indicator::before { content: '('; }
-ui-tabcountbutton>ui-indicator::after  { content: ')'; }
+ui-tabcountbutton > ui-indicator::before { content: '('; }
+ui-tabcountbutton > ui-indicator::after  { content: ')'; }

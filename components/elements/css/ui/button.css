@@ -1,6 +1,10 @@
 /*
  * Structural styles for ui-button and its variants.
  * Visual styling (colors, gradients, fonts) lives in the theme layer.
+ *
+ * Every button variant inherits a unified control height
+ * (--elation-control-h) and padding (--elation-control-px/py) so they
+ * line up with inputs, selects, and toggles in a horizontal row.
  */
 
 ui-button,
@@ -10,14 +14,19 @@ ui-tabbutton,
 ui-tabcountbutton,
 ui-popupbutton,
 ui-notificationbutton {
-  display: inline-block;
-  padding: .1em .5em;
-  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   position: relative;
+  padding: var(--elation-control-py) var(--elation-control-px);
+  min-height: var(--elation-control-h);
+  cursor: pointer;
   text-align: center;
+  white-space: nowrap;
   user-select: none;
   -ms-user-select: none;
   -moz-user-select: none;
+  box-sizing: border-box;
 }
 ui-button[disabled],
 ui-togglebutton:disabled,
@@ -28,9 +37,7 @@ ui-notificationbutton:disabled {
   cursor: not-allowed;
 }
 
-
 ui-notificationbutton {
-  padding: 0;
   transform: scale(1, 1);
   transition: transform 125ms ease-out;
 }
@@ -39,25 +46,11 @@ ui-notificationbutton[count="0"] {
 }
 ui-notificationbutton ui-indicator {
   display: inline-block;
-  min-width: 1em;
   position: absolute;
-  top: -.8em;
-  right: -.8em;
+  top: calc(-1 * var(--elation-space-2));
+  right: calc(-1 * var(--elation-space-2));
+  min-width: 1em;
+  padding: 0 var(--elation-space-1);
   text-align: center;
   vertical-align: middle;
-  padding: 0 .2em;
-}
-
-/* Touch devices: enforce a comfortable tap target on every button variant. */
-@media (pointer: coarse) {
-  ui-button,
-  ui-togglebutton,
-  ui-dropdownbutton,
-  ui-tabbutton,
-  ui-tabcountbutton,
-  ui-popupbutton,
-  ui-notificationbutton {
-    min-height: 2.4em;
-    padding: .4em .8em;
-  }
 }

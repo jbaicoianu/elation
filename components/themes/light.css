@@ -218,6 +218,12 @@ ui-tabcountbutton.state_active {
   color: #fff;
   border-color: var(--light-accent-2);
 }
+ui-dropdownbutton > .ui_dropdown_options {
+  background: var(--light-bg-panel);
+  border: 1px solid var(--light-border);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .15);
+}
 ui-button[disabled],
 ui-togglebutton:disabled {
   background: #f5f5f5;

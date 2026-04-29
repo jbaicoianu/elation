@@ -1,5 +1,8 @@
 /*
  * Structural styles for ui-list and ui-checklist.
+ *
+ * Row padding and minimum row height come from the spacing scale so
+ * lists in different parts of the page line up consistently.
  */
 
 ui-list,
@@ -10,49 +13,44 @@ ui-checklist {
   margin: 0;
   padding: 0;
   list-style: none;
+  box-sizing: border-box;
 }
-ui-list>ui-item,
-ui-checklist>ui-checklistitem {
-  display: block;
+ui-list > ui-item,
+ui-checklist > ui-checklistitem {
+  display: flex;
+  align-items: center;
   position: relative;
-  padding: .2em .5em;
+  padding: var(--elation-row-py) var(--elation-row-px);
+  min-height: var(--elation-control-h);
   user-select: none;
   transform: translate3d(0, 0, 0);
+  box-sizing: border-box;
 }
-ui-list[selectable]>ui-item[hover] {
+ui-list[selectable] > ui-item[hover] {
   cursor: pointer;
 }
 ui-list[selectable] {
   cursor: text;
   user-select: text;
 }
-ui-list>[selectable] {
+ui-list > [selectable] {
   cursor: text;
   user-select: text;
 }
 
 /* Drag-to-reorder hints (when the list has `draggable` set). */
-ui-list[draggable]>ui-item,
-ui-checklist[draggable]>ui-checklistitem,
-ui-grid[draggable]>ui-item {
+ui-list[draggable] > ui-item,
+ui-checklist[draggable] > ui-checklistitem,
+ui-grid[draggable] > ui-item {
   cursor: grab;
 }
-ui-list[draggable]>ui-item:active,
-ui-checklist[draggable]>ui-checklistitem:active,
-ui-grid[draggable]>ui-item:active {
+ui-list[draggable] > ui-item:active,
+ui-checklist[draggable] > ui-checklistitem:active,
+ui-grid[draggable] > ui-item:active {
   cursor: grabbing;
 }
-ui-list>ui-item.state_dragging,
-ui-checklist>ui-checklistitem.state_dragging,
-ui-grid>ui-item.state_dragging {
+ui-list > ui-item.state_dragging,
+ui-checklist > ui-checklistitem.state_dragging,
+ui-grid > ui-item.state_dragging {
   opacity: .35;
-}
-
-/* Touch devices: comfortable row height for tap selection. */
-@media (pointer: coarse) {
-  ui-list>ui-item,
-  ui-checklist>ui-checklistitem {
-    padding: .55em .8em;
-    min-height: 2.4em;
-  }
 }

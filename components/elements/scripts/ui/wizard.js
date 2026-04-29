@@ -103,7 +103,13 @@ elation.require(["elements.elements"], function() {
       this.dispatchEvent({type: 'step', detail: this.step });
     }
     goback() {
+      const oldStep = this.step;
       this.step = Math.max(1, this.step - 1);
+      if (this.step !== oldStep) {
+        const stepel = this.steps[this.step - 1];
+        if (stepel) stepel.start();
+        this.dispatchEvent({type: 'step', detail: this.step});
+      }
     }
     finish() {
       if (this.oncomplete) {

@@ -367,6 +367,12 @@ ui-tabcountbutton.state_active {
   box-shadow: var(--holo-glow), inset 0 0 8px rgba(77, 208, 225, .3);
 }
 
+ui-dropdownbutton > .ui_dropdown_options {
+  background: var(--holo-bg);
+  border: 1px solid var(--holo-accent);
+  box-shadow: var(--holo-glow);
+}
+
 ui-notificationbutton ui-indicator {
   background: var(--holo-critical);
   border: 1px solid var(--holo-bg);

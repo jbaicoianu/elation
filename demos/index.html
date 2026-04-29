@@ -38,24 +38,17 @@
   </nav>
 </header>
 
-<ui-wizard type="paginate" id="tour" step="1">
+<ui-wizard type="paginate" id="tour" step="1" freeflow>
 
 <!-- ============================================================ -->
 <!-- Persistent step-jump nav                                     -->
 <!-- ============================================================ -->
-<ui-buttonbar id="step-nav" class="step-nav">
-  <ui-togglebutton data-step="1" label="1 · buttons"></ui-togglebutton>
-  <ui-togglebutton data-step="2" label="2 · forms"></ui-togglebutton>
-  <ui-togglebutton data-step="3" label="3 · containers"></ui-togglebutton>
-  <ui-togglebutton data-step="4" label="4 · data"></ui-togglebutton>
-  <ui-togglebutton data-step="5" label="5 · themes"></ui-togglebutton>
-  <ui-togglebutton data-step="6" label="6 · console"></ui-togglebutton>
-</ui-buttonbar>
+<ui-wizard-navigation class="step-nav"></ui-wizard-navigation>
 
 <!-- ============================================================ -->
 <!-- 1. Buttons                                                   -->
 <!-- ============================================================ -->
-<ui-wizard-step id="buttons">
+<ui-wizard-step id="buttons" navlabel="1 · buttons">
   <section class="step">
     <h2>Buttons &amp; bars</h2>
     <p>Every button-family primitive in the library. Each is a custom element registered with the browser at page load — drop the markup anywhere and the framework wires up the lifecycle, the typed attributes, and the events. Click any one and the log below shows which fired.</p>
@@ -109,7 +102,7 @@
 <!-- ============================================================ -->
 <!-- 2. Form controls                                             -->
 <!-- ============================================================ -->
-<ui-wizard-step id="forms">
+<ui-wizard-step id="forms" navlabel="2 · forms">
   <section class="step">
     <h2>Form controls</h2>
     <p>Every input element in the library, side by side. Each one round-trips through the typed-attribute system — values you set in markup are coerced to JS types, and changes from the user write back to the attribute.</p>
@@ -154,7 +147,7 @@
 <!-- ============================================================ -->
 <!-- 3. Containers                                                -->
 <!-- ============================================================ -->
-<ui-wizard-step id="containers">
+<ui-wizard-step id="containers" navlabel="3 · containers">
   <section class="step">
     <h2>Containers</h2>
     <p>Containers compose primitives into structured regions. Some are flex/grid wrappers, some switch between alternative content, some float over the rest of the page. Most extend <code>ui-panel</code>'s edge-snap positioning when they need it; many can be used as drop-in semantics with whatever theme styles them.</p>
@@ -240,7 +233,7 @@
 <!-- ============================================================ -->
 <!-- 5. Data collections                                          -->
 <!-- ============================================================ -->
-<ui-wizard-step id="data">
+<ui-wizard-step id="data" navlabel="4 · data">
   <section class="step">
     <h2>Data collections</h2>
     <p>Collections are the data layer. Each holds an array of items and emits change events; UI elements bound to a collection update on those events. Below: three flavours of collection, three patterns of binding, all using the same <code>setItemCollection</code> hook on <code>ui-list</code>, <code>ui-grid</code>, and <code>ui-checklist</code>.</p>
@@ -352,7 +345,7 @@ filteredList.setItemCollection(filter);</code></pre>
 <!-- ============================================================ -->
 <!-- 7. Themes                                                    -->
 <!-- ============================================================ -->
-<ui-wizard-step id="themes">
+<ui-wizard-step id="themes" navlabel="5 · themes">
   <section class="step">
     <h2>Same markup, different look</h2>
     <p>Try the <em>theme</em> picker in the header. Every component on this page (and every step you've seen) re-skins instantly — no rebuild, no markup changes, just a different stylesheet layered on top of the structural CSS. Six themes ship in <code>build/themes/</code>; bring your own and you can target every Elation app at once.</p>
@@ -393,7 +386,7 @@ filteredList.setItemCollection(filter);</code></pre>
 <!-- ============================================================ -->
 <!-- 8. Operations console                                        -->
 <!-- ============================================================ -->
-<ui-wizard-step id="console">
+<ui-wizard-step id="console" navlabel="6 · console">
   <section class="step console-step">
     <h2>ELATION-IX // Operations console</h2>
     <p class="hint">A composed view: every primitive together, all collection-driven, all live. Drag the windows. Try a different theme. Each window is a separate <code>&lt;ui-window&gt;</code>; the panels inside are bound to shared collections so changes ripple across views.</p>

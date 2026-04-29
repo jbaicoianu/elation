@@ -271,22 +271,22 @@ ui-notificationbutton {
   border: none;
   border-radius: .5em;
 }
-ui-button[hover],
-ui-togglebutton[hover],
-ui-dropdownbutton[hover],
-ui-tabbutton[hover],
-ui-tabcountbutton[hover],
-ui-popupbutton[hover],
-ui-notificationbutton[hover] {
+ui-button[hover],            ui-button:focus-visible,
+ui-togglebutton[hover],      ui-togglebutton:focus-visible,
+ui-dropdownbutton[hover],    ui-dropdownbutton:focus-visible,
+ui-tabbutton[hover],         ui-tabbutton:focus-visible,
+ui-tabcountbutton[hover],    ui-tabcountbutton:focus-visible,
+ui-popupbutton[hover],       ui-popupbutton:focus-visible,
+ui-notificationbutton[hover], ui-notificationbutton:focus-visible {
   background-image: linear-gradient(#323232, #404142 40%, #393b3d);
 }
-ui-button:active,
-ui-togglebutton:active,
-ui-dropdownbutton:active,
-ui-tabbutton:active,
-ui-tabcountbutton:active,
-ui-popupbutton:active,
-ui-notificationbutton:active {
+ui-button:active,           ui-button.state_pressed,
+ui-togglebutton:active,     ui-togglebutton.state_pressed,
+ui-dropdownbutton:active,   ui-dropdownbutton.state_pressed,
+ui-tabbutton:active,        ui-tabbutton.state_pressed,
+ui-tabcountbutton:active,   ui-tabcountbutton.state_pressed,
+ui-popupbutton:active,      ui-popupbutton.state_pressed,
+ui-notificationbutton:active, ui-notificationbutton.state_pressed {
   background-image: linear-gradient(#020202, #101112 40%, #191b1d);
 }
 ui-button[disabled],
@@ -299,7 +299,11 @@ ui-notificationbutton:disabled {
   background-image: linear-gradient(#383e45, #2a2f34 60%, #212549);
 }
 
-ui-togglebutton[active] {
+ui-togglebutton[active],
+ui-button.state_active,
+ui-togglebutton.state_active,
+ui-tabbutton.state_active,
+ui-tabcountbutton.state_active {
   background-image: linear-gradient(#028202, #109112 40%, #199b1d);
 }
 

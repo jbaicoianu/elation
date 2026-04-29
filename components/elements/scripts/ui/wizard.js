@@ -24,9 +24,10 @@ elation.require(["elements.elements"], function() {
    * </ui-wizard>
    *
    * @param {object} args
-   * @param {int} args.step
+   * @param {integer} args.step
    * @param {string} args.type
    * @param {callback} args.oncomplete
+   * @param {boolean} args.freeflow when set, all steps are reachable from the start; <code>ui-wizard-navigation</code> and <code>ui-wizard-pagination</code> won't disable buttons for unfinished steps. Default behaviour gates progression on each step's <code>finished</code> flag.
    */
   elation.elements.define('ui-wizard', class extends elation.elements.base {
     constructor() {
@@ -34,7 +35,8 @@ elation.require(["elements.elements"], function() {
       this.defineAttributes({
         'step': {type: 'integer', default: 1},
         'type': {type: 'string', default: 'paginate'}, // "paginate" or "scroll"
-        'oncomplete': {type: 'callback'}
+        'oncomplete': {type: 'callback'},
+        'freeflow': {type: 'boolean', default: false}
       });
     }
     create() {
@@ -136,6 +138,7 @@ elation.require(["elements.elements"], function() {
    * @param {object} args
    * @param {boolean} args.skip
    * @param {boolean} args.finished
+   * @param {string}   args.navlabel display label used by <code>ui-wizard-navigation</code>; falls back to the step's <code>id</code>.
    * @param {callback} args.onstart
    * @param {callback} args.onfinish
    */
@@ -145,6 +148,7 @@ elation.require(["elements.elements"], function() {
       this.defineAttributes({
         'skip': {type: 'boolean', default: false },
         'finished': {type: 'boolean', default: false },
+        'navlabel': {type: 'string' },
         'onstart': {type: 'callback' },
         'onfinish': {type: 'callback'},
         'pending': {type: 'boolean', default: true},
@@ -182,7 +186,8 @@ elation.require(["elements.elements"], function() {
   elation.elements.define('ui-wizard-pagination', class extends elation.elements.base {
     create() {
       let wizard = this.queryParentSelector('ui-wizard'),
-          step = this.queryParentSelector('ui-wizard-step');;
+          step = this.queryParentSelector('ui-wizard-step');
+      let freeflow = !!wizard.freeflow;
       if (wizard.type == 'paginate') {
         if (step !== wizard.steps[0]) {
           this.backbutton = elation.elements.create('ui-button', {
@@ -196,14 +201,14 @@ elation.require(["elements.elements"], function() {
         if (step !== wizard.steps[wizard.steps.length - 1]) {
           this.nextbutton = elation.elements.create('ui-button', {
             label: 'Next',
-            disabled: true,
+            disabled: !freeflow,
             append: this,
             'class': 'next',
           });
           elation.events.add(this.nextbutton, 'click', ev => {
             if (!this.nextbutton.disabled) wizard.advance()
           });
-          elation.events.add(step, 'finish', ev => {
+          if (!freeflow) elation.events.add(step, 'finish', ev => {
             this.nextbutton.disabled = false
           });
         }
@@ -215,16 +220,15 @@ elation.require(["elements.elements"], function() {
   elation.elements.define('ui-wizard-navigation', class extends elation.elements.base {
     create() {
       let wizard = this.queryParentSelector('ui-wizard');
-      console.log('nav!', wizard);
+      let freeflow = !!wizard.freeflow;
       let buttonbar = elation.elements.create('ui-buttonbar', {
         append: this
       });
       this.buttons = [];
       wizard.steps.forEach(step => {
-        console.log(' - ', step);
         let button = elation.elements.create('ui-button', {
-          label: step.id,
-          disabled: !step.finished,
+          label: step.navlabel || step.id,
+          disabled: !freeflow && !step.finished,
           append: buttonbar
         });
         button.addEventListener('click', ev => {
@@ -232,15 +236,19 @@ elation.require(["elements.elements"], function() {
             wizard.advance(step.id);
           }
         });
-        elation.events.add(step, 'finish', ev => {
-          button.disabled = false;
-        });
+        if (!freeflow) {
+          elation.events.add(step, 'finish', ev => {
+            button.disabled = false;
+          });
+        }
         this.buttons.push(button);
       });
       elation.events.add(wizard, 'step', ev => {
         for (let i = 0; i < this.buttons.length; i++) {
           this.buttons[i].setActive((i == ev.detail - 1));
-          this.buttons[i].disabled = (i > ev.detail - 1) && !wizard.steps[i].finished;
+          if (!freeflow) {
+            this.buttons[i].disabled = (i > ev.detail - 1) && !wizard.steps[i].finished;
+          }
         }
         this.buttons[0].disabled = false;
       });

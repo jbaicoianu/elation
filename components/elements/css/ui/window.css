@@ -85,6 +85,14 @@ ui-window[top][left]>.ui_window_resizer     { cursor: se-resize; }
 ui-window[bottom][right]>.ui_window_resizer { cursor: se-resize; }
 ui-window[bottom][left]>.ui_window_resizer  { cursor: sw-resize; }
 
+/* Popup mode (set by ui-popupbutton) — chrome-less, no titlebar. */
+ui-window.state_popup > ui-window-titlebar {
+  display: none;
+}
+ui-window.state_popup > .ui_window_resizer {
+  display: none;
+}
+
 /* Touch devices: bigger resize grip; titlebar comfortable for thumb-drag. */
 @media (pointer: coarse) {
   ui-window>.ui_window_resizer {

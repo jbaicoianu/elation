@@ -59,34 +59,34 @@ elation.require(['elements.ui.button'], function() {
         wrapper.innerHTML = this.popupcontent;
         content = wrapper;
       }
+      // The popup is a chrome-less ui-window. Don't pass top/bottom/left/right
+      // as args — those flow through ui-panel's anchor type, which would snap
+      // the popup to a viewport edge. Position directly via inline styles
+      // instead.
+      const winargs = {
+        movable: false,
+        controls: false,
+        minimizable: '0',
+        maximizable: '0',
+        closable: '0',
+        resizable: '0',
+      };
       if (this.detached) {
-        let pos = this.getBoundingClientRect();
-        this.popup = elation.elements.create('ui.window', {
-          append: document.body,
-          movable: false,
-          controls: false,
-          minimizable: '0',
-          maximizable: '0',
-          closable: '0',
-          resizable: '0',
-          center: true,
-        });
+        const pos = this.getBoundingClientRect();
+        this.popup = elation.elements.create('ui.window', Object.assign({ append: document.body }, winargs));
+        this.popup.style.top = (pos.bottom + window.scrollY + 4) + 'px';
+        this.popup.style.left = (pos.left + window.scrollX) + 'px';
       } else {
-        this.popup = elation.elements.create('ui.window', {
-          append: this,
-          movable: false,
-          controls: false,
-          minimizable: '0',
-          maximizable: '0',
-          closable: '0',
-          resizable: '0',
-          bottom: '40px',
-          left: 0,
-        });
+        this.popup = elation.elements.create('ui.window', Object.assign({ append: this }, winargs));
+        // Anchored below the button: top = button height (100% of containing
+        // block), left edge aligned, small visual gap.
+        this.popup.style.top  = '100%';
+        this.popup.style.left = '0';
+        this.popup.style.marginTop = '4px';
       }
+      this.popup.classList.add('state_popup');
       this.popup.setcontent(content);
-      //this.popup.open();
-      this.windowClickHandler = (ev) => this.handleWindowClick(ev); // bind event so it can be added and removed
+      this.windowClickHandler = (ev) => this.handleWindowClick(ev);
       window.addEventListener('click', this.windowClickHandler);
     }
     showPopup() {

@@ -1,0 +1,63 @@
+/*
+ * Structural styles for ui-dropdownbutton.
+ * The trigger sits inline with a chevron pseudo-element; the option
+ * popup is absolutely positioned below the trigger and only visible
+ * when the dropdown carries the `state_open` class.
+ */
+
+ui-dropdownbutton {
+  padding-right: 1em;
+}
+ui-dropdownbutton::after {
+  display: inline-block;
+  content: '\25be';
+  position: absolute;
+  right: .3em;
+  top: 0;
+  padding-top: .2em;
+  pointer-events: none;
+}
+/* Trigger contains a hidden span per option, all stacked in a single
+   grid cell; only the active one is visible. The trigger's width is the
+   max of all spans, so the dropdown doesn't shrink/grow when the user
+   picks a different option. */
+ui-dropdownbutton > .ui_dropdown_trigger {
+  display: inline-grid;
+  vertical-align: middle;
+}
+ui-dropdownbutton > .ui_dropdown_trigger > .ui_dropdown_label {
+  grid-area: 1 / 1;
+  visibility: hidden;
+  white-space: nowrap;
+}
+ui-dropdownbutton > .ui_dropdown_trigger > .ui_dropdown_label[data-active] {
+  visibility: visible;
+}
+ui-dropdownbutton > .ui_dropdown_options {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 100%;
+  z-index: 100;
+  margin-top: 4px;
+}
+ui-dropdownbutton.state_open > .ui_dropdown_options {
+  display: flex;
+  flex-direction: column;
+}
+ui-dropdownbutton > .ui_dropdown_options > ui-button {
+  display: block;
+  width: 100%;
+  border-radius: 0;
+  text-align: left;
+  padding-left: 1.6em;
+}
+/* Default-visible marker for the currently-selected option so the
+   indicator works even before a theme styles it. */
+ui-dropdownbutton > .ui_dropdown_options > ui-button.state_selected::before {
+  content: '✓';
+  position: absolute;
+  left: .4em;
+  pointer-events: none;
+}

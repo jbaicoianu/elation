@@ -321,21 +321,25 @@ ui-notificationbutton {
   text-transform: uppercase;
   transition: all 120ms ease-out;
 }
-ui-button[hover],
-ui-togglebutton[hover],
-ui-dropdownbutton[hover],
-ui-tabbutton[hover],
-ui-tabcountbutton[hover],
-ui-popupbutton[hover],
-ui-notificationbutton[hover] {
+ui-button[hover],             ui-button:focus-visible,
+ui-togglebutton[hover],       ui-togglebutton:focus-visible,
+ui-dropdownbutton[hover],     ui-dropdownbutton:focus-visible,
+ui-tabbutton[hover],          ui-tabbutton:focus-visible,
+ui-tabcountbutton[hover],     ui-tabcountbutton:focus-visible,
+ui-popupbutton[hover],        ui-popupbutton:focus-visible,
+ui-notificationbutton[hover], ui-notificationbutton:focus-visible {
   background: rgba(77, 208, 225, .15);
   background-image: none;
   box-shadow: var(--holo-glow);
   color: #fff;
 }
-ui-button:active,
-ui-togglebutton:active,
-ui-dropdownbutton:active {
+ui-button:active,            ui-button.state_pressed,
+ui-togglebutton:active,      ui-togglebutton.state_pressed,
+ui-dropdownbutton:active,    ui-dropdownbutton.state_pressed,
+ui-tabbutton:active,         ui-tabbutton.state_pressed,
+ui-tabcountbutton:active,    ui-tabcountbutton.state_pressed,
+ui-popupbutton:active,       ui-popupbutton.state_pressed,
+ui-notificationbutton:active, ui-notificationbutton.state_pressed {
   background: rgba(77, 208, 225, .3);
   background-image: none;
   box-shadow: inset 0 0 8px rgba(77, 208, 225, .5);
@@ -352,7 +356,11 @@ ui-notificationbutton:disabled {
   background-image: none;
   box-shadow: none;
 }
-ui-togglebutton[active] {
+ui-togglebutton[active],
+ui-button.state_active,
+ui-togglebutton.state_active,
+ui-tabbutton.state_active,
+ui-tabcountbutton.state_active {
   background: rgba(77, 208, 225, .25);
   background-image: none;
   color: var(--holo-bg);

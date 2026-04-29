@@ -20,13 +20,15 @@
   function init() {
     setupTheme();
     setupSourceToggle();
-    setupStepNav();
     setupButtons();
     setupForms();
     setupContainers();
     setupData();
     setupConsole();
-    // step 5 (themes) is pure markup; no JS.
+    // Step 5 (themes) is pure markup; no JS.
+    // Step navigation and pagination are handled entirely by
+    // <ui-wizard-navigation> / <ui-wizard-pagination> with the wizard's
+    // freeflow attribute set, so no manual wiring is needed.
   }
 
   // ----- theme picker ------------------------------------------------
@@ -61,37 +63,6 @@
     });
   }
 
-  // ----- wizard step navigation --------------------------------------
-  function setupStepNav() {
-    const wizard = document.getElementById('tour');
-    const navButtons = Array.from(document.querySelectorAll('#step-nav ui-togglebutton'));
-
-    navButtons.forEach(function (btn) {
-      btn.addEventListener('click', function (ev) {
-        ev.stopPropagation();
-        const step = parseInt(btn.getAttribute('data-step'), 10);
-        wizard.step = step;
-        updateActive();
-      });
-    });
-
-    function updateActive() {
-      const current = parseInt(wizard.step, 10);
-      navButtons.forEach(function (btn) {
-        const step = parseInt(btn.getAttribute('data-step'), 10);
-        btn.active = (step === current);
-      });
-    }
-    updateActive();
-    elation.events.add(wizard, 'step', updateActive);
-
-    // <ui-wizard-pagination> auto-creates its own back / next buttons. The
-    // next button starts disabled and only enables when the step fires
-    // 'finish' — for this tour we want it always available, so flip them on.
-    document.querySelectorAll('ui-wizard-pagination ui-button.next').forEach(function (btn) {
-      btn.disabled = false;
-    });
-  }
 
   // ----- step 1: buttons ---------------------------------------------
   function setupButtons() {

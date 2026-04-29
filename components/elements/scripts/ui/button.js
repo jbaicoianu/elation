@@ -49,8 +49,11 @@ elation.require(['elements.ui.item'], function() {
       //this.addPropertyProxies(this.buttonelement, ['disabled']);
       //this.addEventProxies(this.buttonelement, ['mouseover','mouseout','mousedown', 'mouseup', 'mousemove', 'touchstart', 'touchmove', 'touchend', 'focus', 'blur']);
       this.setAttribute('tabindex', 0);
-      this.addEventListener('click', (ev) => this.handleClick(ev));
-      this.addEventListener('keypress', (ev) => this.handleKeypress(ev));
+      this.addEventListener('click',   (ev) => this.handleClick(ev));
+      this.addEventListener('keydown', (ev) => this.handleKeydown(ev));
+      this.addEventListener('keyup',   (ev) => this.handleKeyup(ev));
+      // Clear the keyboard-press visual if focus leaves mid-press.
+      this.addEventListener('blur',    () => this.classList.remove('state_pressed'));
     }
     /**
      * Add as a child of the specified element, removing from current parent if necessary
@@ -124,12 +127,35 @@ elation.require(['elements.ui.item'], function() {
       }
       //ev.stopPropagation();
     }
-    handleKeypress(ev) {
-      if (ev.key == 'Enter' && !this.disabled) {
-        let newev = document.createEvent('HTMLEvents');
-        newev.initEvent('click', true, true);
-        this.dispatchEvent(newev);
-
+    /**
+     * Keyboard press visual — adds `state_pressed` for the duration of
+     * the held key, mirroring mouse :active. Activation itself fires on
+     * the matching keyup so behaviour matches native buttons.
+     * @function handleKeydown
+     * @memberof elation.elements.ui.button#
+     * @param {KeyboardEvent} ev
+     */
+    handleKeydown(ev) {
+      if (this.disabled) return;
+      if (ev.key === 'Enter' || ev.key === ' ') {
+        ev.preventDefault();
+        this.classList.add('state_pressed');
+      }
+    }
+    /**
+     * Keyboard release: clears the press visual and triggers the click.
+     * @function handleKeyup
+     * @memberof elation.elements.ui.button#
+     * @param {KeyboardEvent} ev
+     */
+    handleKeyup(ev) {
+      if (this.disabled) return;
+      if (ev.key === 'Enter' || ev.key === ' ') {
+        ev.preventDefault();
+        if (this.classList.contains('state_pressed')) {
+          this.classList.remove('state_pressed');
+          this.click();
+        }
       }
     }
   });

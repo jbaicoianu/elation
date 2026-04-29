@@ -28,24 +28,6 @@ ui-notificationbutton:disabled {
   cursor: not-allowed;
 }
 
-ui-dropdownbutton {
-  padding-right: 1em;
-}
-ui-dropdownbutton::after {
-  display: inline-block;
-  content: '\25be';
-  position: absolute;
-  right: 0;
-  top: 0;
-  padding-top: .2em;
-}
-ui-dropdownbutton>ui-button {
-  display: none;
-  width: 100%;
-}
-ui-dropdownbutton:active>ui-button {
-  display: block;
-}
 
 ui-notificationbutton {
   padding: 0;

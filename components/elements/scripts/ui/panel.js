@@ -4,11 +4,13 @@ elation.require(['elements.elements'], function() {
   // Hybrid boolean / pixel-offset type used by the edge-snap attributes.
   // Presence (with or without a value) means "snap to this edge"; a numeric
   // value carries an additional pixel offset that subclasses may consult.
+  // Accepts bare numbers (40), numeric strings ("40"), and CSS-style
+  // pixel specifiers ("40px") — parseFloat reads the leading numeric.
   elation.elements.registerType('anchor', {
     read(value) {
       if (value === true || value === '' || value === 'true') return true;
       if (value === false || value == null || value === 'false') return false;
-      const n = Number(value);
+      const n = parseFloat(value);
       if (isNaN(n) || n === 0) return true;
       return n | 0;
     },

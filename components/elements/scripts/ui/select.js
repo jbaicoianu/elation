@@ -72,9 +72,19 @@ elation.require(['elements.ui.list','elements.ui.label'], function() {
     }
     addItem(value, selected) {
       var option = elation.elements.create('option');
-      if (value instanceof HTMLElement) {
-        option.value = value.value || value.innerHTML;
+      if (value instanceof HTMLOptionElement) {
+        // Native option already has reflected value/label/selected.
+        option.value     = value.value;
         option.innerHTML = value.label || value.innerHTML;
+        if (value.selected) option.selected = true;
+      } else if (value instanceof HTMLElement) {
+        // Custom element (typically ui-option) — read attributes directly,
+        // since value.value / value.label aren't reflected.
+        var v = value.getAttribute('value');
+        var l = value.getAttribute('label');
+        option.value     = (v != null) ? v : ((value.textContent || '').trim() || value.innerHTML);
+        option.innerHTML = (l != null) ? l : value.innerHTML;
+        if (value.hasAttribute('selected')) option.selected = true;
       } else {
         option.value = value;
         option.innerHTML = value;
@@ -111,17 +121,22 @@ elation.require(['elements.ui.list','elements.ui.label'], function() {
      * @memberof elation.elements.ui.list#
      */
     extractItems() {
+      // Snapshot the current children so the iteration is stable, then
+      // remove the option-shaped ones from the DOM up front. We only
+      // need them as data sources for populating the internal <select>;
+      // leaving them attached lets them render as visible siblings.
       var items = [];
-      for (var i = 0; i < this.childNodes.length; i++) {
-        var node = this.childNodes[i];
-        if (node instanceof HTMLOptionElement || node instanceof elation.elements.ui.option) {
+      var nodes = Array.prototype.slice.call(this.childNodes);
+      for (var i = 0; i < nodes.length; i++) {
+        var node = nodes[i];
+        var isOption = node instanceof HTMLOptionElement
+          || (elation.elements.ui.option && node instanceof elation.elements.ui.option);
+        if (isOption) {
           items.push(node);
+          if (node.parentNode) node.parentNode.removeChild(node);
         }
       }
       this.setItems(items, this.value);
-      for (var i = 0; i < items.length; i++) {
-        items[i].parentNode.removeChild(items[i]);
-      }
     }
     handleSelectChange(ev) {
       //this.value = this.select.value;

@@ -78,7 +78,7 @@ elation.require(['elements.base'], function() {
         } else {
           this.items.splice(pos, 0, item);
         }
-        elation.events.fire({type: 'collection_add', data: {item: item}, itemcount: this.items.length});
+        elation.events.fire({type: 'collection_add', element: this, data: {item: item}, itemcount: this.items.length});
         return true;
       }
       return false;
@@ -95,7 +95,7 @@ elation.require(['elements.base'], function() {
       var idx = this.find(item);
       if (idx != -1) {
         this.items.splice(idx, 1);
-        elation.events.fire({type: 'collection_remove', data: {item: item}, itemcount: this.items.length});
+        elation.events.fire({type: 'collection_remove', element: this, data: {item: item}, itemcount: this.items.length});
         return true;
       }
       return false;
@@ -114,7 +114,7 @@ elation.require(['elements.base'], function() {
       if (idx != -1 && idx != pos) {
         this.items.splice(idx, 1);
         this.items.splice(pos, 0, item);
-        elation.events.fire({type: 'collection_move', data: {item: item, from: idx, to: pos}, itemcount: this.items.length});
+        elation.events.fire({type: 'collection_move', element: this, data: {item: item, from: idx, to: pos}, itemcount: this.items.length});
         return true;
       }
       return false;

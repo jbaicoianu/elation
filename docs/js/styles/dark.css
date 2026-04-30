@@ -1,0 +1,194 @@
+/* Dark-mode override for better-docs. Injected via templates.betterDocs.css. */
+
+:root {
+  --bg:          #1e1e1e;
+  --bg-alt:      #2a2a2a;
+  --bg-inset:    #181818;
+  --bg-chip:     #2d3748;
+  --border:      #3a3a3a;
+  --border-soft: #2f2f2f;
+  --fg:          #e4e4e4;
+  --fg-dim:      #9a9a9a;
+  --fg-heading:  #f0f0f0;
+  --accent:      #4cb96f;
+  --accent-dim:  #3a8a52;
+  --link:        #7cc4ff;
+  --link-hover:  #a9d9ff;
+  --code-bg:     #161616;
+  --chip-bg:     #263241;
+  --chip-fg:     #c9dcff;
+}
+
+html, body { background: var(--bg); color: var(--fg); }
+body { background: var(--bg) !important; }
+
+/* Layout panels */
+#main, .layout, .core, .content, #main-content-wrapper {
+  background: var(--bg) !important;
+  color: var(--fg) !important;
+}
+.sidebar, #sidebarNav {
+  background: var(--bg-alt) !important;
+  border-right: 1px solid var(--border);
+}
+.footer { background: var(--bg-alt) !important; color: var(--fg-dim); }
+#stickyNavbarOverlay { background: var(--bg-alt) !important; }
+
+/* Headings */
+h1, h2, h3, h4, h5, h6,
+.page-title h1, .page-title p { color: var(--fg-heading) !important; }
+header.page-title { background: var(--bg-alt) !important; border-bottom: 1px solid var(--border); }
+header.page-title p { color: var(--fg-dim) !important; }
+
+/* Text + paragraphs */
+p, li, td, th, dt, dd, .description, .class-description { color: var(--fg) !important; }
+small, .meta { color: var(--fg-dim) !important; }
+
+/* Links */
+a, a:visited { color: var(--link); }
+a:hover, a:focus { color: var(--link-hover); }
+.sidebar a, #sidebarNav a { color: var(--fg) !important; }
+.sidebar a:hover, #sidebarNav a:hover { color: var(--accent) !important; }
+
+/* Sidebar category/section titles */
+.sidebar h2, .sidebar h3,
+#sidebarNav h2, #sidebarNav h3,
+.category h2, .category h3 {
+  color: var(--fg-heading) !important;
+  border-bottom: 1px solid var(--border-soft);
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
+/* Search input */
+.search-wrapper input, #search {
+  background: var(--bg-inset) !important;
+  color: var(--fg) !important;
+  border: 1px solid var(--border) !important;
+}
+.search-wrapper input::placeholder { color: var(--fg-dim); }
+
+/* The offending tag chips (were white bg + uppercase) */
+.tag, .tags, span.tag, span.type-signature, span.signature,
+.type, .attributes, .params .type,
+.param-type, .param-attributes, .param-default,
+.label, .badge, dt .tag {
+  background: var(--chip-bg) !important;
+  color: var(--chip-fg) !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  font-weight: normal !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 3px !important;
+  padding: 1px 6px !important;
+}
+
+/* Tables (param tables, etc.) */
+table { background: var(--bg-alt) !important; color: var(--fg) !important; border-color: var(--border) !important; }
+th {
+  background: var(--bg-inset) !important;
+  color: var(--fg-heading) !important;
+  border-color: var(--border) !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+td, tr { border-color: var(--border-soft) !important; background: transparent !important; }
+table.params .name, table.props .name { color: var(--accent) !important; }
+
+/* Code — inline and block */
+code, tt, kbd, samp {
+  background: var(--code-bg) !important;
+  color: #e8e8e8 !important;
+  border: 1px solid var(--border-soft);
+  border-radius: 3px;
+  padding: 1px 4px;
+}
+pre, pre.prettyprint {
+  background: var(--code-bg) !important;
+  color: #e8e8e8 !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 4px;
+}
+pre code, .prettyprint pre, pre ol.linenums, pre ol.linenums li {
+  background: transparent !important;
+  color: inherit !important;
+  border: 0 !important;
+  padding: 0 !important;
+}
+
+/* Prettify token colors (tomorrow-night loaded from CDN already covers most) */
+.prettyprint .str { color: #b5cea8; }
+.prettyprint .kwd { color: #c586c0; }
+.prettyprint .com { color: #6a9955; font-style: italic; }
+.prettyprint .typ { color: #4ec9b0; }
+.prettyprint .lit { color: #b5cea8; }
+.prettyprint .pun, .prettyprint .opn, .prettyprint .clo { color: var(--fg); }
+.prettyprint .tag { color: #569cd6; background: transparent !important; border: 0 !important; padding: 0 !important; }
+.prettyprint .atn { color: #9cdcfe; }
+.prettyprint .atv { color: #ce9178; }
+.prettyprint .dec, .prettyprint .var { color: #569cd6; }
+.prettyprint .fun { color: #dcdcaa; }
+
+/* Horizontal rules */
+hr { border: 0; border-top: 1px solid var(--border); }
+
+/* Blockquotes + notes */
+blockquote { background: var(--bg-inset); border-left: 3px solid var(--accent); color: var(--fg); }
+
+/* Source-view line numbers */
+ol.linenums li { background: transparent !important; color: var(--fg-dim) !important; }
+ol.linenums li.hlt { background: #3a3300 !important; }
+
+/* Member / method separators */
+article > dl > dt { background: var(--bg-inset) !important; border-top: 1px solid var(--border); padding: 0.5em; }
+article > dl > dd { padding: 0.5em 0 1em 0.5em; }
+
+/* Event and method name anchors */
+.name, h4.name { color: var(--accent) !important; }
+
+/* Hide the noisy "This component" generator footer text color */
+.footer a { color: var(--link) !important; }
+
+/* Hide the sidebar Events section — flat list with many duplicates, not useful */
+.sidebar h3:has(+ ul a[href*="#event:"]),
+.sidebar h3:has(+ ul a[href*="#event:"]) + ul,
+#sidebarNav h3:has(+ ul a[href*="#event:"]),
+#sidebarNav h3:has(+ ul a[href*="#event:"]) + ul {
+  display: none !important;
+}
+
+/* Top navbar — not dark-styled by the default theme */
+.top-nav {
+  background: var(--bg-alt) !important;
+  border-bottom: 1px solid var(--border);
+  color: var(--fg) !important;
+}
+.top-nav .inner { color: var(--fg) !important; }
+.top-nav a,
+.top-nav a:visited,
+.top-nav .link,
+.top-nav .navigation a {
+  color: var(--fg) !important;
+}
+.top-nav a:hover,
+.top-nav .link:hover,
+.top-nav .navigation a:hover {
+  color: var(--accent) !important;
+}
+.top-nav h1.navbar-item,
+.top-nav .logo h1 {
+  color: var(--fg-heading) !important;
+}
+.top-nav .top-buttons a.button {
+  background: var(--bg-inset) !important;
+  color: var(--fg) !important;
+  border: 1px solid var(--border) !important;
+}
+.top-nav .top-buttons a.button:hover {
+  background: var(--bg) !important;
+  border-color: var(--accent) !important;
+  color: var(--accent) !important;
+}
+.navbar-burger span {
+  background-color: var(--fg) !important;
+}

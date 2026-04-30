@@ -1,0 +1,40 @@
+[
+  {
+    "name": "Engineering",
+    "state": "ok",
+    "items": [
+      { "name": "Reactor",        "state": "ok" },
+      { "name": "Power Grid",     "state": "ok" },
+      { "name": "Coolant Loop",   "state": "error" },
+      { "name": "EM Shielding",   "state": "ok" }
+    ]
+  },
+  {
+    "name": "Navigation",
+    "state": "ok",
+    "items": [
+      { "name": "Inertial Guide", "state": "ok" },
+      { "name": "Star Tracker",   "state": "ok" },
+      { "name": "Docking Array",  "state": "warning" }
+    ]
+  },
+  {
+    "name": "Life Support",
+    "state": "ok",
+    "items": [
+      { "name": "Atmosphere",     "state": "ok" },
+      { "name": "Water Cycle",    "state": "ok" },
+      { "name": "Gravity Plates", "state": "ok" },
+      { "name": "Medical Bay",    "state": "ok" }
+    ]
+  },
+  {
+    "name": "Sensors",
+    "state": "warning",
+    "items": [
+      { "name": "Long-range Lidar",  "state": "ok" },
+      { "name": "Thermal Imaging",   "state": "warning" },
+      { "name": "Mass Spectrometer", "state": "ok" }
+    ]
+  }
+]

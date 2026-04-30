@@ -125,12 +125,19 @@ elation.require(['elements.ui.list','elements.ui.label'], function() {
       // remove the option-shaped ones from the DOM up front. We only
       // need them as data sources for populating the internal <select>;
       // leaving them attached lets them render as visible siblings.
+      //
+      // Accepted option shapes: native <option> (technically only valid
+      // as a child of <select>, but browsers tolerate it), <ui-option>,
+      // and <ui-item> — the last lets list-style markup double as
+      // select options for parity with ui-list and ui-tabs.
       var items = [];
       var nodes = Array.prototype.slice.call(this.childNodes);
       for (var i = 0; i < nodes.length; i++) {
         var node = nodes[i];
+        if (node.nodeType !== 1) continue;       // skip text / whitespace nodes
         var isOption = node instanceof HTMLOptionElement
-          || (elation.elements.ui.option && node instanceof elation.elements.ui.option);
+          || (elation.elements.ui.option && node instanceof elation.elements.ui.option)
+          || (elation.elements.ui.item   && node instanceof elation.elements.ui.item);
         if (isOption) {
           items.push(node);
           if (node.parentNode) node.parentNode.removeChild(node);
@@ -138,6 +145,13 @@ elation.require(['elements.ui.list','elements.ui.label'], function() {
       }
       this.setItems(items, this.value);
     }
+    // ui.list.render() would iterate this.items and re-append any
+    // ui.item instances to the host element — useful for <ui-list>, but
+    // here it would put the option-shaped children back into the DOM
+    // beside the internal <select>, where they'd render as plain text.
+    // The native <select> is our rendering; nothing else needs doing.
+    render() {}
+    refresh() {}
     handleSelectChange(ev) {
       //this.value = this.select.value;
 

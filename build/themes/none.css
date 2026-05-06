@@ -1,0 +1,9 @@
+/*
+ * "No theme" — intentionally empty.
+ *
+ * Selecting this theme removes all visual styling, leaving only the
+ * structural CSS in build/elation.css. Components remain functional
+ * but render with the browser's default appearance: white background,
+ * black text, default fonts, default link colors. Useful for
+ * confirming what each component contributes by itself.
+ */

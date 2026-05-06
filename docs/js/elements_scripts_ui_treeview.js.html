@@ -1,0 +1,476 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Elation Elements elements/scripts/ui/treeview.js</title>
+
+  <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="./build/entry.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,400,700|Inconsolata,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/app.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/iframe.css">
+  <link type="text/css" rel="stylesheet" href="styles/dark.css">
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  
+</head>
+
+
+
+<body class="layout small-header">
+    <div id="stickyNavbarOverlay"></div>
+    
+
+<div class="top-nav">
+    <div class="inner">
+        <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+        <div class="logo">
+            
+             
+                <a href="index.html">
+                    <h1 class="navbar-item">Elation Elements</h1>
+                </a>
+            
+        </div>
+        <div class="menu">
+            
+            <div class="navigation">
+                <a
+                    href="index.html"
+                    class="link"
+                >
+                    Documentation
+                </a>
+                
+                 
+                    
+                        <a
+                            class="link user-link "
+                            href="../../demos/index.html"
+                        >
+                            Demo Gallery
+                        </a>
+                    
+                        <a
+                            class="link user-link "
+                            href="https://github.com/jbaicoianu/elation"
+                        >
+                            GitHub
+                        </a>
+                    
+                
+                
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="main">
+        <div
+            class="sidebar "
+            id="sidebarNav"
+        >
+            
+                <div class="search-wrapper">
+                    <input id="search" type="text" placeholder="Search docs..." class="input">
+                </div>
+            
+            <nav>
+                
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Namespaces</h3><ul><li><a href="elation.html">elation</a></li><li><a href="elation.elements.html">elements</a></li><li><a href="elation.elements.collection.html">collection</a></li><li><a href="elation.elements.ui.html">ui</a></li><li><a href="elation.html.html">html</a></li><li><a href="elation.timing.html">timing</a></li><li><a href="elation.utils.html">utils</a></li></ul><h3>Classes</h3><ul><li><a href="elation.elements.base.html">base</a></li></ul><h3>Events</h3><ul><li><a href="elation.elements.collection.api.html#event:collection_add">collection_add</a></li><li><a href="elation.elements.collection.api.html#event:collection_clear">collection_clear</a></li><li><a href="elation.elements.collection.api.html#event:collection_load">collection_load</a></li><li><a href="elation.elements.collection.api.html#event:collection_load_begin">collection_load_begin</a></li><li><a href="elation.elements.collection.api.html#event:collection_move">collection_move</a></li><li><a href="elation.elements.collection.api.html#event:collection_remove">collection_remove</a></li><li><a href="elation.elements.collection.custom.html#event:collection_add">collection_add</a></li><li><a href="elation.elements.collection.custom.html#event:collection_clear">collection_clear</a></li><li><a href="elation.elements.collection.custom.html#event:collection_move">collection_move</a></li><li><a href="elation.elements.collection.custom.html#event:collection_remove">collection_remove</a></li><li><a href="elation.elements.collection.filter.html#event:collection_add">collection_add</a></li><li><a href="elation.elements.collection.filter.html#event:collection_clear">collection_clear</a></li><li><a href="elation.elements.collection.filter.html#event:collection_load">collection_load</a></li><li><a href="elation.elements.collection.filter.html#event:collection_move">collection_move</a></li><li><a href="elation.elements.collection.filter.html#event:collection_remove">collection_remove</a></li><li><a href="elation.elements.collection.indexed.html#event:collection_add">collection_add</a></li><li><a href="elation.elements.collection.indexed.html#event:collection_clear">collection_clear</a></li><li><a href="elation.elements.collection.indexed.html#event:collection_move">collection_move</a></li><li><a href="elation.elements.collection.indexed.html#event:collection_remove">collection_remove</a></li><li><a href="elation.elements.collection.jsonapi.html#event:collection_add">collection_add</a></li><li><a href="elation.elements.collection.jsonapi.html#event:collection_clear">collection_clear</a></li><li><a href="elation.elements.collection.jsonapi.html#event:collection_load">collection_load</a></li><li><a href="elation.elements.collection.jsonapi.html#event:collection_load_begin">collection_load_begin</a></li><li><a href="elation.elements.collection.jsonapi.html#event:collection_move">collection_move</a></li><li><a href="elation.elements.collection.jsonapi.html#event:collection_remove">collection_remove</a></li><li><a href="elation.elements.collection.jsonpapi.html#event:collection_add">collection_add</a></li><li><a href="elation.elements.collection.jsonpapi.html#event:collection_clear">collection_clear</a></li><li><a href="elation.elements.collection.jsonpapi.html#event:collection_load">collection_load</a></li><li><a href="elation.elements.collection.jsonpapi.html#event:collection_load_begin">collection_load_begin</a></li><li><a href="elation.elements.collection.jsonpapi.html#event:collection_move">collection_move</a></li><li><a href="elation.elements.collection.jsonpapi.html#event:collection_remove">collection_remove</a></li><li><a href="elation.elements.collection.localindexed.html#event:collection_add">collection_add</a></li><li><a href="elation.elements.collection.localindexed.html#event:collection_clear">collection_clear</a></li><li><a href="elation.elements.collection.localindexed.html#event:collection_load">collection_load</a></li><li><a href="elation.elements.collection.localindexed.html#event:collection_load_begin">collection_load_begin</a></li><li><a href="elation.elements.collection.localindexed.html#event:collection_move">collection_move</a></li><li><a href="elation.elements.collection.localindexed.html#event:collection_remove">collection_remove</a></li><li><a href="elation.elements.collection.localindexed.html#event:collection_save">collection_save</a></li><li><a href="elation.elements.collection.simple.html#event:collection_add">collection_add</a></li><li><a href="elation.elements.collection.simple.html#event:collection_clear">collection_clear</a></li><li><a href="elation.elements.collection.simple.html#event:collection_move">collection_move</a></li><li><a href="elation.elements.collection.simple.html#event:collection_remove">collection_remove</a></li><li><a href="elation.elements.collection.sqlite.html#event:collection_add">collection_add</a></li><li><a href="elation.elements.collection.sqlite.html#event:collection_clear">collection_clear</a></li><li><a href="elation.elements.collection.sqlite.html#event:collection_load">collection_load</a></li><li><a href="elation.elements.collection.sqlite.html#event:collection_load_begin">collection_load_begin</a></li><li><a href="elation.elements.collection.sqlite.html#event:collection_move">collection_move</a></li><li><a href="elation.elements.collection.sqlite.html#event:collection_remove">collection_remove</a></li><li><a href="elation.elements.collection.sqlite.html#event:collection_save">collection_save</a></li><li><a href="elation.elements.collection.subset.html#event:collection_add">collection_add</a></li><li><a href="elation.elements.collection.subset.html#event:collection_clear">collection_clear</a></li><li><a href="elation.elements.collection.subset.html#event:collection_load">collection_load</a></li><li><a href="elation.elements.collection.subset.html#event:collection_move">collection_move</a></li><li><a href="elation.elements.collection.subset.html#event:collection_remove">collection_remove</a></li><li><a href="elation.elements.ui.button.html#event:click">click</a></li><li><a href="elation.elements.ui.button.html#event:select">select</a></li><li><a href="elation.elements.ui.button.html#event:unselect">unselect</a></li><li><a href="elation.elements.ui.buttonbar.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.buttonbar.html#event:select">select</a></li><li><a href="elation.elements.ui.buttonbar.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.buttonbar.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.buttonlist.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.buttonlist.html#event:select">select</a></li><li><a href="elation.elements.ui.buttonlist.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.buttonlist.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.checkbox.html#event:toggle">toggle</a></li><li><a href="elation.elements.ui.checklist.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.checklist.html#event:select">select</a></li><li><a href="elation.elements.ui.checklist.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.checklist.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.checklistitem.html#event:select">select</a></li><li><a href="elation.elements.ui.checklistitem.html#event:unselect">unselect</a></li><li><a href="elation.elements.ui.columnlayout.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.columnlayout.html#event:select">select</a></li><li><a href="elation.elements.ui.columnlayout.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.columnlayout.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.dropdownbutton.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.dropdownbutton.html#event:select">select</a></li><li><a href="elation.elements.ui.dropdownbutton.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.dropdownbutton.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.grid.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.grid.html#event:select">select</a></li><li><a href="elation.elements.ui.grid.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.grid.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.input.html#event:accept">accept</a></li><li><a href="elation.elements.ui.input.html#event:blur">blur</a></li><li><a href="elation.elements.ui.input.html#event:cancel">cancel</a></li><li><a href="elation.elements.ui.input.html#event:clear">clear</a></li><li><a href="elation.elements.ui.input.html#event:focus">focus</a></li><li><a href="elation.elements.ui.input.html#event:select">select</a></li><li><a href="elation.elements.ui.item.html#event:select">select</a></li><li><a href="elation.elements.ui.item.html#event:unselect">unselect</a></li><li><a href="elation.elements.ui.list.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.list.html#event:select">select</a></li><li><a href="elation.elements.ui.list.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.list.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.notificationbutton.html#event:click">click</a></li><li><a href="elation.elements.ui.notificationbutton.html#event:select">select</a></li><li><a href="elation.elements.ui.notificationbutton.html#event:unselect">unselect</a></li><li><a href="elation.elements.ui.popupbutton.html#event:click">click</a></li><li><a href="elation.elements.ui.popupbutton.html#event:select">select</a></li><li><a href="elation.elements.ui.popupbutton.html#event:unselect">unselect</a></li><li><a href="elation.elements.ui.radio.html#event:toggle">toggle</a></li><li><a href="elation.elements.ui.radiobuttonbar.html#event:change">change</a></li><li><a href="elation.elements.ui.radiobuttonbar.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.radiobuttonbar.html#event:select">select</a></li><li><a href="elation.elements.ui.radiobuttonbar.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.radiobuttonbar.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.rowlayout.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.rowlayout.html#event:select">select</a></li><li><a href="elation.elements.ui.rowlayout.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.rowlayout.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.select.html#event:change">change</a></li><li><a href="elation.elements.ui.select.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.select.html#event:select">select</a></li><li><a href="elation.elements.ui.select.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.select.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.slider.html#event:change">change</a></li><li><a href="elation.elements.ui.slider.handle.html#event:change">change</a></li><li><a href="elation.elements.ui.tab.html#event:countchange">countchange</a></li><li><a href="elation.elements.ui.tab.html#event:hover">hover</a></li><li><a href="elation.elements.ui.tab.html#event:select">select</a></li><li><a href="elation.elements.ui.tab.html#event:tablabelchange">tablabelchange</a></li><li><a href="elation.elements.ui.tab.html#event:tabselect">tabselect</a></li><li><a href="elation.elements.ui.tab.html#event:tabunselect">tabunselect</a></li><li><a href="elation.elements.ui.tab.html#event:unhover">unhover</a></li><li><a href="elation.elements.ui.tab.html#event:unselect">unselect</a></li><li><a href="elation.elements.ui.tabbar.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.tabbar.html#event:select">select</a></li><li><a href="elation.elements.ui.tabbar.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.tabbar.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.tabbutton.html#event:click">click</a></li><li><a href="elation.elements.ui.tabbutton.html#event:select">select</a></li><li><a href="elation.elements.ui.tabbutton.html#event:unselect">unselect</a></li><li><a href="elation.elements.ui.tabcountbutton.html#event:click">click</a></li><li><a href="elation.elements.ui.tabcountbutton.html#event:select">select</a></li><li><a href="elation.elements.ui.tabcountbutton.html#event:unselect">unselect</a></li><li><a href="elation.elements.ui.tabs.html#event:change">change</a></li><li><a href="elation.elements.ui.tabs.html#event:create">create</a></li><li><a href="elation.elements.ui.tabs.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.tabs.html#event:select">select</a></li><li><a href="elation.elements.ui.tabs.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.tabs.html#event:tabadd">tabadd</a></li><li><a href="elation.elements.ui.tabs.html#event:tabchange">tabchange</a></li><li><a href="elation.elements.ui.tabs.html#event:tabremove">tabremove</a></li><li><a href="elation.elements.ui.tabs.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.text.html#event:change">change</a></li><li><a href="elation.elements.ui.textarea.html#event:accept">accept</a></li><li><a href="elation.elements.ui.textarea.html#event:blur">blur</a></li><li><a href="elation.elements.ui.textarea.html#event:cancel">cancel</a></li><li><a href="elation.elements.ui.textarea.html#event:clear">clear</a></li><li><a href="elation.elements.ui.textarea.html#event:focus">focus</a></li><li><a href="elation.elements.ui.textarea.html#event:select">select</a></li><li><a href="elation.elements.ui.toggle.html#event:toggle">toggle</a></li><li><a href="elation.elements.ui.togglebutton.html#event:activate">activate</a></li><li><a href="elation.elements.ui.togglebutton.html#event:click">click</a></li><li><a href="elation.elements.ui.togglebutton.html#event:deactivate">deactivate</a></li><li><a href="elation.elements.ui.togglebutton.html#event:select">select</a></li><li><a href="elation.elements.ui.togglebutton.html#event:unselect">unselect</a></li><li><a href="elation.elements.ui.tooltip.html#event:blur">blur</a></li><li><a href="elation.elements.ui.tooltip.html#event:focus">focus</a></li><li><a href="elation.elements.ui.tooltip.html#event:ui_window_close">ui_window_close</a></li><li><a href="elation.elements.ui.tooltip.html#event:ui_window_maximize">ui_window_maximize</a></li><li><a href="elation.elements.ui.tooltip.html#event:ui_window_minimize">ui_window_minimize</a></li><li><a href="elation.elements.ui.tooltip.html#event:ui_window_open">ui_window_open</a></li><li><a href="elation.elements.ui.tooltip.html#event:ui_window_restore">ui_window_restore</a></li><li><a href="elation.elements.ui.treeview.html#event:ui_treeview_hover">ui_treeview_hover</a></li><li><a href="elation.elements.ui.treeview.html#event:ui_treeview_select">ui_treeview_select</a></li><li><a href="elation.elements.ui.treeviewitem.html#event:ui_treeviewitem_hover">ui_treeviewitem_hover</a></li><li><a href="elation.elements.ui.treeviewitem.html#event:ui_treeviewitem_select">ui_treeviewitem_select</a></li><li><a href="elation.elements.ui.treeviewitem.html#event:ui_treeviewitem_unhover">ui_treeviewitem_unhover</a></li><li><a href="elation.elements.ui.treeviewitem.html#event:ui_treeviewitem_unselect">ui_treeviewitem_unselect</a></li><li><a href="elation.elements.ui.window.html#event:blur">blur</a></li><li><a href="elation.elements.ui.window.html#event:focus">focus</a></li><li><a href="elation.elements.ui.window.html#event:ui_window_close">ui_window_close</a></li><li><a href="elation.elements.ui.window.html#event:ui_window_maximize">ui_window_maximize</a></li><li><a href="elation.elements.ui.window.html#event:ui_window_minimize">ui_window_minimize</a></li><li><a href="elation.elements.ui.window.html#event:ui_window_open">ui_window_open</a></li><li><a href="elation.elements.ui.window.html#event:ui_window_restore">ui_window_restore</a></li><li><a href="elation.elements.ui.wizard.html#event:step">step</a></li><li><a href="elation.elements.ui.wizard.html#event:wizard_complete">wizard_complete</a></li><li><a href="elation.elements.ui.wizard-backbutton.html#event:click">click</a></li><li><a href="elation.elements.ui.wizard-backbutton.html#event:select">select</a></li><li><a href="elation.elements.ui.wizard-backbutton.html#event:unselect">unselect</a></li><li><a href="elation.elements.ui.wizard.step.html#event:finish">finish</a></li><li><a href="elation.elements.ui.wizard.step.html#event:start">start</a></li></ul></div><div class="category"><h2>Collections</h2><h3>Classes</h3><ul><li><a href="elation.elements.collection.api.html">api</a></li><li><a href="elation.elements.collection.custom.html">custom</a></li><li><a href="elation.elements.collection.filter.html">filter</a></li><li><a href="elation.elements.collection.indexed.html">indexed</a></li><li><a href="elation.elements.collection.jsonapi.html">jsonapi</a></li><li><a href="elation.elements.collection.jsonpapi.html">jsonpapi</a></li><li><a href="elation.elements.collection.localindexed.html">localindexed</a></li><li><a href="elation.elements.collection.simple.html">simple</a></li><li><a href="elation.elements.collection.sqlite.html">sqlite</a></li><li><a href="elation.elements.collection.subset.html">subset</a></li></ul></div><div class="category"><h2>UI</h2><h3>Classes</h3><ul><li><a href="elation.elements.ui.button.html">button</a></li><li><a href="elation.elements.ui.buttonbar.html">buttonbar</a></li><li><a href="elation.elements.ui.buttonlist.html">buttonlist</a></li><li><a href="elation.elements.ui.checkbox.html">checkbox</a></li><li><a href="elation.elements.ui.checklist.html">checklist</a></li><li><a href="elation.elements.ui.checklistitem.html">checklistitem</a></li><li><a href="elation.elements.ui.collapsiblepanel.html">collapsiblepanel</a></li><li><a href="elation.elements.ui.columnlayout.html">columnlayout</a></li><li><a href="elation.elements.ui.content.html">content</a></li><li><a href="elation.elements.ui.dropdownbutton.html">dropdownbutton</a></li><li><a href="elation.elements.ui.flexpanel.html">flexpanel</a></li><li><a href="elation.elements.ui.formgroup.html">formgroup</a></li><li><a href="elation.elements.ui.grid.html">grid</a></li><li><a href="elation.elements.ui.imagepicker.html">imagepicker</a></li><li><a href="elation.elements.ui.indicator.html">indicator</a></li><li><a href="elation.elements.ui.input.html">input</a></li><li><a href="elation.elements.ui.item.html">item</a></li><li><a href="elation.elements.ui.label.html">label</a></li><li><a href="elation.elements.ui.list.html">list</a></li><li><a href="elation.elements.ui.notificationbutton.html">notificationbutton</a></li><li><a href="elation.elements.ui.panel.html">panel</a></li><li><a href="elation.elements.ui.popupbutton.html">popupbutton</a></li><li><a href="elation.elements.ui.radio.html">radio</a></li><li><a href="elation.elements.ui.radiobuttonbar.html">radiobuttonbar</a></li><li><a href="elation.elements.ui.rowlayout.html">rowlayout</a></li><li><a href="elation.elements.ui.scrollindicator.html">scrollindicator</a></li><li><a href="elation.elements.ui.select.html">select</a></li><li><a href="elation.elements.ui.slider.html">slider</a></li><li><a href="elation.elements.ui.spinner.html">spinner</a></li><li><a href="elation.elements.ui.tab.html">tab</a></li><li><a href="elation.elements.ui.tabbar.html">tabbar</a></li><li><a href="elation.elements.ui.tabbutton.html">tabbutton</a></li><li><a href="elation.elements.ui.tabcountbutton.html">tabcountbutton</a></li><li><a href="elation.elements.ui.tabs.html">tabs</a></li><li><a href="elation.elements.ui.text.html">text</a></li><li><a href="elation.elements.ui.textarea.html">textarea</a></li><li><a href="elation.elements.ui.toggle.html">toggle</a></li><li><a href="elation.elements.ui.togglebutton.html">togglebutton</a></li><li><a href="elation.elements.ui.tooltip.html">tooltip</a></li><li><a href="elation.elements.ui.treeview.html">treeview</a></li><li><a href="elation.elements.ui.window.html">window</a></li><li><a href="elation.elements.ui.wizard.html">wizard</a></li><li><a href="elation.elements.ui.wizard-backbutton.html">wizard-backbutton</a></li><li><a href="elation.elements.ui.wizard-step.html">wizard-step</a></li></ul></div>
+                
+            </nav>
+        </div>
+        <div class="core" id="main-content-wrapper">
+            <div class="content">
+                <header class="page-title">
+                    <p>Source</p>
+                    <h1>elements/scripts/ui/treeview.js</h1>
+                </header>
+                
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** 
+ * TreeView UI component
+ *
+ * @class treeview
+ * @hideconstructor
+ * @category UI
+ * @augments elation.elements.base
+ * @memberof elation.elements.ui
+ * @todo this could probably inherit from ui.list to be more generalized
+ *
+ * @param {object} args
+ * @param {array} args.items
+ * @param {object} args.attrs
+ */
+elation.require(["elements.elements", "elements.ui.item"], function() {
+  elation.requireCSS('ui.treeview');
+
+  elation.elements.define('ui.treeview', class extends elation.elements.base {
+    init() {
+      super.init();
+      this.defineAttributes({
+        items: { type: 'object' },
+        attrs: { type: 'object' },
+        draggable: { type: 'boolean', default: false },
+        tabindex: { type: 'integer' }
+      });
+    }
+    create() {
+      if (this.items) {
+        this.setItems(this.items);
+      }
+      elation.events.add(this, 'keydown', ev => this.handleKeyDown(ev));
+      this.tabindex = 0;
+    }
+    getDefaultAttributes() {
+      var attrs = this.attrs || {};
+      if (elation.utils.isEmpty(attrs.name)) attrs.name = 'name';
+      if (elation.utils.isEmpty(attrs.label)) attrs.label = 'name';
+      if (elation.utils.isEmpty(attrs.children)) attrs.children = 'items';
+      return attrs;
+    }
+    setItems(items) {
+      var attrs = this.getDefaultAttributes();
+      //console.log('new items', items, this);
+      // FIXME - this is inefficient.  instead of removing and readding everything, we should just find the diffs
+      if (this.items) {
+        for (var k in this.items) {
+          this.items[k].remove();
+        }
+      }
+      this.items = [];
+      this.innerHTML = '';
+      this.add(items, this, attrs);
+    }
+    add(items, root, attrs) {
+      if (!root) root = this;
+
+      //var ul = elation.html.create({tag: 'ul', append: root});
+      //var list = elation.elements.create('ui-list', {append: root});
+
+      // alphabetize the keys
+      var keys = Object.keys(items);
+      keys.sort((a, b) => a.localeCompare(b));
+
+      for (var i = 0; i &lt; keys.length; i++) {
+        var k = keys[i];
+        var visible = true;
+        if (attrs['visible']) {
+          visible = elation.utils.arrayget(items[k], attrs['visible']);
+        }
+        if (visible) {
+          //var li = elation.html.create({tag: 'li', append: ul});
+          var tvitem = elation.elements.create('ui-treeviewitem', {
+            item: items[k],
+            attrs: attrs,
+            append: root,
+          });
+          if (this.draggable) {
+            tvitem.draggable = 'true';
+          }
+          // maintain selected item
+          if (this.selected &amp;&amp; this.selected.value === items[k]) {
+            elation.html.addclass(tvitem, 'state_selected');
+            tvitem.lastclick = this.selected.lastclick;
+            this.selected = tvitem;
+          }
+          this.items.push(tvitem);
+          elation.events.add(tvitem, 'ui_treeviewitem_hover', (ev) => this.ui_treeviewitem_hover(ev));
+          elation.events.add(tvitem, 'ui_treeviewitem_select', (ev) => this.ui_treeviewitem_select(ev));
+          if (items[k][attrs.children] &amp;&amp; Object.keys(items[k][attrs.children]).length > 0) {
+            tvitem.addclass('haschildren');
+            this.add(items[k][attrs.children], tvitem, attrs);
+            //elation.html.addclass(tvitem, 'state_expanded');
+            tvitem.collapsed = true;
+          }
+        }
+      }
+    }
+    sort(items, sortby) {
+      var attrs = this.getDefaultAttributes();
+      if (elation.utils.isNull(items)) items = this.items;
+      if (elation.utils.isNull(sortby)) sortby = attrs.name;
+      items.sort(function(a, b) {
+        var na = a.value[sortby],
+            nb = b.value[sortby];
+        if (na === nb) return 0;
+        else if (na &lt; nb) return -1;
+        else if (na > nb) return 1;
+      });
+      return items;
+    }
+    enable() {
+      elation.ui.treeview.extendclass.enable.call(this);
+      for (var i = 0; i &lt; this.items.length; i++) {
+        this.items[i].enable();
+      }
+    }
+    disable() {
+      elation.ui.treeview.extendclass.disable.call(this);
+      for (var i = 0; i &lt; this.items.length; i++) {
+        this.items[i].disable();
+      }
+    }
+    find(search) {
+      for (let i = 0; i &lt; this.items.length; i++) {
+        let item = this.items[i];
+        if (typeof search == 'function' &amp;&amp; search(item)) {
+          return item;
+        } else if (item.item[this.attrs.name] == search) {
+          return item;
+        }
+      }
+    }
+    ui_treeviewitem_hover(ev) {
+      if (this.hover &amp;&amp; this.hover != ev.target) {
+        this.hover.unhover();
+      }
+      this.hover = ev.target;
+      elation.events.fire({type: 'ui_treeview_hover', element: this, data: this.hover});
+    }
+    ui_treeviewitem_select(ev) {
+      if (this.selected &amp;&amp; this.selected != ev.target) {
+        this.selected.unselect();
+      }
+      this.selected = ev.target;
+      elation.events.fire({type: 'ui_treeview_select', element: this, data: this.selected});
+    }
+    handleKeyDown(ev) {
+      if (!this.selected) {
+        this.firstChild.select();
+        ev.preventDefault();
+      } else if (ev.key == 'ArrowUp') {
+        if (this.selected &amp;&amp; this.selected.parentNode !== this) {
+          if (this.selected.previousSibling) {
+            if (!(this.selected.previousSibling instanceof elation.elements.ui.treeviewitem)) {
+              this.selected.parentNode.select();
+              ev.preventDefault();
+            } else if (!this.selected.previousSibling.collapsed) {
+              // recursively select the last file from uncollapsed directories
+              let lastnode = this.selected.previousSibling;
+              let lastnodechildren = lastnode.getElementsByTagName('ui-treeviewitem');
+              while (lastnodechildren.length > 0 &amp;&amp; !lastnodechildren[lastnodechildren.length-1].collapsed) {
+                lastnode = lastnodechildren[lastnodechildren.length-1];
+                lastnodechildren = lastnode.getElementsByTagName('ui-treeviewitem');
+              }
+              lastnode.select();
+              ev.preventDefault();
+            } else {
+              this.selected.previousSibling.select();
+              ev.preventDefault();
+            }
+          } else if (this.selected.parentNode instanceof elation.elements.ui.treeviewitem) {
+            this.selected.parentNode.select();
+            ev.preventDefault();
+          }
+        }
+      } else if (ev.key == 'ArrowDown') {
+        if (this.selected &amp;&amp; !(this.selected === this &amp;&amp; this.collapsed)) {
+          let children = this.selected.getElementsByTagName('ui-treeviewitem');
+          if (this.selected instanceof elation.elements.ui.treeviewitem &amp;&amp; !this.selected.collapsed &amp;&amp; children.length > 0) {
+            // Currently selecting an uncollapsed directory which has some children, descend into it
+            children[0].select();
+            ev.preventDefault();
+          } else if (this.selected.nextSibling &amp;&amp; this.selected.nextSibling instanceof elation.elements.ui.treeviewitem) {
+            // If we still have a next sibling, select it
+            this.selected.nextSibling.select();
+            ev.preventDefault();
+          } else {
+              // recursively select the next file from our parents' next sibling
+              let nextnode = this.selected;
+              while (nextnode !== this) {
+                if (nextnode.parentNode === this) {
+                  nextnode = null;
+                  break;
+                } else {
+                  nextnode = nextnode.parentNode;
+                  if (nextnode.nextSibling) {
+                    nextnode = nextnode.nextSibling;
+                    break;
+                  }
+                }
+              }
+              if (nextnode &amp;&amp; nextnode instanceof elation.elements.ui.treeviewitem) {
+                nextnode.select();
+                ev.preventDefault();
+              }
+          }
+        }
+      } else if (ev.key == 'ArrowLeft') {
+        if (this.selected instanceof elation.elements.ui.treeviewitem &amp;&amp; this.selected.childNodes.length > 1 &amp;&amp; !this.selected.collapsed) {
+          this.selected.collapsed = true;
+        } else if (this.selected !== this &amp;&amp; this.selected.parentNode instanceof elation.elements.ui.treeviewitem) {
+          this.selected.parentNode.select();
+          ev.preventDefault();
+        }
+      } else if (ev.key == 'ArrowRight') {
+        if (this.selected) {
+          let children = this.selected.getElementsByTagName('ui-treeviewitem');
+          if (children.length > 0) {
+            this.selected.collapsed = false;
+            children[0].select();
+            ev.preventDefault();
+          }
+        }
+      } else if (ev.key == 'Escape') {
+        //this.preview.set(null);
+      }
+    }
+  });
+
+  elation.elements.define('ui.treeviewitem', class extends elation.elements.base {
+    init() {
+      super.init();
+      this.defineAttributes({
+        items: { type: 'object' },
+        attrs: { type: 'object' },
+        draggable: { type: 'string' },
+        collapsed: { type: 'boolean', default: false },
+      });
+    }
+    create() {
+      this.value = this.item;
+      this.attrs = this.attrs || {};
+      if (!this.attrs.label) this.attrs.label = 'label';
+
+      this.label = elation.elements.create('ui-text', { append: this});
+
+      if (this.value) {
+        if (this.attrs.itemtemplate) {
+          this.label.settext(elation.template.get(this.attrs.itemtemplate, this.value));
+        } else if (this.value[this.attrs.label]) {
+          this.label.settext(this.value[this.attrs.label]);
+        }
+
+        if (!elation.utils.isEmpty(this.attrs.disabled) &amp;&amp; !elation.utils.isEmpty(this.value[this.attrs.disabled])) {
+          elation.html.addclass(this, "state_disabled");
+        }
+
+        elation.events.add(this, "mouseover", (ev) => this.mouseover(ev));
+        elation.events.add(this, "mouseout", (ev) => this.mouseout(ev));
+        elation.events.add(this, "click", (ev) => this.click(ev));
+        //elation.events.add(this.value, "mouseover,mouseout,click", this);
+        this.refresh();
+      }
+    }
+    render() {
+      if (this.value) {
+        if (this.attrs.itemtemplate) {
+          this.label.settext(elation.template.get(this.attrs.itemtemplate, this.value));
+        } else if (this.value[this.attrs.label]) {
+          this.label.settext(this.value[this.attrs.label]);
+        }
+
+        if (!elation.utils.isEmpty(this.attrs.disabled) &amp;&amp; !elation.utils.isEmpty(this.value[this.attrs.disabled])) {
+          elation.html.addclass(this, "state_disabled");
+        }
+
+        elation.events.add(this, "mouseover,mouseout,click", this);
+        elation.events.add(this.value, "mouseover,mouseout,click", this);
+      }
+    }
+    remove() {
+      elation.events.remove(this, "mouseover,mouseout,click", this);
+      elation.events.remove(this.value, "mouseover,mouseout,click", this);
+    }
+    hover() {
+      elation.html.addclass(this, 'state_hover');
+      elation.events.fire({type: 'ui_treeviewitem_hover', element: this});
+      //this.scrollIntoView();
+    }
+    unhover() {
+      elation.html.removeclass(this, 'state_hover');
+      elation.events.fire({type: 'ui_treeviewitem_unhover', element: this});
+    }
+    select(skipevent) {
+      elation.html.addclass(this, 'state_selected');
+      if (!skipevent) {
+        elation.events.fire({type: 'ui_treeviewitem_select', element: this});
+      }
+      //this.scrollIntoView();
+    }
+    unselect() {
+      elation.html.removeclass(this, 'state_selected');
+      elation.events.fire({type: 'ui_treeviewitem_unselect', element: this});
+    }
+    mouseover(ev) {
+      if (this.enabled) {
+        this.hover();
+        //ev.stopPropagation();
+      }
+    }
+    mouseout(ev) {
+      if (this.enabled) {
+        this.unhover();
+        //ev.stopPropagation();
+      }
+    }
+    mousedown(ev) {
+      //if (this.enabled) ev.stopPropagation();
+    }
+    mouseup(ev) {
+      //if (this.enabled) ev.stopPropagation();
+    }
+    click(ev) {
+        if (this.lastclick &amp;&amp; ev.timeStamp - this.lastclick &lt; 250) {
+        }
+        this.lastclick = ev.timeStamp;
+        this.select();
+        if (this.item[this.attrs.children]) {
+          if (this.collapsed) {
+            this.collapsed = false;
+          } else {
+            this.collapsed = true;
+          }
+        }
+        ev.preventDefault();
+        ev.stopPropagation();
+    }
+    doubleclick(ev) {
+    }
+  });
+});
+
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+            </div>
+            
+        </div>
+        <div id="side-nav" class="side-nav">
+        </div>
+    </div>
+<script src="scripts/app.min.js"></script>
+<script>PR.prettyPrint();</script>
+<script src="scripts/linenumber.js"> </script>
+
+<script src="scripts/search.js"> </script>
+
+
+</body>
+</html>

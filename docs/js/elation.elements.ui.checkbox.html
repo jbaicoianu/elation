@@ -1,0 +1,2511 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Elation Elements checkbox</title>
+
+  <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="./build/entry.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,400,700|Inconsolata,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/app.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/iframe.css">
+  <link type="text/css" rel="stylesheet" href="styles/dark.css">
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  
+</head>
+
+
+
+<body class="layout small-header">
+    <div id="stickyNavbarOverlay"></div>
+    
+
+<div class="top-nav">
+    <div class="inner">
+        <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+        <div class="logo">
+            
+             
+                <a href="index.html">
+                    <h1 class="navbar-item">Elation Elements</h1>
+                </a>
+            
+        </div>
+        <div class="menu">
+            
+            <div class="navigation">
+                <a
+                    href="index.html"
+                    class="link"
+                >
+                    Documentation
+                </a>
+                
+                 
+                    
+                        <a
+                            class="link user-link "
+                            href="../../demos/index.html"
+                        >
+                            Demo Gallery
+                        </a>
+                    
+                        <a
+                            class="link user-link "
+                            href="https://github.com/jbaicoianu/elation"
+                        >
+                            GitHub
+                        </a>
+                    
+                
+                
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="main">
+        <div
+            class="sidebar "
+            id="sidebarNav"
+        >
+            
+                <div class="search-wrapper">
+                    <input id="search" type="text" placeholder="Search docs..." class="input">
+                </div>
+            
+            <nav>
+                
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Namespaces</h3><ul><li><a href="elation.html">elation</a></li><li><a href="elation.elements.html">elements</a></li><li><a href="elation.elements.collection.html">collection</a></li><li><a href="elation.elements.ui.html">ui</a></li><li><a href="elation.html.html">html</a></li><li><a href="elation.timing.html">timing</a></li><li><a href="elation.utils.html">utils</a></li></ul><h3>Classes</h3><ul><li><a href="elation.elements.base.html">base</a></li></ul><h3>Events</h3><ul><li><a href="elation.elements.collection.api.html#event:collection_add">collection_add</a></li><li><a href="elation.elements.collection.api.html#event:collection_clear">collection_clear</a></li><li><a href="elation.elements.collection.api.html#event:collection_load">collection_load</a></li><li><a href="elation.elements.collection.api.html#event:collection_load_begin">collection_load_begin</a></li><li><a href="elation.elements.collection.api.html#event:collection_move">collection_move</a></li><li><a href="elation.elements.collection.api.html#event:collection_remove">collection_remove</a></li><li><a href="elation.elements.collection.custom.html#event:collection_add">collection_add</a></li><li><a href="elation.elements.collection.custom.html#event:collection_clear">collection_clear</a></li><li><a href="elation.elements.collection.custom.html#event:collection_move">collection_move</a></li><li><a href="elation.elements.collection.custom.html#event:collection_remove">collection_remove</a></li><li><a href="elation.elements.collection.filter.html#event:collection_add">collection_add</a></li><li><a href="elation.elements.collection.filter.html#event:collection_clear">collection_clear</a></li><li><a href="elation.elements.collection.filter.html#event:collection_load">collection_load</a></li><li><a href="elation.elements.collection.filter.html#event:collection_move">collection_move</a></li><li><a href="elation.elements.collection.filter.html#event:collection_remove">collection_remove</a></li><li><a href="elation.elements.collection.indexed.html#event:collection_add">collection_add</a></li><li><a href="elation.elements.collection.indexed.html#event:collection_clear">collection_clear</a></li><li><a href="elation.elements.collection.indexed.html#event:collection_move">collection_move</a></li><li><a href="elation.elements.collection.indexed.html#event:collection_remove">collection_remove</a></li><li><a href="elation.elements.collection.jsonapi.html#event:collection_add">collection_add</a></li><li><a href="elation.elements.collection.jsonapi.html#event:collection_clear">collection_clear</a></li><li><a href="elation.elements.collection.jsonapi.html#event:collection_load">collection_load</a></li><li><a href="elation.elements.collection.jsonapi.html#event:collection_load_begin">collection_load_begin</a></li><li><a href="elation.elements.collection.jsonapi.html#event:collection_move">collection_move</a></li><li><a href="elation.elements.collection.jsonapi.html#event:collection_remove">collection_remove</a></li><li><a href="elation.elements.collection.jsonpapi.html#event:collection_add">collection_add</a></li><li><a href="elation.elements.collection.jsonpapi.html#event:collection_clear">collection_clear</a></li><li><a href="elation.elements.collection.jsonpapi.html#event:collection_load">collection_load</a></li><li><a href="elation.elements.collection.jsonpapi.html#event:collection_load_begin">collection_load_begin</a></li><li><a href="elation.elements.collection.jsonpapi.html#event:collection_move">collection_move</a></li><li><a href="elation.elements.collection.jsonpapi.html#event:collection_remove">collection_remove</a></li><li><a href="elation.elements.collection.localindexed.html#event:collection_add">collection_add</a></li><li><a href="elation.elements.collection.localindexed.html#event:collection_clear">collection_clear</a></li><li><a href="elation.elements.collection.localindexed.html#event:collection_load">collection_load</a></li><li><a href="elation.elements.collection.localindexed.html#event:collection_load_begin">collection_load_begin</a></li><li><a href="elation.elements.collection.localindexed.html#event:collection_move">collection_move</a></li><li><a href="elation.elements.collection.localindexed.html#event:collection_remove">collection_remove</a></li><li><a href="elation.elements.collection.localindexed.html#event:collection_save">collection_save</a></li><li><a href="elation.elements.collection.simple.html#event:collection_add">collection_add</a></li><li><a href="elation.elements.collection.simple.html#event:collection_clear">collection_clear</a></li><li><a href="elation.elements.collection.simple.html#event:collection_move">collection_move</a></li><li><a href="elation.elements.collection.simple.html#event:collection_remove">collection_remove</a></li><li><a href="elation.elements.collection.sqlite.html#event:collection_add">collection_add</a></li><li><a href="elation.elements.collection.sqlite.html#event:collection_clear">collection_clear</a></li><li><a href="elation.elements.collection.sqlite.html#event:collection_load">collection_load</a></li><li><a href="elation.elements.collection.sqlite.html#event:collection_load_begin">collection_load_begin</a></li><li><a href="elation.elements.collection.sqlite.html#event:collection_move">collection_move</a></li><li><a href="elation.elements.collection.sqlite.html#event:collection_remove">collection_remove</a></li><li><a href="elation.elements.collection.sqlite.html#event:collection_save">collection_save</a></li><li><a href="elation.elements.collection.subset.html#event:collection_add">collection_add</a></li><li><a href="elation.elements.collection.subset.html#event:collection_clear">collection_clear</a></li><li><a href="elation.elements.collection.subset.html#event:collection_load">collection_load</a></li><li><a href="elation.elements.collection.subset.html#event:collection_move">collection_move</a></li><li><a href="elation.elements.collection.subset.html#event:collection_remove">collection_remove</a></li><li><a href="elation.elements.ui.button.html#event:click">click</a></li><li><a href="elation.elements.ui.button.html#event:select">select</a></li><li><a href="elation.elements.ui.button.html#event:unselect">unselect</a></li><li><a href="elation.elements.ui.buttonbar.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.buttonbar.html#event:select">select</a></li><li><a href="elation.elements.ui.buttonbar.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.buttonbar.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.buttonlist.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.buttonlist.html#event:select">select</a></li><li><a href="elation.elements.ui.buttonlist.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.buttonlist.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.checkbox.html#event:toggle">toggle</a></li><li><a href="elation.elements.ui.checklist.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.checklist.html#event:select">select</a></li><li><a href="elation.elements.ui.checklist.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.checklist.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.checklistitem.html#event:select">select</a></li><li><a href="elation.elements.ui.checklistitem.html#event:unselect">unselect</a></li><li><a href="elation.elements.ui.columnlayout.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.columnlayout.html#event:select">select</a></li><li><a href="elation.elements.ui.columnlayout.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.columnlayout.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.dropdownbutton.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.dropdownbutton.html#event:select">select</a></li><li><a href="elation.elements.ui.dropdownbutton.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.dropdownbutton.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.grid.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.grid.html#event:select">select</a></li><li><a href="elation.elements.ui.grid.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.grid.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.input.html#event:accept">accept</a></li><li><a href="elation.elements.ui.input.html#event:blur">blur</a></li><li><a href="elation.elements.ui.input.html#event:cancel">cancel</a></li><li><a href="elation.elements.ui.input.html#event:clear">clear</a></li><li><a href="elation.elements.ui.input.html#event:focus">focus</a></li><li><a href="elation.elements.ui.input.html#event:select">select</a></li><li><a href="elation.elements.ui.item.html#event:select">select</a></li><li><a href="elation.elements.ui.item.html#event:unselect">unselect</a></li><li><a href="elation.elements.ui.list.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.list.html#event:select">select</a></li><li><a href="elation.elements.ui.list.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.list.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.notificationbutton.html#event:click">click</a></li><li><a href="elation.elements.ui.notificationbutton.html#event:select">select</a></li><li><a href="elation.elements.ui.notificationbutton.html#event:unselect">unselect</a></li><li><a href="elation.elements.ui.popupbutton.html#event:click">click</a></li><li><a href="elation.elements.ui.popupbutton.html#event:select">select</a></li><li><a href="elation.elements.ui.popupbutton.html#event:unselect">unselect</a></li><li><a href="elation.elements.ui.radio.html#event:toggle">toggle</a></li><li><a href="elation.elements.ui.radiobuttonbar.html#event:change">change</a></li><li><a href="elation.elements.ui.radiobuttonbar.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.radiobuttonbar.html#event:select">select</a></li><li><a href="elation.elements.ui.radiobuttonbar.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.radiobuttonbar.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.rowlayout.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.rowlayout.html#event:select">select</a></li><li><a href="elation.elements.ui.rowlayout.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.rowlayout.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.select.html#event:change">change</a></li><li><a href="elation.elements.ui.select.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.select.html#event:select">select</a></li><li><a href="elation.elements.ui.select.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.select.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.slider.html#event:change">change</a></li><li><a href="elation.elements.ui.slider.handle.html#event:change">change</a></li><li><a href="elation.elements.ui.tab.html#event:countchange">countchange</a></li><li><a href="elation.elements.ui.tab.html#event:hover">hover</a></li><li><a href="elation.elements.ui.tab.html#event:select">select</a></li><li><a href="elation.elements.ui.tab.html#event:tablabelchange">tablabelchange</a></li><li><a href="elation.elements.ui.tab.html#event:tabselect">tabselect</a></li><li><a href="elation.elements.ui.tab.html#event:tabunselect">tabunselect</a></li><li><a href="elation.elements.ui.tab.html#event:unhover">unhover</a></li><li><a href="elation.elements.ui.tab.html#event:unselect">unselect</a></li><li><a href="elation.elements.ui.tabbar.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.tabbar.html#event:select">select</a></li><li><a href="elation.elements.ui.tabbar.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.tabbar.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.tabbutton.html#event:click">click</a></li><li><a href="elation.elements.ui.tabbutton.html#event:select">select</a></li><li><a href="elation.elements.ui.tabbutton.html#event:unselect">unselect</a></li><li><a href="elation.elements.ui.tabcountbutton.html#event:click">click</a></li><li><a href="elation.elements.ui.tabcountbutton.html#event:select">select</a></li><li><a href="elation.elements.ui.tabcountbutton.html#event:unselect">unselect</a></li><li><a href="elation.elements.ui.tabs.html#event:change">change</a></li><li><a href="elation.elements.ui.tabs.html#event:create">create</a></li><li><a href="elation.elements.ui.tabs.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.tabs.html#event:select">select</a></li><li><a href="elation.elements.ui.tabs.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.tabs.html#event:tabadd">tabadd</a></li><li><a href="elation.elements.ui.tabs.html#event:tabchange">tabchange</a></li><li><a href="elation.elements.ui.tabs.html#event:tabremove">tabremove</a></li><li><a href="elation.elements.ui.tabs.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.text.html#event:change">change</a></li><li><a href="elation.elements.ui.textarea.html#event:accept">accept</a></li><li><a href="elation.elements.ui.textarea.html#event:blur">blur</a></li><li><a href="elation.elements.ui.textarea.html#event:cancel">cancel</a></li><li><a href="elation.elements.ui.textarea.html#event:clear">clear</a></li><li><a href="elation.elements.ui.textarea.html#event:focus">focus</a></li><li><a href="elation.elements.ui.textarea.html#event:select">select</a></li><li><a href="elation.elements.ui.toggle.html#event:toggle">toggle</a></li><li><a href="elation.elements.ui.togglebutton.html#event:activate">activate</a></li><li><a href="elation.elements.ui.togglebutton.html#event:click">click</a></li><li><a href="elation.elements.ui.togglebutton.html#event:deactivate">deactivate</a></li><li><a href="elation.elements.ui.togglebutton.html#event:select">select</a></li><li><a href="elation.elements.ui.togglebutton.html#event:unselect">unselect</a></li><li><a href="elation.elements.ui.tooltip.html#event:blur">blur</a></li><li><a href="elation.elements.ui.tooltip.html#event:focus">focus</a></li><li><a href="elation.elements.ui.tooltip.html#event:ui_window_close">ui_window_close</a></li><li><a href="elation.elements.ui.tooltip.html#event:ui_window_maximize">ui_window_maximize</a></li><li><a href="elation.elements.ui.tooltip.html#event:ui_window_minimize">ui_window_minimize</a></li><li><a href="elation.elements.ui.tooltip.html#event:ui_window_open">ui_window_open</a></li><li><a href="elation.elements.ui.tooltip.html#event:ui_window_restore">ui_window_restore</a></li><li><a href="elation.elements.ui.treeview.html#event:ui_treeview_hover">ui_treeview_hover</a></li><li><a href="elation.elements.ui.treeview.html#event:ui_treeview_select">ui_treeview_select</a></li><li><a href="elation.elements.ui.treeviewitem.html#event:ui_treeviewitem_hover">ui_treeviewitem_hover</a></li><li><a href="elation.elements.ui.treeviewitem.html#event:ui_treeviewitem_select">ui_treeviewitem_select</a></li><li><a href="elation.elements.ui.treeviewitem.html#event:ui_treeviewitem_unhover">ui_treeviewitem_unhover</a></li><li><a href="elation.elements.ui.treeviewitem.html#event:ui_treeviewitem_unselect">ui_treeviewitem_unselect</a></li><li><a href="elation.elements.ui.window.html#event:blur">blur</a></li><li><a href="elation.elements.ui.window.html#event:focus">focus</a></li><li><a href="elation.elements.ui.window.html#event:ui_window_close">ui_window_close</a></li><li><a href="elation.elements.ui.window.html#event:ui_window_maximize">ui_window_maximize</a></li><li><a href="elation.elements.ui.window.html#event:ui_window_minimize">ui_window_minimize</a></li><li><a href="elation.elements.ui.window.html#event:ui_window_open">ui_window_open</a></li><li><a href="elation.elements.ui.window.html#event:ui_window_restore">ui_window_restore</a></li><li><a href="elation.elements.ui.wizard.html#event:step">step</a></li><li><a href="elation.elements.ui.wizard.html#event:wizard_complete">wizard_complete</a></li><li><a href="elation.elements.ui.wizard-backbutton.html#event:click">click</a></li><li><a href="elation.elements.ui.wizard-backbutton.html#event:select">select</a></li><li><a href="elation.elements.ui.wizard-backbutton.html#event:unselect">unselect</a></li><li><a href="elation.elements.ui.wizard.step.html#event:finish">finish</a></li><li><a href="elation.elements.ui.wizard.step.html#event:start">start</a></li></ul></div><div class="category"><h2>Collections</h2><h3>Classes</h3><ul><li><a href="elation.elements.collection.api.html">api</a></li><li><a href="elation.elements.collection.custom.html">custom</a></li><li><a href="elation.elements.collection.filter.html">filter</a></li><li><a href="elation.elements.collection.indexed.html">indexed</a></li><li><a href="elation.elements.collection.jsonapi.html">jsonapi</a></li><li><a href="elation.elements.collection.jsonpapi.html">jsonpapi</a></li><li><a href="elation.elements.collection.localindexed.html">localindexed</a></li><li><a href="elation.elements.collection.simple.html">simple</a></li><li><a href="elation.elements.collection.sqlite.html">sqlite</a></li><li><a href="elation.elements.collection.subset.html">subset</a></li></ul></div><div class="category"><h2>UI</h2><h3>Classes</h3><ul><li><a href="elation.elements.ui.button.html">button</a></li><li><a href="elation.elements.ui.buttonbar.html">buttonbar</a></li><li><a href="elation.elements.ui.buttonlist.html">buttonlist</a></li><li><a href="elation.elements.ui.checkbox.html">checkbox</a></li><li><a href="elation.elements.ui.checklist.html">checklist</a></li><li><a href="elation.elements.ui.checklistitem.html">checklistitem</a></li><li><a href="elation.elements.ui.collapsiblepanel.html">collapsiblepanel</a></li><li><a href="elation.elements.ui.columnlayout.html">columnlayout</a></li><li><a href="elation.elements.ui.content.html">content</a></li><li><a href="elation.elements.ui.dropdownbutton.html">dropdownbutton</a></li><li><a href="elation.elements.ui.flexpanel.html">flexpanel</a></li><li><a href="elation.elements.ui.formgroup.html">formgroup</a></li><li><a href="elation.elements.ui.grid.html">grid</a></li><li><a href="elation.elements.ui.imagepicker.html">imagepicker</a></li><li><a href="elation.elements.ui.indicator.html">indicator</a></li><li><a href="elation.elements.ui.input.html">input</a></li><li><a href="elation.elements.ui.item.html">item</a></li><li><a href="elation.elements.ui.label.html">label</a></li><li><a href="elation.elements.ui.list.html">list</a></li><li><a href="elation.elements.ui.notificationbutton.html">notificationbutton</a></li><li><a href="elation.elements.ui.panel.html">panel</a></li><li><a href="elation.elements.ui.popupbutton.html">popupbutton</a></li><li><a href="elation.elements.ui.radio.html">radio</a></li><li><a href="elation.elements.ui.radiobuttonbar.html">radiobuttonbar</a></li><li><a href="elation.elements.ui.rowlayout.html">rowlayout</a></li><li><a href="elation.elements.ui.scrollindicator.html">scrollindicator</a></li><li><a href="elation.elements.ui.select.html">select</a></li><li><a href="elation.elements.ui.slider.html">slider</a></li><li><a href="elation.elements.ui.spinner.html">spinner</a></li><li><a href="elation.elements.ui.tab.html">tab</a></li><li><a href="elation.elements.ui.tabbar.html">tabbar</a></li><li><a href="elation.elements.ui.tabbutton.html">tabbutton</a></li><li><a href="elation.elements.ui.tabcountbutton.html">tabcountbutton</a></li><li><a href="elation.elements.ui.tabs.html">tabs</a></li><li><a href="elation.elements.ui.text.html">text</a></li><li><a href="elation.elements.ui.textarea.html">textarea</a></li><li><a href="elation.elements.ui.toggle.html">toggle</a></li><li><a href="elation.elements.ui.togglebutton.html">togglebutton</a></li><li><a href="elation.elements.ui.tooltip.html">tooltip</a></li><li><a href="elation.elements.ui.treeview.html">treeview</a></li><li><a href="elation.elements.ui.window.html">window</a></li><li><a href="elation.elements.ui.wizard.html">wizard</a></li><li><a href="elation.elements.ui.wizard-backbutton.html">wizard-backbutton</a></li><li><a href="elation.elements.ui.wizard-step.html">wizard-step</a></li></ul></div>
+                
+            </nav>
+        </div>
+        <div class="core" id="main-content-wrapper">
+            <div class="content">
+                <header class="page-title">
+                    <p>Class</p>
+                    <h1>checkbox</h1>
+                </header>
+                
+
+
+
+
+<section>
+
+<header>
+    
+        <h2><span class="attribs"><span class="type-signature"></span></span>
+            <span class="ancestors"><a href="elation.html">elation</a><a href="elation.elements.html">.elements</a><a href="elation.elements.ui.html">.ui</a>.</span>checkbox</h2>
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="elements_scripts_ui_checkbox.js.html" class="button">View Source</a>
+            <span>
+                <a href="elements_scripts_ui_checkbox.js.html">elements/scripts/ui/checkbox.js</a>, <a href="elements_scripts_ui_checkbox.js.html#line2">line 2</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h5>Example</h5>
+    
+    
+        <pre class="prettyprint"><code>&lt;ui-checkbox label="Remember me" checked>&lt;/ui-checkbox></code></pre>
+    
+
+
+
+        
+    
+    </div>
+    
+    
+        <h3 class="subsection-title">Extends</h3>
+
+        
+
+
+    <ul>
+        <li><a href="elation.elements.ui.toggle.html">elation.elements.ui.toggle</a></li>
+    </ul>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <div class='vertical-section'>
+            <h1>Methods</h1>
+            <div class="members">
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="addclass">
+        <a class="href-link" href="#addclass">#</a>
+        
+        <span class="code-name">
+            
+                addclass<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Add an HTML class to this component</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="elation.elements.base.html#addclass">elation.elements.base#addclass</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="elements_scripts_elements.js.html" class="button">View Source</a>
+            <span>
+                <a href="elements_scripts_elements.js.html">elements/scripts/elements.js</a>, <a href="elements_scripts_elements.js.html#line413">line 413</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="create">
+        <a class="href-link" href="#create">#</a>
+        
+        <span class="code-name">
+            
+                create<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Lifecycle hook: fires once after the element is connected to the
+DOM and its child nodes have parsed. The default implementation
+expands <code>template</code> into <code>innerHTML</code> if one is set; subclasses
+typically override <code>create()</code> to wire event listeners, query
+children, and produce initial content.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="elation.elements.base.html#create">elation.elements.base#create</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="elements_scripts_elements.js.html" class="button">View Source</a>
+            <span>
+                <a href="elements_scripts_elements.js.html">elements/scripts/elements.js</a>, <a href="elements_scripts_elements.js.html#line330">line 330</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="defineAttributes">
+        <a class="href-link" href="#defineAttributes">#</a>
+        
+        <span class="code-name">
+            
+                defineAttributes<span class="signature">(attrs)</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Declare a set of typed attributes on this element. Each entry is
+a descriptor <code>{ type, default?, get?, set? }</code> keyed by attribute
+name. The descriptor's <code>type</code> controls coercion between the HTML
+attribute string and the JS property value; see the project
+README's Type system section for built-in types and how to
+register new ones.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>attrs</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type">object</code>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>map of attribute name → descriptor</p></td>
+</tr>
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="elation.elements.base.html#defineAttributes">elation.elements.base#defineAttributes</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="elements_scripts_elements.js.html" class="button">View Source</a>
+            <span>
+                <a href="elements_scripts_elements.js.html">elements/scripts/elements.js</a>, <a href="elements_scripts_elements.js.html#line177">line 177</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="disable">
+        <a class="href-link" href="#disable">#</a>
+        
+        <span class="code-name">
+            
+                disable<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Disable this component</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="elation.elements.base.html#disable">elation.elements.base#disable</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="elements_scripts_elements.js.html" class="button">View Source</a>
+            <span>
+                <a href="elements_scripts_elements.js.html">elements/scripts/elements.js</a>, <a href="elements_scripts_elements.js.html#line472">line 472</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="dispatchEvent">
+        <a class="href-link" href="#dispatchEvent">#</a>
+        
+        <span class="code-name">
+            
+                dispatchEvent<span class="signature">(ev)</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Fire an event on this element. If <code>ev.bubbles</code> is true the event
+walks up through parent nodes, with each ancestor receiving a
+cloned event whose <code>target</code> stays this element but whose
+<code>currentTarget</code> is the ancestor. A method named <code>on&lt;type&gt;</code> on
+this element, if present, runs as a default handler before
+registered listeners.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>ev</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type">object</code>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>event payload, e.g. <code>{type, bubbles, data}</code></p></td>
+</tr>
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="elation.elements.base.html#dispatchEvent">elation.elements.base#dispatchEvent</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="elements_scripts_elements.js.html" class="button">View Source</a>
+            <span>
+                <a href="elements_scripts_elements.js.html">elements/scripts/elements.js</a>, <a href="elements_scripts_elements.js.html#line300">line 300</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="enable">
+        <a class="href-link" href="#enable">#</a>
+        
+        <span class="code-name">
+            
+                enable<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Enable this component</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="elation.elements.base.html#enable">elation.elements.base#enable</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="elements_scripts_elements.js.html" class="button">View Source</a>
+            <span>
+                <a href="elements_scripts_elements.js.html">elements/scripts/elements.js</a>, <a href="elements_scripts_elements.js.html#line463">line 463</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="hasclass">
+        <a class="href-link" href="#hasclass">#</a>
+        
+        <span class="code-name">
+            
+                hasclass<span class="signature">()</span><span class="type-signature"> &rarr; {bool}</span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Check whether this component has the specified class</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="elation.elements.base.html#hasclass">elation.elements.base#hasclass</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="elements_scripts_elements.js.html" class="button">View Source</a>
+            <span>
+                <a href="elements_scripts_elements.js.html">elements/scripts/elements.js</a>, <a href="elements_scripts_elements.js.html#line433">line 433</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+        
+<code class="param-type">bool</code>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="hide">
+        <a class="href-link" href="#hide">#</a>
+        
+        <span class="code-name">
+            
+                hide<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Make this component invisible</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="elation.elements.base.html#hide">elation.elements.base#hide</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="elements_scripts_elements.js.html" class="button">View Source</a>
+            <span>
+                <a href="elements_scripts_elements.js.html">elements/scripts/elements.js</a>, <a href="elements_scripts_elements.js.html#line454">line 454</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="hover">
+        <a class="href-link" href="#hover">#</a>
+        
+        <span class="code-name">
+            
+                hover<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Set this component's hover state</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="elation.elements.base.html#hover">elation.elements.base#hover</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="elements_scripts_elements.js.html" class="button">View Source</a>
+            <span>
+                <a href="elements_scripts_elements.js.html">elements/scripts/elements.js</a>, <a href="elements_scripts_elements.js.html#line481">line 481</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="init">
+        <a class="href-link" href="#init">#</a>
+        
+        <span class="code-name">
+            
+                init<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Lifecycle hook: declare attributes via <code>defineAttributes</code> and
+set per-instance state. Subclasses should call <code>super.init()</code>
+first, then add their own <code>defineAttributes</code> call.</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="elation.elements.base.html#init">elation.elements.base#init</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="elements_scripts_elements.js.html" class="button">View Source</a>
+            <span>
+                <a href="elements_scripts_elements.js.html">elements/scripts/elements.js</a>, <a href="elements_scripts_elements.js.html#line155">line 155</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="refresh">
+        <a class="href-link" href="#refresh">#</a>
+        
+        <span class="code-name">
+            
+                refresh<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Mark data as dirty, and then start the render loop if not already active</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="elation.elements.base.html#refresh">elation.elements.base#refresh</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="elements_scripts_elements.js.html" class="button">View Source</a>
+            <span>
+                <a href="elements_scripts_elements.js.html">elements/scripts/elements.js</a>, <a href="elements_scripts_elements.js.html#line346">line 346</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="refreshChildren">
+        <a class="href-link" href="#refreshChildren">#</a>
+        
+        <span class="code-name">
+            
+                refreshChildren<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Refresh all of this element's children</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="elation.elements.base.html#refreshChildren">elation.elements.base#refreshChildren</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="elements_scripts_elements.js.html" class="button">View Source</a>
+            <span>
+                <a href="elements_scripts_elements.js.html">elements/scripts/elements.js</a>, <a href="elements_scripts_elements.js.html#line361">line 361</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="removeclass">
+        <a class="href-link" href="#removeclass">#</a>
+        
+        <span class="code-name">
+            
+                removeclass<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Remove an HTML class from this component</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="elation.elements.base.html#removeclass">elation.elements.base#removeclass</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="elements_scripts_elements.js.html" class="button">View Source</a>
+            <span>
+                <a href="elements_scripts_elements.js.html">elements/scripts/elements.js</a>, <a href="elements_scripts_elements.js.html#line423">line 423</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="render">
+        <a class="href-link" href="#render">#</a>
+        
+            
+                <span class='tag'>abstract</span>
+            
+        
+        <span class="code-name">
+            
+                render<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Update the component's visual representation to reflect the current state of the data</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="elation.elements.base.html#render">elation.elements.base#render</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="elements_scripts_elements.js.html" class="button">View Source</a>
+            <span>
+                <a href="elements_scripts_elements.js.html">elements/scripts/elements.js</a>, <a href="elements_scripts_elements.js.html#line398">line 398</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="renderloop">
+        <a class="href-link" href="#renderloop">#</a>
+        
+        <span class="code-name">
+            
+                renderloop<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Hook into the browser's animation loop to make component renders as efficient as possible
+This also automatically rate-limits updates to the render speed of the browser (normally
+60fps) rather than triggering a render every time data changes (which could be &gt; 60fps)</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="elation.elements.base.html#renderloop">elation.elements.base#renderloop</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="elements_scripts_elements.js.html" class="button">View Source</a>
+            <span>
+                <a href="elements_scripts_elements.js.html">elements/scripts/elements.js</a>, <a href="elements_scripts_elements.js.html#line375">line 375</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="setOrientation">
+        <a class="href-link" href="#setOrientation">#</a>
+        
+        <span class="code-name">
+            
+                setOrientation<span class="signature">(orientation)</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Sets the orientation of this component</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+<div class="table-container">
+    <table class="params table">
+        <thead>
+        <tr>
+            
+            <th>Name</th>
+            
+
+            <th>Type</th>
+
+            
+
+            
+
+            <th class="last">Description</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        
+
+            
+<tr class="deep-level-0">
+  
+      <td class="name"><code>orientation</code></td>
+  
+
+  <td class="type">
+  
+      
+<code class="param-type">string</code>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"></td>
+</tr>
+
+
+        
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="elation.elements.base.html#setOrientation">elation.elements.base#setOrientation</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="elements_scripts_elements.js.html" class="button">View Source</a>
+            <span>
+                <a href="elements_scripts_elements.js.html">elements/scripts/elements.js</a>, <a href="elements_scripts_elements.js.html#line497">line 497</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="show">
+        <a class="href-link" href="#show">#</a>
+        
+        <span class="code-name">
+            
+                show<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Make this component visible</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="elation.elements.base.html#show">elation.elements.base#show</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="elements_scripts_elements.js.html" class="button">View Source</a>
+            <span>
+                <a href="elements_scripts_elements.js.html">elements/scripts/elements.js</a>, <a href="elements_scripts_elements.js.html#line442">line 442</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="toCanvas">
+        <a class="href-link" href="#toCanvas">#</a>
+        
+        <span class="code-name">
+            
+                toCanvas<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Render this element to an image</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="elation.elements.base.html#toCanvas">elation.elements.base#toCanvas</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="elements_scripts_elements.js.html" class="button">View Source</a>
+            <span>
+                <a href="elements_scripts_elements.js.html">elements/scripts/elements.js</a>, <a href="elements_scripts_elements.js.html#line533">line 533</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id="unhover">
+        <a class="href-link" href="#unhover">#</a>
+        
+        <span class="code-name">
+            
+                unhover<span class="signature">()</span><span class="type-signature"></span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Unset this component's hover state</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="elation.elements.base.html#unhover">elation.elements.base#unhover</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="elements_scripts_elements.js.html" class="button">View Source</a>
+            <span>
+                <a href="elements_scripts_elements.js.html">elements/scripts/elements.js</a>, <a href="elements_scripts_elements.js.html#line489">line 489</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+            
+            </div>
+        </div>
+    
+
+    
+
+    
+        <div class='vertical-section'>
+            <h1>Events</h1>
+            <div class="members">
+            
+                <div class="member">
+                    
+
+
+    
+    <h4 class="name" id="event:toggle">
+        <a class="href-link" href="#event:toggle">#</a>
+        
+        <span class="code-name">
+            
+                toggle
+            
+        </span>
+    </h4>
+    
+
+    
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+    <dt class="inherited-from">Inherited From:</dt>
+    <dd class="inherited-from"><ul class="dummy"><li>
+        <a href="elation.elements.ui.toggle.html#event:toggle">elation.elements.ui.toggle#event:toggle</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="elements_scripts_ui_toggle.js.html" class="button">View Source</a>
+            <span>
+                <a href="elements_scripts_ui_toggle.js.html">elements/scripts/ui/toggle.js</a>, <a href="elements_scripts_ui_toggle.js.html#line115">line 115</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                </div>
+            
+            </div>
+        </div>
+    
+</article>
+
+</section>
+
+
+
+
+            </div>
+            
+        </div>
+        <div id="side-nav" class="side-nav">
+        </div>
+    </div>
+<script src="scripts/app.min.js"></script>
+<script>PR.prettyPrint();</script>
+<script src="scripts/linenumber.js"> </script>
+
+<script src="scripts/search.js"> </script>
+
+
+</body>
+</html>

@@ -1,0 +1,14 @@
+[
+  "thermal anomaly +%dK at bearing %s°",
+  "mass anomaly %s kg, drift vector %s",
+  "ion bloom Δ=%s°, intensity %s%%",
+  "comm burst, encryption signature: %s",
+  "gravitational lens flicker, magnitude %s",
+  "EM ripple frequency %s Hz",
+  "particle stream %s/cm² at %s°",
+  "radiation tick %s mSv (background nominal)",
+  "doppler shift +%s on bearing %s°",
+  "harmonic resonance detected, pattern: %s",
+  "subspace fluctuation, period %sms",
+  "neutrino flux %s above baseline"
+]

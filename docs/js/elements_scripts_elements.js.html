@@ -1,0 +1,938 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Elation Elements elements/scripts/elements.js</title>
+
+  <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="./build/entry.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,400,700|Inconsolata,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/app.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/iframe.css">
+  <link type="text/css" rel="stylesheet" href="styles/dark.css">
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  
+</head>
+
+
+
+<body class="layout small-header">
+    <div id="stickyNavbarOverlay"></div>
+    
+
+<div class="top-nav">
+    <div class="inner">
+        <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+        <div class="logo">
+            
+             
+                <a href="index.html">
+                    <h1 class="navbar-item">Elation Elements</h1>
+                </a>
+            
+        </div>
+        <div class="menu">
+            
+            <div class="navigation">
+                <a
+                    href="index.html"
+                    class="link"
+                >
+                    Documentation
+                </a>
+                
+                 
+                    
+                        <a
+                            class="link user-link "
+                            href="../../demos/index.html"
+                        >
+                            Demo Gallery
+                        </a>
+                    
+                        <a
+                            class="link user-link "
+                            href="https://github.com/jbaicoianu/elation"
+                        >
+                            GitHub
+                        </a>
+                    
+                
+                
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="main">
+        <div
+            class="sidebar "
+            id="sidebarNav"
+        >
+            
+                <div class="search-wrapper">
+                    <input id="search" type="text" placeholder="Search docs..." class="input">
+                </div>
+            
+            <nav>
+                
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Namespaces</h3><ul><li><a href="elation.html">elation</a></li><li><a href="elation.elements.html">elements</a></li><li><a href="elation.elements.collection.html">collection</a></li><li><a href="elation.elements.ui.html">ui</a></li><li><a href="elation.html.html">html</a></li><li><a href="elation.timing.html">timing</a></li><li><a href="elation.utils.html">utils</a></li></ul><h3>Classes</h3><ul><li><a href="elation.elements.base.html">base</a></li></ul><h3>Events</h3><ul><li><a href="elation.elements.collection.api.html#event:collection_add">collection_add</a></li><li><a href="elation.elements.collection.api.html#event:collection_clear">collection_clear</a></li><li><a href="elation.elements.collection.api.html#event:collection_load">collection_load</a></li><li><a href="elation.elements.collection.api.html#event:collection_load_begin">collection_load_begin</a></li><li><a href="elation.elements.collection.api.html#event:collection_move">collection_move</a></li><li><a href="elation.elements.collection.api.html#event:collection_remove">collection_remove</a></li><li><a href="elation.elements.collection.custom.html#event:collection_add">collection_add</a></li><li><a href="elation.elements.collection.custom.html#event:collection_clear">collection_clear</a></li><li><a href="elation.elements.collection.custom.html#event:collection_move">collection_move</a></li><li><a href="elation.elements.collection.custom.html#event:collection_remove">collection_remove</a></li><li><a href="elation.elements.collection.filter.html#event:collection_add">collection_add</a></li><li><a href="elation.elements.collection.filter.html#event:collection_clear">collection_clear</a></li><li><a href="elation.elements.collection.filter.html#event:collection_load">collection_load</a></li><li><a href="elation.elements.collection.filter.html#event:collection_move">collection_move</a></li><li><a href="elation.elements.collection.filter.html#event:collection_remove">collection_remove</a></li><li><a href="elation.elements.collection.indexed.html#event:collection_add">collection_add</a></li><li><a href="elation.elements.collection.indexed.html#event:collection_clear">collection_clear</a></li><li><a href="elation.elements.collection.indexed.html#event:collection_move">collection_move</a></li><li><a href="elation.elements.collection.indexed.html#event:collection_remove">collection_remove</a></li><li><a href="elation.elements.collection.jsonapi.html#event:collection_add">collection_add</a></li><li><a href="elation.elements.collection.jsonapi.html#event:collection_clear">collection_clear</a></li><li><a href="elation.elements.collection.jsonapi.html#event:collection_load">collection_load</a></li><li><a href="elation.elements.collection.jsonapi.html#event:collection_load_begin">collection_load_begin</a></li><li><a href="elation.elements.collection.jsonapi.html#event:collection_move">collection_move</a></li><li><a href="elation.elements.collection.jsonapi.html#event:collection_remove">collection_remove</a></li><li><a href="elation.elements.collection.jsonpapi.html#event:collection_add">collection_add</a></li><li><a href="elation.elements.collection.jsonpapi.html#event:collection_clear">collection_clear</a></li><li><a href="elation.elements.collection.jsonpapi.html#event:collection_load">collection_load</a></li><li><a href="elation.elements.collection.jsonpapi.html#event:collection_load_begin">collection_load_begin</a></li><li><a href="elation.elements.collection.jsonpapi.html#event:collection_move">collection_move</a></li><li><a href="elation.elements.collection.jsonpapi.html#event:collection_remove">collection_remove</a></li><li><a href="elation.elements.collection.localindexed.html#event:collection_add">collection_add</a></li><li><a href="elation.elements.collection.localindexed.html#event:collection_clear">collection_clear</a></li><li><a href="elation.elements.collection.localindexed.html#event:collection_load">collection_load</a></li><li><a href="elation.elements.collection.localindexed.html#event:collection_load_begin">collection_load_begin</a></li><li><a href="elation.elements.collection.localindexed.html#event:collection_move">collection_move</a></li><li><a href="elation.elements.collection.localindexed.html#event:collection_remove">collection_remove</a></li><li><a href="elation.elements.collection.localindexed.html#event:collection_save">collection_save</a></li><li><a href="elation.elements.collection.simple.html#event:collection_add">collection_add</a></li><li><a href="elation.elements.collection.simple.html#event:collection_clear">collection_clear</a></li><li><a href="elation.elements.collection.simple.html#event:collection_move">collection_move</a></li><li><a href="elation.elements.collection.simple.html#event:collection_remove">collection_remove</a></li><li><a href="elation.elements.collection.sqlite.html#event:collection_add">collection_add</a></li><li><a href="elation.elements.collection.sqlite.html#event:collection_clear">collection_clear</a></li><li><a href="elation.elements.collection.sqlite.html#event:collection_load">collection_load</a></li><li><a href="elation.elements.collection.sqlite.html#event:collection_load_begin">collection_load_begin</a></li><li><a href="elation.elements.collection.sqlite.html#event:collection_move">collection_move</a></li><li><a href="elation.elements.collection.sqlite.html#event:collection_remove">collection_remove</a></li><li><a href="elation.elements.collection.sqlite.html#event:collection_save">collection_save</a></li><li><a href="elation.elements.collection.subset.html#event:collection_add">collection_add</a></li><li><a href="elation.elements.collection.subset.html#event:collection_clear">collection_clear</a></li><li><a href="elation.elements.collection.subset.html#event:collection_load">collection_load</a></li><li><a href="elation.elements.collection.subset.html#event:collection_move">collection_move</a></li><li><a href="elation.elements.collection.subset.html#event:collection_remove">collection_remove</a></li><li><a href="elation.elements.ui.button.html#event:click">click</a></li><li><a href="elation.elements.ui.button.html#event:select">select</a></li><li><a href="elation.elements.ui.button.html#event:unselect">unselect</a></li><li><a href="elation.elements.ui.buttonbar.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.buttonbar.html#event:select">select</a></li><li><a href="elation.elements.ui.buttonbar.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.buttonbar.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.buttonlist.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.buttonlist.html#event:select">select</a></li><li><a href="elation.elements.ui.buttonlist.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.buttonlist.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.checkbox.html#event:toggle">toggle</a></li><li><a href="elation.elements.ui.checklist.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.checklist.html#event:select">select</a></li><li><a href="elation.elements.ui.checklist.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.checklist.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.checklistitem.html#event:select">select</a></li><li><a href="elation.elements.ui.checklistitem.html#event:unselect">unselect</a></li><li><a href="elation.elements.ui.columnlayout.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.columnlayout.html#event:select">select</a></li><li><a href="elation.elements.ui.columnlayout.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.columnlayout.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.dropdownbutton.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.dropdownbutton.html#event:select">select</a></li><li><a href="elation.elements.ui.dropdownbutton.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.dropdownbutton.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.grid.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.grid.html#event:select">select</a></li><li><a href="elation.elements.ui.grid.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.grid.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.input.html#event:accept">accept</a></li><li><a href="elation.elements.ui.input.html#event:blur">blur</a></li><li><a href="elation.elements.ui.input.html#event:cancel">cancel</a></li><li><a href="elation.elements.ui.input.html#event:clear">clear</a></li><li><a href="elation.elements.ui.input.html#event:focus">focus</a></li><li><a href="elation.elements.ui.input.html#event:select">select</a></li><li><a href="elation.elements.ui.item.html#event:select">select</a></li><li><a href="elation.elements.ui.item.html#event:unselect">unselect</a></li><li><a href="elation.elements.ui.list.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.list.html#event:select">select</a></li><li><a href="elation.elements.ui.list.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.list.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.notificationbutton.html#event:click">click</a></li><li><a href="elation.elements.ui.notificationbutton.html#event:select">select</a></li><li><a href="elation.elements.ui.notificationbutton.html#event:unselect">unselect</a></li><li><a href="elation.elements.ui.popupbutton.html#event:click">click</a></li><li><a href="elation.elements.ui.popupbutton.html#event:select">select</a></li><li><a href="elation.elements.ui.popupbutton.html#event:unselect">unselect</a></li><li><a href="elation.elements.ui.radio.html#event:toggle">toggle</a></li><li><a href="elation.elements.ui.radiobuttonbar.html#event:change">change</a></li><li><a href="elation.elements.ui.radiobuttonbar.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.radiobuttonbar.html#event:select">select</a></li><li><a href="elation.elements.ui.radiobuttonbar.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.radiobuttonbar.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.rowlayout.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.rowlayout.html#event:select">select</a></li><li><a href="elation.elements.ui.rowlayout.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.rowlayout.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.select.html#event:change">change</a></li><li><a href="elation.elements.ui.select.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.select.html#event:select">select</a></li><li><a href="elation.elements.ui.select.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.select.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.slider.html#event:change">change</a></li><li><a href="elation.elements.ui.slider.handle.html#event:change">change</a></li><li><a href="elation.elements.ui.tab.html#event:countchange">countchange</a></li><li><a href="elation.elements.ui.tab.html#event:hover">hover</a></li><li><a href="elation.elements.ui.tab.html#event:select">select</a></li><li><a href="elation.elements.ui.tab.html#event:tablabelchange">tablabelchange</a></li><li><a href="elation.elements.ui.tab.html#event:tabselect">tabselect</a></li><li><a href="elation.elements.ui.tab.html#event:tabunselect">tabunselect</a></li><li><a href="elation.elements.ui.tab.html#event:unhover">unhover</a></li><li><a href="elation.elements.ui.tab.html#event:unselect">unselect</a></li><li><a href="elation.elements.ui.tabbar.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.tabbar.html#event:select">select</a></li><li><a href="elation.elements.ui.tabbar.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.tabbar.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.tabbutton.html#event:click">click</a></li><li><a href="elation.elements.ui.tabbutton.html#event:select">select</a></li><li><a href="elation.elements.ui.tabbutton.html#event:unselect">unselect</a></li><li><a href="elation.elements.ui.tabcountbutton.html#event:click">click</a></li><li><a href="elation.elements.ui.tabcountbutton.html#event:select">select</a></li><li><a href="elation.elements.ui.tabcountbutton.html#event:unselect">unselect</a></li><li><a href="elation.elements.ui.tabs.html#event:change">change</a></li><li><a href="elation.elements.ui.tabs.html#event:create">create</a></li><li><a href="elation.elements.ui.tabs.html#event:reorder">reorder</a></li><li><a href="elation.elements.ui.tabs.html#event:select">select</a></li><li><a href="elation.elements.ui.tabs.html#event:selectionchange">selectionchange</a></li><li><a href="elation.elements.ui.tabs.html#event:tabadd">tabadd</a></li><li><a href="elation.elements.ui.tabs.html#event:tabchange">tabchange</a></li><li><a href="elation.elements.ui.tabs.html#event:tabremove">tabremove</a></li><li><a href="elation.elements.ui.tabs.html#event:ui_list_select">ui_list_select</a></li><li><a href="elation.elements.ui.text.html#event:change">change</a></li><li><a href="elation.elements.ui.textarea.html#event:accept">accept</a></li><li><a href="elation.elements.ui.textarea.html#event:blur">blur</a></li><li><a href="elation.elements.ui.textarea.html#event:cancel">cancel</a></li><li><a href="elation.elements.ui.textarea.html#event:clear">clear</a></li><li><a href="elation.elements.ui.textarea.html#event:focus">focus</a></li><li><a href="elation.elements.ui.textarea.html#event:select">select</a></li><li><a href="elation.elements.ui.toggle.html#event:toggle">toggle</a></li><li><a href="elation.elements.ui.togglebutton.html#event:activate">activate</a></li><li><a href="elation.elements.ui.togglebutton.html#event:click">click</a></li><li><a href="elation.elements.ui.togglebutton.html#event:deactivate">deactivate</a></li><li><a href="elation.elements.ui.togglebutton.html#event:select">select</a></li><li><a href="elation.elements.ui.togglebutton.html#event:unselect">unselect</a></li><li><a href="elation.elements.ui.tooltip.html#event:blur">blur</a></li><li><a href="elation.elements.ui.tooltip.html#event:focus">focus</a></li><li><a href="elation.elements.ui.tooltip.html#event:ui_window_close">ui_window_close</a></li><li><a href="elation.elements.ui.tooltip.html#event:ui_window_maximize">ui_window_maximize</a></li><li><a href="elation.elements.ui.tooltip.html#event:ui_window_minimize">ui_window_minimize</a></li><li><a href="elation.elements.ui.tooltip.html#event:ui_window_open">ui_window_open</a></li><li><a href="elation.elements.ui.tooltip.html#event:ui_window_restore">ui_window_restore</a></li><li><a href="elation.elements.ui.treeview.html#event:ui_treeview_hover">ui_treeview_hover</a></li><li><a href="elation.elements.ui.treeview.html#event:ui_treeview_select">ui_treeview_select</a></li><li><a href="elation.elements.ui.treeviewitem.html#event:ui_treeviewitem_hover">ui_treeviewitem_hover</a></li><li><a href="elation.elements.ui.treeviewitem.html#event:ui_treeviewitem_select">ui_treeviewitem_select</a></li><li><a href="elation.elements.ui.treeviewitem.html#event:ui_treeviewitem_unhover">ui_treeviewitem_unhover</a></li><li><a href="elation.elements.ui.treeviewitem.html#event:ui_treeviewitem_unselect">ui_treeviewitem_unselect</a></li><li><a href="elation.elements.ui.window.html#event:blur">blur</a></li><li><a href="elation.elements.ui.window.html#event:focus">focus</a></li><li><a href="elation.elements.ui.window.html#event:ui_window_close">ui_window_close</a></li><li><a href="elation.elements.ui.window.html#event:ui_window_maximize">ui_window_maximize</a></li><li><a href="elation.elements.ui.window.html#event:ui_window_minimize">ui_window_minimize</a></li><li><a href="elation.elements.ui.window.html#event:ui_window_open">ui_window_open</a></li><li><a href="elation.elements.ui.window.html#event:ui_window_restore">ui_window_restore</a></li><li><a href="elation.elements.ui.wizard.html#event:step">step</a></li><li><a href="elation.elements.ui.wizard.html#event:wizard_complete">wizard_complete</a></li><li><a href="elation.elements.ui.wizard-backbutton.html#event:click">click</a></li><li><a href="elation.elements.ui.wizard-backbutton.html#event:select">select</a></li><li><a href="elation.elements.ui.wizard-backbutton.html#event:unselect">unselect</a></li><li><a href="elation.elements.ui.wizard.step.html#event:finish">finish</a></li><li><a href="elation.elements.ui.wizard.step.html#event:start">start</a></li></ul></div><div class="category"><h2>Collections</h2><h3>Classes</h3><ul><li><a href="elation.elements.collection.api.html">api</a></li><li><a href="elation.elements.collection.custom.html">custom</a></li><li><a href="elation.elements.collection.filter.html">filter</a></li><li><a href="elation.elements.collection.indexed.html">indexed</a></li><li><a href="elation.elements.collection.jsonapi.html">jsonapi</a></li><li><a href="elation.elements.collection.jsonpapi.html">jsonpapi</a></li><li><a href="elation.elements.collection.localindexed.html">localindexed</a></li><li><a href="elation.elements.collection.simple.html">simple</a></li><li><a href="elation.elements.collection.sqlite.html">sqlite</a></li><li><a href="elation.elements.collection.subset.html">subset</a></li></ul></div><div class="category"><h2>UI</h2><h3>Classes</h3><ul><li><a href="elation.elements.ui.button.html">button</a></li><li><a href="elation.elements.ui.buttonbar.html">buttonbar</a></li><li><a href="elation.elements.ui.buttonlist.html">buttonlist</a></li><li><a href="elation.elements.ui.checkbox.html">checkbox</a></li><li><a href="elation.elements.ui.checklist.html">checklist</a></li><li><a href="elation.elements.ui.checklistitem.html">checklistitem</a></li><li><a href="elation.elements.ui.collapsiblepanel.html">collapsiblepanel</a></li><li><a href="elation.elements.ui.columnlayout.html">columnlayout</a></li><li><a href="elation.elements.ui.content.html">content</a></li><li><a href="elation.elements.ui.dropdownbutton.html">dropdownbutton</a></li><li><a href="elation.elements.ui.flexpanel.html">flexpanel</a></li><li><a href="elation.elements.ui.formgroup.html">formgroup</a></li><li><a href="elation.elements.ui.grid.html">grid</a></li><li><a href="elation.elements.ui.imagepicker.html">imagepicker</a></li><li><a href="elation.elements.ui.indicator.html">indicator</a></li><li><a href="elation.elements.ui.input.html">input</a></li><li><a href="elation.elements.ui.item.html">item</a></li><li><a href="elation.elements.ui.label.html">label</a></li><li><a href="elation.elements.ui.list.html">list</a></li><li><a href="elation.elements.ui.notificationbutton.html">notificationbutton</a></li><li><a href="elation.elements.ui.panel.html">panel</a></li><li><a href="elation.elements.ui.popupbutton.html">popupbutton</a></li><li><a href="elation.elements.ui.radio.html">radio</a></li><li><a href="elation.elements.ui.radiobuttonbar.html">radiobuttonbar</a></li><li><a href="elation.elements.ui.rowlayout.html">rowlayout</a></li><li><a href="elation.elements.ui.scrollindicator.html">scrollindicator</a></li><li><a href="elation.elements.ui.select.html">select</a></li><li><a href="elation.elements.ui.slider.html">slider</a></li><li><a href="elation.elements.ui.spinner.html">spinner</a></li><li><a href="elation.elements.ui.tab.html">tab</a></li><li><a href="elation.elements.ui.tabbar.html">tabbar</a></li><li><a href="elation.elements.ui.tabbutton.html">tabbutton</a></li><li><a href="elation.elements.ui.tabcountbutton.html">tabcountbutton</a></li><li><a href="elation.elements.ui.tabs.html">tabs</a></li><li><a href="elation.elements.ui.text.html">text</a></li><li><a href="elation.elements.ui.textarea.html">textarea</a></li><li><a href="elation.elements.ui.toggle.html">toggle</a></li><li><a href="elation.elements.ui.togglebutton.html">togglebutton</a></li><li><a href="elation.elements.ui.tooltip.html">tooltip</a></li><li><a href="elation.elements.ui.treeview.html">treeview</a></li><li><a href="elation.elements.ui.window.html">window</a></li><li><a href="elation.elements.ui.wizard.html">wizard</a></li><li><a href="elation.elements.ui.wizard-backbutton.html">wizard-backbutton</a></li><li><a href="elation.elements.ui.wizard-step.html">wizard-step</a></li></ul></div>
+                
+            </nav>
+        </div>
+        <div class="core" id="main-content-wrapper">
+            <div class="content">
+                <header class="page-title">
+                    <p>Source</p>
+                    <h1>elements/scripts/elements.js</h1>
+                </header>
+                
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/** @namespace elation.elements */
+/** @namespace elation.elements.ui */
+/** @namespace elation.elements.collection */
+
+elation.require(['utils.template'], function() {
+  elation.extend('elements', {
+    initialized: false,
+    uniqueids: {},
+    types: {},
+    activeElements: new Set(),
+
+    init() {
+      elation.elements.initialized = true;
+
+      // Set up a mutation observer so we can keep track of all our elements and any style changes that require updates
+      this.observer = new window.MutationObserver(mutations => mutations.forEach(this.observe.bind(this)))
+      this.observer.observe(window.document, {
+        attributes: true,
+        attributeFilter: ['class'],
+        childList: true,
+        subtree: true
+      })
+
+    },
+    observe(mutation) {
+      if (mutation.type == 'childList' &amp;&amp; mutation.addedNodes.length > 0) {
+        for (let addition of mutation.addedNodes) {
+          if (addition.tagName == 'LINK') {
+            // new external CSS file, refresh elements when it finishes loading
+            addition.addEventListener('load', (ev) => { elation.elements.refresh();});
+          } else if (addition.tagName == 'STYLE') {
+            // new inline CSS, refresh elements now
+            elation.elements.refresh();
+          } else if (addition instanceof elation.elements.base) {
+            // New element, add it to our list of active elements
+            this.activeElements.add(addition);
+          }
+        }
+        for (let removal of mutation.removedNodes) {
+          // Remove elements from activeElements set
+          if (this.activeElements.has(removal)) {
+            this.activeElements.delete(removal);
+          }
+        }
+      }
+    },
+    refresh() {
+      this.activeElements.forEach(el => el.refresh());
+    },
+    define: function(name, classdef, notag) {
+      var elementname = name.replace(/\./g, '-'),
+          componentname = name.replace(/-/g, '.');
+      elation.extend('elements.' + componentname, classdef);
+
+      if (!notag) {
+        customElements.define(elementname, classdef);
+      }
+
+      //console.log('define element:', name, '&lt;' + elementname + '>');
+    },
+    create: function(type, attrs={}) {
+      var elementname = type.replace(/\./g, '-');
+      var element = document.createElement(elementname);
+
+      if (!elation.elements.initialized) {
+        elation.elements.init();
+      }
+
+      if (element) {
+        if (attrs.append) {
+          elation.html.attach(attrs.append, element, attrs.before);
+          delete attrs.append;
+        }
+        for (var k in attrs) {
+          if (k == 'innerHTML') {
+            element[k] = attrs[k];
+          } else {
+            // FIXME - this should be handled by the type coersion system
+            if (elation.utils.isObject(attrs[k])) {
+              element[k] = attrs[k];
+            } else if (attrs[k] === true) {
+              element.setAttribute(k, '');
+            } else if (!(attrs[k] === false || attrs[k] === undefined || attrs[k] === null)) {
+              element.setAttribute(k, attrs[k]);
+            }
+          }
+        }
+      }
+      return element;
+    },
+    registerType: function(type, handler) {
+      this.types[type] = handler;
+    },
+    fromString: function(str, parent) {
+      let container = document.createElement('div');
+      container.innerHTML = str;
+
+      var nodes = container.querySelectorAll('*');
+      var elements = {
+        length: nodes.length
+      };
+      for (var i = 0; i &lt; elements.length; i++) {
+        elements[i] = nodes[i];
+        let elname = elements[i].getAttribute('name');
+        if (elname) {
+          elements[elname] = elements[i];
+        }
+        if (elements[i].id) {
+          elements[elements[i].id] = elements[i];
+        }
+      }
+
+      if (parent) {
+        while (container.childNodes.length > 0) {
+          parent.appendChild(container.childNodes[0]);
+        }
+      }
+      return elements;
+    },
+    fromTemplate: function(tplname, parent) {
+      return elation.elements.fromString(elation.template.get(tplname, parent), parent);
+    },
+    getEvent: function(type, args) {
+      var ev = new Event(type);
+      for (var k in args) {
+        ev[k] = args[k];
+      }
+      return ev;
+    },
+    getUniqueId: function(type) {
+      if (!type) {
+        type = 'element';
+      }
+      // Initialize to zero
+      if (!this.uniqueids[type]) this.uniqueids[type] = 0;
+
+      // Increment the counter for this type as we generate our new name
+      return type + '_' + (++this.uniqueids[type]);
+    },
+    mixin: function(BaseClass) {
+      return class extends BaseClass {
+        constructor() {
+          super();
+          this.initElation();
+        }
+        initElation() {
+          this._elation = {
+            properties: {},
+            classdef: {
+            }
+          };
+          this.init();
+          //this.initAttributes();
+        }
+        /**
+         * Lifecycle hook: declare attributes via `defineAttributes` and
+         * set per-instance state. Subclasses should call `super.init()`
+         * first, then add their own `defineAttributes` call.
+         *
+         * @function init
+         * @memberof elation.elements.base#
+         */
+        init() {
+          this.defineAttributes({
+            deferred: { type: 'boolean', default: false },
+            template: { type: 'string' },
+            name: { type: 'string' },
+            //classname: { type: 'string' },
+            preview: { type: 'boolean', default: false },
+            hover: { type: 'boolean', default: false },
+            editable: { type: 'boolean', default: false },
+            flex: { type: 'string' }
+          });
+          elation.events.add(this, 'mouseover', (ev) => this.onhover(ev));
+          elation.events.add(this, 'mouseout', (ev) => this.onunhover(ev));
+        }
+        /**
+         * Declare a set of typed attributes on this element. Each entry is
+         * a descriptor `{ type, default?, get?, set? }` keyed by attribute
+         * name. The descriptor's `type` controls coercion between the HTML
+         * attribute string and the JS property value; see the project
+         * README's Type system section for built-in types and how to
+         * register new ones.
+         *
+         * @function defineAttributes
+         * @memberof elation.elements.base#
+         * @param {object} attrs map of attribute name → descriptor
+         */
+        defineAttributes(attrs) {
+          for (var k in attrs) {
+            this.defineAttribute(k, attrs[k]);
+          }
+        }
+        defineAttribute(attrname, attrdef) {
+          this._elation.classdef[attrname] = attrdef;
+          Object.defineProperty(this, attrname, {
+            configurable: true,
+            enumerable: true,
+            get: () => { 
+              return this.getProperty(attrname)
+            },
+            set: (v) => {
+              this.setProperty(attrname, v);
+            }
+          });
+          //var observer = new MutationObserver((ev) => console.log('now they mutate', ev, this); );
+          //observer.observe(this, {attributes: true});
+        }
+        initAttributes() {
+          var attributes = this.getAttributeNames();
+          for (var i = 0; i &lt; attributes.length; i++) {
+            var attrname = attributes[i];
+            if (attrname.indexOf('.') != -1) {
+              elation.utils.arrayset(this, attrname, this.getAttribute(attrname));
+            }
+          }
+        }
+        setProperty(k, v, skip) {
+          // TODO - type coersion magic happens here
+          elation.utils.arrayset(this._elation.properties, k, v);
+//this._elation.properties[k] = v;
+//console.log(this._elation.properties);
+//if (v == '[object HTMLElement]') debugger;
+          let classdef = this._elation.classdef[k];
+          if (!skip &amp;&amp; !classdef.innerHTML) {
+            if (classdef.type == 'boolean' || classdef.type == 'bool') {
+              if (v) {
+                this.setAttribute(k, '');
+              } else {
+                this.removeAttribute(k);
+              }
+            } else {
+              if (elation.elements.types[classdef.type]) {
+                this.setAttribute(k, elation.elements.types[classdef.type].write(v));
+              } else {
+                this.setAttribute(k, v);
+              }
+            }
+            if (classdef.set) {
+              classdef.set.call(this, v);
+            }
+          }
+        }
+        getProperty(k) {
+          // TODO - type coersion magic happens here
+          let prop = elation.utils.arrayget(this._elation.properties, k, null);
+          let classdef = this._elation.classdef[k];
+          if (classdef.get) {
+            return this.getPropertyAsType(classdef.get.call(this, k), classdef.type);
+          //} else if (k in this._elation.properties) {
+          //  return this._elation.properties[k];
+          } else if (prop !== null) {
+            return this.getPropertyAsType(prop, classdef.type);
+          } else if (this.hasAttribute(k)) {
+            return this.getPropertyAsType(this.getAttribute(k), classdef.type);
+          } else if (typeof classdef.default != 'undefined') {
+            return classdef.default;
+          }
+        }
+        getPropertyAsType(value, type) {
+          switch (type) {
+            case 'bool':
+            case 'boolean':
+              return ((value &amp;&amp; value !== '0' &amp;&amp; value !== 'false') || value === '' );
+            case 'int':
+            case 'integer':
+              return value|0;
+            case 'number':
+            case 'float':
+              return +value;
+            case 'callback':
+              if (elation.utils.isString(value)) {
+                return new Function('event', value);
+              }
+              return value;
+            default:
+              if (elation.elements.types[type]) {
+                return elation.elements.types[type].read(value);
+              }
+              return value;
+          }
+        }
+        connectedCallback() {
+          // FIXME - the document-register-element polyfill seems to throw away any object setup we do in the constructor, if that happened just re-init
+          if (!this._elation) this.initElation();
+
+          this.initAttributes();
+          if (this.create &amp;&amp; !this.created) {
+            // Call the element's create function asynchronously so that its childNodes can populate
+            setTimeout(() => this.create(), 0);
+            this.created = true;
+          }
+          this.dispatchEvent({type: 'elementconnect'});
+        }
+        handleEvent(ev) {
+          if (typeof this['on' + ev.type] == 'function') {
+            this['on' + ev.type](ev);
+          }
+        }
+        /**
+         * Fire an event on this element. If `ev.bubbles` is true the event
+         * walks up through parent nodes, with each ancestor receiving a
+         * cloned event whose `target` stays this element but whose
+         * `currentTarget` is the ancestor. A method named `on&lt;type>` on
+         * this element, if present, runs as a default handler before
+         * registered listeners.
+         *
+         * @function dispatchEvent
+         * @memberof elation.elements.base#
+         * @param {object} ev event payload, e.g. `{type, bubbles, data}`
+         */
+        dispatchEvent(ev) {
+          if (typeof this['on' + ev.type] == 'function') {
+            this['on' + ev.type](ev);
+          }
+          //var evobj = elation.elements.getEvent(ev);
+          //super.dispatchEvent(evobj);
+          let element = ev.element = this;
+          //ev.target = element;
+          let fired = elation.events.fire(ev);
+          if (ev.bubbles) {
+            while ((element = element.parentNode) &amp;&amp; !elation.events.wasBubbleCancelled(fired)) {
+              let bubbleev = elation.events.clone(ev, {target: this, currentTarget: element, element: element})
+              //ev.element = element;
+              //ev.currentTarget = element;
+              fired = elation.events.fire(bubbleev);
+            }
+          }
+        }
+        /**
+         * Lifecycle hook: fires once after the element is connected to the
+         * DOM and its child nodes have parsed. The default implementation
+         * expands `template` into `innerHTML` if one is set; subclasses
+         * typically override `create()` to wire event listeners, query
+         * children, and produce initial content.
+         *
+         * @function create
+         * @memberof elation.elements.base#
+         */
+        create() {
+          if (this.template) {
+            this.innerHTML = elation.template.get(this.template, this);
+          }
+        }
+
+        /**
+         * Mark data as dirty, and then start the render loop if not already active
+         * @function refresh
+         * @memberof elation.elements.base#
+         */
+        refresh() {
+          this.needsUpdate = true;
+          if (this.deferred) {
+            if (!this.renderloopActive) {
+              this.setuprenderloop();
+            }
+          } else {
+            this.render();
+          }
+        }
+        /**
+         * Refresh all of this element's children
+         * @function refreshChildren
+         * @memberof elation.elements.base#
+         */
+        refreshChildren() {
+          for (var i = 0; i &lt; this.childNodes.length; i++) {
+            var node = this.childNodes[i];
+            if (node instanceof elation.elements.base) {
+              node.refresh();
+              node.refreshChildren();
+            }
+          }
+        }
+        /**
+         * Hook into the browser's animation loop to make component renders as efficient as possible
+         * This also automatically rate-limits updates to the render speed of the browser (normally 
+         * 60fps) rather than triggering a render every time data changes (which could be > 60fps)
+         * 
+         * @function renderloop
+         * @memberof elation.elements.base#
+         */
+        setuprenderloop() {
+          requestAnimationFrame(this.renderloop.bind(this));
+        }
+
+        renderloop() {
+          if (this.needsUpdate) {
+            this.render();
+//if (this.image) this.toCanvas();
+            this.needsUpdate = false;
+            this.renderloopActive = true;
+            this.setuprenderloop();
+          } else {
+            this.renderloopActive = false;
+          } 
+        }
+        /**
+         * Update the component's visual representation to reflect the current state of the data
+         * 
+         * @function render
+         * @abstract
+         * @memberof elation.elements.base#
+         */
+        render() {
+          if (this.flex &amp;&amp; this.flex != this.style.flex) {
+            this.style.flex = this.flex;
+          }
+          if (this.canvas) {
+            this.updateCanvas();
+          }
+        }
+        /**
+         * Add an HTML class to this component
+         * @function addclass
+         * @memberof elation.elements.base#
+         */
+        addclass(classname) {
+          if (!elation.html.hasclass(this, classname)) {
+            elation.html.addclass(this, classname);
+          }
+        }
+        /**
+         * Remove an HTML class from this component
+         * @function removeclass
+         * @memberof elation.elements.base#
+         */
+        removeclass(classname) {
+          if (elation.html.hasclass(this, classname)) {
+            elation.html.removeclass(this, classname);
+          }
+        }
+        /**
+         * Check whether this component has the specified class
+         * @function hasclass
+         * @memberof elation.elements.base#
+         * @returns {bool}
+         */
+        hasclass(classname) {
+          return elation.html.hasclass(this, classname);
+        }
+        /**
+         * Make this component visible 
+         * @function show
+         * @memberof elation.elements.base#
+         */
+        show() {
+          if (this.hidden) {
+            this.hidden = false;
+            this.removeclass('state_hidden');
+            this.refresh();
+          }
+        }
+        /**
+         * Make this component invisible 
+         * @function hide
+         * @memberof elation.elements.base#
+         */
+        hide() {
+          this.hidden = true;
+          this.addclass('state_hidden');
+        }
+        /**
+         * Enable this component
+         * @function enable
+         * @memberof elation.elements.base#
+         */
+        enable() {
+          this.enabled = true;
+          this.removeclass('state_disabled');
+        }
+        /**
+         * Disable this component
+         * @function disable
+         * @memberof elation.elements.base#
+         */
+        disable() {
+          this.enabled = false;
+          this.addclass('state_disabled');
+        }
+        /**
+         * Set this component's hover state
+         * @function hover
+         * @memberof elation.elements.base#
+         */
+        onhover() {
+          this.hover = true;
+        }
+        /**
+         * Unset this component's hover state
+         * @function unhover
+         * @memberof elation.elements.base#
+         */
+        onunhover() {
+          this.hover = false;
+        }
+        /**
+         * Sets the orientation of this component
+         * @function setOrientation
+         * @memberof elation.elements.base#
+         * @param {string} orientation
+         */
+        setOrientation(orientation) {
+          if (this.orientation) {
+            this.removeclass('orientation_' + this.orientation);
+          }
+          this.orientation = orientation;
+          this.addclass('orientation_' + this.orientation);
+        }
+        addPropertyProxies(element, properties) {
+          properties = (elation.utils.isString(properties) ? properties.split(',') : properties);
+          for (var i = 0; i &lt; properties.length; i++) {
+            ((p) => {
+              // Set current value
+              if (typeof this[p] != 'undefined' &amp;&amp; this[p] !== null) {
+                element[p] = this[p];
+              }
+              // Define getter and setter to proxy requests for this property to another element
+              Object.defineProperty(this, p, { get: function() { return element[p]; }, set: function(v) { element[p] = v; } });
+            })(properties[i]);
+          }
+        }
+        addEventProxies(element, events) {
+          var passiveEvents = ['touchstart', 'touchmove', 'touchend', 'mousewheel'];
+          events = (elation.utils.isString(events) ? events.split(',') : events);
+          for (var i = 0; i &lt; events.length; i++) {
+            elation.events.add(element, events[i], (ev) => { 
+              //this.dispatchEvent({type: ev.type, event: ev }); 
+              this.dispatchEvent(ev);
+            }, (passiveEvents.indexOf(events[i]) != -1 ? {passive: true} : false));
+          }
+        }
+        /**
+         * Render this element to an image
+         * @function toCanvas
+         * @memberof elation.elements.base#
+         */
+        toCanvas(width, height, scale) {
+          this.canvasNeedsUpdate = true;
+          if (typeof width == 'undefined') {
+            width = this.offsetWidth;
+          }
+          if (typeof height == 'undefined') {
+            height = this.offsetHeight;
+          }
+          if (typeof scale == 'undefined') {
+            scale = 1;
+          }
+          if (!this.canvas) {
+            this.canvas = document.createElement('canvas');
+            this.canvas.crossOrigin = 'anonymous';
+            this.canvas.width = width;
+            this.canvas.height = height;
+            this.canvasscale = scale;
+            //document.body.appendChild(this.canvas);
+
+            this.observer = new MutationObserver(() => {
+              // Rate limit refreshes to avoid too many updates
+              if (this.refreshtimer) clearTimeout(this.refreshtimer);
+              this.refreshtimer = setTimeout(() => {
+                // Use requestIdleCallback to reduce the amount of jank when updating
+                requestIdleCallback(() => {
+                  this.updateCanvas();
+                  this.refreshqueued = false;
+                  this.refreshtimer = false;
+                }, { timeout: 20 });
+              }, 50);
+              //this.refresh();
+            });
+            this.observer.observe(this, { subtree: true, childList: true, attributes: true, characterData: true });
+          }
+          //var img = new Image();
+
+          // We need to sanitize our HTML in case someone provides us with malformed markup.
+          // We use SVG to render the mark-up, and since SVG is XML it means we need well-formed data
+          // However, for whatever reason, &lt;br> amd &lt;hr> seem to break things, so we replace them with
+          // styled divs instead.
+
+          //var sanitarydiv = document.createElement('div');
+          //sanitarydiv.innerHTML = this.outerHTML;
+
+
+
+/*
+          if (this.stylesheetsChanged()) {
+            let fetches = [];
+            // Fetch all active stylesheets, so we can inject them into our foreignObject
+            for (let i = 0; i &lt; document.styleSheets.length; i++) {
+              let stylesheet = document.styleSheets[i];
+              fetches[i] = fetch(stylesheet.href).then(r => r.text()).then(t => { return { url: stylesheet.href, text: t, order: i }; });
+            }
+            this.stylecachenames = this.getStylesheetList();
+            Promise.all(fetches).then((stylesheets) => {
+              var styletext = '';
+              // Make sure stylesheets are loaded in the same order as in the page
+              stylesheets.sort((a, b) => { return b.order - a.order; });
+              for (var i = 0; i &lt; stylesheets.length; i++) {
+                styletext += stylesheets[i].text.replace(/\/\*[^\*]+\*\//g, '').replace(/&lt;/g, '&amp;lt;');
+              }
+              this.styletext = styletext;
+              this.updateCanvas(); 
+            });
+          } else {
+            this.updateCanvas(); 
+          }
+*/
+          this.updateCanvas(); 
+          return this.canvas;
+        }
+        async updateCanvas(force) {
+          if (this.loading) return;
+          let outerHTML = this.outerHTML;
+          if (this.lasthtml == outerHTML &amp;&amp; !force) return false;
+          this.lasthtml = outerHTML;
+          //console.time('updateCanvas');
+          this.loading = true;
+
+          var width = this.canvas.width,
+              height = this.canvas.height;
+
+          var ctx = this.canvas.getContext('2d');
+
+          //console.time('updateCanvas:get images');
+          var imgtags = this.getElementsByTagName('img');
+          //console.timeEnd('updateCanvas:get images');
+          var images = [],
+              promises = [];
+
+          if (!this.imagecache) this.imagecache = {};
+
+          //console.time('updateCanvas:imagesrc');
+          for (var i = 0; i &lt; imgtags.length; i++) {
+            if (imgtags[i].src.substring(0, 5) == 'data:') {
+              //promises.push(this.fetchImage(imgtags[i].src));
+              promises.push(new Promise(resolve => resolve(imgtags[i].src)));
+              images[i] = imgtags[i].src;
+            } else {
+              promises.push(this.fetchImage(imgtags[i].src));
+              images[i] = imgtags[i].src;
+            }
+          }
+          //console.timeEnd('updateCanvas:imagesrc');
+
+          //console.time('updateCanvas:style');
+          if (this.stylesheetsChanged()) {
+            await this.updateStylesheets();
+          }
+          //console.timeEnd('updateCanvas:style');
+
+          Promise.all(promises).then((imgdata) => {
+            //console.time('updateCanvas:img set src');
+            for (var i = 0; i &lt; imgtags.length; i++) {
+              //content = content.replace(images[i], imgdata[i]);
+              if (imgtags[i].src.substring(0, 5) != 'data:' &amp;&amp; imgtags[i].src != imgdata[i]) {
+                imgtags[i].src = imgdata[i];
+              }
+            }
+            for (var i = 0; i &lt; imgtags.length; i++) {
+              //content = content.replace(images[i], imgdata[i]);
+              //imgtags[i].src = images[i];
+            }
+            //console.timeEnd('updateCanvas:img set src');
+            let img = this.img;
+            //let svg = this.svg;
+            if (!img) {
+              //console.time('updateCanvas:create svg');
+              img = this.img = new Image();
+              img.eager = true;
+              img.addEventListener('load', () => { 
+                this.canvas.width = width;
+                this.canvas.height = height;
+                ctx.drawImage(img, 0, 0) 
+                this.loading = false;
+                elation.events.fire({element: this.canvas, type: 'asset_update'});
+              });
+              img.addEventListener('error', (err) => { 
+                console.log('Error generating image from HTML', err, img, content);
+                this.loading = false;
+              });
+            }
+
+            let content = this.lastcontent;
+            //console.time('updateCanvas:update svg');
+            content = this.outerHTML.replace(/&lt;br\s*\/?>/g, '&lt;div class="br">&lt;/div>');
+            content = content.replace(/&lt;hr\s*\/?>/g, '&lt;div class="hr">&lt;/div>');
+            content = content.replace(/&lt;img(.*?)>/g, "&lt;img$1 />");
+            content = content.replace(/&lt;input(.*?)>/g, "&lt;input$1 />");
+            this.lastcontent = content;
+            this.lasthtml = this.outerHTML;
+            var svgdata = '&lt;foreignObject requiredExtensions="http://www.w3.org/1999/xhtml" width="' + (width / this.canvasscale) + '" height="' + (height / this.canvasscale) + '" transform="scale(' + this.canvasscale + ')">' +
+                       '&lt;html xmlns="http://www.w3.org/1999/xhtml">&lt;body class="dark janusweb">' +
+                       '&lt;style>' + encodeURIComponent(this.styletext) + '&lt;/style>' +
+                       content +
+                       '&lt;/body>&lt;/html>' +
+                       '&lt;/foreignObject>';
+            var data = '&lt;svg xmlns="http://www.w3.org/2000/svg" width="' + width + '" height="' + height + '">' + svgdata + '&lt;/svg>';
+            var url = 'data:image/svg+xml,' + data;
+            img.src = url;
+//svg.innerHTML = svgdata;
+            //console.timeEnd('updateCanvas:update svg');
+            this.canvasNeedsUpdate = false;
+            //console.timeEnd('updateCanvas');
+          });
+          this.loading = false;
+        }
+        queryParentSelector(selector) {
+          var node = this.parentNode;
+          while (node) {
+            if (node.matches &amp;&amp; node.matches(selector)) {
+              return node;
+            }
+            node = node.parentNode;
+          }
+          return null;
+        }
+        blobToDataURL(blob) {
+          return new Promise((resolve, reject) => {
+            var a = new FileReader();
+            a.onload = function(e) {resolve(e.target.result);}
+            a.readAsDataURL(blob);
+          });
+        }
+
+        async fetchImage(src) {
+          if (this.imagecache[src]) {
+            return this.imagecache[src];
+          } else {
+            return fetch(this.getFullURL(src))
+                      .then(r => r.blob())
+                      .then(d => { let u = this.blobToDataURL(d); this.imagecache[src] = u; return u;});
+          }
+        }
+        getFullURL(src) {
+          // FIXME - egregious hack for CORS white building prototype.  Do not check this in!
+          let proxyurl = 'https://p.janusvr.com/';
+          if (src.indexOf(proxyurl) != 0) {
+            return proxyurl + src;
+          }
+          return src;
+        }
+        toString() {
+          if (!this.id) {
+            this.id = elation.elements.getUniqueId(this.nodeName.toLowerCase());
+          }
+          return '#' + this.id;
+        }
+        fromString(str) {
+          this.elements = elation.elements.fromString(str, this);
+          return this.elements;
+        }
+        fromTemplate(tplname, obj) {
+          this.elements = elation.elements.fromTemplate(tplname, this);
+          return this.elements;
+        }
+        stylesheetsChanged() {
+          if  (!this.styletext) return true;
+
+          let stylesheets = this.getStylesheetList();
+          if (stylesheets != this.stylecachenames) return true;
+
+          return false;
+        }
+        async updateStylesheets(proxy='') {
+console.log('update stylesheets', this);
+          let fetches = [];
+          proxy = elation.engine.assets.corsproxy;
+          // Fetch all active stylesheets, so we can inject them into our foreignObject
+          for (let i = 0; i &lt; document.styleSheets.length; i++) {
+            let stylesheet = document.styleSheets[i];
+            if (stylesheet.href) {
+              fetches.push(fetch(proxy + stylesheet.href).then(r => r.text()).then(t => { return { url: stylesheet.href, text: t, order: i }; }));
+            } else if (document.styleSheets[i].cssRules.length > 0) {
+              let txt = '';
+              let sheet = document.styleSheets[i];
+              for (let i = 0; i &lt; sheet.cssRules.length; i++) {
+                txt += sheet.cssRules[i].cssText + '\n';
+              }
+              fetches.push(new Promise((resolve) => resolve({url: null, text: txt, order: i })));
+            }
+          }
+          this.stylecachenames = this.getStylesheetList();
+          let stylesheets = await Promise.all(fetches);
+          var styletext = '';
+          // Make sure stylesheets are loaded in the same order as in the page
+          stylesheets.sort((a, b) => { return b.order - a.order; });
+          for (var i = 0; i &lt; stylesheets.length; i++) {
+            styletext += stylesheets[i].text.replace(/\/\*[^\*]+\*\//g, '').replace(/&lt;/g, '&amp;lt;');
+          }
+          this.styletext = styletext;
+
+          //this.dispatchEvent(new CustomEvent('styleupdate', { detail: stylesheets}));
+          elation.events.fire({type: 'styleupdate', element: this, data: stylesheets});
+          setTimeout(() => {
+            this.updateCanvas(true);
+          }, 0);
+          return styletext;
+        }
+        getStylesheetList() {
+          return Array.prototype.map.call(document.styleSheets, n => n.href).join(' ');
+        }
+      };
+    }
+  });
+});
+
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+            </div>
+            
+        </div>
+        <div id="side-nav" class="side-nav">
+        </div>
+    </div>
+<script src="scripts/app.min.js"></script>
+<script>PR.prettyPrint();</script>
+<script src="scripts/linenumber.js"> </script>
+
+<script src="scripts/search.js"> </script>
+
+
+</body>
+</html>

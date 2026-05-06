@@ -1,0 +1,310 @@
+/*
+ * Brutalist theme — heavy, mono, no smoothing.
+ *
+ * Hard 1px black borders on white. No rounding, no shadows, no
+ * gradients. Monospace everywhere. A deliberate counterpoint to the
+ * holographic theme — same components, drastically different look.
+ */
+
+:root {
+  --brut-bg:     #fff;
+  --brut-fg:     #000;
+  --brut-muted:  #999;
+  --brut-accent: #000;
+  --brut-fill:   #f0f0f0;
+  --brut-mono:   ui-monospace, "Courier New", Courier, monospace;
+}
+
+body {
+  background: var(--brut-bg);
+  color: var(--brut-fg);
+  font-family: var(--brut-mono);
+  font-size: 14px;
+}
+
+ui-list,
+ui-checklist {
+  background: var(--brut-bg);
+  border: 2px solid var(--brut-fg);
+  border-radius: 0;
+}
+ui-list>ui-item,
+ui-checklist>ui-checklistitem {
+  border-bottom: 1px solid var(--brut-fg);
+}
+ui-list>ui-item:last-of-type,
+ui-checklist>ui-checklistitem:last-of-type {
+  border-bottom: 0;
+}
+ui-list>ui-item[hover],
+ui-checklist>ui-checklistitem[hover] {
+  background: var(--brut-fill);
+}
+ui-list>ui-item.state_selected,
+ui-checklist>ui-checklistitem.state_selected {
+  background: var(--brut-fg);
+  color: var(--brut-bg);
+}
+ui-grid>ui-item {
+  border: 2px solid var(--brut-fg);
+  border-radius: 0;
+  background: var(--brut-bg);
+}
+ui-grid>ui-item[hover] {
+  background: var(--brut-fill);
+}
+
+ui-tabs>ui-tab {
+  background: var(--brut-bg);
+  border: 2px solid var(--brut-fg);
+  border-top: 0;
+}
+ui-tabs>ui-tabbar {
+  border-bottom: 2px solid var(--brut-fg);
+  color: var(--brut-fg);
+  font-size: 13px;
+  text-transform: uppercase;
+}
+ui-tabs>ui-tabbar>ui-button,
+ui-tabs>ui-tabbar>ui-tabbutton,
+ui-tabs>ui-tabbar>ui-tabcountbutton {
+  background: var(--brut-bg);
+  border: 2px solid var(--brut-fg);
+  border-radius: 0;
+  color: var(--brut-fg);
+}
+ui-tabs>ui-tabbar>ui-button[selected],
+ui-tabs>ui-tabbar>ui-tabbutton[selected],
+ui-tabs>ui-tabbar>ui-tabcountbutton[selected] {
+  background: var(--brut-fg);
+  color: var(--brut-bg);
+}
+
+ui-window {
+  background: var(--brut-bg);
+  border: 2px solid var(--brut-fg);
+  border-radius: 0;
+  box-shadow: 8px 8px 0 var(--brut-fg);
+  color: var(--brut-fg);
+}
+ui-window>ui-window-titlebar {
+  background: var(--brut-fg);
+  color: var(--brut-bg);
+  border-bottom: 2px solid var(--brut-fg);
+  font-weight: bold;
+  text-transform: uppercase;
+}
+ui-window>.ui_window_resizer {
+  border-color: var(--brut-fg);
+}
+
+ui-tooltip {
+  background: var(--brut-fg);
+  color: var(--brut-bg);
+  border: 2px solid var(--brut-fg);
+  border-radius: 0;
+  box-shadow: 4px 4px 0 var(--brut-fg);
+}
+
+ui-input>input,
+ui-textarea>textarea,
+ui-select>select {
+  background: var(--brut-bg);
+  border: 2px solid var(--brut-fg);
+  border-radius: 0;
+  color: var(--brut-fg);
+  font-family: var(--brut-mono);
+  outline: none;
+}
+ui-input>input:focus,
+ui-textarea>textarea:focus,
+ui-select>select:focus {
+  background: var(--brut-fill);
+}
+
+ui-toggle>div {
+  background: var(--brut-bg);
+  border: 2px solid var(--brut-fg);
+  border-radius: 0;
+}
+ui-toggle>div::before {
+  background: var(--brut-fg);
+  border-radius: 0;
+  box-shadow: none;
+}
+ui-toggle[checked]>div::before {
+  background: var(--brut-fg);
+}
+
+ui-checkbox>input {
+  background: var(--brut-bg);
+  border: 2px solid var(--brut-fg);
+  border-radius: 0;
+  box-shadow: none;
+}
+ui-checkbox>input:checked {
+  background: var(--brut-fg);
+}
+ui-checkbox>input:checked:after {
+  color: var(--brut-bg);
+}
+
+ui-slider>ui-slider-track {
+  background: var(--brut-bg);
+  border: 2px solid var(--brut-fg);
+  border-radius: 0;
+}
+ui-slider-handle {
+  background: var(--brut-fg);
+  border: 2px solid var(--brut-fg);
+  border-radius: 0;
+  box-shadow: none;
+}
+ui-slider-handle>ui-label {
+  background: var(--brut-fg);
+  color: var(--brut-bg);
+  border-radius: 0;
+}
+
+ui-label {
+  text-shadow: none;
+  color: var(--brut-fg);
+}
+ui-formgroup>ui-label.groupheader {
+  border-bottom: 2px solid var(--brut-fg);
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+ui-button,
+ui-togglebutton,
+ui-dropdownbutton,
+ui-tabbutton,
+ui-tabcountbutton,
+ui-popupbutton,
+ui-notificationbutton {
+  background: var(--brut-bg);
+  background-image: none;
+  border: 2px solid var(--brut-fg);
+  border-radius: 0;
+  color: var(--brut-fg);
+  font-family: var(--brut-mono);
+  font-weight: bold;
+  text-transform: uppercase;
+  box-shadow: 4px 4px 0 var(--brut-fg);
+}
+ui-button[hover],             ui-button:focus-visible,
+ui-togglebutton[hover],       ui-togglebutton:focus-visible,
+ui-dropdownbutton[hover],     ui-dropdownbutton:focus-visible,
+ui-tabbutton[hover],          ui-tabbutton:focus-visible,
+ui-tabcountbutton[hover],     ui-tabcountbutton:focus-visible,
+ui-popupbutton[hover],        ui-popupbutton:focus-visible,
+ui-notificationbutton[hover], ui-notificationbutton:focus-visible {
+  background: var(--brut-fill);
+  background-image: none;
+}
+ui-button:active,             ui-button.state_pressed,
+ui-togglebutton:active,       ui-togglebutton.state_pressed,
+ui-dropdownbutton:active,     ui-dropdownbutton.state_pressed,
+ui-tabbutton:active,          ui-tabbutton.state_pressed,
+ui-tabcountbutton:active,     ui-tabcountbutton.state_pressed,
+ui-popupbutton:active,        ui-popupbutton.state_pressed,
+ui-notificationbutton:active, ui-notificationbutton.state_pressed {
+  box-shadow: 0 0 0 var(--brut-fg);
+  transform: translate(4px, 4px);
+}
+ui-togglebutton[active],
+ui-button.state_active,
+ui-togglebutton.state_active,
+ui-tabbutton.state_active,
+ui-tabcountbutton.state_active {
+  background: var(--brut-fg);
+  background-image: none;
+  color: var(--brut-bg);
+}
+ui-dropdownbutton > .ui_dropdown_options {
+  background: var(--brut-bg);
+  border: 2px solid var(--brut-fg);
+  box-shadow: 4px 4px 0 var(--brut-fg);
+}
+ui-button[disabled],
+ui-togglebutton:disabled {
+  background: var(--brut-fill);
+  background-image: none;
+  color: var(--brut-muted);
+  border-color: var(--brut-muted);
+  box-shadow: none;
+}
+
+ui-notificationbutton ui-indicator {
+  background: var(--brut-fg);
+  color: var(--brut-bg);
+  border: 2px solid var(--brut-bg);
+  border-radius: 0;
+  box-shadow: none;
+}
+
+ui-buttonbar>ui-button,
+ui-buttonbar>ui-togglebutton,
+ui-radiobuttonbar>ui-togglebutton {
+  border-radius: 0;
+  box-shadow: none;
+}
+ui-buttonbar>ui-button:first-of-type,
+ui-buttonbar>ui-togglebutton:first-of-type,
+ui-radiobuttonbar>ui-togglebutton:first-of-type { border-radius: 0; }
+ui-buttonbar>ui-button:last-of-type,
+ui-buttonbar>ui-togglebutton:last-of-type,
+ui-radiobuttonbar>ui-togglebutton:last-of-type { border-radius: 0; }
+ui-buttonbar { box-shadow: 4px 4px 0 var(--brut-fg); }
+
+ui-collapsiblepanel {
+  background: var(--brut-bg);
+  border: 2px solid var(--brut-fg);
+  border-radius: 0;
+  box-shadow: 4px 4px 0 var(--brut-fg);
+}
+ui-collapsiblepanel[top],
+ui-collapsiblepanel[bottom],
+ui-collapsiblepanel[left],
+ui-collapsiblepanel[right] { border-radius: 0; }
+ui-collapsiblepanel>ui-togglebutton {
+  background: var(--brut-bg);
+  border: 2px solid var(--brut-fg);
+  border-radius: 0;
+  box-shadow: 4px 4px 0 var(--brut-fg);
+}
+
+ui-treeview ui-list {
+  border-left: 2px solid var(--brut-fg);
+  background: transparent;
+  box-shadow: none;
+}
+ui-treeview>ui-list {
+  border-left: 0;
+}
+ui-treeview ui-treeviewitem.state_selected>ui-text {
+  background: var(--brut-fg);
+  color: var(--brut-bg);
+}
+
+ui-spinner .loading {
+  border-color: transparent var(--brut-fg) transparent var(--brut-fg);
+}
+ui-spinner .loading-text {
+  color: var(--brut-fg);
+  font-family: var(--brut-mono);
+  font-weight: bold;
+}
+
+ui-imagepicker canvas {
+  border: 2px solid var(--brut-fg);
+  border-radius: 0;
+}
+
+ui-columnlayout>* {
+  border-left: 2px solid var(--brut-fg);
+}
+ui-columnlayout>*:first-child {
+  border-left: 0;
+}

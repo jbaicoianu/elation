@@ -1,0 +1,1121 @@
+/*
+ * Structural styles for ui-input and ui-textarea.
+ *
+ * Inputs and textareas use the same control height and padding as
+ * buttons so a row of mixed controls aligns to a single baseline.
+ */
+
+ui-input {
+  display: flex;
+  align-items: center;
+  gap: var(--elation-space-2);
+}
+ui-input > ui-label {
+  flex: 0 0 auto;
+  min-width: 5em;
+}
+ui-input > input {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: var(--elation-control-py) var(--elation-control-px);
+  min-height: var(--elation-control-h);
+  font: inherit;
+  box-sizing: border-box;
+}
+
+ui-textarea > textarea {
+  width: 100%;
+  padding: var(--elation-control-py) var(--elation-control-px);
+  min-height: calc(var(--elation-control-h) * 2.5);
+  font: inherit;
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+/* Narrow viewports: stack the label above the input. */
+@media (max-width: 600px) {
+  ui-input {
+    flex-wrap: wrap;
+  }
+  ui-input > ui-label {
+    flex: 0 0 100%;
+  }
+}
+
+/*
+ * Structural styles for ui-label.
+ */
+
+ui-label {
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+/*
+ * Structural styles for ui-button and its variants.
+ * Visual styling (colors, gradients, fonts) lives in the theme layer.
+ *
+ * Every button variant inherits a unified control height
+ * (--elation-control-h) and padding (--elation-control-px/py) so they
+ * line up with inputs, selects, and toggles in a horizontal row.
+ */
+
+ui-button,
+ui-togglebutton,
+ui-dropdownbutton,
+ui-tabbutton,
+ui-tabcountbutton,
+ui-popupbutton,
+ui-notificationbutton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: var(--elation-control-py) var(--elation-control-px);
+  min-height: var(--elation-control-h);
+  cursor: pointer;
+  text-align: center;
+  white-space: nowrap;
+  user-select: none;
+  -ms-user-select: none;
+  -moz-user-select: none;
+  box-sizing: border-box;
+}
+ui-button[disabled],
+ui-togglebutton:disabled,
+ui-dropdownbutton:disabled,
+ui-tabcountbutton:disabled,
+ui-popupbutton:disabled,
+ui-notificationbutton:disabled {
+  cursor: not-allowed;
+}
+
+ui-notificationbutton {
+  transform: scale(1, 1);
+  transition: transform 125ms ease-out;
+}
+ui-notificationbutton[count="0"] {
+  transform: scale(0, 0);
+}
+ui-notificationbutton ui-indicator {
+  display: inline-block;
+  position: absolute;
+  top: calc(-1 * var(--elation-space-2));
+  right: calc(-1 * var(--elation-space-2));
+  min-width: 1em;
+  padding: 0 var(--elation-space-1);
+  text-align: center;
+  vertical-align: middle;
+}
+
+/*
+ * Structural styles for ui-list and ui-checklist.
+ *
+ * Row padding and minimum row height come from the spacing scale so
+ * lists in different parts of the page line up consistently.
+ */
+
+ui-list,
+ui-checklist {
+  display: block;
+  position: relative;
+  overflow: auto;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  box-sizing: border-box;
+}
+ui-list > ui-item,
+ui-checklist > ui-checklistitem {
+  display: flex;
+  align-items: center;
+  position: relative;
+  padding: var(--elation-row-py) var(--elation-row-px);
+  min-height: var(--elation-control-h);
+  user-select: none;
+  transform: translate3d(0, 0, 0);
+  box-sizing: border-box;
+}
+ui-list[selectable] > ui-item[hover] {
+  cursor: pointer;
+}
+ui-list[selectable] {
+  cursor: text;
+  user-select: text;
+}
+ui-list > [selectable] {
+  cursor: text;
+  user-select: text;
+}
+
+/* Drag-to-reorder hints (when the list has `draggable` set). */
+ui-list[draggable] > ui-item,
+ui-checklist[draggable] > ui-checklistitem,
+ui-grid[draggable] > ui-item {
+  cursor: grab;
+}
+ui-list[draggable] > ui-item:active,
+ui-checklist[draggable] > ui-checklistitem:active,
+ui-grid[draggable] > ui-item:active {
+  cursor: grabbing;
+}
+ui-list > ui-item.state_dragging,
+ui-checklist > ui-checklistitem.state_dragging,
+ui-grid > ui-item.state_dragging {
+  opacity: .35;
+}
+
+/*
+ * Structural styles for ui-dropdownbutton.
+ * The trigger sits inline with a chevron pseudo-element; the option
+ * popup is absolutely positioned below the trigger and only visible
+ * when the dropdown carries the `state_open` class.
+ */
+
+ui-dropdownbutton {
+  padding-right: var(--elation-space-6);
+}
+ui-dropdownbutton::after {
+  display: inline-block;
+  content: '\25be';
+  position: absolute;
+  right: var(--elation-space-2);
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+/* Trigger contains a hidden span per option, all stacked in a single
+   grid cell; only the active one is visible. The trigger's width is the
+   max of all spans, so the dropdown doesn't shrink/grow when the user
+   picks a different option. */
+ui-dropdownbutton > .ui_dropdown_trigger {
+  display: inline-grid;
+  vertical-align: middle;
+}
+ui-dropdownbutton > .ui_dropdown_trigger > .ui_dropdown_label {
+  grid-area: 1 / 1;
+  visibility: hidden;
+  white-space: nowrap;
+}
+ui-dropdownbutton > .ui_dropdown_trigger > .ui_dropdown_label[data-active] {
+  visibility: visible;
+}
+ui-dropdownbutton > .ui_dropdown_options {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 100%;
+  z-index: 100;
+  margin-top: var(--elation-space-1);
+}
+ui-dropdownbutton.state_open > .ui_dropdown_options {
+  display: flex;
+  flex-direction: column;
+}
+ui-dropdownbutton > .ui_dropdown_options > ui-button {
+  display: flex;
+  width: 100%;
+  justify-content: flex-start;
+  padding-left: calc(var(--elation-control-px) + var(--elation-space-4));
+  text-align: left;
+  white-space: nowrap;
+}
+/* Default-visible marker for the currently-selected option so the
+   indicator works even before a theme styles it. */
+ui-dropdownbutton > .ui_dropdown_options > ui-button.state_selected::before {
+  content: '✓';
+  position: absolute;
+  left: var(--elation-control-px);
+  pointer-events: none;
+}
+
+/*
+ * Structural styles for ui-buttonbar, ui-radiobuttonbar, ui-buttonlist.
+ *
+ * Buttons sit flush together so themes can apply the segmented-control
+ * rounded-edges treatment to first/last children.
+ */
+
+ui-buttonbar,
+ui-radiobuttonbar {
+  display: inline-flex;
+  align-items: stretch;
+}
+ui-buttonbar > ui-button,
+ui-buttonbar > ui-togglebutton,
+ui-radiobuttonbar > ui-togglebutton {
+  flex: 0 0 auto;
+}
+
+ui-buttonlist {
+  display: inline-flex;
+  flex-direction: column;
+}
+ui-buttonlist > ui-button {
+  display: flex;
+  flex: 0 0 auto;
+  text-align: center;
+}
+
+/*
+ * Structural styles for ui-toggle, ui-checkbox, and ui-radio.
+ *
+ * The toggle/checkbox row aligns to the standard control height so it
+ * lines up with sibling buttons and inputs in a formgroup.
+ */
+
+ui-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--elation-space-2);
+  min-height: var(--elation-control-h);
+}
+ui-toggle > div {
+  display: inline-block;
+  position: relative;
+  width: 2em;
+  height: 1.25em;
+  flex: 0 0 auto;
+  cursor: pointer;
+  user-select: none;
+  -ms-user-select: none;
+  z-index: 2;
+}
+ui-toggle[align="left"] > div {
+  order: -1;
+}
+ui-toggle input {
+  display: none;
+}
+ui-toggle span {
+  cursor: pointer;
+}
+ui-toggle > div::before {
+  display: block;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  bottom: 2px;
+  width: 40%;
+  z-index: -1;
+  content: '';
+}
+ui-toggle[checked] > div::before {
+  right: 2px;
+  left: auto;
+  content: '';
+}
+ui-toggle[disabled] > div,
+ui-toggle[disabled] span {
+  cursor: not-allowed;
+}
+
+ui-checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--elation-space-2);
+  min-height: var(--elation-control-h);
+  min-width: 6em;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+  -ms-user-select: none;
+  -moz-user-select: none;
+}
+ui-checkbox > input {
+  display: inline-block;
+  position: relative;
+  flex: 0 0 auto;
+  width: 1em;
+  height: 1em;
+  cursor: pointer;
+  -webkit-appearance: none;
+  box-sizing: border-box;
+}
+ui-checkbox[align="left"] > input {
+  order: -1;
+}
+ui-checkbox > input:checked::after {
+  content: '\2714';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  line-height: 1;
+}
+ui-checkbox[disabled] {
+  cursor: not-allowed;
+}
+ui-checkbox[disabled] > input {
+  pointer-events: none;
+}
+
+/*
+ * Structural styles for ui-select.
+ */
+
+ui-select {
+  display: flex;
+  align-items: center;
+  gap: var(--elation-space-2);
+  white-space: nowrap;
+}
+ui-select > ui-label {
+  flex: 0 0 auto;
+  min-width: 5em;
+}
+ui-select > select {
+  flex: 1 1 auto;
+  padding: var(--elation-control-py) var(--elation-control-px);
+  min-height: var(--elation-control-h);
+  font: inherit;
+  box-sizing: border-box;
+}
+
+/*
+ * Structural styles for ui-slider, ui-slider-track, ui-slider-handle.
+ *
+ * The slider's outer height matches the standard control height so it
+ * aligns with neighbouring buttons and inputs.
+ */
+
+ui-slider {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--elation-control-h);
+  min-width: 8em;
+}
+ui-slider > ui-slider-track {
+  display: block;
+  position: relative;
+  width: 100%;
+  height: .5em;
+  cursor: pointer;
+}
+ui-slider-handle {
+  display: block;
+  position: absolute;
+  width: .5em;
+  height: 1.4em;
+  cursor: pointer;
+}
+ui-slider-handle > ui-label {
+  position: absolute;
+  left: 20px;
+  z-index: 100;
+  pointer-events: none;
+  padding: 0 var(--elation-space-1);
+}
+ui-slider-track[hover] ui-slider-handle > ui-label {
+  display: block !important;
+}
+
+/* Touch devices: thicker track and bigger handle for finger control. */
+@media (pointer: coarse) {
+  ui-slider {
+    min-width: 10em;
+  }
+  ui-slider > ui-slider-track {
+    height: .9em;
+  }
+  ui-slider-handle {
+    width: 1em;
+    height: 1.9em;
+  }
+}
+
+/*
+ * Structural styles for ui-grid.
+ */
+
+ui-grid {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  grid-template-columns: repeat(auto-fill, minmax(10em, 1fr));
+}
+ui-grid[scrollable] {
+  overflow-x: auto;
+  overflow-y: auto;
+}
+ui-grid[scrollable-x] {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+ui-grid[scrollable-y] {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+ui-grid>ui-item {
+  display: inline-block;
+  margin: .2em;
+  padding: .2em;
+}
+ui-grid.twocolumn>ui-item   { width: 50%; }
+ui-grid.threecolumn>ui-item { width: calc(33% - .8em - 2px); }
+ui-grid.fourcolumn>ui-item  { width: 25%; }
+ui-grid.fivecolumn>ui-item  { width: 20%; }
+ui-grid.sixcolumn>ui-item   { width: 16%; }
+ui-grid.sevencolumn>ui-item { width: 14%; }
+ui-grid.eightcolumn>ui-item { width: 12.5%; }
+ui-grid.ninecolumn>ui-item  { width: 11%; }
+ui-grid.tencolumn>ui-item   { width: 10%; }
+
+/*
+ * Structural styles for ui-panel and ui-flexpanel.
+ * Edge-snap positioning is driven by the boolean/anchor attributes
+ * top/bottom/left/right (and middle/center) defined on ui-panel.
+ */
+
+ui-panel,
+ui-collapsiblepanel {
+  position: absolute;
+  z-index: 5;
+}
+ui-panel[top],
+ui-collapsiblepanel[top]    { top: 0; }
+ui-panel[bottom],
+ui-collapsiblepanel[bottom] { bottom: 0; }
+ui-panel[left],
+ui-collapsiblepanel[left]   { left: 0; }
+ui-panel[right],
+ui-collapsiblepanel[right]  { right: 0; }
+ui-panel[top]:not([left]):not([right]) {
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+ui-flexpanel {
+  display: flex;
+  width: calc(100% - 1em);
+  height: calc(100% - 1em);
+  padding: .5em;
+}
+ui-flexpanel[vertical] {
+  flex-direction: column;
+}
+ui-flexpanel>* {
+  flex: 1 1;
+}
+ui-flexpanel>*[noflex] {
+  flex: 0 1;
+}
+
+/*
+ * ui-tabbar's structural and visual rules live in tabs.css and the
+ * default theme respectively, since they describe how a tabbar fits
+ * inside a ui-tabs container. This file exists so requireCSS('ui.tabbar')
+ * resolves cleanly; standalone use of <ui-tabbar> picks up its layout
+ * from ui-buttonbar (which it extends).
+ */
+
+/*
+ * Structural styles for ui-tabs and its parts: ui-tab, ui-tabbar, ui-tabbutton, ui-tabcountbutton.
+ */
+
+ui-tabs {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  flex: 1 1;
+}
+ui-tabs > ui-tab {
+  display: none;
+  position: relative;
+  padding: var(--elation-space-3);
+}
+ui-tabs > ui-tab[selected] {
+  display: flex;
+  flex: 1 1;
+  flex-direction: column;
+}
+ui-tabs > ui-tabbar {
+  position: relative;
+  display: flex;
+  gap: var(--elation-space-1);
+  order: -1;
+  white-space: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+ui-tabs > ui-tabbar > ui-button,
+ui-tabs > ui-tabbar > ui-tabbutton,
+ui-tabs > ui-tabbar > ui-tabcountbutton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 5em;
+  max-width: 14em;
+  padding: var(--elation-control-py) var(--elation-space-3);
+  min-height: var(--elation-control-h);
+  text-align: center;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+ui-tabcountbutton > ui-indicator::before { content: '('; }
+ui-tabcountbutton > ui-indicator::after  { content: ')'; }
+
+/*
+ * Structural styles for ui-window.
+ * Window is positioned absolutely and lays out its parts via flex column;
+ * resizers are positioned absolutely at edges.
+ */
+
+ui-window {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 5;
+  vertical-align: top;
+}
+ui-window>ui-window-titlebar {
+  display: flex;
+  position: relative;
+  margin: 0;
+  cursor: default;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  vertical-align: middle;
+  user-select: none;
+  -ms-user-select: none;
+  -moz-user-select: none;
+  flex: 0 0 auto;  /* never shrink — keeps the title visible when content overflows */
+  order: 0;
+}
+ui-window.state_movable>ui-window-titlebar:hover {
+  cursor: grab;
+  cursor: -webkit-grab;
+  cursor: -moz-grab;
+}
+ui-window.state_movable>ui-window-titlebar.state_dragging {
+  cursor: grabbing;
+  cursor: -webkit-grabbing;
+  cursor: -moz-grabbing;
+}
+ui-window>ui-window-titlebar>span {
+  flex: 1;
+  order: 1;
+  padding: var(--elation-space-1) var(--elation-space-3);
+  line-height: 1.6;
+}
+ui-window>ui-window-titlebar>ui-buttonbar {
+  flex: 0 0 auto;
+  order: 2;
+}
+ui-window>ui-window-content {
+  display: block;
+  position: relative;
+  flex: 1 1 auto;   /* fill remaining space below the titlebar */
+  min-height: 0;    /* allow children with overflow to constrain themselves */
+  overflow: hidden;
+  order: 1;
+}
+ui-window[scrollable]>ui-window-content {
+  display: block;
+  overflow: auto;
+}
+ui-window[maximized] {
+  z-index: 1000;
+}
+ui-window[maximized]>ui-window-content {
+  max-width: none;
+  max-height: none;
+  padding: 0;
+}
+ui-window>.ui_window_resizer {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  bottom: -2px;
+  right: -2px;
+  cursor: se-resize;
+  z-index: 10;
+}
+ui-window[right]>.ui_window_resizer  { right: auto; left: -2px; }
+ui-window[top]>.ui_window_resizer    { bottom: -2px; top: auto; }
+ui-window[bottom]>.ui_window_resizer { top: -2px; bottom: auto; }
+ui-window[top][right]>.ui_window_resizer    { cursor: sw-resize; }
+ui-window[top][left]>.ui_window_resizer     { cursor: se-resize; }
+ui-window[bottom][right]>.ui_window_resizer { cursor: se-resize; }
+ui-window[bottom][left]>.ui_window_resizer  { cursor: sw-resize; }
+
+/* Popup mode (set by ui-popupbutton) — chrome-less, no titlebar. */
+ui-window.state_popup > ui-window-titlebar {
+  display: none;
+}
+ui-window.state_popup > .ui_window_resizer {
+  display: none;
+}
+
+/* Touch devices: bigger resize grip; titlebar comfortable for thumb-drag. */
+@media (pointer: coarse) {
+  ui-window>.ui_window_resizer {
+    width: 28px;
+    height: 28px;
+  }
+  ui-window>ui-window-titlebar {
+    min-height: 2.4em;
+  }
+}
+
+/*
+ * Structural styles for ui-tooltip.
+ * Floats above content; mouse events pass through.
+ */
+
+ui-tooltip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 5;
+  vertical-align: top;
+  pointer-events: none;
+  white-space: nowrap;
+  padding: .2em .4em;
+}
+
+/*
+ * Structural styles for ui-formgroup.
+ *
+ * Children are laid out as a vertical stack with consistent gaps; each
+ * row inherits the standard control height so labels and inputs align.
+ */
+
+ui-formgroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--elation-stack-gap);
+  position: relative;
+  width: 100%;
+  padding: var(--elation-space-2) 0;
+}
+ui-formgroup > ui-label.groupheader {
+  display: block;
+  width: 100%;
+  padding-bottom: var(--elation-space-1);
+  order: -1;
+}
+ui-formgroup > ui-input,
+ui-formgroup > ui-select,
+ui-formgroup > ui-toggle,
+ui-formgroup > ui-slider,
+ui-formgroup > ui-textarea,
+ui-formgroup > ui-checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--elation-space-2);
+  width: 100%;
+}
+ui-formgroup > ui-input > input,
+ui-formgroup > ui-textarea > textarea,
+ui-formgroup > ui-select > select,
+ui-formgroup > ui-slider > ui-slider-track {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+ui-formgroup ui-label,
+ui-formgroup ui-text {
+  flex: 0 0 auto;
+  display: inline-block;
+  width: 10em;
+}
+
+/* Narrow viewports: stack labels above their inputs. */
+@media (max-width: 600px) {
+  ui-formgroup > ui-input,
+  ui-formgroup > ui-select,
+  ui-formgroup > ui-toggle,
+  ui-formgroup > ui-slider,
+  ui-formgroup > ui-textarea,
+  ui-formgroup > ui-checkbox {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  ui-formgroup ui-label,
+  ui-formgroup ui-text {
+    width: auto;
+  }
+}
+
+/*
+ * Structural styles for ui-columnlayout.
+ */
+
+ui-columnlayout {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+}
+ui-columnlayout>* {
+  display: flex;
+  flex: 1 1;
+  flex-direction: column;
+  width: calc(33% - 1px - 1em);
+  margin-left: .5em;
+  padding-left: .5em;
+}
+ui-columnlayout>*:first-child {
+  margin-left: 0;
+}
+
+/* Narrow viewports: stack columns vertically. */
+@media (max-width: 600px) {
+  ui-columnlayout {
+    flex-direction: column;
+    height: auto;
+  }
+  ui-columnlayout>* {
+    width: 100%;
+    margin-left: 0;
+    padding-left: 0;
+  }
+}
+
+/*
+ * Structural styles for ui-collapsiblepanel.
+ * Visual styling (borders, backgrounds, shadows) lives in the theme.
+ */
+
+ui-collapsiblepanel {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  max-width: calc(100% - 2em);
+  max-height: calc(100% - 2em);
+  min-height: .8em;
+  padding: .2em;
+  transition: width 150ms ease-out, height 150ms ease-out, min-height 150ms ease-out;
+}
+ui-collapsiblepanel.default {
+  width: 24em;
+}
+ui-collapsiblepanel>.container {
+  display: flex;
+  width: 100%;
+  overflow: hidden;
+}
+ui-collapsiblepanel>.container>.container-inner {
+  display: flex;
+  flex: 1 1;
+  flex-direction: column;
+  transform: translate(0, 0);
+  transition: transform 150ms ease-out;
+}
+ui-collapsiblepanel>.container>.container-inner>* {
+  flex: 1 1;
+}
+ui-collapsiblepanel[top],
+ui-collapsiblepanel[bottom] {
+  min-height: 12em;
+}
+ui-collapsiblepanel[top][collapsed] {
+  height: 0;
+  min-height: 0;
+  padding-top: 0;
+}
+ui-collapsiblepanel[top][collapsed]>.container {
+  transform: translate(0, -100%);
+}
+ui-collapsiblepanel[bottom][collapsed] {
+  height: 0;
+  min-height: 0;
+  padding-bottom: 0;
+}
+ui-collapsiblepanel[left][collapsed] {
+  width: 0;
+  padding-left: 0;
+}
+ui-collapsiblepanel[left][collapsed]>.container {
+  transform: translate(-100%, 0);
+}
+ui-collapsiblepanel[right][collapsed] {
+  width: 0;
+  padding-right: 0;
+}
+ui-collapsiblepanel>ui-togglebutton {
+  position: absolute;
+  transform-origin: bottom left;
+  line-height: 1em;
+}
+ui-collapsiblepanel[top]>ui-togglebutton    { bottom: -1.4em; left: -1px; }
+ui-collapsiblepanel[bottom]>ui-togglebutton { top: -1.4em;    left: -1px; }
+ui-collapsiblepanel[left]>ui-togglebutton   { right: -1.4em;  top: -1px; }
+ui-collapsiblepanel[right]>ui-togglebutton  { left: -1.4em;   top: -1px; }
+
+/*
+ * Structural styles for ui-content.
+ */
+
+ui-content[align="right"] {
+  align-content: end;
+}
+
+/*
+ * Structural styles for ui-treeview.
+ */
+
+ui-treeview {
+  display: block;
+}
+ui-treeview ui-list {
+  list-style: none;
+  margin: 0 0 0 .3em;
+  padding-left: .8em;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: rgba(0,0,0,0);
+}
+ui-treeview>ui-list {
+  margin-left: 0;
+  padding-left: 0;
+}
+ui-treeview ui-treeviewitem {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  white-space: nowrap;
+  overflow: hidden;
+  line-height: 1.2em;
+  padding-left: 1em;
+  order: 2;
+}
+ui-treeview ui-treeviewitem[collapsed]>ui-treeviewitem {
+  display: none;
+}
+ui-treeview ui-treeviewitem>ui-text {
+  user-select: none;
+  order: 1;
+}
+ui-treeview ui-treeviewitem:hover>ui-text {
+  cursor: pointer;
+}
+ui-treeview ui-treeviewitem ui-text:before {
+  content: ' ';
+  display: inline-block;
+  float: left;
+  clear: left;
+  width: .8em;
+  padding-right: .5em;
+}
+ui-treeview ui-treeviewitem.haschildren>ui-text:before {
+  content: '\25BC';
+}
+ui-treeview ui-treeviewitem.haschildren[collapsed]>ui-text:before {
+  content: '\25B6';
+}
+ui-treeview ul li.state_selected,
+ui-treeview ul li.state_hover li.state_selected {
+  max-height: none;
+}
+
+/*
+ * Structural styles for ui-spinner.
+ * Animation timing is structural; colors come from the theme.
+ */
+
+@keyframes elation-rotate-loading {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes elation-loading-text-opacity {
+  0%   { opacity: .5; }
+  20%  { opacity: .5; }
+  50%  { opacity: 1; }
+  100% { opacity: .5; }
+}
+
+ui-spinner .loading-container,
+ui-spinner .loading {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border-radius: 100%;
+}
+ui-spinner .loading-container {
+  margin: 0 auto;
+  overflow: hidden;
+}
+ui-spinner .loading {
+  animation: elation-rotate-loading 1.5s linear 0s infinite normal;
+  transform-origin: 50% 50%;
+}
+ui-spinner .loading-container:hover .loading,
+ui-spinner .loading-container .loading {
+  transition: all 0.5s ease-in-out;
+}
+ui-spinner .loading-text {
+  position: absolute;
+  top: 0;
+  width: 100px;
+  margin-top: 45px;
+  text-align: center;
+  text-transform: uppercase;
+  opacity: 0;
+  animation: elation-loading-text-opacity 2s linear 0s infinite normal;
+}
+ui-spinner[full] {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+/*
+ * Structural styles for ui-imagepicker.
+ */
+
+ui-imagepicker,
+ui-image-picker {
+  display: block;
+}
+ui-imagepicker ui-label,
+ui-image-picker ui-label {
+  display: inline-block;
+  min-width: 5em;
+  vertical-align: top;
+}
+ui-imagepicker canvas,
+ui-image-picker canvas {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  padding: 2px;
+  vertical-align: top;
+}
+
+/*
+ * Structural styles for ui-wizard and its parts.
+ * The step-visibility selectors handle paginate-mode wizards by matching
+ * the parent's `step` attribute to a child's nth-of-type position.
+ */
+
+ui-wizard {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;          /* allow children to set up their own scroll regions */
+}
+ui-wizard[type="paginate"]>ui-wizard-step {
+  display: none;
+  flex: 1;
+  min-height: 0;
+  opacity: 0;
+  transition: opacity 500ms linear;
+}
+ui-wizard[step=""]>ui-wizard-backbutton,
+ui-wizard[step="1"]>ui-wizard-backbutton {
+  display: none;
+}
+/* Up to 10 steps; wizards with more should be split. */
+ui-wizard[type="paginate"][step=""]>ui-wizard-step:nth-of-type(1),
+ui-wizard[type="paginate"][step="1"]>ui-wizard-step:nth-of-type(1),
+ui-wizard[type="paginate"][step="2"]>ui-wizard-step:nth-of-type(2),
+ui-wizard[type="paginate"][step="3"]>ui-wizard-step:nth-of-type(3),
+ui-wizard[type="paginate"][step="4"]>ui-wizard-step:nth-of-type(4),
+ui-wizard[type="paginate"][step="5"]>ui-wizard-step:nth-of-type(5),
+ui-wizard[type="paginate"][step="6"]>ui-wizard-step:nth-of-type(6),
+ui-wizard[type="paginate"][step="7"]>ui-wizard-step:nth-of-type(7),
+ui-wizard[type="paginate"][step="8"]>ui-wizard-step:nth-of-type(8),
+ui-wizard[type="paginate"][step="9"]>ui-wizard-step:nth-of-type(9),
+ui-wizard[type="paginate"][step="10"]>ui-wizard-step:nth-of-type(10) {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+  opacity: 1;
+}
+ui-wizard-step>section {
+  padding: 0 .5em;
+}
+ui-wizard[type="paginate"] ui-wizard-pagination {
+  display: grid;
+  grid-template-columns: 50% 50%;
+  align-items: center;
+  justify-items: center;
+}
+ui-wizard[type="paginate"] ui-wizard-pagination ui-button.back {
+  grid-column-start: 1;
+}
+ui-wizard[type="paginate"] ui-wizard-pagination ui-button.next {
+  grid-column-start: 2;
+}
+ui-wizard-navigation {
+  display: flex;
+  flex-direction: row;
+}
+ui-wizard-navigation ui-buttonbar {
+  width: 100%;
+}
+
+/*
+ * Foundation: a 0.25em spacing scale, unified control sizing, and a
+ * shared border-radius hint that themes can pick up. All values are
+ * em-based so they scale with the host font-size.
+ */
+
+:root {
+  /* Spacing scale — multiples of .25em (4px at 16px root font). */
+  --elation-space-1: .25em;     /*  4 */
+  --elation-space-2: .5em;      /*  8 */
+  --elation-space-3: .75em;     /* 12 */
+  --elation-space-4: 1em;       /* 16 */
+  --elation-space-5: 1.25em;    /* 20 */
+  --elation-space-6: 1.5em;     /* 24 */
+  --elation-space-8: 2em;       /* 32 */
+  --elation-space-10: 2.5em;    /* 40 */
+
+  /* Standard control geometry — buttons, inputs, selects, toggles, the
+     dropdown trigger, and slider rows all align to the same height so
+     they line up in a row. */
+  --elation-control-h:  2em;
+  --elation-control-px: var(--elation-space-3);
+  --elation-control-py: var(--elation-space-1);
+
+  /* List/option rows — slightly less vertical padding than free
+     controls because lists pack many rows together. */
+  --elation-row-px: var(--elation-space-3);
+  --elation-row-py: var(--elation-space-2);
+
+  /* Gaps */
+  --elation-stack-gap:   var(--elation-space-2);   /* siblings in a vertical stack (formgroup) */
+  --elation-cluster-gap: var(--elation-space-2);   /* siblings in a horizontal cluster (bar-row) */
+  --elation-section-gap: var(--elation-space-6);   /* between major sections of a page */
+
+  /* Border-radius hint themes can opt into for consistency. */
+  --elation-radius:    .375em;
+  --elation-radius-sm: .25em;
+  --elation-radius-lg: .5em;
+}
+
+/* On touch devices, controls scale up so tap targets are comfortable. */
+@media (pointer: coarse) {
+  :root {
+    --elation-control-h:  2.5em;
+    --elation-control-px: var(--elation-space-4);
+    --elation-control-py: var(--elation-space-2);
+    --elation-row-py:     var(--elation-space-3);
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+elation\:args,
+elation\:events,
+data.elation-args,
+data.elation-events {
+  display: none;
+}
+.state_hidden {
+  display: none;
+}

@@ -4,8 +4,7 @@
       "components/elements/scripts",
       "components/utils/scripts"
     ],
-    "includePattern": "\\.js$",
-    "excludePattern": "(node_modules|docs)"
+    "includePattern": "\\.js$"
   },
   "opts": {
     "destination": "docs/js",

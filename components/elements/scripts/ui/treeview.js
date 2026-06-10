@@ -49,11 +49,13 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
         }
       }
       this.items = [];
+      this._itemsByKey = {};
       this.innerHTML = '';
       this.add(items, this, attrs);
     }
     add(items, root, attrs) {
       if (!root) root = this;
+      if (!attrs) attrs = this.getDefaultAttributes();
 
       //var ul = elation.html.create({tag: 'ul', append: root});
       //var list = elation.elements.create('ui-list', {append: root});
@@ -63,37 +65,121 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
       keys.sort((a, b) => a.localeCompare(b));
 
       for (var i = 0; i < keys.length; i++) {
-        var k = keys[i];
-        var visible = true;
-        if (attrs['visible']) {
-          visible = elation.utils.arrayget(items[k], attrs['visible']);
+        this.createItem(items[keys[i]], root, attrs);
+      }
+    }
+    // Create a single tvitem under root (appending at the end), wire its events,
+    // index it, and recurse into its existing children. Returns the tvitem, or
+    // null if the item is filtered out by the `visible` attribute.
+    createItem(itemData, root, attrs) {
+      if (!root) root = this;
+      if (!attrs) attrs = this.getDefaultAttributes();
+      if (attrs['visible'] && !elation.utils.arrayget(itemData, attrs['visible'])) {
+        return null;
+      }
+      var tvitem = elation.elements.create('ui-treeviewitem', {
+        item: itemData,
+        attrs: attrs,
+        append: root,
+      });
+      if (this.draggable) {
+        tvitem.draggable = 'true';
+      }
+      // maintain selected item
+      if (this.selected && this.selected.value === itemData) {
+        elation.html.addclass(tvitem, 'state_selected');
+        tvitem.lastclick = this.selected.lastclick;
+        this.selected = tvitem;
+      }
+      this.items.push(tvitem);
+      if (!this._itemsByKey) this._itemsByKey = {};
+      this._itemsByKey[itemData[attrs.name]] = tvitem;
+      elation.events.add(tvitem, 'ui_treeviewitem_hover', (ev) => this.ui_treeviewitem_hover(ev));
+      elation.events.add(tvitem, 'ui_treeviewitem_select', (ev) => this.ui_treeviewitem_select(ev));
+      var children = itemData[attrs.children];
+      if (children && Object.keys(children).length > 0) {
+        tvitem.addclass('haschildren');
+        this.add(children, tvitem, attrs);
+        //elation.html.addclass(tvitem, 'state_expanded');
+        tvitem.collapsed = true;
+      }
+      return tvitem;
+    }
+    // Incrementally insert a single node under parentEl (default this), keeping
+    // all other nodes' collapse/selection/scroll state intact. Idempotent: a node
+    // whose key already exists is returned unchanged rather than duplicated.
+    addItem(itemData, parentEl) {
+      if (!parentEl) parentEl = this;
+      var attrs = this.getDefaultAttributes();
+      var key = itemData[attrs.name];
+      if (this._itemsByKey && this._itemsByKey[key]) {
+        return this._itemsByKey[key];
+      }
+      if (attrs['visible'] && !elation.utils.arrayget(itemData, attrs['visible'])) {
+        return null;
+      }
+      var parentIsItem = parentEl instanceof elation.elements.ui.treeviewitem;
+      var parentHadChildren = parentIsItem && parentEl.classList.contains('haschildren');
+      var tvitem = this.createItem(itemData, parentEl, attrs);
+      if (!tvitem) return null;
+      // move it to the correct alphabetical slot among its siblings
+      var siblings = parentEl.children;
+      for (var i = 0; i < siblings.length; i++) {
+        var sib = siblings[i];
+        if (sib === tvitem) continue;
+        if (sib instanceof elation.elements.ui.treeviewitem && sib.value &&
+            sib.value[attrs.name] != null &&
+            String(sib.value[attrs.name]).localeCompare(String(key)) > 0) {
+          parentEl.insertBefore(tvitem, sib);
+          break;
         }
-        if (visible) {
-          //var li = elation.html.create({tag: 'li', append: ul});
-          var tvitem = elation.elements.create('ui-treeviewitem', {
-            item: items[k],
-            attrs: attrs,
-            append: root,
-          });
-          if (this.draggable) {
-            tvitem.draggable = 'true';
-          }
-          // maintain selected item
-          if (this.selected && this.selected.value === items[k]) {
-            elation.html.addclass(tvitem, 'state_selected');
-            tvitem.lastclick = this.selected.lastclick;
-            this.selected = tvitem;
-          }
-          this.items.push(tvitem);
-          elation.events.add(tvitem, 'ui_treeviewitem_hover', (ev) => this.ui_treeviewitem_hover(ev));
-          elation.events.add(tvitem, 'ui_treeviewitem_select', (ev) => this.ui_treeviewitem_select(ev));
-          if (items[k][attrs.children] && Object.keys(items[k][attrs.children]).length > 0) {
-            tvitem.addclass('haschildren');
-            this.add(items[k][attrs.children], tvitem, attrs);
-            //elation.html.addclass(tvitem, 'state_expanded');
-            tvitem.collapsed = true;
+      }
+      // give the parent an expand affordance only on the empty -> non-empty
+      // transition, so adding into an already-open folder doesn't snap it shut
+      if (parentIsItem && !parentHadChildren) {
+        parentEl.addclass('haschildren');
+        parentEl.collapsed = true;
+      }
+      return tvitem;
+    }
+    // Incrementally remove a node (and its descendants) by data object or key.
+    // Tolerant: a no-op if the key isn't present.
+    removeItem(itemDataOrKey) {
+      var attrs = this.getDefaultAttributes();
+      var key = (itemDataOrKey != null && typeof itemDataOrKey === 'object')
+                ? itemDataOrKey[attrs.name] : itemDataOrKey;
+      var tvitem = this._itemsByKey && this._itemsByKey[key];
+      if (!tvitem) {
+        for (var i = 0; i < this.items.length; i++) {
+          if (this.items[i].value === itemDataOrKey ||
+              (this.items[i].value && this.items[i].value[attrs.name] === key)) {
+            tvitem = this.items[i];
+            break;
           }
         }
+      }
+      if (!tvitem) return;
+
+      var parentEl = tvitem.parentNode;
+      var toRemove = [tvitem];
+      var descendants = tvitem.getElementsByTagName('ui-treeviewitem');
+      for (var i = 0; i < descendants.length; i++) toRemove.push(descendants[i]);
+
+      for (var i = 0; i < toRemove.length; i++) {
+        var t = toRemove[i];
+        t.remove();
+        var idx = this.items.indexOf(t);
+        if (idx != -1) this.items.splice(idx, 1);
+        if (this._itemsByKey && t.value) delete this._itemsByKey[t.value[attrs.name]];
+        if (this.selected === t) this.selected = null;
+        if (this.hover === t) this.hover = null;
+      }
+
+      if (parentEl) parentEl.removeChild(tvitem);
+
+      if (parentEl instanceof elation.elements.ui.treeviewitem &&
+          parentEl.getElementsByTagName('ui-treeviewitem').length === 0) {
+        parentEl.removeclass('haschildren');
       }
     }
     sort(items, sortby) {
@@ -122,6 +208,9 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
       }
     }
     find(search) {
+      if (typeof search != 'function' && this._itemsByKey && this._itemsByKey[search]) {
+        return this._itemsByKey[search];
+      }
       for (let i = 0; i < this.items.length; i++) {
         let item = this.items[i];
         if (typeof search == 'function' && search(item)) {

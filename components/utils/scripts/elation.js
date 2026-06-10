@@ -2467,7 +2467,7 @@ elation.extend("utils.parseXML", function(imgxml, leaf, forceLower) {
       parent[name] = value;
     }
   }
-  let children = node.children || node.childNodes;
+  let children = (node.children && node.children.length > 0) ? node.children : node.childNodes;
   if (children) {
     for (var j = 0; j < children.length; j++) {
       var child = children[j];

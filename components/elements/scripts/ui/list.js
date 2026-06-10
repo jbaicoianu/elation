@@ -58,6 +58,10 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
         title: { type: 'string' },
         hidden: { type: 'boolean' },
         draggable: { type: 'boolean' },
+        // reorderable enables internal drag-to-reorder. `draggable` alone only makes
+        // items draggable *out* of the list (e.g. into another drop target) without
+        // the reorder handlers hijacking the drag.
+        reorderable: { type: 'boolean' },
         selectable: { type: 'boolean' },
         sortbydefault: { type: 'string' },
         multiselect: { type: 'boolean' },
@@ -108,7 +112,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
       }
       this.setAttribute('role', (this.selectable ? 'listbox' : 'list'));
 
-      if (this.draggable) {
+      if (this.reorderable) {
         this.addEventListener('dragstart', (ev) => this.handleDragStart(ev));
         this.addEventListener('dragover',  (ev) => this.handleDragOver(ev));
         this.addEventListener('drop',      (ev) => this.handleDrop(ev));
@@ -841,7 +845,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
     }
 
     /**
-     * Drag/drop reorder support. Activated when the list has `draggable`
+     * Drag/drop reorder support. Activated when the list has `reorderable`
      * set; the framework then makes each child item draggable and handles
      * the dragstart/dragover/drop sequence to commit the reorder back to
      * the underlying items array (or the bound collection, for

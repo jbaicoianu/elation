@@ -327,6 +327,18 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
         collapsed: { type: 'boolean', default: false },
       });
     }
+    // Optional leading icon: attrs.icon is a field name on the item or a function
+    // (value)=>className. settext() rewrites the label's innerHTML, so this runs
+    // after each settext to (re)insert the icon as the label's first child.
+    applyIcon() {
+      if (!this.label || !this.attrs || !this.attrs.icon || !this.value) return;
+      if (this.label.querySelector('.ui-treeviewitem-icon')) return;
+      var cls = (typeof this.attrs.icon === 'function') ? this.attrs.icon(this.value) : this.value[this.attrs.icon];
+      if (!cls) return;
+      var icon = document.createElement('span');
+      icon.className = 'ui-treeviewitem-icon ' + cls;
+      this.label.insertBefore(icon, this.label.firstChild);
+    }
     create() {
       this.value = this.item;
       this.attrs = this.attrs || {};
@@ -340,6 +352,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
         } else if (this.value[this.attrs.label]) {
           this.label.settext(this.value[this.attrs.label]);
         }
+        this.applyIcon();
 
         if (!elation.utils.isEmpty(this.attrs.disabled) && !elation.utils.isEmpty(this.value[this.attrs.disabled])) {
           elation.html.addclass(this, "state_disabled");
@@ -359,6 +372,7 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
         } else if (this.value[this.attrs.label]) {
           this.label.settext(this.value[this.attrs.label]);
         }
+        this.applyIcon();
 
         if (!elation.utils.isEmpty(this.attrs.disabled) && !elation.utils.isEmpty(this.value[this.attrs.disabled])) {
           elation.html.addclass(this, "state_disabled");

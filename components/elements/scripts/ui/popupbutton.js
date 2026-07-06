@@ -70,6 +70,15 @@ elation.require(['elements.ui.button'], function() {
       window.addEventListener('click', this.windowClickHandler);
       window.addEventListener('resize', this.windowResizeHandler);
       window.addEventListener('scroll', this.windowResizeHandler, true);
+      // Reposition when the popup's own content changes size — an expanding
+      // section, or children that render/upgrade asynchronously, grow the popup
+      // after the initial placement, and window resize/scroll alone don't cover
+      // that. ResizeObserver also fires once when first observed, which settles
+      // the initial async layout without a manual re-place.
+      if (window.ResizeObserver) {
+        this.popupResizeObserver = new ResizeObserver(() => this.positionPopup());
+        this.popupResizeObserver.observe(this.popup);
+      }
       this.positionPopup();
     }
     showPopup() {

@@ -1,7 +1,7 @@
 {
   "name": "elation",
   "description": "Elation Javascript Component Framework",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "main": "build/elation.js",
   "style": "build/elation.css",
   "unpkg": "build/elation.js",

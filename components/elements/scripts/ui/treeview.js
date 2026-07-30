@@ -170,10 +170,13 @@ elation.require(["elements.elements", "elements.ui.item"], function() {
         t.remove();
         var idx = this.items.indexOf(t);
         if (idx != -1) this.items.splice(idx, 1);
-        if (this._itemsByKey && t.value) delete this._itemsByKey[t.value[attrs.name]];
+        var tval = t.value || t.item;
+        if (this._itemsByKey && tval) delete this._itemsByKey[tval[attrs.name]];
         if (this.selected === t) this.selected = null;
         if (this.hover === t) this.hover = null;
       }
+
+      if (this._itemsByKey) delete this._itemsByKey[key];
 
       if (parentEl) parentEl.removeChild(tvitem);
 

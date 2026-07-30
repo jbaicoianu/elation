@@ -67,29 +67,44 @@ elation.require(['elements.elements'], function() {
     create() {
       this.style.position = 'absolute';
 
-      // Mutation observer watches for any changes to our children, and updates our layout in response to changes
-      var observer = new MutationObserver((mutations) => this.refresh());
+      // Mutation observer watches for any changes to our children, and updates our layout in response to changes.
+      // Coalesced to one refresh per frame: content like the editor's property
+      // inspector rewrites its DOM every frame during drags, and refreshing
+      // synchronously per mutation batch forced layout dozens of times a frame.
+      var observer = new MutationObserver((mutations) => this.queueRefresh());
       observer.observe(this, {attributes: false, childList: true, subtree: true});
 
       // Update our layout if the page is resized or if orientation changes
-      document.addEventListener('DOMContentLoaded', (ev) => this.refresh());
-      document.addEventListener('load', (ev) => this.refresh());
-      window.addEventListener('resize', (ev) => this.refresh());
-      window.addEventListener('orientationchange', (ev) => this.refresh());
+      document.addEventListener('DOMContentLoaded', (ev) => this.queueRefresh());
+      document.addEventListener('load', (ev) => this.queueRefresh());
+      window.addEventListener('resize', (ev) => this.queueRefresh());
+      window.addEventListener('orientationchange', (ev) => this.queueRefresh());
       this.refresh();
       // FIXME - sometimes panels initialize too early, and their vertical positioning gets messed up.  A 10ms timeout helps but an event would be better.
       setTimeout(() => {
         this.refresh();
       }, 10);
     }
+    queueRefresh() {
+      if (this._refreshQueued) return;
+      this._refreshQueued = true;
+      requestAnimationFrame(() => {
+        this._refreshQueued = false;
+        this.refresh();
+      });
+    }
     render() {
       super.render();
       this.updateLayout();
     }
     updateLayout() {
-      if (!this.offsetParent) return; // Not in the DOM, no layout to be done
+      // isConnected is a plain DOM check; offsetParent forces a synchronous
+      // layout, so it's only consulted for panels that genuinely measure
+      // themselves (middle/center). Anchored panels write constants only.
+      if (!this.isConnected) return; // Not in the DOM, no layout to be done
 
       if (this.middle) {
+        if (!this.offsetParent) return; // display:none - nothing to measure
         this.style.top = ((this.offsetParent.offsetHeight - this.offsetHeight) / 2) + 'px';
         this.style.bottom = 'auto';
       } else if (this.top) {
@@ -100,6 +115,7 @@ elation.require(['elements.elements'], function() {
         this.style.bottom = 0;
       }
       if (this.center) {
+        if (!this.offsetParent) return; // display:none - nothing to measure
         this.style.left = ((this.offsetParent.offsetWidth - this.offsetWidth) / 2) + 'px';
         this.style.right = 'auto';
       } else if (this.left) {

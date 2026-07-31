@@ -535,6 +535,22 @@ elation.require(['utils.template'], function() {
          * @function toCanvas
          * @memberof elation.elements.base#
          */
+        getCanvasBackend() {
+          // 'element' uses the HTML-in-Canvas API (Chrome origin trial):
+          // the element becomes a direct child of a layoutsubtree canvas and
+          // the browser rasterizes it natively - real fonts, real styles, no
+          // XML constraints, paint-event invalidation. 'svg' is the
+          // serialize-through-foreignObject pipeline, kept as the permanent
+          // fallback for browsers without the API.
+          if (!elation.elements.canvasbackend) {
+            let hasapi = typeof CanvasRenderingContext2D != 'undefined' &&
+                         (typeof CanvasRenderingContext2D.prototype.drawElementImage == 'function' ||
+                          typeof CanvasRenderingContext2D.prototype.drawElement == 'function') &&
+                         typeof HTMLCanvasElement.prototype.requestPaint == 'function';
+            elation.elements.canvasbackend = hasapi ? 'element' : 'svg';
+          }
+          return elation.elements.canvasbackend;
+        }
         toCanvas(width, height, scale) {
           this.canvasNeedsUpdate = true;
           if (typeof width == 'undefined') {
@@ -552,12 +568,18 @@ elation.require(['utils.template'], function() {
             this.canvas.width = width;
             this.canvas.height = height;
             this.canvasscale = scale;
-            this.observer = new MutationObserver(() => this.queueCanvasRefresh());
-            this.observer.observe(this, { subtree: true, childList: true, attributes: true, characterData: true });
-            // Scrolling an already-rendered subtree doesn't mutate the DOM,
-            // so the observer alone misses it. Scroll events don't bubble,
-            // but they do capture.
-            this.addEventListener('scroll', () => this.queueCanvasRefresh(), { capture: true, passive: true });
+            this.canvasbackend = this.getCanvasBackend();
+
+            if (this.canvasbackend == 'element') {
+              this.initElementCanvasBackend();
+            } else {
+              this.observer = new MutationObserver(() => this.queueCanvasRefresh());
+              this.observer.observe(this, { subtree: true, childList: true, attributes: true, characterData: true });
+              // Scrolling an already-rendered subtree doesn't mutate the DOM,
+              // so the observer alone misses it. Scroll events don't bubble,
+              // but they do capture.
+              this.addEventListener('scroll', () => this.queueCanvasRefresh(), { capture: true, passive: true });
+            }
           }
           //var img = new Image();
 
@@ -597,6 +619,58 @@ elation.require(['utils.template'], function() {
           this.updateCanvas();
           return this.canvas;
         }
+        initElementCanvasBackend() {
+          // Two canvases with different jobs. The STAGING canvas carries
+          // layoutsubtree and parents this element: the browser lays the
+          // element out, suppresses its display, generates paint records,
+          // and fires paint events - but only if the canvas itself renders,
+          // so it hides behind the page via z-index, never opacity or
+          // visibility (verified: opacity 0 makes captures come out blank,
+          // visibility:hidden kills paint records entirely). Its bitmap is
+          // cleared after every copy, so even when an input proxy raises it
+          // above everything for hit testing there is nothing to see.
+          // this.canvas stays a plain off-DOM canvas - the texture source
+          // the engine already knows how to upload.
+          let staging = this.stagingcanvas = document.createElement('canvas');
+          staging.width = this.canvas.width;
+          staging.height = this.canvas.height;
+          staging.setAttribute('layoutsubtree', '');
+          staging.style.position = 'absolute';
+          staging.style.top = '0';
+          staging.style.left = '0';
+          staging.style.width = staging.width + 'px';
+          staging.style.height = staging.height + 'px';
+          staging.style.zIndex = -1000;
+          staging.style.pointerEvents = 'none';
+          document.body.appendChild(staging);
+          if (this.parentNode !== staging) staging.appendChild(this);
+          staging.addEventListener('paint', ev => this.updateElementCanvas());
+          staging.requestPaint();
+        }
+        updateElementCanvas() {
+          let staging = this.stagingcanvas;
+          if (!staging) return;
+          let sctx = staging.getContext('2d');
+          let draw = sctx.drawElementImage || sctx.drawElement;
+          try {
+            sctx.save();
+            if (this.canvasscale && this.canvasscale != 1) sctx.scale(this.canvasscale, this.canvasscale);
+            draw.call(sctx, this, 0, 0);
+            sctx.restore();
+            let ctx = this.canvas.getContext('2d');
+            ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            ctx.drawImage(staging, 0, 0);
+            elation.events.fire({element: this.canvas, type: 'asset_update'});
+          } catch (e) {
+            sctx.restore();
+            // outside a paint window there's no cached record - a
+            // requestPaint gets us called back inside one
+            staging.requestPaint();
+          }
+          // keep the staging bitmap empty so the canvas stays invisible even
+          // when raised for hit testing
+          sctx.clearRect(0, 0, staging.width, staging.height);
+        }
         queueCanvasRefresh() {
           // Throttle, don't debounce: a resetting timer never fires while
           // changes keep streaming in (scrolling, dragging, animations), so
@@ -630,6 +704,12 @@ elation.require(['utils.template'], function() {
           return scrolled;
         }
         async updateCanvas(force) {
+          if (this.canvasbackend == 'element') {
+            // the browser owns invalidation on this path - ask for a paint
+            // and let the paint handler draw inside its record window
+            if (this.stagingcanvas) this.stagingcanvas.requestPaint();
+            return;
+          }
           if (this.loading) return;
           let outerHTML = this.outerHTML;
           // Scroll offsets are element state, not markup - they're invisible
@@ -836,6 +916,9 @@ elation.require(['utils.template'], function() {
           return false;
         }
         async updateStylesheets(proxy='') {
+          // element backend: the element lives in the document, so document
+          // stylesheets already apply - nothing to collect or inline
+          if (this.canvasbackend == 'element' || this.getCanvasBackend() == 'element') return;
           let fetches = [];
           // Fetch all active stylesheets, so we can inject them into our foreignObject.
           // The assets system decides whether each URL actually needs the CORS proxy

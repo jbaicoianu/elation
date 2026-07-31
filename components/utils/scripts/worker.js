@@ -13,10 +13,17 @@ elation.require(['utils.events'], function() {
       var root = elation.config.get('dependencies.rootdir', '/');
       var file = elation.config.get('dependencies.main', '/scripts/utils/elation.js');
       var scriptfile = origin + (origin.indexOf(root) == -1 ? root : '') + file;
-      var m = scriptfile.match(/((:?\.min)?\.js)$/);
+      // The suffix swap (janusweb.js -> janusweb.assetworker.js) has to
+      // survive cache-busting query strings on the main script URL, so
+      // match against the path alone and reattach the query afterward.
+      var queryidx = scriptfile.indexOf('?');
+      var query = queryidx == -1 ? '' : scriptfile.substring(queryidx);
+      var scriptpath = queryidx == -1 ? scriptfile : scriptfile.substring(0, queryidx);
+      var m = scriptpath.match(/((:?\.min)?\.js)$/);
       if (scriptsuffix && m) {
-        scriptfile = scriptfile.replace(m[1], '.' + scriptsuffix + m[1]);
+        scriptpath = scriptpath.substring(0, scriptpath.length - m[1].length) + '.' + scriptsuffix + m[1];
       }
+      scriptfile = scriptpath + query;
 
       var script = [
         "importScripts('" + scriptfile + "');",

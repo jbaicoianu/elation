@@ -552,22 +552,12 @@ elation.require(['utils.template'], function() {
             this.canvas.width = width;
             this.canvas.height = height;
             this.canvasscale = scale;
-            //document.body.appendChild(this.canvas);
-
-            this.observer = new MutationObserver(() => {
-              // Rate limit refreshes to avoid too many updates
-              if (this.refreshtimer) clearTimeout(this.refreshtimer);
-              this.refreshtimer = setTimeout(() => {
-                // Use requestIdleCallback to reduce the amount of jank when updating
-                requestIdleCallback(() => {
-                  this.updateCanvas();
-                  this.refreshqueued = false;
-                  this.refreshtimer = false;
-                }, { timeout: 20 });
-              }, 50);
-              //this.refresh();
-            });
+            this.observer = new MutationObserver(() => this.queueCanvasRefresh());
             this.observer.observe(this, { subtree: true, childList: true, attributes: true, characterData: true });
+            // Scrolling an already-rendered subtree doesn't mutate the DOM,
+            // so the observer alone misses it. Scroll events don't bubble,
+            // but they do capture.
+            this.addEventListener('scroll', () => this.queueCanvasRefresh(), { capture: true, passive: true });
           }
           //var img = new Image();
 
@@ -595,7 +585,7 @@ elation.require(['utils.template'], function() {
               // Make sure stylesheets are loaded in the same order as in the page
               stylesheets.sort((a, b) => { return b.order - a.order; });
               for (var i = 0; i < stylesheets.length; i++) {
-                styletext += stylesheets[i].text.replace(/\/\*[^\*]+\*\//g, '').replace(/</g, '&lt;');
+                styletext += stylesheets[i].text.replace(/\/\*[^\*]+\*\//g, '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
               }
               this.styletext = styletext;
               this.updateCanvas(); 
@@ -604,14 +594,51 @@ elation.require(['utils.template'], function() {
             this.updateCanvas(); 
           }
 */
-          this.updateCanvas(); 
+          this.updateCanvas();
           return this.canvas;
+        }
+        queueCanvasRefresh() {
+          // Throttle, don't debounce: a resetting timer never fires while
+          // changes keep streaming in (scrolling, dragging, animations), so
+          // the panel would only update once the stream went quiet. Instead
+          // render immediately when idle, and at a capped rate while busy.
+          // updateCanvas still no-ops when nothing actually changed, and
+          // renders can't overlap - a slow SVG round trip just lowers the
+          // effective rate below the cap.
+          // Plain timers, not rAF: the canvas feeds a texture whose upload
+          // already syncs with the render loop via asset_update, and rAF
+          // waits on the 3D frame - when the scene renders slowly that
+          // stacks the two costs instead of pipelining them.
+          if (this.refreshpending) return;
+          this.refreshpending = true;
+          // 30fps cap: 60 overloads the pipeline - renders queue up behind
+          // the SVG round trip and the same pausing comes back.
+          let interval = this.canvasrefreshinterval || 33;
+          let elapsed = performance.now() - (this.lastcanvasrefresh || 0);
+          setTimeout(() => {
+            this.refreshpending = false;
+            this.lastcanvasrefresh = performance.now();
+            this.updateCanvas();
+          }, Math.max(0, interval - elapsed));
+        }
+        getScrollState() {
+          let scrolled = [];
+          if (this.scrollTop || this.scrollLeft) scrolled.push(this);
+          for (let el of this.querySelectorAll('*')) {
+            if (el.scrollTop || el.scrollLeft) scrolled.push(el);
+          }
+          return scrolled;
         }
         async updateCanvas(force) {
           if (this.loading) return;
           let outerHTML = this.outerHTML;
-          if (this.lasthtml == outerHTML && !force) return false;
+          // Scroll offsets are element state, not markup - they're invisible
+          // to both the serializer and the mutation observer, so they get
+          // their own change signature.
+          let scrollsig = this.getScrollState().map(el => el.scrollTop + ',' + el.scrollLeft).join(';');
+          if (this.lasthtml == outerHTML && this.lastscrollsig == scrollsig && !force) return false;
           this.lasthtml = outerHTML;
+          this.lastscrollsig = scrollsig;
           //console.time('updateCanvas');
           this.loading = true;
 
@@ -681,20 +708,73 @@ elation.require(['utils.template'], function() {
 
             let content = this.lastcontent;
             //console.time('updateCanvas:update svg');
+            // The serialized snapshot always renders unscrolled, so shift each
+            // scrolled element's children into place for the duration of the
+            // serialization - observer paused so the temporary styles don't
+            // queue another render. Position offsets, NOT transforms: a
+            // transform mints a stacking context, which flattens the
+            // children's own z-indexes and reorders paint (CodeMirror's line
+            // numbers vanish behind its gutter, for instance). Relative
+            // position with z-index auto leaves paint order untouched.
+            let scrolled = this.getScrollState(),
+                stashedstyles = [],
+                pendingmutations = false;
+            if (scrolled.length && this.observer) {
+              // disconnect() drops queued records - note them so the refresh
+              // they would have triggered still happens.
+              pendingmutations = this.observer.takeRecords().length > 0;
+              this.observer.disconnect();
+              for (let el of scrolled) {
+                for (let child of el.children) {
+                  stashedstyles.push([child, child.style.position, child.style.top, child.style.left]);
+                  let computed = getComputedStyle(child);
+                  if (computed.position == 'static') {
+                    child.style.position = 'relative';
+                    child.style.top = -el.scrollTop + 'px';
+                    child.style.left = -el.scrollLeft + 'px';
+                  } else {
+                    let ctop = parseFloat(computed.top), cleft = parseFloat(computed.left);
+                    child.style.top = ((isNaN(ctop) ? 0 : ctop) - el.scrollTop) + 'px';
+                    child.style.left = ((isNaN(cleft) ? 0 : cleft) - el.scrollLeft) + 'px';
+                  }
+                }
+              }
+            }
             content = this.outerHTML.replace(/<br\s*\/?>/g, '<div class="br"></div>');
             content = content.replace(/<hr\s*\/?>/g, '<div class="hr"></div>');
             content = content.replace(/<img(.*?)>/g, "<img$1 />");
             content = content.replace(/<input(.*?)>/g, "<input$1 />");
+            // HTML serialization emits &nbsp; (the only named entity besides
+            // the XML-native five) and XML doesn't define it - one non-breaking
+            // space anywhere in the subtree killed the whole foreignObject
+            // render, and CodeMirror lines are full of them.
+            content = content.replace(/&nbsp;/g, '&#160;');
+            if (stashedstyles.length) {
+              for (let [child, oldposition, oldtop, oldleft] of stashedstyles) {
+                if (oldposition) child.style.position = oldposition; else child.style.removeProperty('position');
+                if (oldtop) child.style.top = oldtop; else child.style.removeProperty('top');
+                if (oldleft) child.style.left = oldleft; else child.style.removeProperty('left');
+              }
+              this.observer.observe(this, { subtree: true, childList: true, attributes: true, characterData: true });
+              if (pendingmutations) this.queueCanvasRefresh();
+            }
             this.lastcontent = content;
             this.lasthtml = this.outerHTML;
             var svgdata = '<foreignObject requiredExtensions="http://www.w3.org/1999/xhtml" width="' + (width / this.canvasscale) + '" height="' + (height / this.canvasscale) + '" transform="scale(' + this.canvasscale + ')">' +
-                       '<html xmlns="http://www.w3.org/1999/xhtml"><body class="dark janusweb">' +
-                       '<style>' + encodeURIComponent(this.styletext) + '</style>' +
+                       // body margin/padding zeroed inline: the page CSS's body rules apply
+                       // inside this wrapper document but not to the live staging container,
+                       // so any body offset here shifts the rendered content away from where
+                       // the mouse-event hit-testing thinks it is
+                       '<html xmlns="http://www.w3.org/1999/xhtml"><body class="dark janusweb" style="margin:0;padding:0">' +
+                       '<style>' + this.styletext + '</style>' +
                        content +
                        '</body></html>' +
                        '</foreignObject>';
             var data = '<svg xmlns="http://www.w3.org/2000/svg" width="' + width + '" height="' + height + '">' + svgdata + '</svg>';
-            var url = 'data:image/svg+xml,' + data;
+            // Encode the whole payload once: raw '#' or '%' anywhere in the
+            // markup used to truncate the data URI. The stylesheet text is
+            // XML-escaped at collection time instead of pre-encoded.
+            var url = 'data:image/svg+xml,' + encodeURIComponent(data);
             img.src = url;
 //svg.innerHTML = svgdata;
             //console.timeEnd('updateCanvas:update svg');
@@ -731,12 +811,7 @@ elation.require(['utils.template'], function() {
           }
         }
         getFullURL(src) {
-          // FIXME - egregious hack for CORS white building prototype.  Do not check this in!
-          let proxyurl = 'https://p.janusvr.com/';
-          if (src.indexOf(proxyurl) != 0) {
-            return proxyurl + src;
-          }
-          return src;
+          return elation.engine.assets.getProxiedURL(src);
         }
         toString() {
           if (!this.id) {
@@ -761,14 +836,14 @@ elation.require(['utils.template'], function() {
           return false;
         }
         async updateStylesheets(proxy='') {
-console.log('update stylesheets', this);
           let fetches = [];
-          proxy = elation.engine.assets.corsproxy;
-          // Fetch all active stylesheets, so we can inject them into our foreignObject
+          // Fetch all active stylesheets, so we can inject them into our foreignObject.
+          // The assets system decides whether each URL actually needs the CORS proxy
+          // (same-origin and local content bypasses it).
           for (let i = 0; i < document.styleSheets.length; i++) {
             let stylesheet = document.styleSheets[i];
             if (stylesheet.href) {
-              fetches.push(fetch(proxy + stylesheet.href).then(r => r.text()).then(t => { return { url: stylesheet.href, text: t, order: i }; }));
+              fetches.push(fetch(elation.engine.assets.getProxiedURL(stylesheet.href)).then(r => r.text()).then(t => { return { url: stylesheet.href, text: t, order: i }; }));
             } else if (document.styleSheets[i].cssRules.length > 0) {
               let txt = '';
               let sheet = document.styleSheets[i];
@@ -784,7 +859,7 @@ console.log('update stylesheets', this);
           // Make sure stylesheets are loaded in the same order as in the page
           stylesheets.sort((a, b) => { return b.order - a.order; });
           for (var i = 0; i < stylesheets.length; i++) {
-            styletext += stylesheets[i].text.replace(/\/\*[^\*]+\*\//g, '').replace(/</g, '&lt;');
+            styletext += stylesheets[i].text.replace(/\/\*[^\*]+\*\//g, '').replace(/&/g, '&amp;').replace(/</g, '&lt;');
           }
           this.styletext = styletext;
 
